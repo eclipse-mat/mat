@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2019 SAP AG and others.
+    Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,19 +8,19 @@
    
     Contributors:
         SAP AG - initial API and implementation
-        IBM Corporation - 1.4, 1.7, 1.8, 1.9 updates
+        IBM Corporation - 1.4, 1.7, 1.8, 1.9, 1.10 updates
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.9 release.
+		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.10 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2019 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -31,46 +31,96 @@
 	<refbody>
 		<section>
 			<title>Enhancements and fixes</title>
-			<p>
-			One of the main enhancements is the <xref href="tasks/exportdump.dita">export HPROF</xref> query. This allows a new HPROF file to be generated from a snapshot,
-			with the redaction of data such as character or byte array values or field values. This could be useful
-			to allow future analysis of the new HPROF dump without exposing sensitive data.
-			</p>
-			<p>There is also a way to compare two heap dumps with a basic batch mode report using <xref href="tasks/batch.dita"><cmdname>ParseHeapDump</cmdname></xref>.</p>
-			<p>Memory Analyzer 1.8.1 also added more icons for queries and icons which worked better in high contrast or dark modes.</p>
 			<ul>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=317289">317289</xref> Extract information from Exception objects in the heap dumps
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=380600">380600</xref> Resave Heap Dump without Unreachable Objects
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=519274">519274</xref> Redacted Binary or PHD dump so as to protect privacy data
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=538953">538953</xref> Create an option for DTFJIndexBuilder to suppress native class sizes
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=539750">539750</xref> java.util.ConcurrentModificationException with Calculate precise retained size and sort
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541245">541245</xref> Exceptions with result filtering
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541286">541286</xref> Missing shallow heap size values in comparison tables
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541539">541539</xref> Simple batch mode comparison of two snapshots
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=543045">543045</xref> Eclipse MAT does not show complete actual heap size(Heap dump size) on overview tab.
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=537579">537579</xref> ArrayIndexOutOfBoundsException in HashMapObjectLong.resize
-			</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=539751">539751</xref> Unhandled event loop exception - InjectionException - WidgetMethodHandler is not handled for for command Command Copy
-			</li> 
+			<li>The parsing of HPROF dumps is now multi-threaded which should improve the speed at
+			which dumps are parsed on multi-cored machines.</li>
+			<li>The HPROF parser has been enhanced to let it directly read HPROF dumps compressed with Gzip or in the gzip file format.</li>
+			<li>Object Query Language programming has been improved.</li>
+			<li>The Leak Suspects report has been improved for the case where the leak suspect includes
+			multiple suspect objects.</li> 
 			</ul>
+		</section>
+		<section>
+			<title>Fix details</title>
+			<ul>
+
+
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=277422">277422</xref> Nice if heap parsing was multi-threaded</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=297052">297052</xref> HTML tree reports are not expanded for leak suspects</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=438844">438844</xref> Add ability to load a zipped hprof</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=442315">442315</xref> Java_version error when using Java Collections tools on HashMaps</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=536920">536920</xref> Provide extra links for top components report</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551820">551820</xref> Update version to 1.10.0</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552879">552879</xref> OQL enhancements for sub-selects, maps, context providers, DISTINCT</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552917">552917</xref> org.eclipse.mat.ibmdumps project classpath issue</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=553312">553312</xref> infinite loop in the export hprof feature from "ParseHeapDump.bat" on multi-segment dumps</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559247">559247</xref> OQL method call improvements</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559273">559273</xref> Java 11 collection class updates</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559538">559538</xref> p2 repo configuration for mirrors and download statistics</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559905">559905</xref> Code tidy up</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560295">560295</xref> ArrayIndexOutOfBoundsException in ObjectMarker.markMultiThreaded</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560384">560384</xref> Eclipse.OSGi Bundle explorer extension point problems</li>
+
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551214">551214</xref> Add documentation about post-processed J9 JVM finalizer roots</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552670">552670</xref> Add documentation for display of bytes in KB, MB, GB or Smart formats</li>
+
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=324967">324967</xref> Hide queries which are not relevant</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=417467">417467</xref> Reports fail to display after report generation completes</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=445180">445180</xref> reports fail without information</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=545754">545754</xref> OQL syntax highlighting sometimes doesn't highlight keywords</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=548441">548441</xref> Overview background doesn't match Eclipse</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551552">551552</xref> Exception running query with no editor open</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551971">551971</xref> Reports not rendered in MAT</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552621">552621</xref> Batch processing improvements</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559255">559255</xref> MAT Calcite results can't be added to the compare basket</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559284">559284</xref> Hovering over overview pie slice throws an exception</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559873">559873</xref> OutOfMemoryError when selecting large totals row</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560005">560005</xref> NullPointerException in PatternFilter</li>
+
+			</ul>
+		</section>
+
+		<section>
+			<title>Security fixes</title>
+			Memory Analyzer 1.10 includes the security fixes first included in Memory Analyzer 1.9.2.
+			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.10.0 (or 1.9.2) or subsequent versions. 
+			<dl>
+				<dlentry>
+					<dt><xref href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17634" format="html">CVE-2019-17634</xref></dt>
+						<dd><dl>
+							<dlentry>
+								<dt>PROBLEMTYPE</dt>
+								<dd>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>Eclipse Memory Analyzer version 1.9.1 and earlier is subject to a cross site scripting (XSS) vulnerability when generating an HTML report from a malicious heap dump. The user must chose to download, open the malicious heap dump and generate an HTML report for the problem to occur. The heap dump could be specially crafted, or could come from a crafted application or from an application processing malicious data. The vulnerability is present when a report is generated and opened from the Memory Analyzer graphical user interface, or when a report generated in batch mode is then opened in Memory Analyzer or by a web browser. The vulnerability could possibly allow code execution on the local system when the report is opened in Memory Analyzer.</dd>
+							</dlentry>
+						</dl></dd>
+				</dlentry>
+				<dlentry>
+					<dt><xref href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17635" format="html">CVE-2019-17635</xref></dt>
+						<dd><dl>
+							<dlentry>
+								<dt>PROBLEMTYPE</dt>
+								<dd>CWE-502: Deserialization of Untrusted Data</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>Eclipse Memory Analyzer version 1.9.1 and earlier is subject to a deserialization vulnerability if an index file of a parsed heap dump is replaced by a malicious version and the heap dump is reopened in Memory Analyzer. The user must chose to reopen an already parsed heap dump with an untrusted index for the problem to occur. The problem can be averted if the index files from an untrusted source are deleted and the heap dump is opened and reparsed. Also some local configuration data is subject to a deserialization vulnerability if the local data were to be replaced with a malicious version. This can be averted if the local configuration data stored on the file system cannot be changed by an attacker. The vulnerability could possibly allow code execution on the local system.</dd>
+							</dlentry>
+						</dl></dd>
+				</dlentry>
+			</dl>
+			
 		</section>
 		
 		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.8</title>
+			<title>New and Noteworthy for Memory Analyzer 1.9</title>
 			<p>
-				The New and Noteworthy document for version 1.8 is available 
-				<xref format="html" href="http://www.eclipse.org/mat/1.8.0/noteworthy.html">here</xref>.
+				The New and Noteworthy document for version 1.9 is available 
+				<xref format="html" href="http://www.eclipse.org/mat/1.9.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
-
 	</refbody>
 </reference>
