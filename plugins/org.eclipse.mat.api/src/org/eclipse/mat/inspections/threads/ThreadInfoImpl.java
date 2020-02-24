@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -172,7 +172,12 @@ import org.eclipse.mat.util.IProgressListener;
     /* package */List<Column> getUsedColumns()
     {
         List<Column> answer = new ArrayList<Column>();
-        answer.addAll(defaultColumns);
+        // Return copy of columns so independent and columns don't permanently retain decorators
+        for (Column col : defaultColumns)
+        {
+            Column col2 = new Column(col.getLabel(), col.getType());
+            answer.add(col2);
+        }
         for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
         {
             Column[] cols = resolver.getColumns();
@@ -190,7 +195,12 @@ import org.eclipse.mat.util.IProgressListener;
     /* package */static List<Column> getUsedColumns(List<ThreadInfoImpl> threads)
     {
         List<Column> answer = new ArrayList<Column>();
-        answer.addAll(defaultColumns);
+        // Return copy of columns so independent and columns don't permanently retain decorators
+        for (Column col : defaultColumns)
+        {
+            Column col2 = new Column(col.getLabel(), col.getType());
+            answer.add(col2);
+        }
         for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
         {
             Column[] cols = resolver.getColumns();
@@ -325,19 +335,20 @@ import org.eclipse.mat.util.IProgressListener;
 
     public Object getValue(Column column)
     {
-        if (column == COL_CLASSNAME)
+        // Rely on Column equality via just the label
+        if (COL_CLASSNAME.equals(column))
             return getClassName();
-        else if (column == COL_NAME)
+        else if (COL_NAME.equals(column))
             return getName();
-        else if (column == COL_INSTANCE)
+        else if (COL_INSTANCE.equals(column))
             return getInstance();
-        else if (column == COL_SHALLOW)
+        else if (COL_SHALLOW.equals(column))
             return getShallowHeap();
-        else if (column == COL_RETAINED)
+        else if (COL_RETAINED.equals(column))
             return getRetainedHeap();
-        else if (column == COL_CONTEXTCL)
+        else if (COL_CONTEXTCL.equals(column))
             return getContextClassLoader();
-        else if (column == COL_ISDAEMON)
+        else if (COL_ISDAEMON.equals(column))
             return isDaemon();
         else
             return properties.get(column);
