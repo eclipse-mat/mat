@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.ReferenceQuery;
@@ -31,10 +32,8 @@ import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.internal.Messages;
-import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
-import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
@@ -50,7 +49,6 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
-import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -235,7 +233,6 @@ public class ComponentReportQuery implements IQuery
         addExcludes(excludes, "java.lang.ref.PhantomReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.WeakReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.SoftReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
-
         int[] ids = objects.getIds(ticks);
         String label = objects.getLabel().toLowerCase(Locale.ENGLISH);
         boolean useoql = label.startsWith("select * ") || label.startsWith("select objects "); //$NON-NLS-1$ //$NON-NLS-2$
@@ -929,29 +926,83 @@ public class ComponentReportQuery implements IQuery
             overview.add(child);
         }
 
+        /*
+         * We have some candidates.
+         * Find the path from the suspect to the roots excluding weak referents and see
+         * if it goes through a weak reference which refers to this suspect.
+         * If so, it is a candidate problem.
+         * Record it, and the path and the path by class.
+         */
         if (numObjects >= 1)
         {
-            // convert excludes into the required format
-            Set<String> fields = Collections.singleton("referent"); //$NON-NLS-1$
-            Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
-            for (IClass c : classes)
-                excludeMap.put(c, fields);
+            // Number of paths to show per referent type
+            int maxsuspectspertype = 1000;
+            /*
+             * maximum paths to examine
+             * It is possible that the shortest path doesn't go through the actual reference
+             * but through others.
+             */
+            int maxpaths = 10;
 
-            // Add all the suspect referents
-            ArrayInt ai = new ArrayInt();
-            for (ClassHistogramRecord r : stronglyReachableReferents.getClassHistogramRecords())
+            /*
+             * Examine per class of the referred-to objects - as they might have different uses.
+             */
+            for (ClassHistogramRecord cr : stronglyReachableReferents.getClassHistogramRecords())
             {
-                ai.addAll(r.getObjectIds());
+                // Add all the suspect referents
+                SetInt referents1 = new SetInt();
+                for (int r : cr.getObjectIds())
+                {
+                    referents1.add(r);
+                }
+                // Find the references
+                ArrayInt ai = new ArrayInt();
+                for (IteratorInt i2 = instanceSet.iterator(); i2.hasNext(); )
+                {
+                    int objectId = i2.next();
+                    IInstance obj = (IInstance) snapshot.getObject(objectId);
+
+                    ObjectReference ref = ReferenceQuery.getReferent(obj);
+                    if (ref != null)
+                    {
+                        if (referents1.contains(ref.getObjectId()))
+                            ai.add(obj.getObjectId());
+                    }
+                    if (ticks.isCanceled())
+                        break;
+                }
+                IResult result = SnapshotQuery.lookup("reference_leak", snapshot) //$NON-NLS-1$
+                                .setArgument("objects", ai.toArray()) //$NON-NLS-1$
+                                .setArgument("maxpaths", maxpaths) //$NON-NLS-1$
+                                .setArgument("maxobjs", maxsuspectspertype) //$NON-NLS-1$
+                                .setArgument("factor", 0.6) //$NON-NLS-1$
+                                .execute(ticks);
+                if (result instanceof CompositeResult)
+                {
+                    CompositeResult cr1 = (CompositeResult)result;
+                    List<CompositeResult.Entry>entries = cr1.getResultEntries();
+                    if (!(entries.size() == 1 && entries.get(0).getResult() instanceof TextResult))
+                    {
+                        commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+                        QuerySpec child1 = new QuerySpec(MessageUtil.format(Messages.ComponentReportQuery_ExampleLeakDetails, cr.getLabel()), cr1);
+                        child1.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                        overview.add(child1);
+                    }
+                    else
+                    {
+                        IResult tr = entries.get(0).getResult();
+                        QuerySpec child1 = new QuerySpec(MessageUtil.format(Messages.ComponentReportQuery_ReferentResult, cr.getLabel()), tr);
+                        child1.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                        overview.add(child1);
+                    }
+                }
+                else
+                {
+                    QuerySpec child1 = new QuerySpec(MessageUtil.format(Messages.ComponentReportQuery_ReferentResult, cr.getLabel()), result);
+                    child1.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                    overview.add(child1);
+                }
             }
-
-            // calculate the shortest path for each object
-            IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(ai.toArray(), excludeMap);
-
-            // Display the paths
-            IResultTree r = MultiplePath2GCRootsQuery.create(snapshot, computer, null, ticks);
-            child = new QuerySpec(Messages.ComponentReportQuery_PathsToReferents, r);
-            commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
-            overview.add(child);
         }
 
         componentReport.add(overview);

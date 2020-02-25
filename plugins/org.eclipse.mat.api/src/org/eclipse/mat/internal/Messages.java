@@ -127,6 +127,8 @@ public class Messages extends NLS
     public static String ComponentReportQuery_Distribution;
     public static String ComponentReportQuery_DuplicateStrings;
     public static String ComponentReportQuery_EmptyCollections;
+
+    public static String ComponentReportQuery_ExampleLeakDetails;
     public static String ComponentReportQuery_FinalizerStatistics;
     public static String ComponentReportQuery_Histogram;
     public static String ComponentReportQuery_HistogramFinalizeMethod;
@@ -161,6 +163,8 @@ public class Messages extends NLS
     public static String ComponentReportQuery_PathsToReferents;
     public static String ComponentReportQuery_PossibleMemoryLeak;
     public static String ComponentReportQuery_PossibleMemoryWaste;
+    public static String ComponentReportQuery_ReferentResult;
+
     public static String ComponentReportQuery_RetainedSet;
     public static String ComponentReportQuery_Size;
     public static String ComponentReportQuery_SoftReferenceStatistics;
@@ -478,6 +482,14 @@ public class Messages extends NLS
     public static String PieFactory_Label_ShallowSize;
 
     public static String PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues;
+
+    public static String ReferenceLeakQuery_CommonPaths;
+    public static String ReferenceLeakQuery_CommonPathsLimit;
+    public static String ReferenceLeakQuery_ComputingReferentLeaks;
+    public static String ReferenceLeakQuery_ExaminingReferenceObjects;
+    public static String ReferenceLeakQuery_NoStrongPaths;
+    public static String ReferenceLeakQuery_PathToReferent;
+    public static String ReferenceLeakQuery_TwoPaths;
 
     public static String ReferenceQuery_ErrorMsg_NoMatchingClassesFound;
     public static String ReferenceQuery_HistogramOfReferentObjects;

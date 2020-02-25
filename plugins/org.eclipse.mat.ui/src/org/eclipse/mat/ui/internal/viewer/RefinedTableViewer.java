@@ -104,6 +104,10 @@ public class RefinedTableViewer extends RefinedResultViewer
 
         applyTextAndImage(item, element);
 
+        // Needed?
+        if (result.isSelected(element))
+            table.select(index);
+
         // pack if it is the last item (but only after data has been set)
         if (needsPacking && index + 1 == table.getItemCount())
         {
