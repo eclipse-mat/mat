@@ -86,7 +86,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         {
             browser = new Browser(top, BROWSER_STYLE);
             browser.addLocationListener(this);
-            initialize(browser.getDisplay(), browser);
+            //initialize(browser.getDisplay(), browser);
         }
         catch (SWTError e)
         {
@@ -108,6 +108,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
     /*
      * From examples/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet270.java
+     * Aims to allow target=_blank for Linux - but doesn't yet work (crash in libwebkit2gtk-4.0.so.37)
      */
     /* register WindowEvent listeners */
     void initialize(final Display display, Browser browser)
