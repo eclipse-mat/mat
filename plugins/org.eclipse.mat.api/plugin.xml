@@ -58,6 +58,7 @@
 		<query impl="org.eclipse.mat.inspections.FindLeaksQuery"/>
 		<query impl="org.eclipse.mat.inspections.BigDropsQuery"/>
 		<query impl="org.eclipse.mat.inspections.DeltaHistogram"/>
+		<query impl="org.eclipse.mat.inspections.ReferenceLeakQuery"/>
 	
 		<!-- Threads -->
 		<query impl="org.eclipse.mat.inspections.threads.ThreadOverviewQuery"/>

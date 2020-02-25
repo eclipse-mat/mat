@@ -52,7 +52,10 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
@@ -308,6 +311,64 @@ public class GeneralSnapshotTests
         query.setArgument("aggressive", true);
         IResult result = query.execute(new VoidProgressListener());
         assertTrue(result != null);
+    }
+
+
+    @Test
+    public void topReferenceLeak() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("reference_leak java.lang.ref.WeakReference -include_subclasses -maxpaths 10 -factor 0.2", snapshot);
+        IResult result = query.execute(new VoidProgressListener());
+        assertTrue(result != null);
+        if (result instanceof CompositeResult)
+        {
+            CompositeResult r = (CompositeResult)result;
+            // Check each of the subresults
+            for (CompositeResult.Entry e : ((CompositeResult) result).getResultEntries())
+            {
+                IResult r2 = e.getResult();
+                assertNotNull(r2);
+                // Check the trees have some selected rows and some are expanded
+                if (r2 instanceof IResultTree)
+                {
+                    assertNotNull(e.getName());
+                    IResultTree rt = (IResultTree)r2;
+                    assertThat(rt.getElements().size(), greaterThan(0));
+                    int selected = 0;
+                    int expanded = 0;
+                    for (Object o : rt.getElements())
+                    {
+                        if (rt instanceof ISelectionProvider)
+                        {
+                            ISelectionProvider ss = (ISelectionProvider)rt;
+                            if (ss.isSelected(o))
+                                ++selected;
+                            if (ss.isExpanded(o))
+                                ++expanded;
+                        }
+                        if (!rt.hasChildren(o))
+                            break;
+                        while (rt.hasChildren(o))
+                        {
+                            if (rt instanceof ISelectionProvider)
+                            {
+                                ISelectionProvider ss = (ISelectionProvider)rt;
+                                if (ss.isSelected(o))
+                                    ++selected;
+                                if (ss.isExpanded(o))
+                                    ++expanded;
+                            }
+                            // Has children, but zero of them?
+                            if (rt.getChildren(o).size() == 0)
+                                break;
+                            o = rt.getChildren(o).get(0);
+                        }
+                    }
+                    assertThat("selected", selected, greaterThan(0));
+                    assertThat("expanded", expanded, greaterThan(0));
+                }
+            }
+        }
     }
 
     @Test
