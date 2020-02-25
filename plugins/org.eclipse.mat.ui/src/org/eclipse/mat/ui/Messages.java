@@ -263,6 +263,7 @@ public class Messages extends NLS
     public static String QueryResultPane_InfoMessage;
     public static String QueryResultPane_QueryResult;
     public static String QueryResultPane_ShowAsHistogram;
+    public static String QueryTextResultPane_BrowserTitle;
     public static String QueryTextResultPane_FailedBrowser;
     public static String QueryTextResultPane_FailedBrowser2;
     public static String QueryTextResultPane_Text;

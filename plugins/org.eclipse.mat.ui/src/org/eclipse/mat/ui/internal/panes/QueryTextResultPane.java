@@ -45,12 +45,19 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.CloseWindowListener;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
+import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.VisibilityWindowListener;
+import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -68,6 +75,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
     QueryContextMenu contextMenu;
     QueryResult queryResult;
     private Menu menu;
+    static final int BROWSER_STYLE = SWT.NONE;
 
     public void createPartControl(Composite parent)
     {
@@ -76,8 +84,9 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
         try
         {
-            browser = new Browser(top, SWT.NONE);
+            browser = new Browser(top, BROWSER_STYLE);
             browser.addLocationListener(this);
+            initialize(browser.getDisplay(), browser);
         }
         catch (SWTError e)
         {
@@ -93,6 +102,55 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             public IContextObject getContext(Object obj)
             {
                 return (IContextObject) obj;
+            }
+        });
+    }
+
+    /*
+     * From examples/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet270.java
+     */
+    /* register WindowEvent listeners */
+    void initialize(final Display display, Browser browser)
+    {
+        browser.addOpenWindowListener(new OpenWindowListener() {
+            public void open(WindowEvent event)
+            {
+                if (!event.required) return;    /* only do it if necessary */
+                Shell shell = new Shell(display);
+                shell.setText(Messages.QueryTextResultPane_BrowserTitle);
+                shell.setLayout(new FillLayout());
+                Browser browser = new Browser(shell, BROWSER_STYLE);
+                browser.addLocationListener(QueryTextResultPane.this);
+                initialize(display, browser);
+                event.browser = browser;
+            }
+        });
+        browser.addVisibilityWindowListener(new VisibilityWindowListener() {
+            public void hide(WindowEvent event)
+            {
+                Browser browser = (Browser)event.widget;
+                Shell shell = browser.getShell();
+                shell.setVisible(false);
+            }
+            public void show(WindowEvent event)
+            {
+                Browser browser = (Browser)event.widget;
+                final Shell shell = browser.getShell();
+                if (event.location != null) shell.setLocation(event.location);
+                if (event.size != null)
+                {
+                    Point size = event.size;
+                    shell.setSize(shell.computeSize(size.x, size.y));
+                }
+                shell.open();
+            }
+        });
+        browser.addCloseWindowListener(new CloseWindowListener() {
+            public void close(WindowEvent event)
+            {
+                Browser browser = (Browser)event.widget;
+                Shell shell = browser.getShell();
+                shell.close();
             }
         });
     }
