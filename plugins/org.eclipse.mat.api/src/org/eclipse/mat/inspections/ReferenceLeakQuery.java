@@ -268,7 +268,7 @@ public class ReferenceLeakQuery implements IQuery
                 message = MessageUtil.format(Messages.ReferenceLeakQuery_CommonPathsLimit, eobjs);
             else
                 message = Messages.ReferenceLeakQuery_CommonPaths;
-            results.addResult(Messages.ReferenceLeakQuery_CommonPaths, rt);
+            results.addResult(message, rt);
         }
 
         listener.done();
