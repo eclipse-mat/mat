@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,34 +140,45 @@ class PathExpression extends Expression
                                     if (attribute.getName().equals(descriptor.getName()))
                                     {
                                         Method method = descriptor.getReadMethod();
-                                        try
+                                        // Perhaps the method should be accessible via an interface, so try that first
+                                        boolean useInterface = false;
+                                        for (Class<?> intf : method.getDeclaringClass().getInterfaces())
                                         {
-                                            // Check whether access to this method should be allowed
-                                            MethodCallExpression.checkMethodAccess(method);
-                                        }
-                                        catch (SecurityException e)
-                                        {
-                                            // Perhaps the method should be accessible via an interface
-                                            for (Class<?> intf : method.getDeclaringClass().getInterfaces())
+                                            try
                                             {
-                                                try
+                                                // Avoid some NoSuchMethodExceptions by checking the name and number of parms first
+                                                for (Method m3 : intf.getMethods())
                                                 {
+                                                    if (!m3.getName().equals(method.getName()))
+                                                        continue;
+                                                    if (m3.getParameterCount() != method.getParameterTypes().length)
+                                                        continue;
                                                     Method m2 = intf.getMethod(method.getName(), method.getParameterTypes());
                                                     MethodCallExpression.checkMethodAccess(m2);
                                                     // Switching to the interface method
                                                     method = m2;
-                                                    // Clear the exception indicator
-                                                    e = null;
+                                                    // Indicate found
+                                                    useInterface = true;
                                                     break;
                                                 }
-                                                catch (NoSuchMethodException e1)
-                                                {
-                                                }
-                                                catch (SecurityException e1)
-                                                {
-                                                }
                                             }
-                                            if (e != null)
+                                            catch (NoSuchMethodException e1)
+                                            {
+                                            }
+                                            catch (SecurityException e1)
+                                            {
+                                            }
+                                            if (useInterface)
+                                                break;
+                                        }
+                                        if (!useInterface)
+                                        {
+                                            try
+                                            {
+                                                // Check whether access to this method should be allowed
+                                                MethodCallExpression.checkMethodAccess(method);
+                                            }
+                                            catch (SecurityException e)
                                             {
                                                 // Fail for the original reason
                                                 throw new SnapshotException(MessageUtil.format(
@@ -176,7 +187,6 @@ class PathExpression extends Expression
                                                                                 attribute.name }),
                                                                 e);
                                             }
-                                            // Continue with equivalent interface method
                                         }
                                         current = method.invoke(current, (Object[]) null);
                                         didFindProperty = true;
