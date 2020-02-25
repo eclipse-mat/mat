@@ -120,7 +120,6 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                 shell.setText(Messages.QueryTextResultPane_BrowserTitle);
                 shell.setLayout(new FillLayout());
                 Browser browser = new Browser(shell, BROWSER_STYLE);
-                browser.addLocationListener(QueryTextResultPane.this);
                 initialize(display, browser);
                 event.browser = browser;
             }
