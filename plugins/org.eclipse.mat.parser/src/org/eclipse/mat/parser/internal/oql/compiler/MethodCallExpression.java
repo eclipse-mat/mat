@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessControlException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -212,7 +211,7 @@ class MethodCallExpression extends Expression
             argTypes.append(arg != null ? unboxedType(arg.getClass()).getName() : null);
         }
         throw new SnapshotException(MessageUtil.format(Messages.MethodCallExpression_Error_MethodNotFound,
-                        new Object[] { this.name, argTypes, subject, subject != null ? subject.getClass().getName() : null }));
+                        this.name, argTypes, subject, subjectClass.getName()));
     }
 
     /**
@@ -238,21 +237,35 @@ class MethodCallExpression extends Expression
                 unbox = true;
             i++;
         }
+        extracted(extraMethods, subjectClass, argumentTypes1);
+        if (unbox) 
+            extracted(extraMethods, subjectClass, argumentTypes2);
+    }
+
+    private void extracted(List<Method> extraMethods, final Class<? extends Object> subjectClass,
+                    Class<?>[] argumentTypes1)
+    {
         try
         {
-            Method m1 = subjectClass.getMethod(name, argumentTypes1);
-            extraMethods.add(m1);
-        }
-        catch (SecurityException e1)
-        {
-        }
-        catch (NoSuchMethodException e1)
-        {
-        }
-        if (unbox) try
-        {
-            Method m1 = subjectClass.getMethod(name, argumentTypes2);
-            extraMethods.add(m1);
+            // Avoid some NoSuchMethodExceptions by checking the name and number of parms first
+            nextMethod: for (Method m2 : subjectClass.getMethods())
+            {
+                if (!m2.getName().equals(name))
+                    continue;
+                int parameterCount = m2.getParameterCount();
+                if (parameterCount != argumentTypes1.length)
+                    continue;
+                Class<?>[] parameterTypes = m2.getParameterTypes();
+                for (int j = 0; j < parameterCount; ++j)
+                {
+                    Class<?>pt = parameterTypes[j];
+                    if (!pt.isAssignableFrom(argumentTypes1[j]))
+                        continue nextMethod;
+                }
+                Method m1 = subjectClass.getMethod(name, argumentTypes1);
+                extraMethods.add(m1);
+                break;
+            }
         }
         catch (SecurityException e1)
         {
@@ -370,8 +383,9 @@ class MethodCallExpression extends Expression
          * Default allows a few safe methods.
          */
         String match = System.getProperty("mat.oql.methodFilter", //$NON-NLS-1$
-                        "!java.lang.ClassLoader#*;!java.lang.Compiler#*;!java.lang.Module*;!java.lang.Process*;!java.lang.Runtime#*;!java.lang.SecurityManager#*;!java.lang.System#*;!java.lang.Thread*;java.lang.*" //$NON-NLS-1$
-                        + ";java.util.*;!org.eclipse.mat.snapshot.ISnapshot#dispose;org.eclipse.mat.snapshot.*;org.eclipse.mat.snapshot.model.*;!*"); //$NON-NLS-1$
+                        "org.eclipse.mat.snapshot.model.*;!org.eclipse.mat.snapshot.ISnapshot#dispose;org.eclipse.mat.snapshot.*;java.util.*;" //$NON-NLS-1$
+                        + "!java.lang.ClassLoader#*;!java.lang.Compiler#*;!java.lang.Module*;!java.lang.Process*;!java.lang.Runtime#*;!java.lang.SecurityManager#*;!java.lang.System#*;!java.lang.Thread*;java.lang.*" //$NON-NLS-1$
+                        + ";!*"); //$NON-NLS-1$
         String nm = method.getDeclaringClass().getName()+"#"+method.getName(); //$NON-NLS-1$
         for (String pt : match.split(";")) //$NON-NLS-1$
         {
@@ -394,7 +408,7 @@ class MethodCallExpression extends Expression
             else
                 m = nm.equals(pt);
             if (not && m)
-                throw new AccessControlException(MessageFormat.format(Messages.MethodCallExpression_Error_MethodProhibited, nm, "!" + pt, match)); //$NON-NLS-1$
+                throw new AccessControlException(MessageUtil.format(Messages.MethodCallExpression_Error_MethodProhibited, nm, "!" + pt, match)); //$NON-NLS-1$
             if (m)
                 break;
         }
