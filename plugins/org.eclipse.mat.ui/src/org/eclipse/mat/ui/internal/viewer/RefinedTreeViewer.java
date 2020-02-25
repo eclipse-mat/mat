@@ -492,7 +492,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         if (((RefinedTree) result).hasChildren(element))
         {
-            if (ctrl.expandAndSelect && result.isExpanded(element) && ctrl.level < 10)
+            if (ctrl.expandAndSelect && result.isExpanded(element) && ctrl.level < 25)
             {
                 item.setData(Key.CONTROL, new ControlItem(true, ctrl.level + 1));
                 doExpand(item);
@@ -506,18 +506,8 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         if (ctrl.expandAndSelect && result.isSelected(element))
         {
-            TreeItem[] selection = tree.getSelection();
-            if (selection.length == 0)
-            {
-                tree.setSelection(item);
-            }
-            else
-            {
-                TreeItem[] newSelection = new TreeItem[selection.length + 1];
-                System.arraycopy(selection, 0, newSelection, 0, selection.length);
-                newSelection[selection.length] = item;
-                tree.setSelection(newSelection);
-            }
+            // Note that tree.setSelection doesn't work for us
+            tree.select(item);
         }
     }
 

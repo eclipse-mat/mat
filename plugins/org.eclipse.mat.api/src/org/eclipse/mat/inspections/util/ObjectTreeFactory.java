@@ -97,8 +97,8 @@ public final class ObjectTreeFactory
                 throw new RuntimeException(Messages.ObjectTreeFactory_ErrorMsg_addChild);
 
             branch.isExpanded = true;
-            branch.getOrCreateChild(objectId);
-            branch.isSelected = select;
+            // Select the new sibling child
+            branch.getOrCreateChild(objectId).isSelected = select;
 
             return this;
         }
