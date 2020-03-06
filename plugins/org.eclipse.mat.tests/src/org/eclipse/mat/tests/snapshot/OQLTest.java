@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1583,9 +1583,9 @@ public class OQLTest
      * @param dump the snapshot to test against
      * @throws SnapshotException
      */
-    void checkGetOQL(IResultTable rt, String dump) throws SnapshotException
+    static void checkGetOQL(IResultTable rt, String dump) throws SnapshotException
     {
-        // Check the default contextx
+        // Check the default context
         for (int i = 0; i < rt.getRowCount(); ++i)
         {
             IContextObject c = rt.getContext(rt.getRow(i));
@@ -1725,7 +1725,7 @@ public class OQLTest
         }
     }
 
-    private void checkDefaultContext(IResultTable rt, int row, IContextObject c, String dump) throws SnapshotException
+    private static void checkDefaultContext(IResultTable rt, int row, IContextObject c, String dump) throws SnapshotException
     {
         if (c instanceof IContextObjectSet)
         {
@@ -1735,6 +1735,7 @@ public class OQLTest
             else {
                 int os[] = cs.getObjectIds();
                 String oql = cs.getOQL();
+                assertNotNull(rt+" row="+row+" dump="+dump, oql);
                 Object res = execute(oql, dump);
                 if (res instanceof int[])
                 {
@@ -1774,7 +1775,7 @@ public class OQLTest
         }
     }
 
-    private void checkSingleObjectContext(int ioid, IContextObject c, String dump) throws SnapshotException
+    private static void checkSingleObjectContext(int ioid, IContextObject c, String dump) throws SnapshotException
     {
         assertThat(c, instanceOf(IContextObjectSet.class));
         IContextObjectSet cs = (IContextObjectSet)c;
@@ -1801,7 +1802,7 @@ public class OQLTest
         }
     }
 
-    private void checkSingleObjectContext(IResultTable rt, int row, int ioid, IContextObject c, String dump) throws SnapshotException
+    private static void checkSingleObjectContext(IResultTable rt, int row, int ioid, IContextObject c, String dump) throws SnapshotException
     {
         assertThat(c, instanceOf(IContextObjectSet.class));
         IContextObjectSet cs = (IContextObjectSet)c;
@@ -2062,7 +2063,7 @@ public class OQLTest
         return execute(oql, TestSnapshots.SUN_JDK5_64BIT);
     }
 
-    private Object execute(String oql, String snapshotName) throws SnapshotException
+    private static Object execute(String oql, String snapshotName) throws SnapshotException
     {
         try
         {
