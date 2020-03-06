@@ -110,6 +110,8 @@
 		</pane>
 		<pane id="CompareTablesPane" class="org.eclipse.mat.ui.snapshot.panes.CompareTablesPane">
 			<result type="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery$TableComparisonResult"/>
+			<result type="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery$ComparisonResultTable"/>
+			<result type="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery$ComparisonResultTree"/>
 		</pane>
   <pane
         class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
