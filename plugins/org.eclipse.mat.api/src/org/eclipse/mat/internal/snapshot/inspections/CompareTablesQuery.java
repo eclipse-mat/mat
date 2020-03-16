@@ -62,6 +62,8 @@ import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -110,6 +112,9 @@ public class CompareTablesQuery implements IQuery
 
     @Argument(isMandatory = false)
     public boolean suffix;
+
+    // @Argument(isMandatory = false)
+    public boolean addrefs = true;
 
     @Argument(isMandatory = false, flag = "x")
     public String[] extraReferences;
@@ -247,7 +252,7 @@ public class CompareTablesQuery implements IQuery
         IObject obj;
         try
         {
-            obj = snapshots[table].getObject(ctx.getObjectId());
+            obj = snapshots[table].getObject(objId);
         }
         catch (SnapshotException e)
         {
@@ -312,6 +317,92 @@ public class CompareTablesQuery implements IQuery
             catch (SnapshotException e)
             {
             }
+        }
+        if (sb.length() > 0)
+            return sb.toString();
+        return noextra;
+    }
+
+    /**
+     * Calculate extra prefix for the key.
+     * Look for the immediate dominator and see if any fields point to this.
+     * Also do this for small object arrays.
+     * @param table index
+     * @param row
+     * @return a String or null
+     */
+    String extraPrefix(int table, Object row)
+    {
+        // Only generate prefixes for small dominator arrays
+        final int SMALL_ARRAY_SIZE = 512;
+        final String noextra = null;
+        if (!addrefs)
+            return noextra;
+        if (snapshots[table] == null)
+            return noextra;
+        IContextObject ctx = tables[table].getContext(row);
+        if (ctx == null)
+            return noextra;
+        int objId = ctx.getObjectId();
+        if (objId == -1)
+            return noextra;
+        IObject obj;
+        try
+        {
+            obj = snapshots[table].getObject(objId);
+        }
+        catch (SnapshotException e)
+        {
+            return noextra;
+        }
+        StringBuilder sb = new StringBuilder();
+        try
+        {
+            int immdom = snapshots[table].getImmediateDominatorId(obj.getObjectId());
+            if (immdom >= 0)
+            {
+                if (!snapshots[table].isArray(immdom))
+                {
+                    IObject immobj = snapshots[table].getObject(immdom);
+                    for (NamedReference ref : immobj.getOutboundReferences())
+                    {
+                        if (ref.getObjectId() == objId)
+                        {
+                            if (sb.length() > 0)
+                                sb.append(',');
+                            sb.append(ref.getName());
+                        }
+                    }
+                }
+                else
+                {
+                    if (snapshots[table].getClassOf(immdom).getObjectId() == obj.getObjectId())
+                        sb.append("<class>"); //$NON-NLS-1$
+                    // Big arrays could be expensive to read
+                    if (snapshots[table].getHeapSize(immdom) < SMALL_ARRAY_SIZE)
+                    {
+                        IObject immobj = snapshots[table].getObject(immdom);
+                        // Don't get named references for object array - expensive
+                        if (immobj instanceof IObjectArray)
+                        {
+                            IObjectArray immarr = (IObjectArray)immobj;
+                            long arr[] = immarr.getReferenceArray();
+                            for (int j = 0; j < arr.length; ++j)
+                            {
+                                if (arr[j] == obj.getObjectAddress())
+                                {
+                                    if (sb.length() > 0)
+                                        sb.append(',');
+                                    sb.append('[').append(j).append(']');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (SnapshotException e1)
+        {
         }
         if (sb.length() > 0)
             return sb.toString();
@@ -481,12 +572,12 @@ public class CompareTablesQuery implements IQuery
                     rows = new Object[tables.length];
                     map.put(key, rows);
                 }
-                int ii = i;
+                int ii = 0;
                 if (lastcache.containsKey(key))
                 {
                     ii = lastcache.get(key);
                 }
-                while (rows[ii] != null)
+                while (rows[ii + i] != null)
                 {
                     /*
                      * Normally:
@@ -500,17 +591,21 @@ public class CompareTablesQuery implements IQuery
                     if (ii >= rows.length)
                     {
                         sortwork -= rows.length * rows.length;
-                        // Add a placeholder so that a row goes here
-                        map.put(new PlaceHolder(key, rows.length), new Object[0]);
                         // Grow the row array
-                        rows = Arrays.copyOf(rows, rows.length + (rows.length / tables.length / 2 + 1) * tables.length);
+                        int spare = rows.length / tables.length / 2;
+                        rows = Arrays.copyOf(rows, rows.length + (spare + 1) * tables.length);
                         map.put(key, rows);
                         sortwork += rows.length * rows.length;
                     }
+                }
+                rows[ii + i] = row;
+                if (ii > 0)
+                {
                     // With many duplicates it can take a long time to find a free slot, so cache the last used
                     lastcache.put(key, ii);
+                    // Add a placeholder so that a row goes here
+                    map.put(new PlaceHolder(key, ii), new Object[0]);
                 }
-                rows[ii] = row;
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
                 listener.worked(1);
@@ -592,25 +687,39 @@ public class CompareTablesQuery implements IQuery
         {
             Column c = tables[i].getColumns()[keyColumn - 1];
             IDecorator id = c.getDecorator();
-            if (id != null)
+            String pfx;
+            if (prefix)
             {
-                String pfx = prefix ? id.prefix(row) : null;
-                String sfx = suffix ? id.suffix(row) : null;
-                if (pfx != null)
+                if (id != null)
                 {
-                    pfx = pfx.replaceAll(mask.pattern(), replace == null ? "" : replace); //$NON-NLS-1$
-                    if (pfx.length() == 0)
-                        pfx = null;
+                    pfx = id.prefix(row);
+                    if (pfx == null)
+                        pfx = extraPrefix(i, row);
                 }
-                if (sfx != null)
+                else
                 {
-                    sfx = mask.matcher(sfx).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
-                    if (sfx.length() == 0)
-                        sfx = null;
+                    pfx = extraPrefix(i, row);
                 }
-                if (pfx != null || sfx != null)
-                    key = new ComparedRow(pfx, key, sfx, null);
             }
+            else
+            {
+                pfx = null;
+            }
+            String sfx = suffix && id != null ? id.suffix(row) : null;
+            if (mask != null && pfx != null)
+            {
+                pfx = mask.matcher(pfx).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
+                if (pfx.length() == 0)
+                    pfx = null;
+            }
+            if (mask != null && sfx != null)
+            {
+                sfx = mask.matcher(sfx).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
+                if (sfx.length() == 0)
+                    sfx = null;
+            }
+            if (pfx != null || sfx != null)
+                key = new ComparedRow(pfx, key, sfx, null);
         }
         return key;
     }
@@ -1945,6 +2054,9 @@ public class CompareTablesQuery implements IQuery
                             return DeltaEncoding.GE;
                         else if (fv.startsWith(Messages.CompareTablesQuery_GE))
                             return DeltaEncoding.GE;
+                        else if (fv.startsWith("<= ")) //$NON-NLS-1$
+                            // E.g. Quantize_LessEq_Prefix
+                            return DeltaEncoding.LE;
                         else if (fv.startsWith(Messages.CompareTablesQuery_LE))
                             return DeltaEncoding.LE;
                         else if (fv.startsWith(Messages.CompareTablesQuery_APPROX))
@@ -2025,6 +2137,13 @@ public class CompareTablesQuery implements IQuery
                 {
                     return encodeResult(ret, returnBytes, approxValue, approxPreviousValue, columnIdx);
                 }
+            }
+            else
+            {
+                if (ratio)
+                    return null;
+                if (previousTableValue == null || !previousTableValue.equals(value))
+                    return value;
             }
             return null;
         }

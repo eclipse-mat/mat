@@ -29,6 +29,8 @@
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery"/>
 		<!-- comparisons -->
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery"/>
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.GroupByQuery"/>
+		<query impl="org.eclipse.mat.inspections.SimpleComparison"/>
 		
 		<!-- core -->
 		<query impl="org.eclipse.mat.inspections.HistogramQuery"/>
@@ -55,7 +57,10 @@
 		
 		<!-- leak identification -->
 		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>
+		<query impl="org.eclipse.mat.inspections.LeakHunterQuery2"/>
 		<query impl="org.eclipse.mat.inspections.FindLeaksQuery"/>
+		<query impl="org.eclipse.mat.inspections.FindLeaksQuery2"/>
+		<query impl="org.eclipse.mat.inspections.ComparisonReport"/>
 		<query impl="org.eclipse.mat.inspections.BigDropsQuery"/>
 		<query impl="org.eclipse.mat.inspections.DeltaHistogram"/>
 		<query impl="org.eclipse.mat.inspections.ReferenceLeakQuery"/>
@@ -149,6 +154,12 @@
 		<report id="compare" name="%report.compare.name Compare Snapshots"
 				description="%report.compare.help"
 				file="META-INF/reports/compare.xml" />
+		<report id="suspects2" name="%report.suspects2.name Leak Suspects by snapshot comparison"
+				description="%report.suspects2.help"
+				file="META-INF/reports/suspects2.xml" />
+		<report id="overview2" name="%report.overview2.name Heap Dump Overview comparison"
+				description="%report.overview.help"
+				file="META-INF/reports/overview2.xml" />
 	</extension>
 
     <extension point="org.eclipse.mat.api.collectionExtractorProvider">

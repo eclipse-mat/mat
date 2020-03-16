@@ -482,7 +482,7 @@ public class QueryLookupTest
 
     public void testCompareDiffRatioPreviousRetained(String query) throws SnapshotException, ParseException
     {
-        boolean verbose = true;
+        boolean verbose = false;
         String queryId = "comparetablesquery";
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);

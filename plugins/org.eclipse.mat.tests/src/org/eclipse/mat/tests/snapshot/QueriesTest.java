@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 IBM Corporation.
+ * Copyright (c) 2011, 2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,10 @@ package org.eclipse.mat.tests.snapshot;
 
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -45,6 +47,12 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
+import org.eclipse.mat.query.results.CompositeResult;
+import org.eclipse.mat.query.results.DisplayFileResult;
+import org.eclipse.mat.query.results.TextResult;
+import org.eclipse.mat.report.QuerySpec;
+import org.eclipse.mat.report.SectionSpec;
+import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -1174,5 +1182,162 @@ public class QueriesTest
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:compare -params snapshot2="+snapshot2.getSnapshotInfo().getPath(), snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        if (t instanceof DisplayFileResult)
+        {
+            // If an error occurred the file might be short
+            assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
+        }
+    }
+
+    /**
+     * Test running the overview compare snapshots report defined in a plugin, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testOverview2Report() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview2 -params baseline="+snapshot.getSnapshotInfo().getPath(), snapshot2);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+        if (t instanceof DisplayFileResult)
+        {
+            // If an error occurred the file might be short
+            assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
+        }
+    }
+
+    /**
+     * Test running the snapshot compare snapshots report defined in a plugin, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testSuspects2Report() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params baseline="+snapshot.getSnapshotInfo().getPath(), snapshot2);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
+    /**
+     * Comparison of two JDK6 dumps
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportJDK6() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        testLeakHunter2Report(snapshot, snapshot2, 4, 1, 12);
+    }
+
+    /**
+     * Comparison of dump with itself - should not be a leak
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportJDK6none() throws SnapshotException, IOException
+    {
+        testLeakHunter2Report(snapshot, snapshot, 0, 0, 0);
+    }
+
+    /**
+     * Comparison of two JDK11 dumps
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportIBM8_7() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false); // Do not dispose this as shared
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK8_64BIT_SYSTEM, false); // Do not dispose this as shared
+        testLeakHunter2Report(snapshot1, snapshot2, 6, 1, 18);
+    }
+
+    /**
+     * Comparison of two JDK11 dumps
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportJDK11() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false); // Do not dispose this as shared
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
+        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 22);
+    }
+
+    /**
+     * Reverse comparison - should not be a leak
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportJDK11none() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false); // Do not dispose this as shared
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
+        testLeakHunter2Report(snapshot2, snapshot1, 0, 0, 0);
+    }
+
+    public void testLeakHunter2Report(ISnapshot snapshot1, ISnapshot snapshot2, int expectedProbs, int expectedDomTree, int expectedSubCommands) throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("leakhunter2 -baseline "+snapshot1.getSnapshotInfo().getPath(), snapshot2);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+        if (expectedProbs == 0)
+        {
+            assertThat(t, instanceOf(TextResult.class));
+            return;
+        }
+        // Should be 4 suspects
+        SectionSpec ss = (SectionSpec)t;
+        int probs = 0;
+        int domtree = 0;
+        int subcommands = 0;
+        for (Spec s : ss.getChildren())
+        {
+            if (s.getName().contains("Problem"))
+                ++probs;
+            if (s instanceof QuerySpec)
+            {
+                // This is the find_leaks2 query
+                QuerySpec qs = (QuerySpec)s;
+                if (qs.getName().equals("Compared Dominator Trees"))
+                {
+                    assertThat(qs.getCommand(), startsWith("find_leaks2 "));
+                    SnapshotQuery query2 = SnapshotQuery.parse(qs.getCommand(), snapshot2);
+                    IResult t2 = query2.execute(new VoidProgressListener());
+                    assertNotNull(t2);
+                    ++domtree;
+                }
+                IResult t3 = qs.getResult();
+                if (t3 instanceof CompositeResult)
+                {
+                    CompositeResult cr = (CompositeResult)t3;
+                    for (CompositeResult.Entry e : cr.getResultEntries())
+                    {
+                        if (e.getResult() instanceof QuerySpec)
+                        {
+                            QuerySpec qs2 = (QuerySpec)e.getResult();
+                            if (qs2.getCommand() != null)
+                            {
+                                SnapshotQuery query2 = SnapshotQuery.parse(qs2.getCommand(), snapshot2);
+                                IResult t2 = query2.execute(new VoidProgressListener());
+                                assertNotNull(t2);
+                                ++subcommands;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertThat("Expect problems section", probs, equalTo(expectedProbs));
+        assertThat("Expected dominator tree section", domtree, equalTo(expectedDomTree));
+        assertThat("Expected subqueries with commands", subcommands, equalTo(expectedSubCommands));
     }
 }

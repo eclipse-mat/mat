@@ -253,8 +253,13 @@ public class OQLQueryImpl implements IOQLQuery
         public RowMap get(int index)
         {
             // Always return a map not a single item for consistency.
-            //if (false && getColumns().length == 1)
-            //    return getColumnValue(getRow(index), 0);
+            // Except if the alias is "" as this used for CompareTablesQuery.
+            if (getColumns().length == 1 && getColumns()[0].getLabel().length() == 0)
+            {
+                Object ret = getColumnValue(getRow(index), 0);
+                if (ret instanceof RowMap)
+                    return (RowMap)ret;
+            }
             // Delay resolving columns until needed
             return new RowMap(this, index);
         }

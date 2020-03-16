@@ -189,7 +189,7 @@ public class LeakHunterQuery implements IQuery
         }
     }
 
-    private FindLeaksQuery.SuspectsResultTable callFindLeaks(IProgressListener listener) throws Exception
+    FindLeaksQuery.SuspectsResultTable callFindLeaks(IProgressListener listener) throws Exception
     {
         return (FindLeaksQuery.SuspectsResultTable) SnapshotQuery.lookup("find_leaks", snapshot) //$NON-NLS-1$
                         .setArgument("threshold_percent", threshold_percent) //$NON-NLS-1$
@@ -348,7 +348,7 @@ public class LeakHunterQuery implements IQuery
                 objectsForTroubleTicketInfo.add(accPointClassloader);
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
-                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedBy, classloaderName));
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedBy, classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
 
             }
             else if (snapshot.isClass(accumulationPointId))
@@ -362,7 +362,7 @@ public class LeakHunterQuery implements IQuery
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
                 overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy, HTMLUtils.escapeText(clazz.getName()),
-                                classloaderName));
+                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else
             {
@@ -376,7 +376,7 @@ public class LeakHunterQuery implements IQuery
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
                 overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByInstance, HTMLUtils.escapeText(className),
-                                classloaderName));
+                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
         }
 
@@ -507,7 +507,7 @@ public class LeakHunterQuery implements IQuery
                 involvedClassLoaders.add((IClassLoader) suspect.getAccumulationPoint().getObject());
                 classloaderName = getClassLoaderName(suspect.getAccumulationPoint().getObject(), keywords);
                 builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClassLoader,
-                                classloaderName));
+                               classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else if (snapshot.isClass(accumulationPointId))
             {
@@ -521,7 +521,7 @@ public class LeakHunterQuery implements IQuery
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
                 builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClass, className,
-                                classloaderName));
+                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else
             {
@@ -536,7 +536,7 @@ public class LeakHunterQuery implements IQuery
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
                 builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, className,
-                                classloaderName));
+                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
         }
         builder.append("<br><br>"); //$NON-NLS-1$
@@ -662,7 +662,7 @@ public class LeakHunterQuery implements IQuery
         try
         {
             Collection<IClass> classesByName = ic.getSnapshot().getClassesByName(className, false);
-            if (className.matches("[\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}.]+") && classesByName != null && classesByName.size() == 1) //$NON-NLS-1$
+            if (className.matches("\\p{javaJavaIdentifierStart}[\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}.]*") && classesByName != null && classesByName.size() == 1) //$NON-NLS-1$
             {
                 return className;
             }
