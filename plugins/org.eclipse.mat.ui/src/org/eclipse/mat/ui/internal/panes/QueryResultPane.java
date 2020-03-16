@@ -34,6 +34,7 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
+import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -385,6 +386,10 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
         if (adapter.isAssignableFrom(srcQueryResult.getClass()))
         {
             return (adapter.cast(srcQueryResult));
+        }
+        if (adapter.isAssignableFrom(RefinedStructuredResult.class))
+        {
+            return (adapter.cast(viewer.getResult()));
         }
         if (adapter.isAssignableFrom(srcQueryResult.getSubject().getClass()))
         {
