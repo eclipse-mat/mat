@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,13 +68,22 @@ import org.eclipse.mat.util.IProgressListener;
 
         double[] sums = new double[thisNumericColumns.size()];
 
+        Filter.ValueConverter converters[] = new Filter.ValueConverter[thisNumericColumns.size()];
+        for (int ii = 0; ii < thisNumericColumns.size(); ii++)
+        {
+            int columnIndex = thisNumericColumns.get(ii);
+            if (columnIndex < 0)
+                continue;
+            converters[ii] = (Filter.ValueConverter)columns.get(columnIndex).getData(Filter.ValueConverter.class);
+        }
+
         int counter = 0;
         ForEachRowLoop: for (Object row : elements)
         {
             // check if canceled
             if (++counter % 100 == 0)
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    return answer;
 
             for (int ii = 0; ii < thisNumericColumns.size(); ii++)
             {
@@ -119,6 +128,8 @@ import org.eclipse.mat.util.IProgressListener;
                     }
                 }
 
+                if (converters[ii] != null)
+                    v = converters[ii].convert(v);
                 sums[ii] += v;
             }
         }

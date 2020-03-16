@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial API and implementation
+        Andrew Johnson - comparison queries
+ -->
+<section name="%overview2.title System Overview comparison" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.eclipse.org/mat/report.xsd" xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd platform:/resource/org.eclipse.mat.report/schema/report.xsd">
+
+	<param key="html.collapsed" value="false" />
+	<param key="filename_suffix" value="%overview2.suffix Overview Delta" />
+
+	<query name="%overview.heap_dump_overview">
+		<param key="html.show_table_header" value="false" />
+		<command>simplecomparison -query heap_dump_overview -baseline ${baseline}</command>
+	</query>
+	<query name="%overview.system_properties">
+		<param key="html.separate_file" value="true" />
+		<param key="sort_column" value="#0=ASC" />
+		<param key="hide_column" value="#1,#2" />
+		<param key="limit" value="1000" />
+		<command>simplecomparison -query system_properties -options "-keycolumn 2" -baseline ${baseline}</command>
+	</query>
+	<query name="%overview.threads">
+		<param key="limit" value="1000" />
+		<param key="html.separate_file" value="true" />
+		<param key="html.render_details" value="false" />
+		<command>simplecomparison -query thread_overview -baseline ${baseline}</command>
+	</query>
+	<query name="%overview.class_histogram">
+		<param key="html.separate_file" value="true" />
+		<param key="sort_column" value="#6" />
+		<command>simplecomparison -query histogram -retained APPROXIMATE -options "-mode DIFF_TO_PREVIOUS" -baseline ${baseline}</command>
+	</query>
+	<!-- Expensive to calculate, so use version from LeaKHunter2
+	<query name="%overview2.dominator_tree Dominator tree">
+		<param key="html.separate_file" value="true" />
+		<param key="sort_column" value="#5" />
+		<param key="hide_column" value="#7,#8,#9" />
+		<command>simplecomparison -query dominator_tree -options "-mode DIFF_RATIO_TO_FIRST" -baseline ${baseline}</command>
+	</query>
+	-->
+</section>

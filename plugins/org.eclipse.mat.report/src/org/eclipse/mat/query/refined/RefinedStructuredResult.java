@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.ContextDerivedData;
@@ -107,11 +108,13 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
     {
         private RefinedStructuredResult refinedResult;
         private int sortColumn;
+        private Filter.ValueConverter converter;
 
         public NaturalComparator(RefinedStructuredResult refinedResult, int sortColumn)
         {
             this.refinedResult = refinedResult;
             this.sortColumn = sortColumn;
+            this.converter = (Filter.ValueConverter)refinedResult.columns.get(sortColumn).getData(Filter.ValueConverter.class);
         }
 
         @SuppressWarnings("unchecked")
@@ -119,6 +122,17 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
         {
             Object d1 = refinedResult.getColumnValue(o1, sortColumn);
             Object d2 = refinedResult.getColumnValue(o2, sortColumn);
+            if (converter != null)
+            {
+                if (d1 instanceof Bytes)
+                    d1 = converter.convert(((Bytes)d1).getValue());
+                else if (d1 instanceof Number)
+                    d1 = converter.convert(((Number)d1).doubleValue());
+                if (d2 instanceof Bytes)
+                    d2 = converter.convert(((Bytes)d2).getValue());
+                else if (d2 instanceof Number)
+                    d2 = converter.convert(((Number)d2).doubleValue());
+            }
 
             // Compare nulls - sort first
             if (d1 == null)

@@ -96,6 +96,8 @@ public class Messages extends NLS
     public static String Column_RetainedHeap;
     public static String Column_ShallowHeap;
 
+    public static String CompareTablesQuery_APPROX;
+
     public static String CompareTablesQuery_Comparing;
     public static String CompareTablesQuery_Initial;
 
@@ -109,10 +111,14 @@ public class Messages extends NLS
     public static String CompareTablesQuery_DifferenceLast;
     public static String CompareTablesQuery_DifferenceMiddle;
     public static String CompareTablesQuery_DifferenceOf2;
+
+    public static String CompareTablesQuery_GE;
     public static String CompareTablesQuery_IntersectionFirst;
     public static String CompareTablesQuery_IntersectionLast;
     public static String CompareTablesQuery_IntersectionMiddle;
     public static String CompareTablesQuery_IntersectionOf2;
+
+    public static String CompareTablesQuery_LE;
 
     public static String CompareTablesQuery_MissingKeyColumn;
     public static String CompareTablesQuery_Table;
@@ -278,6 +284,13 @@ public class Messages extends NLS
     public static String FindLeaksQuery_SearchingGroupsOfObjects;
     public static String FindLeaksQuery_SearchingSingleObjects;
     public static String FindLeaksQuery_TooManySuspects;
+
+    public static String FindLeaksQuery2_Column_AccPointRetainedHeap;
+    public static String FindLeaksQuery2_Column_SuspectRetainedHeap;
+
+    public static String FindLeaksQuery2_ComparedDominatorTrees;
+
+    public static String FindLeaksQuery2_Leaks;
 
     public static String FindStringsQuery_SearchingStrings;
 

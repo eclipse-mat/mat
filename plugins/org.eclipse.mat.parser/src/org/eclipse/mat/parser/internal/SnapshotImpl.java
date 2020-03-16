@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1598,6 +1598,17 @@ public final class SnapshotImpl implements ISnapshot
 
         if (error != null)
             throw new RuntimeException(error);
+    }
+
+    /**
+     * Tidy up and close files so indices could be deleted if required.
+     * Normally is disposed, but secondary snapshots are not.
+     * Shouldn't really be needed as files should have finalizers,
+     * but deleting indices does not work.
+     */
+    public void finalize()
+    {
+        dispose();
     }
 
     // //////////////////////////////////////////////////////////////

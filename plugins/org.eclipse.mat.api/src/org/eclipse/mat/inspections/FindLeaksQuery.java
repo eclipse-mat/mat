@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation)- for comparisons
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -382,6 +383,11 @@ public class FindLeaksQuery implements IQuery
         {
             return object;
         }
+
+        public long getRetainedHeapSize()
+        {
+            return getObject().getRetainedHeapSize();
+        }
     }
 
     public static class AccumulationPointOfGroupOfObject extends AccumulationPoint
@@ -546,11 +552,11 @@ public class FindLeaksQuery implements IQuery
                     return suspect.accumulationPoint == null ? Messages.FindLeaksQuery_NotFound : suspect.accumulationPoint.getObject()
                                     .getTechnicalName();
                 case 5:
-                    return new Bytes(suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint.getObject()
+                    return new Bytes(suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint
                                     .getRetainedHeapSize());
                 case 6:
                     return suspect.accumulationPoint == null ? 0 : Double.valueOf((double) suspect.accumulationPoint
-                                    .getObject().getRetainedHeapSize()
+                                    .getRetainedHeapSize()
                                     / (double) totalHeap);
             }
 
