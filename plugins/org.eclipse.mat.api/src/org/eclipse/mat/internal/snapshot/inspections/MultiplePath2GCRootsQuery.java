@@ -208,7 +208,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
         public boolean hasChildren(Object element)
         {
-            // to expensive to calculate
+            // too expensive to calculate
             return true;
         }
 
@@ -262,6 +262,39 @@ public class MultiplePath2GCRootsQuery implements IQuery
                 result[ii++] = path[0];
 
             return result;
+        }
+
+        /**
+         * Needed as getElements returns new Nodes each time.
+         */
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + level;
+            result = prime * result + objectId;
+            return result;
+        }
+
+        /**
+         * Needed as getElements returns new Nodes each time.
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Node other = (Node) obj;
+            if (level != other.level)
+                return false;
+            if (objectId != other.objectId)
+                return false;
+            return true;
         }
     }
 

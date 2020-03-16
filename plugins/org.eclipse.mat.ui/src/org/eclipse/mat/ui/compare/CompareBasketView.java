@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2019 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2020 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
@@ -36,6 +36,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.IStructuredResult;
+import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.QueryDescriptor;
@@ -162,24 +163,32 @@ public class CompareBasketView extends ViewPart
 		ComparedResult entry = null;
 		if (pane != null)
 		{
-            QueryResult qr = pane.getAdapter(QueryResult.class);
-            if (qr != null && qr.getSubject() instanceof IResultTree)
-                entry = new ComparedResult(state, editor, (IResultTree)qr.getSubject());
-            if (qr != null && qr.getSubject() instanceof IResultTable)
-                entry = new ComparedResult(state, editor, (IResultTable)qr.getSubject());
+		    RefinedStructuredResult rsr = pane.getAdapter(RefinedStructuredResult.class);
+		    if (rsr != null && rsr instanceof IResultTree)
+		        entry = new ComparedResult(state, editor, (IResultTree)rsr);
+		    else if (rsr != null && rsr instanceof IResultTable)
+		        entry = new ComparedResult(state, editor, (IResultTable)rsr);
+		    else
+		    {
+		        QueryResult qr = pane.getAdapter(QueryResult.class);
+		        if (qr != null && qr.getSubject() instanceof IResultTree)
+		            entry = new ComparedResult(state, editor, (IResultTree)qr.getSubject());
+		        else if (qr != null && qr.getSubject() instanceof IResultTable)
+		            entry = new ComparedResult(state, editor, (IResultTable)qr.getSubject());
+		        else if (pane instanceof HistogramPane)
+		        {
+		            entry = new ComparedResult(state, editor, ((HistogramPane) pane).getHistogram());
+		        }
+		        else if (pane instanceof TableResultPane)
+		        {
+		            entry = new ComparedResult(state, editor, (IResultTable) ((TableResultPane) pane).getSrcQueryResult().getSubject());
+		        }
+		        else if (pane instanceof QueryResultPane)
+		        {
+		            entry = new ComparedResult(state, editor, (IResultTree) ((QueryResultPane) pane).getSrcQueryResult().getSubject());
+		        }
+		    }
 		}
-		if (pane instanceof HistogramPane)
-		{
-			entry = new ComparedResult(state, editor, ((HistogramPane) pane).getHistogram());
-		}
-		else if (pane instanceof TableResultPane)
-		{
-			entry = new ComparedResult(state, editor, (IResultTable) ((TableResultPane) pane).getSrcQueryResult().getSubject());
-		}
-	    else if (pane instanceof QueryResultPane)
-        {
-            entry = new ComparedResult(state, editor, (IResultTree) ((QueryResultPane) pane).getSrcQueryResult().getSubject());
-	    }
 
 		if (entry != null)
 		{
@@ -214,7 +223,7 @@ public class CompareBasketView extends ViewPart
 	            return true;
 	    }
 		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane) ||
-		                pane instanceof QueryResultPane && 
+		                pane instanceof QueryResultPane &&
 		                ((QueryResultPane) pane).getSrcQueryResult().getSubject() instanceof IResultTree;
 	}
 
@@ -601,7 +610,7 @@ public class CompareBasketView extends ViewPart
         private final IQueryContext currentContext;
         private final List<ISnapshot> snapshots;
         private final ISnapshot currentSnapshot;
-    
+
         private ComparePolicy(List<IStructuredResult> tables, List<IQueryContext> contexts, IQueryContext currentContext)
         {
             this.tables = tables;
@@ -614,7 +623,7 @@ public class CompareBasketView extends ViewPart
             }
             currentSnapshot = (ISnapshot)currentContext.get(ISnapshot.class, null);
         }
-    
+
         /**
          * Only operate on queries with multiple tables and query contexts
          */
@@ -682,7 +691,7 @@ public class CompareBasketView extends ViewPart
             }
             return foundTables && (foundContexts || foundSnapshots);
         }
-    
+
         public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
         {
             for (ArgumentDescriptor argument : query.getArguments()) {
