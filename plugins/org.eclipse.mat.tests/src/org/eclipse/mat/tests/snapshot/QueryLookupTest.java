@@ -12,6 +12,8 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertFalse;
@@ -19,6 +21,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.net.URL;
+import java.text.Format;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -36,11 +44,16 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
+import org.eclipse.mat.query.refined.Filter;
+import org.eclipse.mat.query.refined.RefinedResultBuilder;
+import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -119,7 +132,6 @@ public class QueryLookupTest
         IResultTable r2 = (IResultTable) query3.execute(new VoidProgressListener());
         assertTrue(r2 != null);
     }
-
 
     /**
      * Test that subtraction comparisons are done, even for sizes.
@@ -374,7 +386,7 @@ public class QueryLookupTest
             rc = 0;
         for (int i = 0; i < rc; ++i)
         {
-            processRow(snapshot1, r2, i, null, 3, 100, 0.1);
+            processRow(snapshot1, r2, i, null, 3, 50, 0.15);
         }
     }
 
@@ -403,9 +415,9 @@ public class QueryLookupTest
         }
         for (ContextProvider cp : r2.getResultMetaData().getContextProviders())
         {
-            if (cp.getLabel().equals("Union of Table 1, Table 2 and Table 3") && row.toString().equals("java.lang.invoke.LambdaForm$MH:[1019, 513, 715]"))
-                System.out.println(cp.getLabel());
-            IContextObject context2 = cp.getContext(row); 
+            //if (cp.getLabel().equals("Union of Table 1, Table 2 and Table 3") && row.toString().equals("java.lang.invoke.LambdaForm$MH:[1019, 513, 715]"))
+            //    System.out.println(cp.getLabel());
+            IContextObject context2 = cp.getContext(row);
             if (context2 instanceof IContextObjectSet)
             {
                 IContextObjectSet ic = (IContextObjectSet)context2;
@@ -451,6 +463,295 @@ public class QueryLookupTest
                         processRow(snapshot1, r2, j, row, depth - 1, (int)(max*decay), decay);
                         ++done;
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testCompareDiffRatioPreviousRetained1() throws SnapshotException, ParseException
+    {
+        testCompareDiffRatioPreviousRetained("histogram .*");
+    }
+
+    @Test
+    public void testCompareDiffRatioPreviousRetained2() throws SnapshotException, ParseException
+    {
+        testCompareDiffRatioPreviousRetained("oql \"select toString(c), c.@objectId, c.@objectAddress, c.@objectId.shortValue(), c.@objectId.byteValue(), c.@objectId.floatValue(), c.@objectId.doubleValue() from java.lang.Integer c\"");
+    }
+
+    public void testCompareDiffRatioPreviousRetained(String query) throws SnapshotException, ParseException
+    {
+        boolean verbose = true;
+        String queryId = "comparetablesquery";
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        //ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false);
+        //ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false);
+
+        SnapshotQuery query1 = SnapshotQuery.parse(query, snapshot1);
+        RefinedResultBuilder rb1 = query1.refine(new VoidProgressListener());
+        rb1.setInlineRetainedSizeCalculation(true);
+        rb1.addDefaultContextDerivedColumn(RetainedSizeDerivedData.APPROXIMATE);
+        RefinedTable result1 = (RefinedTable)rb1.build();
+        List<Object>elements1 = new ArrayList<Object>();
+        // Calculate some retained sizes exactly
+        for (int i = 0; i < result1.getRowCount() - 3; i += 4)
+        {
+            elements1.add(result1.getRow(i + 1));
+            elements1.add(result1.getRow(i + 3));
+        }
+        result1.calculate(result1.getJobs().get(0).getContextProvider(), RetainedSizeDerivedData.PRECISE, elements1, null, new VoidProgressListener());
+
+        SnapshotQuery query2 = SnapshotQuery.parse(query, snapshot2);
+        RefinedResultBuilder rb2 = query2.refine(new VoidProgressListener());
+        rb2.setInlineRetainedSizeCalculation(true);
+        rb2.addDefaultContextDerivedColumn(RetainedSizeDerivedData.APPROXIMATE);
+        RefinedTable result2 = (RefinedTable)rb2.build();
+        // Calculate some retained sizes exactly
+        List<Object>elements2 = new ArrayList<Object>();
+        for (int i = 0; i < result2.getRowCount() - 3; i += 4)
+        {
+            elements2.add(result2.getRow(i + 2));
+            elements2.add(result2.getRow(i + 3));
+        }
+        result2.calculate(result2.getJobs().get(0).getContextProvider(), RetainedSizeDerivedData.PRECISE, elements2, null, new VoidProgressListener());
+
+        // Another query without retained sizes
+        SnapshotQuery query3 = SnapshotQuery.parse(query, snapshot1);
+        RefinedResultBuilder rb3 = query3.refine(new VoidProgressListener());
+        //rb3.setInlineRetainedSizeCalculation(true);
+        rb3.addDefaultContextDerivedColumn(RetainedSizeDerivedData.APPROXIMATE);
+        RefinedTable result3 = (RefinedTable)rb3.build();
+        // Calculate some retained sizes exactly
+        List<Object>elements3 = new ArrayList<Object>();
+        for (int i = 0; i < result3.getRowCount() - 3; i += 4)
+        {
+            elements3.add(result3.getRow(i + 1));
+            elements3.add(result3.getRow(i + 2));
+        }
+        result3.calculate(result3.getJobs().get(0).getContextProvider(), RetainedSizeDerivedData.PRECISE, elements3, null, new VoidProgressListener());
+
+        SnapshotQuery queryc = SnapshotQuery.parse(queryId+" -mode DIFF_RATIO_TO_PREVIOUS", snapshot1);
+
+        List<IResultTable> r = new ArrayList<IResultTable>();
+        r.add((IResultTable) result1);
+        r.add((IResultTable) result2);
+        r.add((IResultTable) result3);
+        queryc.setArgument("tables", r);
+        ArrayList<ISnapshot> snapshots = new ArrayList<ISnapshot>();
+        snapshots.add(snapshot1);
+        snapshots.add(snapshot2);
+        snapshots.add(snapshot1);
+        queryc.setArgument("snapshots", snapshots);
+        RefinedResultBuilder rbc = queryc.refine(new VoidProgressListener());
+        rbc.setSortOrder(4, null);
+        IResultTable r2 = (IResultTable)rbc.build();
+        assertTrue(r2 != null);
+        //System.out.println(Arrays.toString(r2.getColumns()));
+        int count1 = 0;
+        int count2 = 0;
+        for (int i = 0; i < r2.getRowCount(); ++i)
+        {
+            Object v0 = r2.getColumnValue(r2.getRow(i), 0);
+            for (int j = 1; j < r2.getColumns().length - 2; j += 5)
+            {
+                /*
+                 * 3 tables, 5 results.
+                 * Table 1
+                 * Table 2 - Table 1
+                 * Table 2 / Table 1
+                 * Table 3 - Table 2
+                 * Table 3 / Table 2
+                 */
+                Object v1 = r2.getColumnValue(r2.getRow(i), j);
+                Object v2 = r2.getColumnValue(r2.getRow(i), j + 1);
+                Object v3 = r2.getColumnValue(r2.getRow(i), j + 2);
+                Object v4 = r2.getColumnValue(r2.getRow(i), j + 3);
+                Object v5 = r2.getColumnValue(r2.getRow(i), j + 4);
+                Column cols[] = r2.getColumns();
+                if (verbose) System.out.println("Row "+i+" "+cols[0].getLabel()+" "+cols[j].getLabel()+" "+cols[j+1].getLabel()+" "+cols[j+2].getLabel()+" "+cols[j+3].getLabel()+" "+cols[j+4].getLabel());
+                if (verbose) System.out.println("Row "+i+" "+v0+" "+v1+" "+v2+" "+v3+" "+v4+" "+v5);
+                // With a difference, if there is a value from table 1 then the difference has a value
+                if (v1 != null)
+                {
+                    if (v2 != null)
+                        ++count1;
+                    if (v3 != null)
+                        ++count2;
+                }
+                /*
+                 * Check formatting and parsing.
+                 */
+                if (v1 != null)
+                {
+                    Format formatter1 = r2.getColumns()[j].getFormatter();
+                    if (formatter1 != null)
+                    {
+                        String fv1 = formatter1.format(v1);
+                        if (verbose) System.out.println(fv1);
+                        assertNotNull(fv1);
+                        Object vo1 = formatter1.parseObject(fv1);
+                        if (v1 instanceof Double)
+                        {
+                            if (vo1 instanceof Long)
+                                assertThat(fv1, ((Long)vo1).doubleValue(), closeTo((Double)v1, 0.01));
+                            else
+                                assertThat(fv1, (Double)vo1, closeTo((Double)v1, 0.01));
+                        }
+                        else if (v1 instanceof Number)
+                        {
+                            // A Bytes formatter can receive long, but return bytes
+                            if (vo1 instanceof Bytes)
+                                assertThat(fv1, ((Bytes)vo1).getValue(), equalTo(((Number)v1).longValue()));
+                            else
+                                assertThat(fv1, ((Number)vo1).doubleValue(), equalTo(((Number)v1).doubleValue()));
+                        }
+                        else
+                            assertThat(fv1, vo1, equalTo(v1));
+                        checkFormat(formatter1,r2.getColumns()[j],j);
+                    }
+                }
+                if (v2 != null)
+                {
+                    Format formatter2 = r2.getColumns()[j + 1].getFormatter();
+                    String fv2 = formatter2.format(v2);
+                    if (verbose) System.out.println(fv2);
+                    assertNotNull(fv2);
+                    Object vo2 = formatter2.parseObject(fv2);
+                    if (v2 instanceof Double)
+                    {
+                        if (vo2 instanceof Long)
+                            assertThat(fv2, ((Long)vo2).doubleValue(), closeTo((Double)v2, 0.01));
+                        else
+                        {
+                            // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
+                            assertThat(fv2, vo2, instanceOf(Double.class));
+                            assertThat(fv2, (Double)vo2, closeTo((Double)v2, 0.01));
+                        }
+                    }
+                    else if (v2 instanceof Number)
+                    {
+                        // A Bytes formatter can receive long, but return bytes
+                        if (vo2 instanceof Bytes)
+                            assertThat(fv2, ((Bytes)vo2).getValue(), equalTo(((Number)v2).longValue()));
+                        else
+                            assertThat(fv2, ((Number)vo2).doubleValue(), equalTo(((Number)v2).doubleValue()));
+                    }
+                    else
+                        assertThat(fv2, vo2, equalTo(v2));
+                    checkFormat(formatter2, r2.getColumns()[j+1],j+1);
+                }
+                if (v3 != null)
+                {
+                    Format formatter3 = r2.getColumns()[j + 2].getFormatter();
+                    String fv3 = formatter3.format(v3);
+                    if (verbose) System.out.println(fv3);
+                    assertNotNull(fv3);
+                    Object vo3 = formatter3.parseObject(fv3);
+                    if (v3 instanceof Double)
+                    {
+                        // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
+                        assertThat(fv3, vo3, instanceOf(Number.class));
+                        // Hamcrest closeTo matcher problem with infinity
+                        if (Double.isInfinite((Double)v3))
+                            assertThat(fv3, vo3, equalTo(v3));
+                        else
+                            assertThat(fv3, ((Number)vo3).doubleValue(), closeTo((Double)v3, 0.01));
+                    }
+                    else
+                        assertThat(fv3, vo3, equalTo(v3));
+                    checkFormat(formatter3, r2.getColumns()[j+2],j+2);
+                }
+                if (v4 != null)
+                {
+                    Format formatter4 = r2.getColumns()[j + 3].getFormatter();
+                    String fv4 = formatter4.format(v4);
+                    if (verbose) System.out.println(fv4);
+                    assertNotNull(fv4);
+                    Object vo4 = formatter4.parseObject(fv4);
+                    if (v4 instanceof Double)
+                    {
+                        if (vo4 instanceof Long)
+                            assertThat(fv4, ((Long)vo4).doubleValue(), closeTo((Double)v4, 0.01));
+                        else
+                        {
+                            // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
+                            assertThat(fv4, vo4, instanceOf(Double.class));
+                            assertThat(fv4, (Double)vo4, closeTo((Double)v4, 0.01));
+                        }
+                    }
+                    else if (v4 instanceof Number)
+                    {
+                        // A Bytes formatter can receive long, but return bytes
+                        if (vo4 instanceof Bytes)
+                            assertThat(fv4, ((Bytes)vo4).getValue(), equalTo(((Number)v4).longValue()));
+                        else
+                            assertThat(fv4, ((Number)vo4).doubleValue(), equalTo(((Number)v4).doubleValue()));
+                    }
+                    else
+                        assertThat(fv4, vo4, equalTo(v4));
+                    checkFormat(formatter4, r2.getColumns()[j+3],j+3);
+                }
+                if (v5 != null)
+                {
+                    Format formatter5 = r2.getColumns()[j + 4].getFormatter();
+                    String fv5 = formatter5.format(v5);
+                    if (verbose) System.out.println(fv5);
+                    assertNotNull(fv5);
+                    Object vo5 = formatter5.parseObject(fv5);
+                    if (v5 instanceof Double)
+                    {
+                        // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
+                        assertThat(fv5, vo5, instanceOf(Number.class));
+                        // Hamcrest closeTo matcher problem with infinity
+                        if (Double.isInfinite((Double)v5))
+                            assertThat(fv5, vo5, equalTo(v5));
+                        else
+                            assertThat(fv5, ((Number)vo5).doubleValue(), closeTo((Double)v5, 0.01));
+                    }
+                    else
+                        assertThat(fv5, vo5, equalTo(v5));
+                    checkFormat(formatter5, r2.getColumns()[j+4],j+4);
+                }
+            }
+        }
+        assertThat(count1, greaterThan(0));
+        assertThat(count2, greaterThan(0));
+    }
+
+    void checkFormat(Format f, Column c, int colIdx) throws ParseException
+    {
+        final long special = 1000000000000000L;
+        long values[]= {Long.MIN_VALUE, -(1L<<53), -(1L<<52), -(1L<<51), -(1L<<50), -special*3, -special*2, -special, 0, special, special * 2, special * 3, 1L>>50, 1L>>51, 1L>>52, 1L>>53, Long.MAX_VALUE};
+        long dl[] = {-special, -special + 1, -1, 0, 1, special - 1, special};
+        Filter.ValueConverter vc = (Filter.ValueConverter)c.getData(Filter.ValueConverter.class);
+        for (long v1 : values)
+        {
+            for (long v2 : dl)
+            {
+                long v = v1 + v2;
+                String s = f.format(v);
+                Object vx = f.parseObject(s);
+                //System.out.println("formatted "+v+" as "+s);
+                if (vx instanceof Bytes)
+                    assertThat(f.toString() + " " + s, ((Bytes)vx).getValue(), equalTo(((Number)v).longValue()));
+                else
+                    assertThat(f.toString() + " " + s, ((Number)vx).longValue(), equalTo(v));
+                if (vc != null)
+                {
+                    // After conversion should be an ordinary number
+                    double d2 = vc.convert(v);
+                    String s2 = f.format(d2);
+                    // but some still might not convert
+                    long limit = 4000000000000000L;
+                    /*
+                     * approximate values outside limit range can't be
+                     * converted to a plain number which can be printed
+                     * without conversion.
+                     */
+                    if (v < limit && v >= -limit || !s.contains("\u2248"))
+                        assertTrue(colIdx+":"+c.getLabel()+" "+f.toString() +" " + vc + "\n" + v + "\n" + d2 + "\n" + s + "\n" + s2, s2.matches("[+-]?[0-9,]+(\\.[0-9]+)?(\\s?%)?"));
                 }
             }
         }
@@ -604,6 +905,7 @@ public class QueryLookupTest
 
     /**
      * Test that set operations are done.
+     * @throws IOException
      */
     public void testCompareSetOperations(ISnapshot snapshot1, String setOp, int o1[], int o2[], int o3[], int ei1, int e1[], int ei2, int e2[]) throws SnapshotException
     {
@@ -646,6 +948,20 @@ public class QueryLookupTest
         for (ContextProvider cp : r2.getResultMetaData().getContextProviders())
         {
             //System.out.println(cp+ " " + cp.getLabel());
+            cp.getLabel();
+            URL u = cp.getIcon();
+            if (u != null)
+            {
+                try
+                {
+                    Object o = u.getContent();
+                }
+                catch (IOException e)
+                {
+                    throw new SnapshotException(e);
+                }
+                assertNotNull(u);
+            }
         }
 
         ContextProvider cp1 = r2.getResultMetaData().getContextProviders().get(ei1);

@@ -16,10 +16,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.FieldPosition;
 import java.text.Format;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -54,6 +58,7 @@ import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
+import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -71,6 +76,8 @@ import com.ibm.icu.text.NumberFormat;
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
 @Menu({ @Entry(options = "-setop ALL")
 ,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key -setop ALL")
 })
 public class CompareTablesQuery implements IQuery
 {
@@ -175,10 +182,30 @@ public class CompareTablesQuery implements IQuery
         {
             if (i == keyColumn-1)
                 continue;
+            // Check for duplicate column names
+            int prevDuplicateCol = -1;
+            for (int k = 0; k < i - 1; ++k)
+            {
+                if (baseColumns[i].getLabel().equals(baseColumns[k].getLabel()))
+                    prevDuplicateCol = k > keyColumn - 1 ? k - 1 : k; // Adjust for key column
+            }
             int[] indexes = new int[tables.length];
             for (int j = 0; j < indexes.length; j++)
             {
-                indexes[j] = getColumnIndex(baseColumns[i].getLabel(), tables[j]);
+                if (prevDuplicateCol >= 0)
+                {
+                    // Start search after previous found column
+                    int pc = attributes.get(prevDuplicateCol).getColumnIndexes()[j];
+                    int ci = getColumnIndex(baseColumns[i].getLabel(), tables[j], pc + 1);
+                    // Not found, so duplicate the last column
+                    if (ci == -1)
+                        ci = pc;
+                    indexes[j] = ci;
+                }
+                else
+                {
+                    indexes[j] = getColumnIndex(baseColumns[i].getLabel(), tables[j], 0);
+                }
             }
             attributes.add(new ComparedColumn(baseColumns[i], indexes, true));
         }
@@ -188,10 +215,10 @@ public class CompareTablesQuery implements IQuery
                         : new ComparisonResultTable(mergeKeys(null, listener), key, attributes, mode, setOp);
     }
 
-    private int getColumnIndex(String name, IStructuredResult table)
+    private int getColumnIndex(String name, IStructuredResult table, int colstart)
     {
         Column[] columns = table.getColumns();
-        for (int i = 0; i < columns.length; i++)
+        for (int i = colstart; i < columns.length; i++)
         {
             if (columns[i].getLabel().equals(name)) return i;
         }
@@ -350,7 +377,7 @@ public class CompareTablesQuery implements IQuery
     /**
      * Hold a place for a row when the key is a duplicate.
      */
-    class PlaceHolder
+    static class PlaceHolder
     {
         Object key;
         int pos;
@@ -429,6 +456,7 @@ public class CompareTablesQuery implements IQuery
             {
                 treeRows = null;
             }
+            Map<Object, Integer>lastcache = new HashMap<Object,Integer>();
             for (int j = 0; j < size; j++)
             {
 
@@ -454,6 +482,10 @@ public class CompareTablesQuery implements IQuery
                     map.put(key, rows);
                 }
                 int ii = i;
+                if (lastcache.containsKey(key))
+                {
+                    ii = lastcache.get(key);
+                }
                 while (rows[ii] != null)
                 {
                     /*
@@ -471,10 +503,12 @@ public class CompareTablesQuery implements IQuery
                         // Add a placeholder so that a row goes here
                         map.put(new PlaceHolder(key, rows.length), new Object[0]);
                         // Grow the row array
-                        rows = Arrays.copyOf(rows, rows.length + tables.length);
+                        rows = Arrays.copyOf(rows, rows.length + (rows.length / tables.length / 2 + 1) * tables.length);
                         map.put(key, rows);
                         sortwork += rows.length * rows.length;
                     }
+                    // With many duplicates it can take a long time to find a free slot, so cache the last used
+                    lastcache.put(key, ii);
                 }
                 rows[ii] = row;
                 if (listener.isCanceled())
@@ -547,7 +581,7 @@ public class CompareTablesQuery implements IQuery
         if (mask != null && key != null)
         {
             String keystr = key.toString();
-            String keystr2 = keystr.replaceAll(mask.pattern(), replace == null ? "" : replace); //$NON-NLS-1$
+            String keystr2 = mask.matcher(keystr).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
             if (!keystr.equals(keystr2))
             {
                 key = keystr2;
@@ -570,7 +604,7 @@ public class CompareTablesQuery implements IQuery
                 }
                 if (sfx != null)
                 {
-                    sfx = sfx.replaceAll(mask.pattern(), replace == null ? "" : replace); //$NON-NLS-1$
+                    sfx = mask.matcher(sfx).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
                     if (sfx.length() == 0)
                         sfx = null;
                 }
@@ -700,7 +734,7 @@ public class CompareTablesQuery implements IQuery
      * 3 3
      * 4
      * </pre>
-     * 
+     *
      * not
      *
      * <pre>
@@ -856,7 +890,7 @@ public class CompareTablesQuery implements IQuery
         }
     }
 
-    public class ComparedColumn
+    public static class ComparedColumn
     {
         Column description;
         int[] columnIndexes;
@@ -1028,6 +1062,30 @@ public class CompareTablesQuery implements IQuery
         }
     }
 
+    /**
+     * Types of delta retained size.
+     */
+    enum DeltaEncoding {
+        /**
+         * The size delta is exact.
+         */
+        EXACT,
+        /**
+         * The size delta is at least this much.
+         */
+        GE,
+        /**
+         * The size delta is not more than this.
+         */
+        LE,
+        /**
+         * The size delta is uncertain, but this is an
+         * estimate. For example the difference between
+         * two sizes given as greater than or equal to.
+         */
+        APPROX
+    }
+
     public class TableComparisonResult implements IStructuredResult, IIconProvider
     {
         private Column key;
@@ -1086,13 +1144,13 @@ public class CompareTablesQuery implements IQuery
                 case ABSOLUTE:
                     return getAbsoluteValue(cr, comparedColumnIdx, tableIdx);
                 case DIFF_TO_FIRST:
-                    return getDiffToFirst(cr, comparedColumnIdx, tableIdx, false);
+                    return getDiffToPrevious(cr, columnIndex, comparedColumnIdx, tableIdx, 0, false);
                 case DIFF_TO_PREVIOUS:
-                    return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, false);
+                    return getDiffToPrevious(cr, columnIndex, comparedColumnIdx, tableIdx, tableIdx - 1, false);
                 case DIFF_RATIO_TO_FIRST:
-                    return getDiffToFirst(cr, comparedColumnIdx, (tableIdx + 1) / 2, tableIdx % 2 == 0);
+                    return getDiffToPrevious(cr, columnIndex, comparedColumnIdx, (tableIdx + 1) / 2, 0, tableIdx % 2 == 0);
                 case DIFF_RATIO_TO_PREVIOUS:
-                    return getDiffToPrevious(cr, comparedColumnIdx, (tableIdx + 1) / 2, tableIdx % 2 == 0);
+                    return getDiffToPrevious(cr, columnIndex, comparedColumnIdx, (tableIdx + 1) / 2, (tableIdx + 1) / 2 - 1, tableIdx % 2 == 0);
 
                 default:
                     break;
@@ -1769,51 +1827,148 @@ public class CompareTablesQuery implements IQuery
             }
         }
 
-        private Object getDiffToFirst(ComparedRow cr, int comparedColumnIdx, int tableIdx, boolean ratio)
+        /**
+         * Convert a encoded value from a cell.
+         * The value can be encoded, and needs to be
+         * decoded before arithmetic or filtering.
+         * The formatter can handle the encoded
+         * value.
+         * @param value
+         * @param tableIdx
+         * @param comparedColumnIdx
+         * @return the converted value, of the same type
+         * as the original.
+         */
+        private Object valueConvert(Object value, int tableIdx, int comparedColumnIdx)
         {
-            Object tableRow = cr.getRows()[tableIdx];
-            if (tableRow == null) return null;
-
+            // Optimization, presume no converter will change null
+            if (value == null)
+                return null;
             int tableColumnIdx = displayedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
-            if (tableColumnIdx == -1) return null;
-
-            Object value = tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
-            Object firstTableValue = getAbsoluteValue(cr, comparedColumnIdx, 0);
-
-            if (value == null && firstTableValue == null) return null;
-
-            if (value == null && (firstTableValue instanceof Number || firstTableValue instanceof Bytes)) return null;
-
-            if ((value instanceof Number || value instanceof Bytes) && firstTableValue == null)
+            if (tableColumnIdx == -1)
+                return value;
+            Filter.ValueConverter vc = (Filter.ValueConverter) tables[tableIdx].getColumns()[tableColumnIdx]
+                            .getData(Filter.ValueConverter.class);
+            if (vc != null)
             {
-                return ratio ? null : value;
-            }
-
-            boolean returnBytes = value instanceof Bytes && firstTableValue instanceof Bytes;
-            if (value instanceof Bytes)
-                value = Long.valueOf(((Bytes)value).getValue());
-
-            if (firstTableValue instanceof Bytes)
-                firstTableValue = Long.valueOf(((Bytes)firstTableValue).getValue());
-
-            if (value instanceof Number && firstTableValue instanceof Number)
-            {
-                Object ret = computeDiff((Number) firstTableValue, (Number) value);
-                if (ratio && ret instanceof Number)
+                if (value instanceof Bytes)
                 {
-                    return percentDivide((Number)ret, (Number)firstTableValue);
+                    double v0 = ((Bytes) value).getValue();
+                    double v = vc.convert(v0);
+                    if (v != v0)
+                        value = new Bytes(Double.valueOf(v).longValue());
                 }
-                else
+                else if (value instanceof Number)
                 {
-                    if (returnBytes)
-                        return new Bytes(((Number)ret).longValue());
-                    return ret;
+                    double v0 = ((Number) value).doubleValue();
+                    double v = vc.convert(v0);
+                    if (v != v0)
+                    {
+                        // Try to convert back to original type
+                        if (value instanceof Long)
+                        {
+                            long v1 = (long)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else if (value instanceof Integer)
+                        {
+                            int v1 = (int)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else if (value instanceof Short)
+                        {
+                            short v1 = (short)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else if (value instanceof Byte)
+                        {
+                            byte v1 = (byte)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else if (value instanceof Double)
+                        {
+                            double v1 = (double)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else if (value instanceof Float)
+                        {
+                            float v1 = (float)v;
+                            if (v1 == v)
+                                value = v1;
+                            else
+                                value = v;
+                        }
+                        else
+                            value = v;
+                    }
                 }
             }
-            return null;
+            return value;
         }
 
-        private Object getDiffToPrevious(ComparedRow cr, int comparedColumnIdx, int tableIdx, boolean ratio)
+        /**
+         * Did the converted value look like an approximate value?
+         * @param value original value
+         * @param value2 converted value
+         * @param tableIdx the table
+         * @param comparedColumnIdx the column index
+         * @return the approximation type
+         */
+        private DeltaEncoding approxValue(Object value, Object value2, int tableIdx, int comparedColumnIdx)
+        {
+            if (value != null && !value.equals(value2))
+            {
+                int tableColumnIdx = displayedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
+                if (tableColumnIdx == -1)
+                    return DeltaEncoding.EXACT;
+                try
+                {
+                    String fv = tables[tableIdx].getColumns()[tableColumnIdx].getFormatter().format(value);
+                    if (fv != null)
+                    {
+                        if (fv.startsWith(Messages.RetainedSizeDerivedData_Approximate))
+                            return DeltaEncoding.GE;
+                        else if (fv.startsWith(Messages.CompareTablesQuery_GE))
+                            return DeltaEncoding.GE;
+                        else if (fv.startsWith(Messages.CompareTablesQuery_LE))
+                            return DeltaEncoding.LE;
+                        else if (fv.startsWith(Messages.CompareTablesQuery_APPROX))
+                            return DeltaEncoding.APPROX;
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {}
+            }
+            return DeltaEncoding.EXACT;
+        }
+
+        /**
+         * Get the value for a row and column which is a difference to a previous table
+         * (either the first or the immediately previous table).
+         * @param cr the row of created compared table/tree
+         * @param columnIdx the column index of the created compared table/tree
+         * @param comparedColumnIdx the index for the set of columns of the same name which are compared
+         * @param tableIdx the table to read
+         * @param prevTableIdx the previous table to compare to
+         * @param ratio calculate a ration, not a difference
+         * @return
+         */
+        private Object getDiffToPrevious(ComparedRow cr, int columnIdx, int comparedColumnIdx, int tableIdx, int prevTableIdx, boolean ratio)
         {
             Object tableRow = cr.getRows()[tableIdx];
             if (tableRow == null) return null;
@@ -1822,7 +1977,13 @@ public class CompareTablesQuery implements IQuery
             if (tableColumnIdx == -1) return null;
 
             Object value = tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
-            Object previousTableValue = getAbsoluteValue(cr, comparedColumnIdx, tableIdx - 1);
+            Object previousTableValue = getAbsoluteValue(cr, comparedColumnIdx, prevTableIdx);
+            Object value2 = valueConvert(value, tableIdx, comparedColumnIdx);
+            DeltaEncoding approxValue = approxValue(value, value2, tableIdx, comparedColumnIdx);
+            value = value2;
+            value2 = valueConvert(previousTableValue, prevTableIdx, comparedColumnIdx);
+            DeltaEncoding approxPreviousValue = approxValue(previousTableValue, value2, prevTableIdx, comparedColumnIdx);
+            previousTableValue = value2;
 
             if (value == null && previousTableValue == null) return null;
 
@@ -1830,7 +1991,20 @@ public class CompareTablesQuery implements IQuery
 
             if ((value instanceof Number || value instanceof Bytes) && previousTableValue == null)
             {
-                return ratio ? null : value;
+                if (ratio)
+                    return null;
+                /*
+                 * Fix up encoding of single value
+                 * The source value has a difference formatter to the output so could need conversion.
+                 */
+                if (approxValue != DeltaEncoding.EXACT)
+                {
+                    if (value instanceof Bytes)
+                        return encodeResult(((Bytes)value).getValue(), true, approxValue, approxPreviousValue, columnIdx);
+                    else
+                        return encodeResult(value, false, approxValue, approxPreviousValue, columnIdx);
+                }
+                return value;
             }
 
             boolean returnBytes = value instanceof Bytes && previousTableValue instanceof Bytes;
@@ -1849,12 +2023,46 @@ public class CompareTablesQuery implements IQuery
                 }
                 else
                 {
-                    if (returnBytes)
-                        return new Bytes(((Number)ret).longValue());
-                    return ret;
+                    return encodeResult(ret, returnBytes, approxValue, approxPreviousValue, columnIdx);
                 }
             }
             return null;
+        }
+
+        /**
+         * Encode the result for a delta retained size formatter.
+         * @param ret
+         * @param returnBytes
+         * @param approxValue
+         * @param approxPreviousValue
+         * @param columnIdx
+         * @return
+         */
+        private Object encodeResult(Object ret, boolean returnBytes, DeltaEncoding approxValue, DeltaEncoding approxPreviousValue,
+                        int columnIdx)
+        {
+            if (returnBytes || ret instanceof Long)
+            {
+                long val = ((Number)ret).longValue();
+                Format fmt = columns[columnIdx].getFormatter();
+                if (fmt instanceof DeltaRetainedBytesFormat)
+                {
+                    DeltaRetainedBytesFormat dfmt = (DeltaRetainedBytesFormat)fmt;
+                    if (approxValue == DeltaEncoding.EXACT && approxPreviousValue == DeltaEncoding.EXACT)
+                        ;
+                    else if ((approxValue == DeltaEncoding.GE || approxValue == DeltaEncoding.EXACT) && (approxPreviousValue == DeltaEncoding.EXACT || approxPreviousValue == DeltaEncoding.LE))
+                        val = dfmt.encodege(val);
+                    else if ((approxValue == DeltaEncoding.LE || approxValue == DeltaEncoding.EXACT) && (approxPreviousValue == DeltaEncoding.EXACT || approxPreviousValue == DeltaEncoding.GE))
+                        val = dfmt.encodele(val);
+                    else if (approxValue != DeltaEncoding.EXACT || approxPreviousValue != DeltaEncoding.EXACT)
+                        val = dfmt.encodeun(val);
+                }
+                if (returnBytes)
+                    return new Bytes(val);
+                else
+                    return val;
+            }
+            return ret;
         }
 
         private Object computeDiff(Number o1, Number o2)
@@ -1955,6 +2163,224 @@ public class CompareTablesQuery implements IQuery
             }
         }
 
+        /**
+         * A class to format the difference between two retained sizes.
+         * Similar to {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData.RetainedSizeFormat}.
+         * Sorting should use {@link Filter.ValueConverter} so that a dedicated comparator is
+         * not required. See {@link org.eclipse.mat.query.refined.RefinedStructuredResult.NaturalComparator}.
+         */
+        private class DeltaRetainedBytesFormat extends BytesFormat
+        {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 1L;
+            /*
+             * encode >=, <= for +ve -ve byte values
+             * convert long to double for Filter.ValueConverter
+             * > 1,000,000,000,000,000 means >=
+             * <-1,000,000,000,000,000 means <=
+             * <-3,000,000,000,000,000 means ~
+             *
+             * e.g.
+             * ~=   : 39
+             * ~=3  : 33
+             * ~=0  : 30
+             * >=9  : 29
+             * >=3  : 23
+             * >=-3 : 17
+             * >=-10: 10
+             *
+             * <=9  : -11
+             * <=3  : -17
+             * <=-3 : -23
+             * <=-10: -30
+             *
+             * ~-3  : -33
+             * ~-9  : -39
+             */
+            /**
+             * Break point for special encoding.
+             * Chosen to be big, but to fit precisely in a double
+             * as well as a long.
+             */
+            private long SPECIAL = 1000000000000000L;
+            /**
+             * How much to adjust a value to move it into a different range.
+             */
+            private long SPECIAL2 = SPECIAL * 2;
+            /**
+             * Convert the encoded value to a normal value.
+             */
+            final Filter.ValueConverter converter = new Filter.ValueConverter()
+            {
+                public double convert(double source)
+                {
+                    if (source >= SPECIAL + SPECIAL2)
+                        return source - SPECIAL - SPECIAL2; // +ve approx
+                    else if (source >= SPECIAL)
+                        return source - SPECIAL2; // >=
+                    else if (source < -SPECIAL - SPECIAL2)
+                        return source + SPECIAL + SPECIAL2; // -ve approx
+                    else if (source < -SPECIAL)
+                        return source + SPECIAL2; // <=
+                    return source;
+                }
+            };
+
+            /**
+             * Encode a value as greater than or equal.
+             * @param l the raw value
+             * @return the encoded value
+             */
+            private long encodege(long l)
+            {
+                if (l >= SPECIAL)
+                    return SPECIAL - 1 + SPECIAL2; // saturate
+                else if (l < -SPECIAL)
+                    return encodeun(l); // can't be encoded as GE
+                else
+                    return l + SPECIAL2;
+            }
+
+            /**
+             * Encode a value as less than or equal.
+             * @param l the raw value
+             * @return the encoded value
+             */
+            private long encodele(long l)
+            {
+                if (l >= SPECIAL)
+                    return encodeun(l); // can't be coded as LE
+                else if (l < -SPECIAL)
+                    return -SPECIAL - SPECIAL2; // saturate
+                else
+                    return l - SPECIAL2;
+            }
+
+            /**
+             * Encode a value as inexact.
+             * @param l the raw value
+             * @return the encoded value
+             */
+            private long encodeun(long l)
+            {
+                if (l >= 0)
+                    if (l >= Long.MAX_VALUE - SPECIAL - SPECIAL2)
+                        return Long.MAX_VALUE; // saturate
+                    else
+                        return l + SPECIAL2 + SPECIAL;
+                else if (l <= Long.MIN_VALUE + SPECIAL + SPECIAL2)
+                    return Long.MIN_VALUE; // saturate
+                else
+                    return l - SPECIAL2 - SPECIAL;
+            }
+
+            /**
+             * Create a formatter for the difference between two retained sizes.
+             * @param encapsulatedNumberFormat
+             * @param encapsulatedDecimalFormat
+             */
+            public DeltaRetainedBytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat)
+            {
+                super(encapsulatedNumberFormat, encapsulatedDecimalFormat);
+            }
+
+            @Override
+            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
+            {
+                Number v;
+                if (obj instanceof Bytes)
+                    v = ((Bytes)obj).getValue();
+                else
+                    v = (Number) obj;
+
+
+                if (v.longValue() >= SPECIAL)
+                {
+                    if (v.longValue() >= SPECIAL + SPECIAL2)
+                    {
+                        String approx = Messages.CompareTablesQuery_APPROX;
+                        toAppendTo.append(approx);
+                        return super.format(new Bytes(v.longValue() - SPECIAL - SPECIAL2), toAppendTo, pos);
+                    }
+                    else
+                    {
+                        String approx = Messages.CompareTablesQuery_GE;
+                        toAppendTo.append(approx);
+                        return super.format(new Bytes(v.longValue() - SPECIAL2), toAppendTo, pos);
+                    }
+                }
+                else if (v.longValue() < -SPECIAL)
+                {
+                    if (v.longValue() < -SPECIAL - SPECIAL2)
+                    {
+                        String approx = Messages.CompareTablesQuery_APPROX;
+                        toAppendTo.append(approx);
+                        return super.format(new Bytes(v.longValue() + SPECIAL + SPECIAL2), toAppendTo, pos);
+                    }
+                    else
+                    {
+                        String approx = Messages.CompareTablesQuery_LE;
+                        toAppendTo.append(approx);
+                        return super.format(new Bytes(v.longValue() + SPECIAL2), toAppendTo, pos);
+                    }
+                }
+                else
+                {
+                    return super.format(new Bytes(v.longValue()), toAppendTo, pos);
+                }
+            }
+
+            @Override
+            public Object parseObject(String source, ParsePosition pos)
+            {
+                Object ret;
+                for (String match : new String[] {Messages.CompareTablesQuery_GE, Messages.CompareTablesQuery_LE, Messages.CompareTablesQuery_APPROX})
+                {
+                    if (source.regionMatches(pos.getIndex(), match, 0, match.length()))
+                    {
+                        int pi = pos.getIndex();
+                        pos.setIndex(pi + match.length());
+                        ret = super.parseObject(source, pos);
+                        if (ret != null)
+                        {
+                            long v;
+                            if (ret instanceof Bytes)
+                            {
+                                v = ((Bytes)ret).getValue();
+                                if (match == Messages.CompareTablesQuery_GE)
+                                    v = encodege(v);
+                                else if (match == Messages.CompareTablesQuery_LE)
+                                    v = encodele(v);
+                                else if (match == Messages.CompareTablesQuery_APPROX)
+                                    v = encodeun(v);
+                                return new Bytes(v);
+                            }
+                            else if (ret instanceof Number)
+                            {
+                                v = ((Number)ret).longValue();
+                                if (match == Messages.CompareTablesQuery_GE)
+                                    v = encodege(v);
+                                else if (match == Messages.CompareTablesQuery_LE)
+                                    v = encodele(v);
+                                else if (match == Messages.CompareTablesQuery_APPROX)
+                                    v = encodeun(v);
+                                return new Bytes(v);
+                            }
+                        }
+                        // >= in front of something else
+                        pos.setErrorIndex(pi + match.length());
+                        pos.setIndex(pi);
+                        ret = null;
+                        return ret;
+                    }
+                }
+                ret = super.parseObject(source, pos);
+                return ret;
+            }
+        }
+
         private void setFormatter()
         {
             int i = 1;
@@ -1977,6 +2403,7 @@ public class CompareTablesQuery implements IQuery
                 bcf = bcf2;
             }
             BytesFormat bfm = new BytesFormat(formatter, bcf);
+            DeltaRetainedBytesFormat drbfm = new DeltaRetainedBytesFormat(formatter, bcf);
 
             for (ComparedColumn comparedColumn : displayedColumns)
             {
@@ -1994,6 +2421,10 @@ public class CompareTablesQuery implements IQuery
                                             columns[i].getComparator());
                             columns[i].decorator(decorator);
                         }
+                        // Set the converter
+                        Object converter = c.getData(Filter.ValueConverter.class);
+                        if (converter != null || columns[i].getData(Filter.ValueConverter.class) != null)
+                            columns[i].setData(Filter.ValueConverter.class, converter);
                         if (c.getFormatter() instanceof DecimalFormat)
                         {
                             DecimalFormat fm = ((DecimalFormat) c.getFormatter().clone());
@@ -2004,7 +2435,15 @@ public class CompareTablesQuery implements IQuery
                         {
                             //BytesFormat fm = ((BytesFormat) c.getFormatter().clone());
                             // Force the sign - can't retrieve information from existing formatter
-                            columns[i].formatting(bfm);
+                            if (c.getFormatter().getClass() == BytesFormat.class)
+                            {
+                                columns[i].formatting(bfm);
+                            }
+                            else
+                            {
+                                columns[i].formatting(drbfm);
+                                columns[i].setData(Filter.ValueConverter.class, drbfm.converter);
+                            }
                         }
                         else
                         {
@@ -2023,6 +2462,10 @@ public class CompareTablesQuery implements IQuery
                             columns[i].decorator(decorator);
                         }
                         columns[i].formatting(c.getFormatter());
+                        // Set the converter
+                        Object converter = c.getData(Filter.ValueConverter.class);
+                        if (converter != null || columns[i].getData(Filter.ValueConverter.class) != null)
+                            columns[i].setData(Filter.ValueConverter.class, converter);
                     }
                     i++;
                     if ((mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS) && j > 0)
@@ -2094,18 +2537,43 @@ public class CompareTablesQuery implements IQuery
                     {
                         String label;
                         final int prev = mode == Mode.DIFF_TO_PREVIOUS || mode == Mode.DIFF_RATIO_TO_PREVIOUS ? j - 1 : 0;
+                        Comparator<?>comparator;
                         if (j == 0 || mode == Mode.ABSOLUTE)
                         {
                             label = MessageUtil.format(Messages.CompareTablesQuery_ColumnAbsolute, c.getLabel(), j + 1);
+                            final Comparator<Object> cmp = (Comparator<Object>) c.getComparator();
+                            if (cmp != null)
+                            {
+                                final int tab = j;
+                                comparator = new Comparator<ComparedRow>(){
+                                    public int compare(ComparedRow o1, ComparedRow o2)
+                                    {
+                                        Object row1 = o1.rows[tab];
+                                        Object row2 = o2.rows[tab];
+                                        // Compare nulls - sort first
+                                        if (row1 == null)
+                                            return row2 == null ? 0 : -1;
+                                        else if (row2 == null)
+                                            return 1;
+                                        else
+                                            return cmp.compare(row1, row2);
+                                    }
+                                };
+                            }
+                            else
+                            {
+                                comparator = null;
+                            }
                         }
                         else
                         {
                             label = MessageUtil.format(Messages.CompareTablesQuery_ColumnDifference,
                                             c.getLabel(), j + 1,
                                             prev + 1);
+                            comparator = null;
                         }
                         result.add(new Column(label, c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(),
-                                        null));
+                                        comparator));
                         // Pass through the decorator
                         if (c.getDecorator() != null)
                             result.get(result.size() - 1).decorator(new Decorator(c.getDecorator(), j));
@@ -2140,6 +2608,12 @@ public class CompareTablesQuery implements IQuery
             return ret;
         }
 
+        /**
+         * Add the derived operations from the source tables.
+         * No needed as using the RefinedResult versions of the tables
+         * already has them refined.
+         * @param answer
+         */
         void derivedops(ResultMetaData.Builder answer)
         {
             int found = 0;
