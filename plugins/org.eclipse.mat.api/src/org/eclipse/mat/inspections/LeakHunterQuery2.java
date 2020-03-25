@@ -32,7 +32,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 /**
  * Looks for leaks based on a delta in retained sizes of
- * the dominator tree from two snapshots. 
+ * the dominator tree from two snapshots.
  */
 @CommandName("leakhunter2")
 @Icon("/META-INF/icons/leak.gif")

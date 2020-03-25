@@ -29,7 +29,6 @@
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery"/>
 		<!-- comparisons -->
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery"/>
-		<query impl="org.eclipse.mat.internal.snapshot.inspections.GroupByQuery"/>
 		<query impl="org.eclipse.mat.inspections.SimpleComparison"/>
 		
 		<!-- core -->

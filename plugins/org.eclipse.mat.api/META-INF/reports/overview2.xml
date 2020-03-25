@@ -38,7 +38,7 @@
 		<param key="sort_column" value="#6" />
 		<command>simplecomparison -query histogram -retained APPROXIMATE -options "-mode DIFF_TO_PREVIOUS" -baseline ${baseline}</command>
 	</query>
-	<!-- Expensive to calculate, so use version from LeaKHunter2
+	<!-- Expensive to calculate, so use version from LeakHunter2
 	<query name="%overview2.dominator_tree Dominator tree">
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="#5" />

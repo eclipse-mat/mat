@@ -287,9 +287,7 @@ public class Messages extends NLS
 
     public static String FindLeaksQuery2_Column_AccPointRetainedHeap;
     public static String FindLeaksQuery2_Column_SuspectRetainedHeap;
-
     public static String FindLeaksQuery2_ComparedDominatorTrees;
-
     public static String FindLeaksQuery2_Leaks;
 
     public static String FindStringsQuery_SearchingStrings;
