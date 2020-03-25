@@ -572,12 +572,21 @@ public class CompareTablesQuery implements IQuery
                     rows = new Object[tables.length];
                     map.put(key, rows);
                 }
+<<<<<<< HEAD   (33e935 561460: More comparison queries)
                 int ii = 0;
                 if (lastcache.containsKey(key))
                 {
                     ii = lastcache.get(key);
                 }
                 while (rows[ii + i] != null)
+=======
+                int ii = i;
+                if (lastcache.containsKey(key))
+                {
+                    ii = lastcache.get(key);
+                }
+                while (rows[ii] != null)
+>>>>>>> BRANCH (f365de 347648: Retained size column is not compared)
                 {
                     /*
                      * Normally:
@@ -592,11 +601,17 @@ public class CompareTablesQuery implements IQuery
                     {
                         sortwork -= rows.length * rows.length;
                         // Grow the row array
+<<<<<<< HEAD   (33e935 561460: More comparison queries)
                         int spare = rows.length / tables.length / 2;
                         rows = Arrays.copyOf(rows, rows.length + (spare + 1) * tables.length);
+=======
+                        rows = Arrays.copyOf(rows, rows.length + (rows.length / tables.length / 2 + 1) * tables.length);
+>>>>>>> BRANCH (f365de 347648: Retained size column is not compared)
                         map.put(key, rows);
                         sortwork += rows.length * rows.length;
                     }
+                    // With many duplicates it can take a long time to find a free slot, so cache the last used
+                    lastcache.put(key, ii);
                 }
                 rows[ii + i] = row;
                 if (ii > 0)
@@ -698,7 +713,13 @@ public class CompareTablesQuery implements IQuery
                 }
                 else
                 {
+<<<<<<< HEAD   (33e935 561460: More comparison queries)
                     pfx = extraPrefix(i, row);
+=======
+                    sfx = mask.matcher(sfx).replaceAll(replace == null ? "" : replace); //$NON-NLS-1$
+                    if (sfx.length() == 0)
+                        sfx = null;
+>>>>>>> BRANCH (f365de 347648: Retained size column is not compared)
                 }
             }
             else
@@ -2054,9 +2075,12 @@ public class CompareTablesQuery implements IQuery
                             return DeltaEncoding.GE;
                         else if (fv.startsWith(Messages.CompareTablesQuery_GE))
                             return DeltaEncoding.GE;
+<<<<<<< HEAD   (33e935 561460: More comparison queries)
                         else if (fv.startsWith("<= ")) //$NON-NLS-1$
                             // E.g. Quantize_LessEq_Prefix
                             return DeltaEncoding.LE;
+=======
+>>>>>>> BRANCH (f365de 347648: Retained size column is not compared)
                         else if (fv.startsWith(Messages.CompareTablesQuery_LE))
                             return DeltaEncoding.LE;
                         else if (fv.startsWith(Messages.CompareTablesQuery_APPROX))

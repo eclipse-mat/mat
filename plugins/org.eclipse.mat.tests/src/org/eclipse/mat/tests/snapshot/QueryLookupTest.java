@@ -482,7 +482,11 @@ public class QueryLookupTest
 
     public void testCompareDiffRatioPreviousRetained(String query) throws SnapshotException, ParseException
     {
+<<<<<<< HEAD   (33e935 561460: More comparison queries)
         boolean verbose = false;
+=======
+        boolean verbose = true;
+>>>>>>> BRANCH (f365de 347648: Retained size column is not compared)
         String queryId = "comparetablesquery";
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);

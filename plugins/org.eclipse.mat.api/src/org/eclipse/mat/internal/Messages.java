@@ -120,6 +120,8 @@ public class Messages extends NLS
 
     public static String CompareTablesQuery_LE;
 
+    public static String CompareTablesQuery_LE;
+
     public static String CompareTablesQuery_MissingKeyColumn;
     public static String CompareTablesQuery_Table;
     public static String CompareTablesQuery_SymmetricDifferenceFirst;
