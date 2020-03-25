@@ -1,0 +1,28 @@
+<!--
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial API and implementation
+        Andrew Johnson - comparison queries
+ -->
+<section name="%suspects2.title" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.eclipse.org/mat/report.xsd"
+	xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd platform:/resource/org.eclipse.mat.report/schema/report.xsd">
+
+	<param key="html.collapsed" value="false" />
+	<param key="filename_suffix" value="%suspects2.suffix Leak Suspects Delta" />	
+
+	<section name="%overview2.title">
+		<param key="html.separate_file" value="true" />
+		<template>org.eclipse.mat.api:overview2</template>
+	</section>
+	
+	<query name="%suspects2.leaks">
+		<command>leakhunter2 -baseline ${baseline}</command>
+	</query>
+
+</section>
