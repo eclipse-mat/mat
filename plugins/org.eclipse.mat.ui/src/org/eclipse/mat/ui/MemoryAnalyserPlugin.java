@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,8 +57,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String PLUS = PREFIX + "plus.gif"; //$NON-NLS-1$
         String EXPERT_SYSTEM = PREFIX + "expert.gif"; //$NON-NLS-1$
 
-        String REFRESH = PREFIX + "refresh.gif"; //$NON-NLS-1$       
-        String THREAD = PREFIX + "thread.gif"; //$NON-NLS-1$       
+        String REFRESH = PREFIX + "refresh.gif"; //$NON-NLS-1$
+        String THREAD = PREFIX + "thread.gif"; //$NON-NLS-1$
 
         String RETAINED_SET = PREFIX + "retainedSet.gif"; //$NON-NLS-1$
         String PACKAGE = PREFIX + "package.gif"; //$NON-NLS-1$
@@ -100,14 +100,14 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String INFO = PREFIX + "info.gif"; //$NON-NLS-1$
         String HELP = PREFIX + "help.png"; //$NON-NLS-1$
 
-        String FIND = PREFIX + "find.gif"; //$NON-NLS-1$  
+        String FIND = PREFIX + "find.gif"; //$NON-NLS-1$
         String EXECUTE_QUERY = PREFIX + "execute_query.gif"; //$NON-NLS-1$
-        String SHOW_AS_HISTOGRAM = PREFIX + "as_histogram.gif"; //$NON-NLS-1$  
-        String EXPLORE = PREFIX + "explore.gif"; //$NON-NLS-1$  
+        String SHOW_AS_HISTOGRAM = PREFIX + "as_histogram.gif"; //$NON-NLS-1$
+        String EXPLORE = PREFIX + "explore.gif"; //$NON-NLS-1$
 
-        String SHOW_PANE = PREFIX + "show_pane.gif"; //$NON-NLS-1$  
-        String CLOSE_PANE = PREFIX + "close_pane.gif"; //$NON-NLS-1$  
-        String CLOSE_BRANCH = PREFIX + "close_branch.gif"; //$NON-NLS-1$  
+        String SHOW_PANE = PREFIX + "show_pane.gif"; //$NON-NLS-1$
+        String CLOSE_PANE = PREFIX + "close_pane.gif"; //$NON-NLS-1$
+        String CLOSE_BRANCH = PREFIX + "close_branch.gif"; //$NON-NLS-1$
 
         String PINNED = PREFIX + "pinned.gif"; //$NON-NLS-1$
 
@@ -116,6 +116,11 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String REMOVE = PREFIX + "remove.gif"; //$NON-NLS-1$
         String REMOVE_ALL = PREFIX + "removeall.gif"; //$NON-NLS-1$
         String SELECT_COLUMN = PREFIX + "select_table.gif"; //$NON-NLS-1$
+        String SET_DIFFERENCE_A = PREFIX + "set_differenceA.gif"; //$NON-NLS-1$
+        String SET_DIFFERENCE_B = PREFIX + "set_differenceB.gif"; //$NON-NLS-1$
+        String SET_INTERSECTION = PREFIX + "set_intersection.gif"; //$NON-NLS-1$
+        String SET_SYMMETRIC_DIFFERENCE = PREFIX + "set_symmetric_difference.gif"; //$NON-NLS-1$
+        String SET_UNION = PREFIX + "set_union.gif"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;
