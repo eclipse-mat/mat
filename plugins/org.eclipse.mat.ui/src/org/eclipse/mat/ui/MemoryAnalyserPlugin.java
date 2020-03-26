@@ -116,6 +116,11 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String REMOVE = PREFIX + "remove.gif"; //$NON-NLS-1$
         String REMOVE_ALL = PREFIX + "removeall.gif"; //$NON-NLS-1$
         String SELECT_COLUMN = PREFIX + "select_table.gif"; //$NON-NLS-1$
+        String SET_DIFFERENCE_A = PREFIX + "set_differenceA.gif"; //$NON-NLS-1$
+        String SET_DIFFERENCE_B = PREFIX + "set_differenceB.gif"; //$NON-NLS-1$
+        String SET_INTERSECTION = PREFIX + "set_intersection.gif"; //$NON-NLS-1$
+        String SET_SYMMETRIC_DIFFERENCE = PREFIX + "set_symmetric_difference.gif"; //$NON-NLS-1$
+        String SET_UNION = PREFIX + "set_union.gif"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;

@@ -152,7 +152,8 @@ public class CompareTablesQuery implements IQuery
         INTERSECTION,
         UNION,
         SYMMETRIC_DIFFERENCE,
-        DIFFERENCE
+        DIFFERENCE,
+        REVERSE_DIFFERENCE
     }
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -1302,6 +1303,7 @@ public class CompareTablesQuery implements IQuery
                         if (setOp == Operation.UNION && op != 1) continue;
                         if (setOp == Operation.SYMMETRIC_DIFFERENCE && op != 2) continue;
                         if (setOp == Operation.DIFFERENCE && op != 3) continue;
+                        if (setOp == Operation.REVERSE_DIFFERENCE && op != 4) continue;
                         final int op1 = op;
                         // intersection, union, symmetric difference, difference, difference
                         String title1;
@@ -2256,6 +2258,29 @@ public class CompareTablesQuery implements IQuery
         public void setMode(Mode mode)
         {
             this.mode = mode;
+            updateColumns();
+        }
+
+        public Operation getOperation()
+        {
+            return setOp;
+        }
+
+        public void setOperation(Operation op)
+        {
+            if (op != Operation.NONE)
+            {
+                // Don't allow an operation if there are not enough local tables
+                int samec = 0;
+                for (boolean same : CompareTablesQuery.this.sameSnapshot)
+                {
+                    if (same)
+                        ++samec;
+                }
+                if (samec < 2)
+                    op = Operation.NONE;
+            }
+            this.setOp = op;
             updateColumns();
         }
 
