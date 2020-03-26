@@ -1606,7 +1606,7 @@ public final class SnapshotImpl implements ISnapshot
      * Shouldn't really be needed as files should have finalizers,
      * but deleting indices does not work.
      */
-    public void finalize()
+    protected void finalize()
     {
         dispose();
     }

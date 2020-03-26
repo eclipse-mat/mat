@@ -948,7 +948,7 @@ public class QueryLookupTest
         for (ContextProvider cp : r2.getResultMetaData().getContextProviders())
         {
             //System.out.println(cp+ " " + cp.getLabel());
-            cp.getLabel();
+            assertNotNull(cp.getLabel());
             URL u = cp.getIcon();
             if (u != null)
             {

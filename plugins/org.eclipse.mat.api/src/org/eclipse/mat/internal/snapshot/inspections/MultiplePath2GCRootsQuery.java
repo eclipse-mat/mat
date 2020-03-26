@@ -323,6 +323,14 @@ public class MultiplePath2GCRootsQuery implements IQuery
             return distinctObjects;
         }
 
+        /**
+         * Simple equals to satisfy FindBugs.
+         */
+        @Override
+        public boolean equals(Object o)
+        {
+            return super.equals(o);
+        }
     }
 
     /* package */static class TreeByObject extends Tree implements IIconProvider, IDecorator

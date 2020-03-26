@@ -167,7 +167,6 @@ public class FindLeaksQuery2 implements IQuery
         // Get the last - in case the first is also this snapshot, so has a context provider
         ContextProvider cp = provs.get(provs.size() - 1);
         ArrayInt suspiciousObjects = new ArrayInt();
-        Set<String> suspectNames = new HashSet<String>();
         int i = 0;
         HashMapIntObject<ClassRecord>map = new HashMapIntObject<ClassRecord>();
         final HashMapIntObject<Object>rowmap = new HashMapIntObject<Object>(); 
@@ -185,7 +184,6 @@ public class FindLeaksQuery2 implements IQuery
                     if (deltaRetained > threshold)
                     {
                         suspiciousObjects.add(objId);
-                        suspectNames.add(cls.getName());
                         rowmap.put(objId, row);
                     }
                     else
@@ -367,54 +365,6 @@ public class FindLeaksQuery2 implements IQuery
     {
         return (IResultTree) SnapshotQuery.lookup("dominator_tree", snapshot) //$NON-NLS-1$
                         .execute(listener);
-    }
-
-    private Histogram groupByClasses(int[] dominated, IProgressListener listener) throws SnapshotException
-    {
-        Histogram histogram = snapshot.getHistogram(dominated, listener);
-        if (listener.isCanceled())
-            throw new IProgressListener.OperationCanceledException();
-
-        Collection<ClassHistogramRecord> records = histogram.getClassHistogramRecords();
-        ClassHistogramRecord[] arr = new ClassHistogramRecord[records.size()];
-        int i = 0;
-
-        for (ClassHistogramRecord record : records)
-        {
-            record.setRetainedHeapSize(sumRetainedSize(record.getObjectIds(), snapshot));
-            arr[i++] = record;
-            if (i % 10 == 0 && listener.isCanceled())
-                throw new IProgressListener.OperationCanceledException();
-        }
-
-        Collection<ClassLoaderHistogramRecord> loaderRecords = histogram.getClassLoaderHistogramRecords();
-        ClassLoaderHistogramRecord[] loaderArr = new ClassLoaderHistogramRecord[loaderRecords.size()];
-        i = 0;
-
-        for (ClassLoaderHistogramRecord record : loaderRecords)
-        {
-            long retainedSize = 0;
-            for (ClassHistogramRecord classRecord : record.getClassHistogramRecords())
-            {
-                retainedSize += classRecord.getRetainedHeapSize();
-            }
-
-            record.setRetainedHeapSize(retainedSize);
-            loaderArr[i++] = record;
-        }
-
-        return histogram;
-
-    }
-
-    private long sumRetainedSize(int[] objectIds, ISnapshot snapshot) throws SnapshotException
-    {
-        long sum = 0;
-        for (int id : objectIds)
-        {
-            sum += snapshot.getRetainedHeapSize(id);
-        }
-        return sum;
     }
 
     /**

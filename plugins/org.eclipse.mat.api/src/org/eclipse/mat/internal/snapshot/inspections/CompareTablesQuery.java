@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.FieldPosition;
@@ -1196,6 +1197,232 @@ public class CompareTablesQuery implements IQuery
         APPROX
     }
 
+    /**
+     * A class to format the difference between two retained sizes.
+     * Similar to {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData.RetainedSizeFormat}.
+     * Sorting should use {@link Filter.ValueConverter} so that a dedicated comparator is
+     * not required. See {@link org.eclipse.mat.query.refined.RefinedStructuredResult.NaturalComparator}.
+     */
+    private static class DeltaRetainedBytesFormat extends BytesFormat
+    {
+        /**
+         * Converts a encoded stored value to a simple value, losing any
+         * approximation details.
+         */
+        private class DeltaRetainedConverter implements Filter.ValueConverter, Serializable
+        {
+            private static final long serialVersionUID = 1L;
+
+            public double convert(double source)
+            {
+                if (source >= SPECIAL + SPECIAL2)
+                    return source - SPECIAL - SPECIAL2; // +ve approx
+                else if (source >= SPECIAL)
+                    return source - SPECIAL2; // >=
+                else if (source < -SPECIAL - SPECIAL2)
+                    return source + SPECIAL + SPECIAL2; // -ve approx
+                else if (source < -SPECIAL)
+                    return source + SPECIAL2; // <=
+                return source;
+            }
+        }
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 1L;
+        /*
+         * encode >=, <= for +ve -ve byte values
+         * convert long to double for Filter.ValueConverter
+         * > 1,000,000,000,000,000 means >=
+         * <-1,000,000,000,000,000 means <=
+         * <-3,000,000,000,000,000 means ~
+         *
+         * e.g.
+         * ~=   : 39
+         * ~=3  : 33
+         * ~=0  : 30
+         * >=9  : 29
+         * >=3  : 23
+         * >=-3 : 17
+         * >=-10: 10
+         *
+         * <=9  : -11
+         * <=3  : -17
+         * <=-3 : -23
+         * <=-10: -30
+         *
+         * ~-3  : -33
+         * ~-9  : -39
+         */
+        /**
+         * Break point for special encoding.
+         * Chosen to be big, but to fit precisely in a double
+         * as well as a long.
+         */
+        private long SPECIAL = 1000000000000000L;
+        /**
+         * How much to adjust a value to move it into a different range.
+         */
+        private long SPECIAL2 = SPECIAL * 2;
+        /**
+         * Convert the encoded value to a normal value.
+         */
+        final Filter.ValueConverter converter = new DeltaRetainedConverter();
+
+        /**
+         * Encode a value as greater than or equal.
+         * @param l the raw value
+         * @return the encoded value
+         */
+        private long encodege(long l)
+        {
+            if (l >= SPECIAL)
+                return SPECIAL - 1 + SPECIAL2; // saturate
+            else if (l < -SPECIAL)
+                return encodeun(l); // can't be encoded as GE
+            else
+                return l + SPECIAL2;
+        }
+
+        /**
+         * Encode a value as less than or equal.
+         * @param l the raw value
+         * @return the encoded value
+         */
+        private long encodele(long l)
+        {
+            if (l >= SPECIAL)
+                return encodeun(l); // can't be coded as LE
+            else if (l < -SPECIAL)
+                return -SPECIAL - SPECIAL2; // saturate
+            else
+                return l - SPECIAL2;
+        }
+
+        /**
+         * Encode a value as inexact.
+         * @param l the raw value
+         * @return the encoded value
+         */
+        private long encodeun(long l)
+        {
+            if (l >= 0)
+                if (l >= Long.MAX_VALUE - SPECIAL - SPECIAL2)
+                    return Long.MAX_VALUE; // saturate
+                else
+                    return l + SPECIAL2 + SPECIAL;
+            else if (l <= Long.MIN_VALUE + SPECIAL + SPECIAL2)
+                return Long.MIN_VALUE; // saturate
+            else
+                return l - SPECIAL2 - SPECIAL;
+        }
+
+        /**
+         * Create a formatter for the difference between two retained sizes.
+         * @param encapsulatedNumberFormat
+         * @param encapsulatedDecimalFormat
+         */
+        public DeltaRetainedBytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat)
+        {
+            super(encapsulatedNumberFormat, encapsulatedDecimalFormat);
+        }
+
+        @Override
+        public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
+        {
+            Number v;
+            if (obj instanceof Bytes)
+                v = ((Bytes)obj).getValue();
+            else
+                v = (Number) obj;
+
+
+            if (v.longValue() >= SPECIAL)
+            {
+                if (v.longValue() >= SPECIAL + SPECIAL2)
+                {
+                    String approx = Messages.CompareTablesQuery_APPROX;
+                    toAppendTo.append(approx);
+                    return super.format(new Bytes(v.longValue() - SPECIAL - SPECIAL2), toAppendTo, pos);
+                }
+                else
+                {
+                    String approx = Messages.CompareTablesQuery_GE;
+                    toAppendTo.append(approx);
+                    return super.format(new Bytes(v.longValue() - SPECIAL2), toAppendTo, pos);
+                }
+            }
+            else if (v.longValue() < -SPECIAL)
+            {
+                if (v.longValue() < -SPECIAL - SPECIAL2)
+                {
+                    String approx = Messages.CompareTablesQuery_APPROX;
+                    toAppendTo.append(approx);
+                    return super.format(new Bytes(v.longValue() + SPECIAL + SPECIAL2), toAppendTo, pos);
+                }
+                else
+                {
+                    String approx = Messages.CompareTablesQuery_LE;
+                    toAppendTo.append(approx);
+                    return super.format(new Bytes(v.longValue() + SPECIAL2), toAppendTo, pos);
+                }
+            }
+            else
+            {
+                return super.format(new Bytes(v.longValue()), toAppendTo, pos);
+            }
+        }
+
+        @Override
+        public Object parseObject(String source, ParsePosition pos)
+        {
+            Object ret;
+            for (String match : new String[] {Messages.CompareTablesQuery_GE, Messages.CompareTablesQuery_LE, Messages.CompareTablesQuery_APPROX})
+            {
+                if (source.regionMatches(pos.getIndex(), match, 0, match.length()))
+                {
+                    int pi = pos.getIndex();
+                    pos.setIndex(pi + match.length());
+                    ret = super.parseObject(source, pos);
+                    if (ret != null)
+                    {
+                        long v;
+                        if (ret instanceof Bytes)
+                        {
+                            v = ((Bytes)ret).getValue();
+                            if (match.equals(Messages.CompareTablesQuery_GE))
+                                v = encodege(v);
+                            else if (match.equals(Messages.CompareTablesQuery_LE))
+                                v = encodele(v);
+                            else if (match.equals(Messages.CompareTablesQuery_APPROX))
+                                v = encodeun(v);
+                            return new Bytes(v);
+                        }
+                        else if (ret instanceof Number)
+                        {
+                            v = ((Number)ret).longValue();
+                            if (match.equals(Messages.CompareTablesQuery_GE))
+                                v = encodege(v);
+                            else if (match.equals(Messages.CompareTablesQuery_LE))
+                                v = encodele(v);
+                            else if (match.equals(Messages.CompareTablesQuery_APPROX))
+                                v = encodeun(v);
+                            return new Bytes(v);
+                        }
+                    }
+                    // >= in front of something else
+                    pos.setErrorIndex(pi + match.length());
+                    pos.setIndex(pi);
+                    ret = null;
+                    return ret;
+                }
+            }
+            ret = super.parseObject(source, pos);
+            return ret;
+        }
+    }
+
     public class TableComparisonResult implements IStructuredResult, IIconProvider
     {
         private Column key;
@@ -2304,224 +2531,6 @@ public class CompareTablesQuery implements IQuery
                     else
                         pctFmt.setPositivePrefix(plus);
                 }
-            }
-        }
-
-        /**
-         * A class to format the difference between two retained sizes.
-         * Similar to {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData.RetainedSizeFormat}.
-         * Sorting should use {@link Filter.ValueConverter} so that a dedicated comparator is
-         * not required. See {@link org.eclipse.mat.query.refined.RefinedStructuredResult.NaturalComparator}.
-         */
-        private class DeltaRetainedBytesFormat extends BytesFormat
-        {
-            /**
-             *
-             */
-            private static final long serialVersionUID = 1L;
-            /*
-             * encode >=, <= for +ve -ve byte values
-             * convert long to double for Filter.ValueConverter
-             * > 1,000,000,000,000,000 means >=
-             * <-1,000,000,000,000,000 means <=
-             * <-3,000,000,000,000,000 means ~
-             *
-             * e.g.
-             * ~=   : 39
-             * ~=3  : 33
-             * ~=0  : 30
-             * >=9  : 29
-             * >=3  : 23
-             * >=-3 : 17
-             * >=-10: 10
-             *
-             * <=9  : -11
-             * <=3  : -17
-             * <=-3 : -23
-             * <=-10: -30
-             *
-             * ~-3  : -33
-             * ~-9  : -39
-             */
-            /**
-             * Break point for special encoding.
-             * Chosen to be big, but to fit precisely in a double
-             * as well as a long.
-             */
-            private long SPECIAL = 1000000000000000L;
-            /**
-             * How much to adjust a value to move it into a different range.
-             */
-            private long SPECIAL2 = SPECIAL * 2;
-            /**
-             * Convert the encoded value to a normal value.
-             */
-            final Filter.ValueConverter converter = new Filter.ValueConverter()
-            {
-                public double convert(double source)
-                {
-                    if (source >= SPECIAL + SPECIAL2)
-                        return source - SPECIAL - SPECIAL2; // +ve approx
-                    else if (source >= SPECIAL)
-                        return source - SPECIAL2; // >=
-                    else if (source < -SPECIAL - SPECIAL2)
-                        return source + SPECIAL + SPECIAL2; // -ve approx
-                    else if (source < -SPECIAL)
-                        return source + SPECIAL2; // <=
-                    return source;
-                }
-            };
-
-            /**
-             * Encode a value as greater than or equal.
-             * @param l the raw value
-             * @return the encoded value
-             */
-            private long encodege(long l)
-            {
-                if (l >= SPECIAL)
-                    return SPECIAL - 1 + SPECIAL2; // saturate
-                else if (l < -SPECIAL)
-                    return encodeun(l); // can't be encoded as GE
-                else
-                    return l + SPECIAL2;
-            }
-
-            /**
-             * Encode a value as less than or equal.
-             * @param l the raw value
-             * @return the encoded value
-             */
-            private long encodele(long l)
-            {
-                if (l >= SPECIAL)
-                    return encodeun(l); // can't be coded as LE
-                else if (l < -SPECIAL)
-                    return -SPECIAL - SPECIAL2; // saturate
-                else
-                    return l - SPECIAL2;
-            }
-
-            /**
-             * Encode a value as inexact.
-             * @param l the raw value
-             * @return the encoded value
-             */
-            private long encodeun(long l)
-            {
-                if (l >= 0)
-                    if (l >= Long.MAX_VALUE - SPECIAL - SPECIAL2)
-                        return Long.MAX_VALUE; // saturate
-                    else
-                        return l + SPECIAL2 + SPECIAL;
-                else if (l <= Long.MIN_VALUE + SPECIAL + SPECIAL2)
-                    return Long.MIN_VALUE; // saturate
-                else
-                    return l - SPECIAL2 - SPECIAL;
-            }
-
-            /**
-             * Create a formatter for the difference between two retained sizes.
-             * @param encapsulatedNumberFormat
-             * @param encapsulatedDecimalFormat
-             */
-            public DeltaRetainedBytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat)
-            {
-                super(encapsulatedNumberFormat, encapsulatedDecimalFormat);
-            }
-
-            @Override
-            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
-            {
-                Number v;
-                if (obj instanceof Bytes)
-                    v = ((Bytes)obj).getValue();
-                else
-                    v = (Number) obj;
-
-
-                if (v.longValue() >= SPECIAL)
-                {
-                    if (v.longValue() >= SPECIAL + SPECIAL2)
-                    {
-                        String approx = Messages.CompareTablesQuery_APPROX;
-                        toAppendTo.append(approx);
-                        return super.format(new Bytes(v.longValue() - SPECIAL - SPECIAL2), toAppendTo, pos);
-                    }
-                    else
-                    {
-                        String approx = Messages.CompareTablesQuery_GE;
-                        toAppendTo.append(approx);
-                        return super.format(new Bytes(v.longValue() - SPECIAL2), toAppendTo, pos);
-                    }
-                }
-                else if (v.longValue() < -SPECIAL)
-                {
-                    if (v.longValue() < -SPECIAL - SPECIAL2)
-                    {
-                        String approx = Messages.CompareTablesQuery_APPROX;
-                        toAppendTo.append(approx);
-                        return super.format(new Bytes(v.longValue() + SPECIAL + SPECIAL2), toAppendTo, pos);
-                    }
-                    else
-                    {
-                        String approx = Messages.CompareTablesQuery_LE;
-                        toAppendTo.append(approx);
-                        return super.format(new Bytes(v.longValue() + SPECIAL2), toAppendTo, pos);
-                    }
-                }
-                else
-                {
-                    return super.format(new Bytes(v.longValue()), toAppendTo, pos);
-                }
-            }
-
-            @Override
-            public Object parseObject(String source, ParsePosition pos)
-            {
-                Object ret;
-                for (String match : new String[] {Messages.CompareTablesQuery_GE, Messages.CompareTablesQuery_LE, Messages.CompareTablesQuery_APPROX})
-                {
-                    if (source.regionMatches(pos.getIndex(), match, 0, match.length()))
-                    {
-                        int pi = pos.getIndex();
-                        pos.setIndex(pi + match.length());
-                        ret = super.parseObject(source, pos);
-                        if (ret != null)
-                        {
-                            long v;
-                            if (ret instanceof Bytes)
-                            {
-                                v = ((Bytes)ret).getValue();
-                                if (match == Messages.CompareTablesQuery_GE)
-                                    v = encodege(v);
-                                else if (match == Messages.CompareTablesQuery_LE)
-                                    v = encodele(v);
-                                else if (match == Messages.CompareTablesQuery_APPROX)
-                                    v = encodeun(v);
-                                return new Bytes(v);
-                            }
-                            else if (ret instanceof Number)
-                            {
-                                v = ((Number)ret).longValue();
-                                if (match == Messages.CompareTablesQuery_GE)
-                                    v = encodege(v);
-                                else if (match == Messages.CompareTablesQuery_LE)
-                                    v = encodele(v);
-                                else if (match == Messages.CompareTablesQuery_APPROX)
-                                    v = encodeun(v);
-                                return new Bytes(v);
-                            }
-                        }
-                        // >= in front of something else
-                        pos.setErrorIndex(pi + match.length());
-                        pos.setIndex(pi);
-                        ret = null;
-                        return ret;
-                    }
-                }
-                ret = super.parseObject(source, pos);
-                return ret;
             }
         }
 
