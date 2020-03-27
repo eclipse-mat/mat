@@ -645,7 +645,8 @@ public class QueryBrowserPopup extends PopupDialog
                 if (ii == entries.size())
                 {
                     entries.add(e = new ArrayList<QueryBrowserItem>());
-                    countTotal++; // categories are rendered on one line each
+                    // categories are rendered on one line each
+                    // but don't adjust the count until there is an item to go into the category
                 }
                 else
                 {
@@ -696,6 +697,8 @@ public class QueryBrowserPopup extends PopupDialog
 
                     if (entry != null)
                     {
+                        if (e.isEmpty())
+                            countTotal++; // categories are rendered on one line each
                         e.add(entry);
                         count++;
                         countTotal++;
