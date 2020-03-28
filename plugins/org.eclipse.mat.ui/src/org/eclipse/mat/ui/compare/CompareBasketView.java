@@ -15,6 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -31,6 +35,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
@@ -49,6 +54,7 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
@@ -60,7 +66,7 @@ import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
-import org.eclipse.mat.util.VoidProgressListener;
+import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -448,7 +454,7 @@ public class CompareBasketView extends ViewPart
 		{
 		    try
 		    {
-                MultiPaneEditor editor = getEditor();
+                final MultiPaneEditor editor = getEditor();
 
                 final List<IStructuredResult> tables = new ArrayList<IStructuredResult>(results.size());
                 final List<ISnapshot> snapshots = new ArrayList<ISnapshot>(results.size());
@@ -459,14 +465,34 @@ public class CompareBasketView extends ViewPart
                 }
 
                 String query = "comparetablesquery"; //$NON-NLS-1$
-                SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
+                final SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
                                 (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null));
                 compareQuery.setArgument("tables", tables); //$NON-NLS-1$
                 compareQuery.setArgument("snapshots", snapshots); //$NON-NLS-1$
-                IResult absolute = compareQuery.execute(new VoidProgressListener());
-                QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle,
-                                absolute);
-                QueryExecution.displayResult(editor, null, null, queryResult, false);
+                // Asynchronous as may take a while
+                Job job = new AbstractPaneJob(compareQuery.getDescriptor().getIdentifier(), null)
+                {
+                    @Override
+                    protected IStatus doRun(IProgressMonitor monitor)
+                    {
+                        try
+                        {
+                            ProgressMonitorWrapper listener = new ProgressMonitorWrapper(monitor);
+                            IResult absolute = compareQuery.execute(listener);
+                            QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle,
+                                            absolute);
+                            QueryExecution.displayResult(editor, null, null, queryResult, false);
+                            return Status.OK_STATUS;
+                        }
+                        catch (SnapshotException e)
+                        {
+                            return ErrorHelper.createErrorStatus(e);
+                        }
+                    }
+
+                };
+                job.setUser(true);
+                job.schedule();
             }
             catch (Exception e)
             {

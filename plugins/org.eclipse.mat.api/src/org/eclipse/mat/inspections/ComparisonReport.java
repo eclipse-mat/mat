@@ -16,14 +16,15 @@ import java.util.List;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
+@CommandName("comparison_report")
 @Icon("/META-INF/icons/compare.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
 public class ComparisonReport implements IQuery
@@ -34,7 +35,7 @@ public class ComparisonReport implements IQuery
     @Argument(advice = Advice.SECONDARY_SNAPSHOT)
     public ISnapshot baseline;
 
-    @Argument
+    @Argument(flag = Argument.UNFLAGGED)
     public String report = "org.eclipse.mat.api:suspects2"; //$NON-NLS-1$
 
     public IResult execute(IProgressListener listener) throws Exception

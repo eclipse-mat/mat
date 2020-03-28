@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - comparisons
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
@@ -27,6 +28,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
@@ -259,6 +261,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
         addReportsByPattern(text, buf, Pattern.compile(".*:suspects"));//$NON-NLS-1$
         addReportsByPattern(text, buf, Pattern.compile(".*:top_components"));//$NON-NLS-1$
+        addReportsByPattern2(text, buf, Pattern.compile(".*:suspects2"));//$NON-NLS-1$
 
         buf.append("</form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
@@ -275,6 +278,22 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
             if (pattern.matcher(report.getExtensionIdentifier()).matches())
                 addButton(buf, text, "create_report", "default_report " + report.getExtensionIdentifier(), report//$NON-NLS-1$//$NON-NLS-2$
                                 .getName(), report.getDescription());
+        }
+    }
+
+    private void addReportsByPattern2(FormText text, StringBuilder buf, Pattern pattern)
+    {
+        for (SpecFactory.Report report : SpecFactory.instance().delegates())
+        {
+            if (pattern.matcher(report.getExtensionIdentifier()).matches())
+            {
+                String name = report.getName();
+                // Allow hidden category report, but remove category
+                if (name.startsWith(Category.HIDDEN + "/")) //$NON-NLS-1$
+                    name = name.substring(Category.HIDDEN.length() + 1);
+                addButton(buf, text, "create_report", "comparison_report " + report.getExtensionIdentifier(), name, //$NON-NLS-1$//$NON-NLS-2$
+                                report.getDescription());
+            }
         }
     }
 

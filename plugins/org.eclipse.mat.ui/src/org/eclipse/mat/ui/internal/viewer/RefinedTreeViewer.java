@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
-import org.eclipse.mat.util.VoidProgressListener;
+import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
 import org.eclipse.swt.custom.TreeEditor;
@@ -279,7 +279,8 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 @Override
                 protected IStatus doRun(IProgressMonitor monitor)
                 {
-                    viewer.result.calculateTotals(elements, ctrl.totals, new VoidProgressListener());
+                    ProgressMonitorWrapper listener = new ProgressMonitorWrapper(monitor);
+                    viewer.result.calculateTotals(elements, ctrl.totals, listener);
 
                     if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
                     {

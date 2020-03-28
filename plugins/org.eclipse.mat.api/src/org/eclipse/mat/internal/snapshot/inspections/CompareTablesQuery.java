@@ -2508,7 +2508,7 @@ public class CompareTablesQuery implements IQuery
                     op = Operation.NONE;
             }
             this.setOp = op;
-            updateColumns();
+            // No need to update columns
         }
 
         private void addPositiveIndicator(Format formatter)

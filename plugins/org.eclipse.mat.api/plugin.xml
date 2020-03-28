@@ -153,7 +153,7 @@
 		<report id="compare" name="%report.compare.name Compare Snapshots"
 				description="%report.compare.help"
 				file="META-INF/reports/compare.xml" />
-		<report id="suspects2" name="%report.suspects2.name Leak Suspects by snapshot comparison"
+		<report id="suspects2" name="%report.suspects2.name Leak Suspects by Snapshot Comparison"
 				description="%report.suspects2.help"
 				file="META-INF/reports/suspects2.xml" />
 		<report id="overview2" name="%report.overview2.name Heap Dump Overview comparison"

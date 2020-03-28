@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011 SAP AG and IBM Corporation.
+    Copyright (c) 2011, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2011, 2012 SAP AG and IBM Corporation.
+				Copyright (c) 2011, 2020 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -42,8 +42,8 @@
 
 			<p>
 				Memory Analyzer offers the possibility to compare not only the global class histograms of two different
-				heap dumps, but an arbitrary number of table-formatted results - for example the 
-				retained sets of three different objects. It doesn't matter if the tables which 
+				heap dumps, but an arbitrary number of table-formatted or tree-formatted results - for example the 
+				retained sets of three different objects. It doesn't matter if the tables or trees which 
 				are compared come from one and the same or different heap dumps.
 			</p>
 			<p>
@@ -72,14 +72,16 @@
 				tables from different heap dumps then they have to be added one by one.
 				Multiple tables from one heap dump can be added at a time.
 			</p>
-			<p>Trees can be compared as well, though they are converted to tables
-			for the purposes of the comparison. 
+			<p>Trees can be compared as well, and the comparison result is then a tree.
 			<xref href="queryingheapobjects.dita">Object Query Language (OQL)</xref> results
 			can also be compared, though only the last result from each OQL editor can be 
 			added to the Compare Basket. If another query is issued then the previous result
 			will be removed from the basket. If two OQL results need to be compared then
 			two OQL editors should be opened.</p>
-			</info>			
+			<p>If the tables or trees are filtered then the filtered result will be used for the
+			comparison. If there are derived data columns such calculated retained sizes then these
+			will be included in the comparison.</p>
+			</info>
 			<stepresult>
 				<image href="../mimes/nn_add_to_compare_basket.png">
 					<alt>Move from Navigation History to Compare Basket</alt>
@@ -167,12 +169,29 @@
 				<b>Context menu with set operations</b>
 			</cmd>
 			<info>
-				<p>If the tables have been compared using <menucascade><uicontrol>Compare Tables with all set operations</uicontrol>
-					</menucascade> then it is possible to perform different set operations on the comparison result.
+				<p>If the tables have been compared using <menucascade><uicontrol>Compare tables and trees with all set operations</uicontrol>
+					</menucascade> then it is possible to perform different set operations on the comparison result using the
+					context menu.
+					Set operations only operate when there are two or more tables or trees from the current snapshot.
+					In this situation, even if other comparison query has been chosen, then the menu toolbar contain a <menucascade><uicontrol>Choose set operation ...</uicontrol></menucascade>
+					menu which will select which set operations appear on the context menu.
 				</p>
 				<image href="../mimes/setops_menu.png">
 					<alt>Set Operations context menu</alt>
 				</image>
+			</info>
+			</step>
+			<step>
+			<cmd>
+				<b>Comparison reports</b>
+			</cmd>
+			<info>
+				There are some reports which operate by comparing two snapshots.
+				The <cmdname>Leak Suspects by Snapshot Comparison</cmdname> report
+				available from the Overview pane runs a special <xref href="runningleaksuspectreport.dita">Leak Suspects report</xref>
+				which operates by comparing the dominator trees of the two snapshots and detects larger changes in retained sizes between
+				corresponding objects.
+				The query is also available from <menucascade><uicontrol>Leak Suspects</uicontrol><uicontrol>Compare Snapshots Leak Report</uicontrol></menucascade>.
 			</info>
 			</step>
 		</steps>

@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
 <meta name="DC.Title" content="Comparing Objects"/>
-<meta name="copyright" content="Copyright (c) 2011, 2012 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2011, 2012 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2011, 2020 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2011, 2020 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="task_comparingdata"/>
 <meta name="DC.Language" content="en-us"/>
@@ -39,8 +39,8 @@
 
 			<p class="p">
 				Memory Analyzer offers the possibility to compare not only the global class histograms of two different
-				heap dumps, but an arbitrary number of table-formatted results - for example the 
-				retained sets of three different objects. It doesn't matter if the tables which 
+				heap dumps, but an arbitrary number of table-formatted or tree-formatted results - for example the 
+				retained sets of three different objects. It doesn't matter if the tables or trees which 
 				are compared come from one and the same or different heap dumps.
 			</p>
 
@@ -76,15 +76,18 @@
 				Multiple tables from one heap dump can be added at a time.
 			</p>
 
-			<p class="p">Trees can be compared as well, though they are converted to tables
-			for the purposes of the comparison. 
+			<p class="p">Trees can be compared as well, and the comparison result is then a tree.
 			<a class="xref" href="queryingheapobjects.html">Object Query Language (OQL)</a> results
 			can also be compared, though only the last result from each OQL editor can be 
 			added to the Compare Basket. If another query is issued then the previous result
 			will be removed from the basket. If two OQL results need to be compared then
 			two OQL editors should be opened.</p>
 
-			</div>			
+			<p class="p">If the tables or trees are filtered then the filtered result will be used for the
+			comparison. If there are derived data columns such calculated retained sizes then these
+			will be included in the comparison.</p>
+
+			</div>
 			<div class="itemgroup stepresult">
 				<img class="image" src="../mimes/nn_add_to_compare_basket.png" alt="Move from Navigation History to Compare Basket"/>
 			</div>
@@ -166,10 +169,27 @@
 				<strong class="ph b">Context menu with set operations</strong>
 			</span>
 			<div class="itemgroup info">
-				<p class="p">If the tables have been compared using <span class="ph menucascade"><span class="ph uicontrol">Compare Tables with all set operations</span></span> then it is possible to perform different set operations on the comparison result.
+				<p class="p">If the tables have been compared using <span class="ph menucascade"><span class="ph uicontrol">Compare tables and trees with all set operations</span></span> then it is possible to perform different set operations on the comparison result using the
+					context menu.
+					Set operations only operate when there are two or more tables or trees from the current snapshot.
+					In this situation, even if other comparison query has been chosen, then the menu toolbar contain a <span class="ph menucascade"><span class="ph uicontrol">Choose set operation ...</span></span>
+					menu which will select which set operations appear on the context menu.
 				</p>
 
 				<img class="image" src="../mimes/setops_menu.png" alt="Set Operations context menu"/>
+			</div>
+			</li>
+<li class="li step stepexpand">
+			<span class="ph cmd">
+				<strong class="ph b">Comparison reports</strong>
+			</span>
+			<div class="itemgroup info">
+				There are some reports which operate by comparing two snapshots.
+				The <span class="keyword cmdname">Leak Suspects by Snapshot Comparison</span> report
+				available from the Overview pane runs a special <a class="xref" href="runningleaksuspectreport.html">Leak Suspects report</a>
+				which operates by comparing the dominator trees of the two snapshots and detects larger changes in retained sizes between
+				corresponding objects.
+				The query is also available from <span class="ph menucascade"><span class="ph uicontrol">Leak Suspects</span> &gt; <span class="ph uicontrol">Compare Snapshots Leak Report</span></span>.
 			</div>
 			</li>
 </ol>
