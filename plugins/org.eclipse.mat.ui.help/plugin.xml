@@ -75,6 +75,15 @@
 				name="%cheatsheet.finding.name">
 			<description>%cheatsheet.finding.description</description>
 		</cheatsheet>
+		
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.acquire"
+				contentFile="$nl$/tutorials/acquire.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="%cheatsheet.acquire.name">
+			<description>%cheatsheet.acquire.description</description>
+		</cheatsheet>
 	</extension>
 
 	<extension point="org.eclipse.pde.core.javadoc">

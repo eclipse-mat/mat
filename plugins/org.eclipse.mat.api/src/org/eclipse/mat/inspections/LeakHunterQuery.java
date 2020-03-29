@@ -81,7 +81,7 @@ import com.ibm.icu.text.NumberFormat;
 
 @CommandName("leakhunter")
 @Icon("/META-INF/icons/leak.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectsreport.html")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html")
 public class LeakHunterQuery implements IQuery
 {
 

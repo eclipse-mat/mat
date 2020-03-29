@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2020 IBM Corporation
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson (IBM Corporation) - initial API and implementation
+ -->
+<cheatsheet
+      title="Acquire and Compare Heap Dumps">
+<!--
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
+   xmlns="org.eclipse.ui.cheatsheets"
+-->
+   <intro>
+      <description>
+         MAT can acquire dumps from processes running on the same machine.
+      </description>
+   </intro>
+   <item
+         title="Acquire a heap dump">
+      <description>
+         The <b>File &gt; Acquire Heap Dump ...</b> menu item lists running Java processes
+         on the machine.
+         Select one of the processes, for example one with <b>Memory Analyzer</b>
+         in the description and click <b>Finish</b>.
+         If no processes appear, or fewer than expected then use the <b>Configure ...</b>
+         to control how processes are found. 
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.mat.ui.acquire.HeapDump"/>
+   </item>
+   <item
+         title="Analyze the heap dump">
+      <description>
+         Continue the analysis of the new heap dump as shown in other cheat sheets.
+      </description>
+   </item>
+   <item
+         title="Acquire a second heap dump">
+      <description>
+         The <b>File &gt; Acquire Heap Dump ...</b> menu item lists running Java processes
+         on the machine.
+         Select the same process as before, for example one with <b>Memory Analyzer</b>
+         in the description and click <b>Finish</b>.
+         If no processes appear, or fewer than expected then use the <b>Configure ...</b>
+         to control how processes are found. 
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.mat.ui.acquire.HeapDump"/>
+   </item>
+   <item
+         title="Comparing snapshots">
+      <description>
+         Use the <b>Leak Identification &gt; Compare Snapshots Leak Report</b>
+         to run a report comparing two snapshots.
+         For the baseline, chose the first snapshot generated above.
+         Next, click <b>Finish</b>, wait for the report to complete then
+         read the report.
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=comparison_report)"/>
+    </item>
+</cheatsheet>
