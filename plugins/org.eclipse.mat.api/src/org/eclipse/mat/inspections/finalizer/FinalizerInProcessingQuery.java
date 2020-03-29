@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Andrew Johnson (IBM Corporation) - help
  *******************************************************************************/
 // Goals:
 //
@@ -45,6 +46,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IInstance;
@@ -58,6 +60,7 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("finalizer_in_processing")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/finalizer.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.html")
 public class FinalizerInProcessingQuery implements IQuery
 {
     @Argument

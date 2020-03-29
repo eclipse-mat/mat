@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG
+ *    SAP AG - initial API and implementation
  *    Chris Grindstaff 
+ *    Andrew Johnson (IBM Corporation) - help
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -22,6 +23,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
@@ -34,6 +36,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Subject("char[]")
 @CommandName("waste_in_char_arrays")
 @Icon("/META-INF/icons/waste.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__strings")
 public class WasteInCharArraysQuery implements IQuery
 {
     @Argument

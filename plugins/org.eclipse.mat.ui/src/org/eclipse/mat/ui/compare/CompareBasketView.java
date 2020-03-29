@@ -479,7 +479,7 @@ public class CompareBasketView extends ViewPart
                         {
                             ProgressMonitorWrapper listener = new ProgressMonitorWrapper(monitor);
                             IResult absolute = compareQuery.execute(listener);
-                            QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle,
+                            QueryResult queryResult = new QueryResult((QueryDescriptor) compareQuery.getDescriptor(), Messages.CompareBasketView_ComparedTablesResultTitle,
                                             absolute);
                             QueryExecution.displayResult(editor, null, null, queryResult, false);
                             return Status.OK_STATUS;

@@ -46,13 +46,12 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
-import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
-import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsRecord;
@@ -67,6 +66,7 @@ import com.ibm.icu.text.NumberFormat;
 @CommandName("find_leaks2")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/leak.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/findingmemoryleak.html")
 public class FindLeaksQuery2 implements IQuery
 {
 

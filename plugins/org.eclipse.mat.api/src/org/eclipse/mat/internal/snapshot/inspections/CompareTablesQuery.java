@@ -2574,6 +2574,8 @@ public class CompareTablesQuery implements IQuery
                                             columns[i].getComparator());
                             columns[i].decorator(decorator);
                         }
+                        else if (columns[i].getCalculateTotals() && !c.getCalculateTotals())
+                            columns[i].noTotals();
                         // Set the converter
                         Object converter = c.getData(Filter.ValueConverter.class);
                         if (converter != null || columns[i].getData(Filter.ValueConverter.class) != null)
@@ -2614,6 +2616,8 @@ public class CompareTablesQuery implements IQuery
                                             columns[i].getComparator());
                             columns[i].decorator(decorator);
                         }
+                        else if (columns[i].getCalculateTotals() && !c.getCalculateTotals())
+                            columns[i].noTotals();
                         columns[i].formatting(c.getFormatter());
                         // Set the converter
                         Object converter = c.getData(Filter.ValueConverter.class);

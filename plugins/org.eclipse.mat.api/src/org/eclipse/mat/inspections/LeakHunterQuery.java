@@ -45,6 +45,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
@@ -80,6 +81,7 @@ import com.ibm.icu.text.NumberFormat;
 
 @CommandName("leakhunter")
 @Icon("/META-INF/icons/leak.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectsreport.html")
 public class LeakHunterQuery implements IQuery
 {
 

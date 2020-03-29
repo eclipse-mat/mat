@@ -423,7 +423,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
                                     pane.init(getEditorSite(), getEditorInput());
                                     pane.createPartControl(sectionClient);
-                                    pane.initWithArgument(new QueryResult(null, "pie_biggest_objects", result));//$NON-NLS-1$
+                                    pane.initWithArgument(new QueryResult(QueryRegistry.instance().getQuery("pie_biggest_objects"), "pie_biggest_objects", result));//$NON-NLS-1$ //$NON-NLS-2$
                                     form.reflow(true);
 
                                     if (pane instanceof ISelectionProvider)

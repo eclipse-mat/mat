@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - help after changing grouping
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
@@ -164,7 +165,8 @@ public class DominatorPane extends QueryResultPane
                                 break;
                         }
 
-                        final QueryResult queryResult = new QueryResult(null, "dominator_tree -groupBy " //$NON-NLS-1$
+                        QueryDescriptor query = QueryRegistry.instance().getQuery(DominatorQuery.class);
+                        final QueryResult queryResult = new QueryResult(query, "dominator_tree -groupBy " //$NON-NLS-1$
                                         + target.name(), tree);
 
                         top.getDisplay().asyncExec(new Runnable()

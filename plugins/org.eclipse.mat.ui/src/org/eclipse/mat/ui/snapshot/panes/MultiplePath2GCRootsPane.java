@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - help after changing grouping
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
@@ -17,6 +18,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
+import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -105,7 +107,7 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
                     MultiplePath2GCRootsQuery.Tree original = (MultiplePath2GCRootsQuery.Tree) viewer.getResult()
                                     .unwrap();
 
-                    final QueryResult queryResult = new QueryResult(null, "multiple_path -groupBy " + target.name(), //$NON-NLS-1$
+                    final QueryResult queryResult = new QueryResult(QueryRegistry.instance().getQuery("merge_shortest_paths"), "merge_shortest_paths -groupBy " + target.name(), //$NON-NLS-1$ //$NON-NLS-2$
                                     original.groupBy(target));
 
                     top.getDisplay().asyncExec(new Runnable()

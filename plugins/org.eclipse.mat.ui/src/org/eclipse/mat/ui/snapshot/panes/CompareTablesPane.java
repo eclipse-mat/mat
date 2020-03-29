@@ -312,7 +312,7 @@ public class CompareTablesPane extends QueryResultPane
                 ((TableComparisonResult) result).setMode(mode);
             }
 
-            final QueryResult queryResult = new QueryResult(null, "compare", result); //$NON-NLS-1$
+            final QueryResult queryResult = new QueryResult(viewer.getQueryResult().getQuery(), viewer.getQueryResult().getCommand(), result);
 
             new Job(getText()) {
                 protected IStatus run(IProgressMonitor monitor)
@@ -355,7 +355,7 @@ public class CompareTablesPane extends QueryResultPane
                 ((TableComparisonResult) result).updateColumns();
             }
 
-            final QueryResult queryResult = new QueryResult(null, "compare", result); //$NON-NLS-1$
+            final QueryResult queryResult = new QueryResult(viewer.getQueryResult().getQuery(), viewer.getQueryResult().getCommand(), result);
 
             new Job(getText()) {
                 protected IStatus run(IProgressMonitor monitor)
@@ -423,7 +423,7 @@ public class CompareTablesPane extends QueryResultPane
                 ((TableComparisonResult) result).setOperation(op);
             }
 
-            final QueryResult queryResult = new QueryResult(null,  viewer.getQueryResult().getCommand(), result);
+            final QueryResult queryResult = new QueryResult(viewer.getQueryResult().getQuery(), viewer.getQueryResult().getCommand(), result);
 
             new Job(getText())
             {
