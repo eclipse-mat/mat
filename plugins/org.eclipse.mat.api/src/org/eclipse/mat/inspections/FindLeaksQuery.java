@@ -47,6 +47,7 @@ import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsRecord;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
@@ -69,6 +70,8 @@ public class FindLeaksQuery implements IQuery
 
     private final static Set<String> REFERENCE_FIELD_SET = new HashSet<String>(Arrays
                     .asList(new String[] { "referent" })); //$NON-NLS-1$
+    private final static Set<String> UNFINALIZED_REFERENCE_FIELD_SET = new HashSet<String>(Arrays
+                    .asList(new String[] { "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" })); //$NON-NLS-1$ //$NON-NLS-2$
     private final static int MAX_DEPTH = 1000;
 
     // ////////////////////////////////////////////
@@ -236,6 +239,13 @@ public class FindLeaksQuery implements IQuery
             for (IClass clazz : classes)
             {
                 excludeMap.put(clazz, REFERENCE_FIELD_SET);
+            }
+        // Unfinalized objects from J9
+        classes = snapshot.getClassesByName("java.lang.Runtime", false); //$NON-NLS-1$
+        if (classes != null)
+            for (IClass clazz : classes)
+            {
+                excludeMap.put(clazz, UNFINALIZED_REFERENCE_FIELD_SET);
             }
 
         IMultiplePathsFromGCRootsComputer comp = snapshot.getMultiplePathsFromGCRoots(objectIds, excludeMap);

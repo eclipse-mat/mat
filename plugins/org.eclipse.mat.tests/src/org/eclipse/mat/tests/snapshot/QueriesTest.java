@@ -1255,7 +1255,7 @@ public class QueriesTest
     {
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false); // Do not dispose this as shared
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK8_64BIT_SYSTEM, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot1, snapshot2, 6, 1, 18);
+        testLeakHunter2Report(snapshot1, snapshot2, 5, 1, 16);
     }
 
     /**

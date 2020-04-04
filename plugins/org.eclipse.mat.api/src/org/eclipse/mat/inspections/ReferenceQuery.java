@@ -73,7 +73,16 @@ public class ReferenceQuery implements IQuery
                     IInstance obj = (IInstance) o;
                     ObjectReference ref = getReferent(obj, referent_attribute);
                     if (ref != null)
-                        referentSet.add(ref.getObjectId());
+                    {
+                        try
+                        {
+                            referentSet.add(ref.getObjectId());
+                        }
+                        catch (SnapshotException e)
+                        {
+                            listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.ReferenceQuery_MissingReferentObject, Long.toHexString(ref.getObjectAddress()), Long.toHexString(o.getObjectAddress()), referent_attribute), e);
+                        }
+                    }
                 }
             }
             if (listener.isCanceled())
@@ -113,7 +122,16 @@ public class ReferenceQuery implements IQuery
 
                 ObjectReference ref = getReferent(obj);
                 if (ref != null)
-                    referentSet.add(ref.getObjectId());
+                {
+                    try
+                    {
+                        referentSet.add(ref.getObjectId());
+                    }
+                    catch (SnapshotException e)
+                    {
+                        listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.ReferenceQuery_MissingReferentObject, Long.toHexString(ref.getObjectAddress()), Long.toHexString(obj.getObjectAddress()), DEFAULT_REFERENT), e);
+                    }
+                }
             }
 
             if (listener.isCanceled())

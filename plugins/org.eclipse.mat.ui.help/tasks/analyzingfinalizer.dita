@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2020 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson - J9 finalization 
  -->
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="task_analyzingfinalizer" xml:lang="en-us">
@@ -16,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -46,8 +47,8 @@
 								<b>Finalizer in Processing</b>
 							</entry>
 							<entry>
-								<p> Extract object currently processed by Finalizer Thread. This
-									query return the currently processed object by the Finalizer
+								<p> Extract the object currently processed by Finalizer Thread. This
+									query returns the currently processed object by the Finalizer
 									Thread if any. The returned object can be processed for one of
 									the following reasons:</p>
 								<ul>
@@ -72,13 +73,30 @@
 									<li> The application made use of too many objects with
 										finalize() which are queued up in memory.</li>
 								</ul>
-								<p>Note: On J9 JVM-based dumps (e.g. IBM Java, OpenJ9), this
-								   list shows objects waiting to be finalized and those
+								<note>
+								   On J9 JVM-based dumps (e.g. IBM Java, OpenJ9), as expected, this
+								   list shows objects waiting to be finalized. On previous versions
+								   of Memory Analyzer (1.10 and earlier) it also showed those
 								   which have already been finalized and are waiting to be
-								   garbage collected. This query does not provide a way to
-								   differentiate the two (because DTFJ doesn't), although you may 
-								   be able to differentiate based on object fields
-								   (e.g. a "closed" boolean field, etc.).</p>
+								   garbage collected. Those objects where finalization has been
+								   completed are not now shown by this query, but might be in
+								   the unreachable objects histogram if they are waiting to be
+								   reclaimed.
+								   <p>States</p>
+								   <ol>
+								   <li>Initially objects with a finalize method start in the
+								   <xref href="../concepts/gcroots.dita">UNFINALIZED</xref> state.
+								   With a J9 heap dump this is visible as an inbound <codeph>&lt;Unfinalized&gt;</codeph> reference from
+								   the <codeph>java.lang.Runtime</codeph> object.</li>
+								   <li>Once the object is no longer <xref href="../concepts/reachability.dita">reachable</xref>
+								   it goes onto the finalizer queue, visible via this query and with
+								   J9 heap dumps as a <xref href="../concepts/gcroots.dita">FINALIZABLE GC root</xref>.</li>
+								   <li>Once finalization is completed the object is not seen in either of these two
+								   ways. Normally it would be garbage collected, but if the <codeph>finalizer()</codeph>
+								   code made the object reachable again by storing a reference to it in an ordinary object
+								   it might still be strongly reachable.</li>
+								   </ol>
+								</note>
 								<p> Additionally a class-level summary of the objects is provided</p>
 							</entry>
 						</row>
@@ -97,7 +115,7 @@
 								<p>
 									This query shows the thread locals of the daemon thread that
 									performs the object finalizations. If there are any, this
-									indicates miss-use in at least one of the processed finalizers
+									indicates misuse in at least one of the processed finalizers
 									(
 									<cmdname>finalize()</cmdname>
 									implemented wrong) and might cause severe problems (e.g.
@@ -110,6 +128,9 @@
 					</tbody>
 				</tgroup>
 			</table>
+			<p>The <xref href="../reference/inspections/component_report.dita#ref_inspections_component_report__finalizer">component report</xref> also includes information about objects
+			belonging to the component which implement the <codeph>finalize()</codeph> method
+			and so could be finalized at some point.</p>
 		</context>
 	</taskbody>
 </task>

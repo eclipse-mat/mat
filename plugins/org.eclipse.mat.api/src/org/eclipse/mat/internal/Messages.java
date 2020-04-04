@@ -512,6 +512,8 @@ public class Messages extends NLS
 
     public static String ReferenceQuery_ErrorMsg_NoMatchingClassesFound;
     public static String ReferenceQuery_HistogramOfReferentObjects;
+    public static String ReferenceQuery_MissingReferentObject;
+
     public static String ReferenceQuery_Msg_ComputingReferentSet;
     public static String ReferenceQuery_Msg_ComputingRetainedSet;
     public static String ReferenceQuery_Msg_ComputingStronglyRetainedSet;

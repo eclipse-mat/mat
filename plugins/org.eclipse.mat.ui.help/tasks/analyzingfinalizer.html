@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
 <meta name="DC.Title" content="Analyzing Finalizer"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="task_analyzingfinalizer"/>
 <meta name="DC.Language" content="en-us"/>
@@ -43,8 +43,8 @@
 							</td>
 
 							<td class="entry" valign="top">
-								<p class="p"> Extract object currently processed by Finalizer Thread. This
-									query return the currently processed object by the Finalizer
+								<p class="p"> Extract the object currently processed by Finalizer Thread. This
+									query returns the currently processed object by the Finalizer
 									Thread if any. The returned object can be processed for one of
 									the following reasons:</p>
 
@@ -82,13 +82,35 @@
 
 								</ul>
 
-								<p class="p">Note: On J9 JVM-based dumps (e.g. IBM Java, OpenJ9), this
-								   list shows objects waiting to be finalized and those
+								<div class="note note"><span class="notetitle">Note:</span> 
+								   On J9 JVM-based dumps (e.g. IBM Java, OpenJ9), as expected, this
+								   list shows objects waiting to be finalized. On previous versions
+								   of Memory Analyzer (1.10 and earlier) it also showed those
 								   which have already been finalized and are waiting to be
-								   garbage collected. This query does not provide a way to
-								   differentiate the two (because DTFJ doesn't), although you may 
-								   be able to differentiate based on object fields
-								   (e.g. a "closed" boolean field, etc.).</p>
+								   garbage collected. Those objects where finalization has been
+								   completed are not now shown by this query, but might be in
+								   the unreachable objects histogram if they are waiting to be
+								   reclaimed.
+								   <p class="p">States</p>
+
+								   <ol class="ol">
+								   <li class="li">Initially objects with a finalize method start in the
+								   <a class="xref" href="../concepts/gcroots.html">UNFINALIZED</a> state.
+								   With a J9 heap dump this is visible as an inbound <samp class="ph codeph">&lt;Unfinalized&gt;</samp> reference from
+								   the <samp class="ph codeph">java.lang.Runtime</samp> object.</li>
+
+								   <li class="li">Once the object is no longer <a class="xref" href="../concepts/reachability.html">reachable</a>
+								   it goes onto the finalizer queue, visible via this query and with
+								   J9 heap dumps as a <a class="xref" href="../concepts/gcroots.html">FINALIZABLE GC root</a>.</li>
+
+								   <li class="li">Once finalization is completed the object is not seen in either of these two
+								   ways. Normally it would be garbage collected, but if the <samp class="ph codeph">finalizer()</samp>
+								   code made the object reachable again by storing a reference to it in an ordinary object
+								   it might still be strongly reachable.</li>
+
+								   </ol>
+
+								</div>
 
 								<p class="p"> Additionally a class-level summary of the objects is provided</p>
 
@@ -115,7 +137,7 @@
 								<p class="p">
 									This query shows the thread locals of the daemon thread that
 									performs the object finalizations. If there are any, this
-									indicates miss-use in at least one of the processed finalizers
+									indicates misuse in at least one of the processed finalizers
 									(
 									<span class="keyword cmdname">finalize()</span>
 									implemented wrong) and might cause severe problems (e.g.
@@ -132,6 +154,10 @@
 
 				</table>
 </div>
+
+			<p class="p">The <a class="xref" href="../reference/inspections/component_report.html#ref_inspections_component_report__finalizer">component report</a> also includes information about objects
+			belonging to the component which implement the <samp class="ph codeph">finalize()</samp> method
+			and so could be finalized at some point.</p>
 
 		</div>
 

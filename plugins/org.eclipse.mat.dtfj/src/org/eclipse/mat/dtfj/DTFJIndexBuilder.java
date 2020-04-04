@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -76,10 +77,10 @@ import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
-import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
@@ -914,7 +915,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         try
         {
-            ifo.setJvmInfo(dtfjInfo.getJavaRuntime().getVersion());
+            String version = dtfjInfo.getJavaRuntime().getVersion();
+            ifo.setJvmInfo(version);
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_JVMVersion, ifo
                             .getJvmInfo()), null);
         }
@@ -1218,7 +1220,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // Scan stack frames for pseudo-classes
                 int frameId = 0;
                 long prevFrameAddress = 0;
-                for (Iterator<?> ii = th.getStackFrames(); ii.hasNext(); ++frameId)
+                for (Iterator<?> ii = getStackFrames(th); ii.hasNext(); ++frameId)
                 {
                     Object next2 = ii.next();
                     if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames,
@@ -1275,7 +1277,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     }
                                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                                     Messages.DTFJIndexBuilder_DuplicateJavaStackFrame, frameId,
-                                                    format(frameAddress), newMethodName, oldMethodName,
+                                                    format(frameAddress), oldMethodName, newMethodName,
                                                     format(threadAddress)), null);
                                 }
                             }
@@ -2467,7 +2469,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         out.print("Thread "); //$NON-NLS-1$
         long threadAddress = getThreadAddress(th, null);
         out.println(threadAddress != 0  ? "0x"+Long.toHexString(threadAddress) : "<unknown>"); //$NON-NLS-1$ //$NON-NLS-2$
-        for (Iterator<?> it = th.getStackFrames(); it.hasNext(); out.println())
+        for (Iterator<?> it = getStackFrames(th); it.hasNext(); out.println())
         {
             Object next = it.next();
             out.print(" at "); //$NON-NLS-1$
@@ -2853,7 +2855,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     int frameNum = 0;
                     // We need to look ahead to get the frame size
                     Object nextFrame = null;
-                    for (Iterator<?> ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameNum)
+                    for (Iterator<?> ii = getStackFrames(th); nextFrame != null || ii.hasNext(); ++frameNum)
                     {
                         // Use the lookahead frame if available
                         Object next2;
@@ -3027,6 +3029,28 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         return goodDTFJRoots;
+    }
+
+    /**
+     * Safely get stack frames.
+     * Sometimes reading OpenJ9 with IBM DTFJ or vice versa gives problems. 
+     */
+    private Iterator<?> getStackFrames(JavaThread th)
+    {
+        Iterator<?> ii;
+        try
+        {
+            ii = th.getStackFrames();
+        }
+        catch (ExceptionInInitializerError e)
+        {
+            ii = Collections.EMPTY_LIST.iterator();
+        }
+        catch (NoClassDefFoundError e)
+        {
+            ii = Collections.EMPTY_LIST.iterator();
+        }
+        return ii;
     }
 
     /**
@@ -3431,9 +3455,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             Messages.DTFJIndexBuilder_ProblemGettingObjectSize, format(objAddr)), e);
             // Try to cope with bad sizes - at least register an instance of
             // this class
-            cls.addInstance(0);
+            // Use a non-zero size for arrays so that ISnapshot.isArray() works
+            long size = cls.isArrayType() ? 8 : 0;
+            cls.addInstance(size);
             if (cls.getHeapSizePerInstance() == -1)
-                cls.setHeapSizePerInstance(0);
+                cls.setHeapSizePerInstance(size);
+            // Bytes, not elements
+            indexToSize.set(objId, size);
+            if (debugInfo)
+            {
+                // For calculating purge sizes
+                objectToSize2.set(objId, size);
+            }
         }
 
         // To accumulate the outbound refs
@@ -4182,6 +4215,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // The object will in the end need to be finalized, but is
                     // currently in use
                     type = GCRootInfo.Type.UNFINALIZED;
+                    // No need to guess
+                    foundFinalizableGCRoots = true;
                     break;
                 case JavaReference.HEAP_ROOT_CLASSLOADER:
                     type = GCRootInfo.Type.SYSTEM_CLASS;
@@ -4219,6 +4254,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 case JavaReference.REACHABILITY_STRONG:
                     break;
                 case JavaReference.REACHABILITY_WEAK:
+                    if (type == GCRootInfo.Type.UNFINALIZED)
+                        threadRoot = true;
+                    else if (skipWeakRoots)
+                        return;
+                    break;
                 case JavaReference.REACHABILITY_SOFT:
                 case JavaReference.REACHABILITY_PHANTOM:
                     if (skipWeakRoots)
@@ -4319,7 +4359,33 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 else if (so instanceof JavaRuntime)
                 {
-                    // Not expected, but J9 DTFJ returns this
+                    JavaRuntime jr = (JavaRuntime)so;
+                    if (type == GCRootInfo.Type.UNFINALIZED)
+                    {
+                        // Attach finalizers to the runtime
+                        ClassImpl cls = findClassFromName("java.lang.Runtime", listener); //$NON-NLS-1$
+                        if (cls != null)
+                        {
+                            for (Field f : cls.getStaticFields())
+                            {
+                                if (f.getType() == Type.OBJECT)
+                                {
+                                    Object n = f.getValue();
+                                    if (f.getValue() instanceof ObjectReference)
+                                    {
+                                        // Instance which is of this type
+                                        ObjectReference io = (ObjectReference)n;
+                                        // Haven't got an address to id to class mapping yet to check the type
+                                        if (f.getName().toLowerCase(Locale.ENGLISH).contains("runtime")) //$NON-NLS-1$
+                                        {
+                                            source = io.getObjectAddress();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Not expected, but J9 DTFJ returns this e.g. for unfinalized objects
                     if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
                 }
                 else if (so == null)
@@ -5128,7 +5194,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (nJavaRuntimes > 1) {
                 // Prompt for selection
                 // Thrown an exception back to the UI to allow selection
-                MultipleSnapshotsException multipleRuntimeException = new MultipleSnapshotsException(MessageUtil.format(Messages.DTFJIndexBuilder_JavaRuntimesFound, nJavaRuntimes));
+                MultipleSnapshotsException multipleRuntimeException = new MultipleSnapshotsException(MessageFormat.format(Messages.DTFJIndexBuilder_JavaRuntimesFound, nJavaRuntimes));
                 for (MultipleSnapshotsException.Context runtime : runtimes)
                 {
                     multipleRuntimeException.addContext(runtime);
@@ -7884,8 +7950,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             name = javaClass.getName();
+            int ix = name.indexOf(0);
+            if (ix >= 0)
+                name = null;
         }
         catch (CorruptDataException e)
+        {
+            name = null;
+        }
+        if (name == null)
         {
             long id = getClassAddress(javaClass, listen);
             name = "corruptClassName@" + format(id); //$NON-NLS-1$

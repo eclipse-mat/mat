@@ -15,11 +15,8 @@ package org.eclipse.mat.inspections.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -54,7 +51,9 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -81,6 +80,8 @@ public class ComponentReportQuery implements IQuery
     public boolean aggressive;
 
     private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
+
+    private static final String UNFINALIZED_REFERENCE = "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -230,6 +231,7 @@ public class ComponentReportQuery implements IQuery
         List<ExcludedReferencesDescriptor> excludes = new ArrayList<ExcludedReferencesDescriptor>();
 
         addExcludes(excludes, "java.lang.ref.Finalizer", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
+        addExcludes(excludes, "java.lang.Runtime", UNFINALIZED_REFERENCE); //$NON-NLS-1$
         addExcludes(excludes, "java.lang.ref.PhantomReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.WeakReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.SoftReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -398,6 +400,7 @@ public class ComponentReportQuery implements IQuery
                 String command = "customized_retained_set"; //$NON-NLS-1$
                 command += " " + objectLabel; //$NON-NLS-1$
                 command += " -x java.lang.ref.Finalizer:referent"; //$NON-NLS-1$
+                command += " java.lang.Runtime:" + UNFINALIZED_REFERENCE; //$NON-NLS-1$
                 command += " java.lang.ref.PhantomReference:referent"; //$NON-NLS-1$
                 command += " java.lang.ref.WeakReference:referent"; //$NON-NLS-1$
                 command += " java.lang.ref.SoftReference:referent"; //$NON-NLS-1$
@@ -1015,12 +1018,11 @@ public class ComponentReportQuery implements IQuery
     private void addFinalizerStatistic(SectionSpec componentReport, int[] retained, Ticks ticks)
                     throws SnapshotException
     {
+        boolean foundSomeFinalizers = false;
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.Finalizer", true); //$NON-NLS-1$
-        if (classes == null || classes.isEmpty())
+        if (classes == null)
         {
-            addEmptyResult(componentReport, Messages.ComponentReportQuery_FinalizerStatistics,
-                            Messages.ComponentReportQuery_Msg_NoFinalizerObjects);
-            return;
+            classes = Collections.emptyList();
         }
 
         // Currently SetInt uses a lot of memory - 32+8 bits @ 75% capacity = 53 bits per item
@@ -1054,6 +1056,7 @@ public class ComponentReportQuery implements IQuery
                 if (ticks.isCanceled())
                     break;
                 IInstance obj = (IInstance) snapshot.getObject(objectId);
+                foundSomeFinalizers = true;
 
                 ObjectReference ref = ReferenceQuery.getReferent(obj);
                 if (ref != null)
@@ -1067,6 +1070,42 @@ public class ComponentReportQuery implements IQuery
             }
         }
 
+        if (!foundSomeFinalizers)
+        {
+            // Find J9 unfinalized objects via java.lang.Runtime
+            classes = snapshot.getClassesByName("java.lang.Runtime", false); //$NON-NLS-1$
+            if (classes != null)
+            {
+                for (IClass c : classes)
+                {
+                    for (int objectId : c.getObjectIds())
+                    {
+                        if (ticks.isCanceled())
+                            break;
+                        IInstance obj = (IInstance) snapshot.getObject(objectId);
+                        for (NamedReference nr : obj.getOutboundReferences())
+                        {
+                            if (nr instanceof ThreadToLocalReference)
+                            {
+                                ThreadToLocalReference pr = (ThreadToLocalReference)nr;
+                                for (GCRootInfo rootInfo: pr.getGcRootInfo())
+                                {
+                                    if (rootInfo.getType() == GCRootInfo.Type.UNFINALIZED)
+                                    {
+                                        foundSomeFinalizers = true;
+                                        int referentId = rootInfo.getObjectId();
+                                        if (useBits ? retainedIds.get(referentId) : retainedSet.contains(referentId))
+                                        {
+                                            finalizers.add(referentId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Add other objects marked as not yet finalized
         for (int root : snapshot.getGCRoots())
         {
@@ -1076,6 +1115,7 @@ public class ComponentReportQuery implements IQuery
                 if (rootInfo.getType() == GCRootInfo.Type.UNFINALIZED
                                 || rootInfo.getType() == GCRootInfo.Type.FINALIZABLE)
                 {
+                    foundSomeFinalizers = true;
                     int referentId = rootInfo.getObjectId();
                     if (useBits ? retainedIds.get(referentId) : retainedSet.contains(referentId))
                     {
@@ -1084,6 +1124,14 @@ public class ComponentReportQuery implements IQuery
                     break;
                 }
             }
+        }
+
+        if (!foundSomeFinalizers)
+        {
+            // No finalizers found anywhere, not just for this component
+            addEmptyResult(componentReport, Messages.ComponentReportQuery_FinalizerStatistics,
+                            Messages.ComponentReportQuery_Msg_NoFinalizerObjects);
+            return;
         }
 
         if (finalizers.isEmpty())

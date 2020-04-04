@@ -1058,6 +1058,10 @@ public class LeakHunterQuery implements IQuery
             //named argument after -excludes
             sb.append(" -excludes java.lang.ref.WeakReference:"); //$NON-NLS-1$
             sb.append("referent"); //$NON-NLS-1$
+            sb.append(" -excludes java.lang.ref.Finalizer:"); //$NON-NLS-1$
+            sb.append("referent"); //$NON-NLS-1$
+            sb.append(" -excludes java.lang.Runtime:"); //$NON-NLS-1$
+            sb.append("<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
             sb.append(" -groupby FROM_GC_ROOTS"); //$NON-NLS-1$
             for (int objId : objectIds)
             {

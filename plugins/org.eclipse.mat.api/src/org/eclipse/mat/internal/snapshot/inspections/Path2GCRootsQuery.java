@@ -51,13 +51,13 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("path2gc")
 @Icon("/META-INF/icons/path2gc.gif")
 @Menu( { @Entry(options = "-excludes \"\""), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>"), //
                 @Entry(options = "-excludes java.lang.ref.SoftReference:referent"), //
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent"), //
-                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.SoftReference:referent"), //                
-                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent"), //
-                @Entry(options = "-excludes java.lang.ref.Reference:referent") //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized> java.lang.ref.SoftReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.SoftReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>"), //
+                @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.Runtime:<Unfinalized>") //
 })
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/path_to_gc_roots.html")
 public class Path2GCRootsQuery implements IQuery
