@@ -2413,6 +2413,26 @@ public class CompareTablesQuery implements IQuery
             return ret;
         }
 
+        /*
+         * Used for type promotion.
+         */
+        private int type(Number o)
+        {
+            if (o instanceof Byte)
+                return 1;
+            else if (o instanceof Short)
+                return 2;
+            else if (o instanceof Integer)
+                return 3;
+            else if (o instanceof Long)
+                return 4;
+            else if (o instanceof Float)
+                return 5;
+            else if (o instanceof Double)
+                return 6;
+            return 6;
+        }
+
         private Object computeDiff(Number o1, Number o2)
         {
             if (o1 instanceof Long && o2 instanceof Long) return (o2.longValue() - o1.longValue());
@@ -2427,6 +2447,25 @@ public class CompareTablesQuery implements IQuery
 
             if (o1 instanceof Double && o2 instanceof Double) return (o2.doubleValue() - o1.doubleValue());
 
+            // Different types, so try promoting the smallest
+            int t1 = type(o1);
+            int t2 = type(o2);
+            int t = Math.max(t1, t2);
+            switch (t)
+            {
+                case 1:
+                    return o2.byteValue() - o1.byteValue();
+                case 2:
+                    return o2.shortValue() - o1.shortValue();
+                case 3:
+                    return o2.intValue() - o1.intValue();
+                case 4:
+                    return o2.longValue() - o1.longValue();
+                case 5:
+                    return o2.floatValue() - o1.floatValue();
+                case 6:
+                    return o2.doubleValue() - o1.doubleValue();
+            }
             return null;
         }
 
