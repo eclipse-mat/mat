@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - help
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -43,7 +44,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("duplicate_classes")
-@HelpUrl("/org.eclipse.mat.ui.help/reference/findingmemoryleak.html")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/duplicate_classes.html")
 @Icon("/META-INF/icons/duplicate_classes.gif")
 public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator,
                 ISelectionProvider

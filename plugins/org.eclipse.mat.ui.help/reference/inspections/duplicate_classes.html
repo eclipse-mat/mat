@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Duplicate Classes"/>
+<meta name="abstract" content="Classes where there are two or more with the same name."/>
+<meta name="description" content="Classes where there are two or more with the same name."/>
+<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_duplicate_classes"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<title>Duplicate Classes</title>
+</head>
+<body id="ref_duplicate_classes">
+
+
+	<h1 class="title topictitle1">Duplicate Classes</h1>
+
+	
+	
+	
+	<div class="body refbody"><p class="shortdesc">Classes where there are two or more with the same name.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			Sometimes classes can be loaded multiple times.
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
+			
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
+					<th valign="bottom" align="left" id="d4533e40" class="stentry">Argument</th>
+
+					<th valign="bottom" align="left" id="d4533e43" class="stentry">Description</th>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d4533e40" class="stentry">None</td>
+
+					<td valign="top" headers="d4533e43" class="stentry">No arguments are supplied to this query</td>
+
+				</tr>
+</table>
+
+		</div>
+
+		<div class="section" id="ref_duplicate_classes__result"><h2 class="title sectiontitle">Result</h2>
+			
+			<p class="p">A tree showing each class which has been loaded multiple times.
+			Underneath are the class loaders which loaded the class of that name.
+			</p>
+
+			<img class="image floatleft" src="duplicate_classes.png" alt="A tree view of the duplicate classes and their class loaders&#34;&gt;"/>
+			<p class="p">If a classes has been loaded multiple times then this might indicate
+			a problem. Sometimes it is deliberate, where different class loaders
+			are part of the application. Sometimes a class is replaced on the fly by
+			the application or as part of a deploy/undeploy cycle in an application
+			server and the old
+			class loader and associated classes should be garbage collected.
+			This can only happen once all the instances of classes, the classes themselves
+			and the class loader are no longer accessible from the rest of the application
+			or GC roots.</p>
+
+			<p class="p">
+			If there are no or few instances shown in a class loader line
+			then that class loader might not be used anymore, but some spurious refence
+			might be keeping the class loader alive or one of its defined classes or some of the instances alive, and so
+			that class loader alive. The <a class="xref" href="path_to_gc_roots.html" title="Find out who is keeping alive a set of objects.">Path to GC Roots</a>
+			query can help tell why a class loader is kept alive.</p>
+
+			<div class="note note"><span class="notetitle">Note:</span> Java 8 and later virtual machines create some synthetic classes
+			for lambda expressions. These can have names such as
+			<span class="keyword cmdname">java.lang.invoke.LambdaForm$DMH</span>, <span class="keyword cmdname">java.lang.invoke.LambdaForm$MH</span> and
+			<span class="keyword cmdname">java.lang.invoke.LambdaForm$BMH</span>. These classes are unusual
+			in that multiple classes of the same name are loaded by the same class loader.
+			Unless you think you have a particular problem with lambda expressions, either in 
+			the code or the way the JVM handles them, then these classes can be ignored.</div>
+
+			<div class="note note"><span class="notetitle">Note:</span> The <span class="q">"Defined Classes"</span> and <span class="q">"No. of instances"</span> columns
+			show figures for the entire class loader.</div>
+
+		</div>
+
+	</div>
+
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -485,4 +485,25 @@ public class CommonNameResolver
         }
     }
 
+    @Subject("java.lang.invoke.MemberName")
+    public static class MemberNameResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            StringBuilder buf = new StringBuilder();
+            IObject value = (IObject) heapObject.resolveValue("name"); //$NON-NLS-1$
+            if (value != null)
+            {
+                IObject cvalue = (IObject) heapObject.resolveValue("clazz"); //$NON-NLS-1$
+                if (cvalue instanceof IClass)
+                {
+                    IClass cls = (IClass)cvalue;
+                    buf.append(cls.getName()).append('.');
+                }
+                buf.append(ClassSpecificNameResolverRegistry.resolve(value));
+                return buf.toString();
+            }
+            return null;
+        }
+    }
 }
