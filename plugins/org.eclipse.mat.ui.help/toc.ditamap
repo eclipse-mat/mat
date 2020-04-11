@@ -46,6 +46,8 @@
 				type="reference" />
 			<topicref href="reference/inspections/retained_set.dita"
 				type="reference" />
+			<topicref href="reference/inspections/duplicate_classes.dita"
+				type="reference" />
 			<topicref href="reference/inspections/top_consumers.dita"
 				type="reference" />
 			<topicref href="reference/inspections/unreachable_objects.dita"

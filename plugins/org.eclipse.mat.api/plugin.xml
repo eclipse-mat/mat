@@ -120,6 +120,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StackTraceElementResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$EnumResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ExternalDataResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MemberNameResolver" />
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />

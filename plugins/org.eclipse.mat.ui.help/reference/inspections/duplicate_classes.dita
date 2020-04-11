@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_duplicate_classes" xml:lang="en-us">
+	<title>Duplicate Classes</title>
+	<shortdesc>Classes where there are two or more with the same name.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2020 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+	
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			Sometimes classes can be loaded multiple times.
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>None</stentry>
+					<stentry>No arguments are supplied to this query</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>A tree showing each class which has been loaded multiple times.
+			Underneath are the class loaders which loaded the class of that name.
+			</p>
+			<image href="duplicate_classes.png" outputclass="floatleft">
+				<alt>A tree view of the duplicate classes and their class loaders"></alt>
+			</image>
+			<p>If a classes has been loaded multiple times then this might indicate
+			a problem. Sometimes it is deliberate, where different class loaders
+			are part of the application. Sometimes a class is replaced on the fly by
+			the application or as part of a deploy/undeploy cycle in an application
+			server and the old
+			class loader and associated classes should be garbage collected.
+			This can only happen once all the instances of classes, the classes themselves
+			and the class loader are no longer accessible from the rest of the application
+			or GC roots.</p>
+			<p>
+			If there are no or few instances shown in a class loader line
+			then that class loader might not be used anymore, but some spurious refence
+			might be keeping the class loader alive or one of its defined classes or some of the instances alive, and so
+			that class loader alive. The <xref href="path_to_gc_roots.dita">Path to GC Roots</xref>
+			query can help tell why a class loader is kept alive.</p>
+			<note>Java 8 and later virtual machines create some synthetic classes
+			for lambda expressions. These can have names such as
+			<cmdname>java.lang.invoke.LambdaForm$DMH</cmdname>, <cmdname>java.lang.invoke.LambdaForm$MH</cmdname> and
+			<cmdname>java.lang.invoke.LambdaForm$BMH</cmdname>. These classes are unusual
+			in that multiple classes of the same name are loaded by the same class loader.
+			Unless you think you have a particular problem with lambda expressions, either in 
+			the code or the way the JVM handles them, then these classes can be ignored.</note>
+			<note>The <q>Defined Classes</q> and <q>No. of instances</q> columns
+			show figures for the entire class loader.</note>
+		</section>
+	</refbody>
+</reference>
