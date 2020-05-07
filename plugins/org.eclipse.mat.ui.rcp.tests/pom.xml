@@ -68,7 +68,7 @@
 						<extraRequirements>
 							<requirement>
 								<type>p2-installable-unit</type>
-								<id>org.hamcrest</id>
+								<id>org.hamcrest.core</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 							<requirement>
