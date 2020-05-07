@@ -67,7 +67,7 @@
 					<dependency-resolution>
 						<extraRequirements>
 							<requirement>
-								<type>eclipse-plugin</type>
+								<type>p2-installable-unit</type>
 								<id>org.hamcrest</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
