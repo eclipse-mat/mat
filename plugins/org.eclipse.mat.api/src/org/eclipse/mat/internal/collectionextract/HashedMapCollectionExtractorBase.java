@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -218,9 +218,9 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
 
             if (nextEntryId == -1)
             {
-                if (snapshot.getClassOf(entryId).getName().equals("java.util.concurrent.ConcurrentHashMap$TreeBin"))
+                if (snapshot.getClassOf(entryId).getName().equals("java.util.concurrent.ConcurrentHashMap$TreeBin")) //$NON-NLS-1$
                 {
-                    Object o = entry.resolveValue("first");
+                    Object o = entry.resolveValue("first"); //$NON-NLS-1$
                     if (o instanceof IInstance)
                     {
                         entry = (IInstance) o;

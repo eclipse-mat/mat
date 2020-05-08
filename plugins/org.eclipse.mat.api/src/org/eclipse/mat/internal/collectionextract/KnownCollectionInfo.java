@@ -113,7 +113,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                              new HashSetCollectionExtractor(
                                                     "backingMap.elementCount", "backingMap.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-                    // Can wrap any collection, not just creat a HashMap
+                    // Can wrap any collection, not just create a HashMap
                     new CollectionExtractionInfo("javax.script.SimpleBindings", JdkVersion.except(IBM16), new WrapperMapExtractor("map")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("javax.script.SimpleBindings", IBM16, // //$NON-NLS-1$
                                     new HashMapCollectionExtractor(
@@ -234,13 +234,19 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.RegularEnumSet", new RegularEnumSetExtractor("elements", "Universe")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // New Java 9 collections
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set1", new SingletonCollectionExtractor("e0")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set0", new EmptyMapExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List0", new EmptyCollectionExtractor()), //$NON-NLS-1$
+
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set1", new SetFromCollectionExtractor(new SingletonCollectionExtractor("e0"), 0.0)), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.ImmutableCollections$List1", new SingletonCollectionExtractor("e0")), //$NON-NLS-1$ //$NON-NLS-2$
 
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set2", new PairCollectionExtractor("e0", "e1")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set2", new SetFromCollectionExtractor(new PairCollectionExtractor("e0", "e1"))), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.ImmutableCollections$List2", new PairCollectionExtractor("e0", "e1")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$SetN", new FieldSizeArrayCollectionExtractor("elements.@length", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set12", new SetFromCollectionExtractor(new Pair12CollectionExtractor("e0", "e1"))), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List12", new Pair12CollectionExtractor("e0", "e1")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$SetN", new SetFromCollectionExtractor(new FieldSizeArrayCollectionExtractor("elements.@length", "elements"))), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.ImmutableCollections$ListN", new FieldSizeArrayCollectionExtractor("elements.@length", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     new CollectionExtractionInfo("java.util.ImmutableCollections$MapN", new IdentityHashMapCollectionExtractor("size", "table")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -617,6 +617,12 @@ public class Messages extends NLS
     public static String WeakReferenceStatQuery_Label_Referenced;
     public static String WeakReferenceStatQuery_Label_Retained;
     public static String WeakReferenceStatQuery_Label_StronglyRetainedReferents;
+    public static String WrapperCollectionExtractor_CouldNotResolveMultiple;
+    public static String WrapperCollectionExtractor_CouldNotResolveNone;
+    public static String WrapperCollectionExtractor_NotAList1;
+    public static String WrapperCollectionExtractor_NotAList2;
+    public static String WrapperCollectionExtractor_NotAMap1;
+    public static String WrapperCollectionExtractor_NotAMap2;
 
     static
     {

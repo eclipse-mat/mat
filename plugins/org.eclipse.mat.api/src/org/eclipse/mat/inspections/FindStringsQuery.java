@@ -39,7 +39,7 @@ public class FindStringsQuery implements IQuery
     public ISnapshot snapshot;
 
     // Experimental default heap argument
-    @Argument(isMandatory = false)
+    @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
     public IHeapObjectArgument objects = new IHeapObjectArgument() {
         public Iterator<int[]> iterator()
         {

@@ -118,12 +118,55 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
      */
     public boolean hasCollisionRatio()
     {
-        return false;
+        return true;
     }
 
+    /**
+     * Complete guess as to collision ratio.
+     * Look for consecutive entries - perhaps they were caused
+     * by a linear probe.
+     */
     public Double getCollisionRatio(IObject coll) throws SnapshotException
     {
-        return null;
+        IObjectArray array = super.extractEntries(coll);
+        if (array == null)
+            return 0.0;
+
+        int consec = 0;
+        int count = 0;
+        boolean first = false;
+        boolean prev = false;
+        for (int i = 0; i < array.getLength(); i += 2)
+        {
+            long l[] = array.getReferenceArray(i, 2);
+            // Skip over empty entries
+            boolean empty = true;
+            for (int j = 0; j < l.length; ++j)
+            {
+                if (l[j] != 0)
+                {
+                    empty = false;
+                    break;
+                }
+            }
+            if (empty)
+            {
+                prev = false;
+                continue;
+            }
+            ++count;
+            if (i == 0)
+                first = true;
+            if (prev)
+                ++consec;
+            prev = true;
+        }
+        if (first && prev)
+            ++consec;
+        // Ad-hoc calculation
+        if (count == 0)
+            return 0.0;
+        return 0.5*(double)consec / count;
     }
 
     public Double getFillRatio(IObject coll) throws SnapshotException

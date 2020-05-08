@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2018 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson/IBM Corporation - initial API and implementation
+ -->
+<section name="All Queries Tests"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.eclipse.org/mat/report.xsd"
+	xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd ../../../org.eclipse.mat.report/schema/report.xsd">
+	<query name="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery">
+		<command>dominator_tree</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery">
+		<command>dominator_tree -groupby NONE</command>
+	</query>
+		<query name="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery">
+		<command>dominator_tree -groupby BY_CLASS</command>
+	</query>
+		<query name="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery">
+		<command>dominator_tree -groupby BY_CLASSLOADER</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery">
+		<command>dominator_tree -groupby BY_PACKAGE</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.ShowInDominatorQuery">
+		<command>show_dominator_tree java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery">
+		<command>path2gc java.lang.Runtime</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery">
+		<command>path2gc java.lang.Runtime -numberofpaths 20 -excludes java.lang.ref.WeakReference:referent</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
+		<command>merge_shortest_paths -groupby FROM_GC_ROOTS java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
+		<command>merge_shortest_paths -groupby FROM_GC_ROOTS_BY_CLASS java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
+		<command>merge_shortest_paths -groupby FROM_OBJECTS_BY_CLASS java.lang.String</command>
+	</query>
+	<!-- comparisons -->
+	<!-- <query name="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery"> 
+		<command>comparetablesquery</command> </query> <query name="org.eclipse.mat.inspections.SimpleComparison"> 
+		<command>simplecomparison</command> </query> -->
+
+	<!-- core -->
+	<query name="org.eclipse.mat.inspections.HistogramQuery">
+		<command>histogram</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.HistogramQuery">
+		<command>histogram -groupby BY_CLASS</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.HistogramQuery">
+		<command>histogram -groupby BY_CLASSLOADER</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.HistogramQuery">
+		<command>histogram -groupby BY_SUPERCLASS</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.HistogramQuery">
+		<command>histogram -groupby BY_PACKAGE</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.RetainedSetQuery">
+		<command>show_retained_set java.util.HashMap</command>
+	</query>
+	<query
+		name="org.eclipse.mat.inspections.CustomizedRetainedSetQuery">
+		<command>customized_retained_set java.util.HashMap -x java.lang.ref.Reference:referent</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.DuplicatedClassesQuery">
+		<command>duplicate_classes</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.GroupByValueQuery">
+		<command>group_by_value java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.OQLQuery">
+		<command>oql "select * from java.lang.String"</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ImmediateDominatorsQuery">
+		<command>immediate_dominators java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.TopConsumersQuery">
+		<command>top_consumers</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.TopConsumers2Query">
+		<command>top_consumers_html</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.FindStringsQuery">
+		<command>find_strings -pattern .*abc.* -objects java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.SystemPropertiesQuery">
+		<command>system_properties</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.HeapDumpInfoQuery">
+		<command>heap_dump_overview</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ObjectListQuery">
+		<command>list_objects java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ObjectListQuery">
+		<command>list_objects -inbound java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ClassReferrersQuery">
+		<command>class_references java.util.HashMap -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ClassReferrersQuery">
+		<command>class_references java.util.HashMap -include_subclasses -inbound</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.BiggestObjectsPieQuery">
+		<command>pie_biggest_objects</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.ClassLoaderExplorerQuery">
+		<command>classloaderexplorerquery</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.GCRootsQuery">
+		<command>gc_roots</command>
+	</query>
+
+	<!-- basics -->
+	<query name="org.eclipse.mat.inspections.WasteInCharArraysQuery">
+		<command>waste_in_char_arrays -minimumwaste 40</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.UnreachableObjectsQuery">
+		<command>unreachable_objects</command>
+	</query>
+
+	<!-- leak identification -->
+	<query name="org.eclipse.mat.inspections.LeakHunterQuery">
+		<command>leakhunter</command>
+	</query>
+	<!-- <query name="org.eclipse.mat.inspections.LeakHunterQuery2"> <command></command> 
+		</query> -->
+	<query name="org.eclipse.mat.inspections.FindLeaksQuery">
+		<command>find_leaks</command>
+	</query>
+	<!-- <query name="org.eclipse.mat.inspections.FindLeaksQuery2"> <command>find_leaks2 
+		-baseline ${baseline}</command> </query> <query name="org.eclipse.mat.inspections.ComparisonReport"> 
+		<command>comparison_report -baseline ${baseline}</command> </query> -->
+	<query name="org.eclipse.mat.inspections.BigDropsQuery">
+		<command>big_drops_in_dominator_tree -skip java.*</command>
+	</query>
+	<!-- <query name="org.eclipse.mat.inspections.DeltaHistogram"> <command>delta_histogram 
+		-snapshot2 ${baseline}</command> </query> -->
+	<query name="org.eclipse.mat.inspections.ReferenceLeakQuery">
+		<command>reference_leak .*</command>
+	</query>
+
+	<!-- Threads -->
+	<query name="org.eclipse.mat.inspections.threads.ThreadOverviewQuery">
+		<command>thread_overview java.lang.Thread -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.threads.ThreadInfoQuery">
+		<command>thread_details java.lang.Thread -include_subclasses</command>
+	</query>
+
+	<!-- Collections -->
+	<query name="org.eclipse.mat.inspections.collections.ArrayFillRatioQuery">
+		<command>array_fill_ratio java.lang.Object[] -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.ArraysBySizeQuery">
+		<command>arrays_grouped_by_size java.lang.Object[] -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.CollectionFillRatioQuery">
+		<command>collection_fill_ratio java.util.AbstractCollection -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.CollectionFillRatioQuery">
+		<command>collection_fill_ratio java.util.AbstractMap -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.CollectionsBySizeQuery">
+		<command>collections_grouped_by_size java.util.AbstractCollection -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.CollectionsBySizeQuery">
+		<command>collections_grouped_by_size java.util.AbstractMap -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.HashEntriesQuery">
+		<command>hash_entries java.util.AbstractMap -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.MapCollisionRatioQuery">
+		<command>map_collision_ratio java.util.AbstractMap -include_subclasses</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.ExtractListValuesQuery">
+		<command>extract_list_values java.util.Collections$EmptyList</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.HashSetValuesQuery">
+		<command>hash_set_values java.util.Collections$EmptySet</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.collections.PrimitiveArraysWithAConstantValueQuery">
+		<command>primitive_arrays_with_a_constant_value int[]</command>
+	</query>
+
+	<!-- Referents -->
+	<query name="org.eclipse.mat.inspections.ReferenceQuery">
+		<command>references_statistics java.lang.ref.Reference -include_subclasses -referent_attribute referent</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.WeakReferenceStatQuery">
+		<command>weak_references_statistics</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.SoftReferenceStatQuery">
+		<command>soft_references_statistics</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.FinalizerReferenceStatQuery">
+		<command>finalizer_references_statistics</command>
+	</query>
+	<query
+		name="org.eclipse.mat.inspections.PhantomReferenceStatQuery">
+		<command>phantom_references_statistics</command>
+	</query>
+
+	<!-- Finalizers -->
+	<query name="org.eclipse.mat.inspections.finalizer.FinalizerQuery">
+		<command>finalizer_overview</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.finalizer.FinalizerInProcessingQuery">
+		<command>finalizer_in_processing</command>
+	</query>
+	<query name="org.eclipse.mat.inspections.finalizer.FinalizerQueueQuery">
+		<command>finalizer_queue</command>
+	</query>
+	<query
+		name="org.eclipse.mat.inspections.finalizer.FinalizerThreadLocalsQuery">
+		<command>finalizer_thread_locals</command>
+	</query>
+	<query
+		name="org.eclipse.mat.inspections.finalizer.FinalizerThreadQuery">
+		<command>finalizer_thread</command>
+	</query>
+
+	<!-- Extra Information (this queries will appear on the toolbar or inside 
+		the overview pane) -->
+	<query
+		name="org.eclipse.mat.inspections.component.ComponentReportQuery">
+		<command>component_report java.util.HashMap -retained</command>
+	</query>
+	<query
+		name="org.eclipse.mat.inspections.component.TopComponentsReportQuery">
+		<command>component_report_top -t 10</command>
+	</query>
+
+	<!-- eclipse -->
+	<query name="org.eclipse.mat.inspections.eclipse.LeakingPlugins">
+		<command>leaking_bundles</command>
+	</query>
+	<!-- Causes exception for non-Eclipse dumps
+	<query
+		name="org.eclipse.mat.inspections.osgi.BundleRegistryQuery">
+		<command>bundle_registry</command>
+	</query>
+	-->
+</section>
