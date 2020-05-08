@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation
+ * Copyright (c) 2015,2020 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ public class TreeSetArrayCollectionExtractor extends TreeSetCollectionExtractor
     IMapExtractor mx2;
     public TreeSetArrayCollectionExtractor(String sizeField, String keyField, String valueField)
     {
-        super(sizeField, keyField+"[]", valueField+"[]");
+        super(sizeField, keyField+"[]", valueField+"[]"); //$NON-NLS-1$ //$NON-NLS-2$
         mx2 = new TreeMapArrayCollectionExtractor(sizeField, keyField, valueField);
     }
     

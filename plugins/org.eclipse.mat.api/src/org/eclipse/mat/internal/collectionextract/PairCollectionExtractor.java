@@ -17,8 +17,8 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public class PairCollectionExtractor implements ICollectionExtractor
 {
-    private final String field1;
-    private final String field2;
+    final String field1;
+    final String field2;
 
     public PairCollectionExtractor(String field1, String field2)
     {

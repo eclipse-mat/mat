@@ -33,6 +33,11 @@
             id="performance"
             name="Performance Test Suite">
       </report>
+      <report
+            file="META-INF/tests/allqueries.xml"
+            id="all"
+            name="All Queries Test Suite">
+      </report>
    </extension>
    <extension
          point="org.eclipse.mat.report.query">

@@ -119,7 +119,7 @@ public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
 
     public Double getCollisionRatio(IObject collection)
     {
-        return 0.0;
+        return null;
     }
 
     public boolean hasFillRatio()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,15 +13,17 @@
 package org.eclipse.mat.internal.collectionextract;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
-import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
-import org.eclipse.mat.inspections.collectionextract.ExtractedCollection;
 import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedCollection;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
+import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.util.MessageUtil;
 
 public class WrapperCollectionExtractor implements ICollectionExtractor
 {
@@ -99,20 +101,20 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         return extractList(coll).getNumberOfNotNullElements();
     }
 
-    private String desc(String msg, IObject coll, AbstractExtractedCollection<?, ?> ec)
+    private String desc(String msg1, String msg2, IObject coll, AbstractExtractedCollection<?, ?> ec)
     {
         if (ec != null)
-            return msg + coll.getDisplayName() + "; " + ec.getDisplayName(); //$NON-NLS-1$
+            return MessageUtil.format(msg2, coll.getDisplayName(), ec.getDisplayName());
         try
         {
             Object coll2 = coll.resolveValue(field);
             if (coll2 instanceof IObject)
-                return msg + coll.getDisplayName() + "; " + ((IObject)coll2).getDisplayName(); //$NON-NLS-1$
-        }
+                return MessageUtil.format(msg2, coll.getDisplayName(), ((IObject)coll2).getDisplayName());
+       }
         catch (SnapshotException e)
         {
         }
-        return msg + coll.getDisplayName();
+        return MessageUtil.format(msg1, coll.getDisplayName());
     }
 
     protected ExtractedCollection extractList(IObject coll)
@@ -121,7 +123,7 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         if (ec instanceof ExtractedCollection)
             return (ExtractedCollection) ec;
         else
-            throw new UnsupportedOperationException(desc("not a list-ish collection: ", coll, ec));
+            throw new UnsupportedOperationException(desc(Messages.WrapperCollectionExtractor_NotAList1, Messages.WrapperCollectionExtractor_NotAList2, coll, ec));
     }
 
     protected ExtractedMap extractMap(IObject coll)
@@ -130,7 +132,7 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         if (ec instanceof ExtractedMap)
             return (ExtractedMap) ec;
         else
-            throw new UnsupportedOperationException(desc("not a map: ", coll, ec));
+            throw new UnsupportedOperationException(desc(Messages.WrapperCollectionExtractor_NotAMap1, Messages.WrapperCollectionExtractor_NotAMap2, coll, ec));
     }
 
     protected AbstractExtractedCollection<?, ?> extractCollection(IObject coll)
@@ -171,6 +173,12 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         int[] outbounds = snapshot.getOutboundReferentIds(coll.getObjectId());
         for (int outId : outbounds)
         {
+            /*
+             * SynchronizedMap has a reference to itself for synchronizing on,
+             * so skip that.
+             */
+            if (outId == coll.getObjectId())
+                continue;
             AbstractExtractedCollection<?, ?> ex = CollectionExtractionUtils.extractCollection(snapshot.getObject(outId));
             if (ex != null)
             {
@@ -180,8 +188,8 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
                 }
                 else
                 {
-                    throw new IllegalArgumentException("Could not resolve field " + field + " of "
-                                    + coll.getTechnicalName() + " (found multiple outbound references to collections)");
+                    throw new IllegalArgumentException(MessageUtil.format(Messages.WrapperCollectionExtractor_CouldNotResolveMultiple, 
+                                    field, coll.getTechnicalName()));
                 }
             }
         }
@@ -192,8 +200,8 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         }
         else
         {
-            throw new IllegalArgumentException("Could not resolve field " + field + " of " + coll.getTechnicalName()
-                            + " (found no outbound references to collections)");
+            throw new IllegalArgumentException(MessageUtil.format(Messages.WrapperCollectionExtractor_CouldNotResolveNone, 
+                            field, coll.getTechnicalName()));
         }
     }
 }

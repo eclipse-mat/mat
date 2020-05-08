@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -69,8 +70,11 @@ import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -309,7 +313,7 @@ public class GeneralSnapshotTests
     {
         SnapshotQuery query = SnapshotQuery.lookup("component_report_top", snapshot);
         query.setArgument("aggressive", true);
-        IResult result = query.execute(new VoidProgressListener());
+        IResult result = query.execute(new CheckedProgressListener(collector));
         assertTrue(result != null);
     }
 
@@ -318,7 +322,7 @@ public class GeneralSnapshotTests
     public void topReferenceLeak() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("reference_leak java.lang.ref.WeakReference -include_subclasses -maxpaths 10 -factor 0.2", snapshot);
-        IResult result = query.execute(new VoidProgressListener());
+        IResult result = query.execute(new CheckedProgressListener(collector));
         assertTrue(result != null);
         if (result instanceof CompositeResult)
         {
@@ -417,7 +421,7 @@ public class GeneralSnapshotTests
     public void testRegressionReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:regression", snapshot);
-        IResult t = query.execute(new VoidProgressListener());
+        IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -426,7 +430,7 @@ public class GeneralSnapshotTests
     public void testPerformanceReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:performance", snapshot);
-        IResult t = query.execute(new VoidProgressListener());
+        IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -435,7 +439,7 @@ public class GeneralSnapshotTests
     public void testLeakSuspectsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects", snapshot);
-        IResult t = query.execute(new VoidProgressListener());
+        IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -444,7 +448,7 @@ public class GeneralSnapshotTests
     public void testOverviewReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
-        IResult t = query.execute(new VoidProgressListener());
+        IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -453,9 +457,45 @@ public class GeneralSnapshotTests
     public void testTopComponentsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);
-        IResult t = query.execute(new VoidProgressListener());
+        IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
+    }
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
+    static class CheckedProgressListener extends VoidProgressListener
+    {
+        ErrorCollector collector = new ErrorCollector();
+        public CheckedProgressListener(ErrorCollector collector)
+        {
+            this.collector = collector;
+        }
+        public void sendUserMessage(Severity severity, String message, Throwable exception)
+        {
+            if (exception != null && severity != Severity.INFO)
+                collector.addError(exception);
+            collector.checkThat(message, severity, lessThan(Severity.WARNING));
+        }
+    }; 
+
+    @Test
+    public void testAllQueriesReport() throws SnapshotException, IOException
+    {
+        final Throwable e[] = new Throwable[1];
+        IProgressListener checkListener = new CheckedProgressListener(collector);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all", snapshot);
+        IResult t = query.execute(checkListener);
+        assertNotNull(t);
+        checkHTMLResult(t);
+        if (e[0] instanceof RuntimeException)
+            throw (RuntimeException)e[0];
+        if (e[0] instanceof IOException)
+            throw (IOException)e[0];
+        if (e[0] instanceof SnapshotException)
+            throw (SnapshotException)e[0];
+        if (e[0] instanceof Throwable)
+            throw new SnapshotException(e[0]);
     }
 
     public void checkHTMLResult(IResult r) throws IOException, SnapshotException
@@ -677,8 +717,9 @@ public class GeneralSnapshotTests
                             String t = link.getTarget();
                             assertNotNull(fn, t);
                             SnapshotQuery q = SnapshotQuery.parse(t, snapshot);
-                            IResult r = q.execute(new VoidProgressListener());
-                            if ((t.equals("system_properties") || t.equals("thread_overview"))
+                            String cmdname = q.getDescriptor().getIdentifier();
+                            IResult r = q.execute(new CheckedProgressListener(collector));
+                            if ((cmdname.equals("system_properties") || cmdname.equals("thread_overview")|| cmdname.equals("finalizer_thread"))
                                             && (snapshot.getSnapshotInfo().getProperty("$heapFormat").equals("DTFJ-PHD")
                                                             || snapshot.getSnapshotInfo().getProperty("$heapFormat")
                                                                             .equals("DTFJ-Javacore")))
@@ -722,7 +763,7 @@ public class GeneralSnapshotTests
             {
                 SnapshotQuery query = SnapshotQuery.parse("extract_list_values 0x"+Long.toHexString(snapshot.mapIdToAddress(o)), snapshot);
                 try {
-                    IResult t = query.execute(new VoidProgressListener());
+                    IResult t = query.execute(new CheckedProgressListener(collector));
                     assertNotNull(t);
                 } catch (IllegalArgumentException e) {
                 }
@@ -753,7 +794,7 @@ public class GeneralSnapshotTests
                             (compress ? " -compress" : "") +
                             (mapping != null ? " -redact NAMES -map "+mapping.getPath() : "") +
                             (segsize > 0 ? " -segsize "+segsize : ""), snapshot);
-            IResult t = query.execute(new VoidProgressListener());
+            IResult t = query.execute(new CheckedProgressListener(collector));
             assertNotNull(t);
             ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
             try {
@@ -852,9 +893,9 @@ public class GeneralSnapshotTests
                                     (compress ? " -compress" : "") +
                                     (mapping != null ? " -redact NONE -undo -map "+mapping.getPath() : "") +
                                     (segsize > 0 ? " -segsize "+segsize : ""), newSnapshot);
-                    IResult t2 = query2.execute(new VoidProgressListener());
+                    IResult t2 = query2.execute(new CheckedProgressListener(collector));
                     assertNotNull(t2);
-                    ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
+                    ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new CheckedProgressListener(collector));
                     try {
                         for (IClass cl : snapshot.getClasses())
                         {
@@ -1037,10 +1078,10 @@ public class GeneralSnapshotTests
     {
         String path = snapshot.getSnapshotInfo().getPath();
         File file = new File(path);
-        ISnapshot sn2 = SnapshotFactory.openSnapshot(file, new VoidProgressListener());
+        ISnapshot sn2 = SnapshotFactory.openSnapshot(file, new CheckedProgressListener(collector));
         try
         {
-            ISnapshot sn3 = SnapshotFactory.openSnapshot(file, new VoidProgressListener());
+            ISnapshot sn3 = SnapshotFactory.openSnapshot(file, new CheckedProgressListener(collector));
             try
             {
                 assertSame(sn2, sn3);
@@ -1106,10 +1147,10 @@ public class GeneralSnapshotTests
                  */
                 assumeTrue(newPath.exists());
                 assumeTrue(f2.exists());
-                ISnapshot sn2 = SnapshotFactory.openSnapshot(f2, new VoidProgressListener());
+                ISnapshot sn2 = SnapshotFactory.openSnapshot(f2, new CheckedProgressListener(collector));
                 try
                 {
-                    ISnapshot sn3 = SnapshotFactory.openSnapshot(newPath, new VoidProgressListener());
+                    ISnapshot sn3 = SnapshotFactory.openSnapshot(newPath, new CheckedProgressListener(collector));
                     try
                     {
                         assertThat(sn3.getHeapSize(0), greaterThanOrEqualTo(0L));

@@ -103,10 +103,17 @@ public class MapCollisionRatioQuery implements IQuery
 
                     if (coll != null)
                     {
-                        Double collisionRatio = coll.getCollisionRatio();
-                        if (collisionRatio == null)
-                            collisionRatio = 0.0;
-                        quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
+                        /*
+                         * @FIXME - shouldn't really count maps without a collision ratio
+                         * but current tests presume TreeSet/TreeMap have one.
+                         */
+                        if (coll.hasCollisionRatio() || true)
+                        {
+                            Double collisionRatio = coll.getCollisionRatio();
+                            if (collisionRatio == null)
+                                collisionRatio = 0.0;
+                            quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
+                        }
                     }
                 }
                 catch (RuntimeException e)
