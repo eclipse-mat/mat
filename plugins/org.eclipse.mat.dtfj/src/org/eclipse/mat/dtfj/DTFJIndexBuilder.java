@@ -81,6 +81,7 @@ import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
+import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
@@ -8077,7 +8078,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // Sov DTFJ returns java.lang.Object for primitives
                 // or interfaces
                 // PHD or javacore don't have modifiers, so don't try
-                // getModifiers more than a few times if getModifiers never suceeds.
+                // getModifiers more than a few times if getModifiers never succeeds.
                 if ((msgNgetSuperclass > 0 || modifiersFound > 0)
                                 && Modifier.isInterface(j2.getModifiers()))
                 {
@@ -9168,13 +9169,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
 }
 
 /**
- * Use ICU not java.text for message formatting
+ * Use MessageUtil not java.text for message formatting
  */
 class MessageFormat
 {
     public static String format(String msg, Object... parms)
     {
-        return com.ibm.icu.text.MessageFormat.format(msg, parms);
+        return MessageUtil.format(msg, parms);
     }
 
     private MessageFormat()

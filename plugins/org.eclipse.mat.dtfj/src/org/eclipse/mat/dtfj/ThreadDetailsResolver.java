@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 IBM Corporation.
+ * Copyright (c) 2010, 2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.dtfj;
 
+import java.math.BigInteger;
 import java.text.FieldPosition;
+import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -104,8 +107,13 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
     DecimalFormat hex = new HexFormat();
     static class HexFormat extends DecimalFormat
     {
+        /** Regex for matching a hex number, don't allow positive sign */
+        private static final String JAVA_HEX_PATTERN = "[-]?(0x|0X|#)\\p{XDigit}+"; //$NON-NLS-1$
+        /** Anything that {@link Long#decode(String)} can parse */
+        private static final String JAVA_LONG_PATTERN = "[+-]?((0x|0X|#)(\\p{XDigit}+))|(\\p{Digit}+)"; //$NON-NLS-1$
         private static final long serialVersionUID = -420084952258370133L;
 
+        @Override
         public StringBuffer format(long val, StringBuffer buf, FieldPosition fieldPosition)
         {
             fieldPosition.setBeginIndex(buf.length());
@@ -113,10 +121,77 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
             fieldPosition.setEndIndex(buf.length());
             return buf;
         }
-        
+
+        @Override
         public StringBuffer format(double val, StringBuffer buf, FieldPosition fieldPosition)
         {
             return format((long)val, buf, fieldPosition);
+        }
+
+        @Override
+        public Number parse(String text) throws ParseException
+        {
+            if (!text.matches(JAVA_HEX_PATTERN + ".*")) //$NON-NLS-1$
+                return super.parse(text);
+            ParsePosition p = new ParsePosition(0);
+            Number l = parse(text, p);
+            if (l == null || p.getIndex() == 0)
+                throw new ParseException(text, 0);
+            return l;
+        }
+
+        @Override
+        public Number parse(String text, ParsePosition p)
+        {
+            if (!text.matches(JAVA_HEX_PATTERN + ".*")) //$NON-NLS-1$
+                return super.parse(text, p);
+            // Parsing needs to ignore extra text
+            int start = p.getIndex();
+            String text1 = text.substring(start).replaceFirst("((" + JAVA_LONG_PATTERN + ").*)", "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            try
+            {
+                long l = Long.decode(text1);
+                p.setIndex(start + text1.length());
+                return l;
+            }
+            catch (NumberFormatException e)
+            {
+                String text2 = text1.replaceFirst(JAVA_LONG_PATTERN, "$3"); //$NON-NLS-1$
+                if (text2.length() > 0)
+                {
+                    try
+                    {
+                        // Large hex value
+                        BigInteger b1 = new BigInteger(text2, 16);
+                        if (text1.startsWith("-")) //$NON-NLS-1$
+                            b1 = b1.negate();
+                        p.setIndex(start + text1.length());
+                        return b1.longValue();
+                    }
+                    catch (NumberFormatException e2)
+                    {
+                        return null;
+                    }
+                }
+                text2 = text1.replaceFirst(JAVA_LONG_PATTERN, "$4"); //$NON-NLS-1$
+                if (text2.length() > 0)
+                {
+                    try
+                    {
+                        // Large integer
+                        BigInteger b1 = new BigInteger(text2, 10);
+                        if (text1.startsWith("-")) //$NON-NLS-1$
+                            b1 = b1.negate();
+                        p.setIndex(start + text1.length());
+                        return b1.longValue();
+                    }
+                    catch (NumberFormatException e2)
+                    {
+                        return null;
+                    }
+                }
+                return null;
+            }
         }
     };
 
