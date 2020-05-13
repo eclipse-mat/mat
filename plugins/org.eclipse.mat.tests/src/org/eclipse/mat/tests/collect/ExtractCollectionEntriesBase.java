@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2020 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -260,7 +260,7 @@ public class ExtractCollectionEntriesBase
             IContextObject ctx = table.getContext(row);
             collector.checkThat(prefix+"Row object should be the map", ctx.getObjectId(), equalTo(obj.getObjectId()));
         }
-        if (checkValueString)
+        if (checkValueString && isMap)
         {
             collector.checkThat(MessageUtil.format(
                             "Expected some differing keys and values {0} from collection {1} [{2}]", obj, snapshot

@@ -86,6 +86,7 @@
 		<query impl="org.eclipse.mat.inspections.FinalizerReferenceStatQuery"/>
 		<query impl="org.eclipse.mat.inspections.PhantomReferenceStatQuery"/>
 	
+		<!-- Finalizers -->
 		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerQuery"/>
 		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerInProcessingQuery"/>
 		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerQueueQuery"/>

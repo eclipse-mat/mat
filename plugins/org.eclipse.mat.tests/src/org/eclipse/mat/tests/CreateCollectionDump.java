@@ -309,10 +309,12 @@ public class CreateCollectionDump
                             "java.util.LinkedHashSet",
                             "java.util.LinkedList",
                             "java.util.concurrent.LinkedTransferQueue",
+                            "java.util.List of",
                             "java.util.concurrent.PriorityBlockingQueue",
                             "java.util.PriorityQueue",
                             "javax.management.relation.RoleList",
                             "javax.management.relation.RoleUnresolvedList",
+                            "java.util.Set of",
                             "java.util.Stack",
                             "java.util.concurrent.SynchronousQueue",
                             "java.util.TreeSet",
@@ -779,6 +781,7 @@ public class CreateCollectionDump
                             "java.util.Hashtable",
                             "java.util.IdentityHashMap",
                             "java.util.LinkedHashMap",
+                            "java.util.Map ofEntries",
                             "java.lang.ProcessBuilder environment",
                             "javax.print.attribute.standard.PrinterStateReasons",
                             "java.util.Properties",
@@ -1041,6 +1044,7 @@ public class CreateCollectionDump
                 //{ Month.class },
                 //{ enumVals },
                 //{ tt1 },
+                { mapVals.entrySet().toArray(new Map.Entry[COUNT]) },
             };
             return args;
         }
@@ -1055,6 +1059,7 @@ public class CreateCollectionDump
                 //{ Class.class },
                 //{ Map.class },
                 //{ TabularType.class },
+                { Map.Entry[].class },
             };
             return cons;
         }

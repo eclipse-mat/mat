@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 IBM Corporation
+ * Copyright (c) 2016, 2020 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,8 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     }
                     String name = nr.getObject().getClazz().getName();
                     if (name.contains("Singleton"))
+                        numEntries = 1;
+                    if (name.endsWith("List12"))
                         numEntries = 1;
                     checkList(objAddress, numEntries, checkVals, snapshot);
                 }
@@ -150,6 +152,8 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     }
                     String name = nr.getObject().getClazz().getName();
                     if (name.contains("Singleton"))
+                        numEntries = 1;
+                    if (name.endsWith("Set12"))
                         numEntries = 1;
                     if (name.equals("javax.print.attribute.standard.JobStateReasons"))
                     {

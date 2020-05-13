@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,6 +214,7 @@ public class ExtractionUtils
             // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
             // JRE 1.7.0 Windows 7 amd64-64 build (pwa6470_27sr3fp10-20150708_01(SR3 FP10) )
             // JRE 1.8.0 Windows 7 amd64-64 (build 8.0.5.10 - pwa6480sr5fp10-20180214_01(SR5 FP10))
+            // JRE 11 Windows 10 amd64-64 (build 11.0.7+10)
 
             if (jvmInfo.contains("IBM") || jvmInfo.contains("build "))
             {
@@ -229,9 +230,7 @@ public class ExtractionUtils
                         else if (jreVersion.equals("10") || jreVersion.startsWith("10."))
                             return IBM19;
                         else if (jreVersion.equals("11") || jreVersion.startsWith("11."))
-                            return IBM19;
-                        else if (jreVersion.equals("12") || jreVersion.startsWith("12."))
-                            return IBM19;
+                            return JAVA_11;
                         else if (jreVersion.startsWith("1.8"))
                             return IBM18;
                         else if (jreVersion.startsWith("1.7"))
@@ -250,6 +249,8 @@ public class ExtractionUtils
                             return IBM15;
                         else if (jreVersion.startsWith("1.4"))
                             return IBM14;
+                        else if (jreVersion.matches("\\d+") || Integer.parseInt(jreVersion, 10) > 14)
+                            return JAVA_11;
                     }
                 }
             }

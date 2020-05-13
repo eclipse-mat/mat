@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -258,6 +258,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("sun.util.PreHashedMap", new NoContentCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("sun.misc.SoftCache", new NoContentCollectionExtractor()), //$NON-NLS-1$
 
+                    new CollectionExtractionInfo("java.util.AbstractMap$1", new KeySetCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
 
                     // usually shouldn't match
