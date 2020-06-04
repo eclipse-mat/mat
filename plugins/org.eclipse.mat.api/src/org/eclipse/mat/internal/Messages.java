@@ -17,6 +17,9 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.internal.messages"; //$NON-NLS-1$
 
+    public static String AbstractExtractedCollection_ToString;
+    public static String AbstractExtractedCollection_UnhandledCollection;
+
     public static String ArgumentParser_ErrorMsg_ParsingError;
     public static String ArgumentParser_ErrorMsg_Unparsed;
 
@@ -75,8 +78,8 @@ public class Messages extends NLS
     public static String CollectionFillRatioQuery_ColumnNumObjects;
     public static String CollectionFillRatioQuery_ErrorMsg_AllArgumentsMustBeSet;
     public static String CollectionFillRatioQuery_ExtractingFillRatios;
-
     public static String CollectionFillRatioQuery_IgnoringCollection;
+    public static String CollectionFillRatioQuery_NeedSizeAndArrayOrNone;
 
     public static String CollectionUtil_BadBackingArray;
 
@@ -85,8 +88,8 @@ public class Messages extends NLS
     public static String CollectionsBySizeQuery_Column_Length;
     public static String CollectionsBySizeQuery_Column_NumObjects;
     public static String CollectionsBySizeQuery_ErrorMsg_ArgumentMissing;
-
     public static String CollectionsBySizeQuery_IgnoringCollection;
+    public static String CollectionsBySizeQuery_NeedSizeAndArrayOrNone;
 
     public static String Column_ClassName;
     public static String Column_ClassLoaderName;

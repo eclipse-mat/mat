@@ -15,12 +15,14 @@ package org.eclipse.mat.inspections.collectionextract;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * An abstract class representing a collection extracted from the heap. It
@@ -47,7 +49,7 @@ public abstract class AbstractExtractedCollection<E, X extends ICollectionExtrac
         if (collection == null)
             throw new IllegalArgumentException();
         if (extractor == null)
-            throw new IllegalArgumentException("unhandled collection");
+            throw new IllegalArgumentException(Messages.AbstractExtractedCollection_UnhandledCollection);
         this.collection = collection;
         this.extractor = extractor;
     }
@@ -292,6 +294,6 @@ public abstract class AbstractExtractedCollection<E, X extends ICollectionExtrac
 
     // for debugging
     public String toString() {
-        return getClass().getName() + ": " + getCollection().getDisplayName();
+        return MessageUtil.format(Messages.AbstractExtractedCollection_ToString, getClass().getName() ,getCollection().getDisplayName());
     }
 }

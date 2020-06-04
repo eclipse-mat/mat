@@ -110,7 +110,7 @@ public class CollectionsBySizeQuery implements IQuery
         }
         else
         {
-            throw new IllegalArgumentException("need both or none of size and array attributes");
+            throw new IllegalArgumentException(Messages.CollectionsBySizeQuery_NeedSizeAndArrayOrNone);
         }
 
         // group by length attribute
