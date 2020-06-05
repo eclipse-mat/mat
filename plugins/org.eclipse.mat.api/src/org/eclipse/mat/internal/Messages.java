@@ -598,12 +598,11 @@ public class Messages extends NLS
 
     public static String ThreadStackQuery_Column_ObjectStackFrame;
     public static String ThreadStackQuery_Label_Local;
-    public static String ThreadStackQuery_Label_Local_Blocked_On;
-
     public static String ThreadStackQuery_Label_Local_Busy_Monitor;
-    public static String ThreadStackQuery_Label_Local_Probable_Busy_Monitor;
-
+    public static String ThreadStackQuery_Label_Local_Possible_Busy_Monitor;
+    public static String ThreadStackQuery_Label_Local_Possibly_Blocked_On;
     public static String ThreadStackQuery_Label_Local_Probably_Blocked_On;
+
     public static String TopComponentsReportQuery_TopComponentReports;
 
     public static String TopConsumers2Query_BiggestClasses;
