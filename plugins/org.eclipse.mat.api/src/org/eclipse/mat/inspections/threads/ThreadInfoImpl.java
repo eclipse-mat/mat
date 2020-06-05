@@ -70,7 +70,7 @@ import org.eclipse.mat.util.IProgressListener;
         ThreadInfoImpl info = new ThreadInfoImpl();
         info.subject = thread;
 
-        extractGeneralAttribtes(info);
+        extractGeneralAttributes(info);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -117,7 +117,7 @@ import org.eclipse.mat.util.IProgressListener;
         return result.toArray();
     }
 
-    private static void extractGeneralAttribtes(ThreadInfoImpl info) throws SnapshotException
+    private static void extractGeneralAttributes(ThreadInfoImpl info) throws SnapshotException
     {
         info.className = info.subject.getDisplayName();
         info.name = info.subject.getClassSpecificName();
@@ -126,7 +126,7 @@ import org.eclipse.mat.util.IProgressListener;
         info.retainedHeap = new Bytes(info.subject.getRetainedHeapSize());
         info.isDaemon = resolveIsDaemon(info.subject);
 
-        IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader"); //$NON-NLS-1$
+        IObject contextClassLoader = resolveContextClassLoader(info);
         if (contextClassLoader != null)
         {
             info.contextClassLoader = contextClassLoader.getClassSpecificName();
@@ -136,13 +136,27 @@ import org.eclipse.mat.util.IProgressListener;
         }
     }
 
+    private static IObject resolveContextClassLoader(ThreadInfoImpl info) throws SnapshotException
+    {
+        try
+        {
+            IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader"); //$NON-NLS-1$
+            return contextClassLoader;
+        }
+        catch (SnapshotException e)
+        {
+            // Failing to get context class loader is not the end of the world
+        }
+        return null;
+    }
+
     private static Boolean resolveIsDaemon(IObject thread)
     {
         try
         {
-            Object daemon = thread.resolveValue("daemon");
+            Object daemon = thread.resolveValue("daemon"); //$NON-NLS-1$
             if (daemon == null) {
-                daemon = thread.resolveValue("isDaemon");
+                daemon = thread.resolveValue("isDaemon"); //$NON-NLS-1$
             }
             if (daemon != null) {
                 if (daemon instanceof Boolean) {
@@ -185,7 +199,8 @@ import org.eclipse.mat.util.IProgressListener;
                 for (int ii = 0; ii < cols.length; ii++)
                 {
                     if (properties.containsKey(cols[ii]))
-                        answer.add(cols[ii]);
+                        if (!answer.contains(cols[ii]))
+                            answer.add(cols[ii]);
                 }
         }
 
@@ -210,8 +225,11 @@ import org.eclipse.mat.util.IProgressListener;
                     for (ThreadInfoImpl thread : threads)
                         if (thread.properties.containsKey(cols[ii]))
                         {
-                            answer.add(cols[ii]);
-                            break;
+                            if (!answer.contains(cols[ii]))
+                            {
+                                answer.add(cols[ii]);
+                                break;
+                            }
                         }
                 }
         }

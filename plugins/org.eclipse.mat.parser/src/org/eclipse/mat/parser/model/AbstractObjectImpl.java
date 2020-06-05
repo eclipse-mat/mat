@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - unwrap some exceptions
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -212,7 +214,21 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     {
         int p = name.indexOf('.');
         String n = p < 0 ? name : name.substring(0, p);
-        Field f = internalGetField(n);
+        Field f;
+        try
+        {
+            f = internalGetField(n);
+        }
+        catch (RuntimeException e)
+        {
+            // InstanceImpl.readFully can wrap these exceptions, so unwrap
+            Throwable cause = e.getCause();
+            if (cause instanceof SnapshotException)
+                throw (SnapshotException)cause;
+            if (cause instanceof IOException)
+                throw new SnapshotException(cause);
+            throw e;
+        }
         if (f == null || f.getValue() == null)
             return null;
         if (p < 0)

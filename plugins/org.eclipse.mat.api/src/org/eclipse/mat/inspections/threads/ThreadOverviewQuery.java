@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,11 @@ package org.eclipse.mat.inspections.threads;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -40,10 +42,13 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
+import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
+import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
@@ -88,7 +93,7 @@ public class ThreadOverviewQuery implements IQuery
         }
         else
         {
-            Collection<IClass> classes = snapshot.getClassesByName(CLASS_THREAD, true); //$NON-NLS-1$
+            Collection<IClass> classes = snapshot.getClassesByName(CLASS_THREAD, true);
             if (classes != null)
             {
                 for (IClass clasz : classes)
@@ -101,6 +106,26 @@ public class ThreadOverviewQuery implements IQuery
                     }
                 }
             }
+            // Add objects marked as a GCRoot THREAD_OBJ
+            for (int objectId : snapshot.getGCRoots())
+            {
+                GCRootInfo gcs[] = snapshot.getGCRootInfo(objectId);
+                if (gcs != null)
+                {
+                    for (GCRootInfo gc : gcs)
+                    {
+                        // Sometime PHD files have threads marked as objects
+                        if (gc.getType() == Type.THREAD_OBJ)
+                        {
+                            if (isThread(snapshot, objectId)) {
+                                result.add(buildThreadOverviewNode(objectId, listener));
+                            }
+                        }
+                    }
+                }
+                if (listener.isCanceled())
+                    break;
+            }
         }
 
         Collections.sort(result, new Comparator<ThreadOverviewNode>()
@@ -108,9 +133,25 @@ public class ThreadOverviewQuery implements IQuery
             public int compare(ThreadOverviewNode o1, ThreadOverviewNode o2)
             {
                 return o1.threadInfo.getRetainedHeap().getValue() > o2.threadInfo.getRetainedHeap().getValue() ? -1
-                                : o1.threadInfo.getRetainedHeap().getValue() == o2.threadInfo.getRetainedHeap().getValue() ? 0 : 1;
+                                : o1.threadInfo.getRetainedHeap().getValue() < o2.threadInfo.getRetainedHeap().getValue() ? 1 : 
+                                  Long.compare(o1.threadInfo.getThreadObject().getObjectAddress(), o2.threadInfo.getThreadObject().getObjectAddress());
             }
         });
+
+        // Remove duplicates - easy as already sorted
+        ThreadOverviewNode prev = null;
+        for (Iterator<ThreadOverviewNode>it = result.iterator(); it.hasNext();)
+        {
+            ThreadOverviewNode node = it.next();
+            if (prev != null && node.threadInfo.getThreadId() == prev.threadInfo.getThreadId())
+            {
+                it.remove();
+            }
+            else
+            {
+                prev = node;
+            }
+        }
 
         if (result.isEmpty())
             return null;
@@ -136,6 +177,18 @@ public class ThreadOverviewQuery implements IQuery
                 if (CLASS_THREAD.equals(className))
                 {
                     return true;
+                }
+            }
+            GCRootInfo gcs[] = snapshot.getGCRootInfo(objectId);
+            if (gcs != null)
+            {
+                // Reset class name
+                className = obj.getClazz().getName();
+                for (GCRootInfo gc : gcs)
+                {
+                    // Sometime PHD files have threads marked as objects
+                    if (gc.getType() == Type.THREAD_OBJ && "java.lang.Object".equals(className)) //$NON-NLS-1$
+                        return true;
                 }
             }
         }
@@ -186,6 +239,7 @@ public class ThreadOverviewQuery implements IQuery
         private IStackFrame stackFrame;
         private int depth;
         private boolean firstNonNativeFrame;
+        private int objectId;
     }
     
     private static class ThreadStackFrameLocalNode
@@ -341,7 +395,19 @@ public class ThreadOverviewQuery implements IQuery
                 };
             }
             if (row instanceof ThreadStackFrameNode)
+            {
+                if (((ThreadStackFrameNode)row).objectId != -1)
+                {
+                    return new IContextObject()
+                    {
+                        public int getObjectId()
+                        {
+                            return ((ThreadStackFrameNode) row).objectId;
+                        }
+                    };
+                }
                 return null;
+            }
 
             if (row instanceof ThreadStackFrameLocalNode)
             {
@@ -393,9 +459,11 @@ public class ThreadOverviewQuery implements IQuery
                     // If this is the top stack frame and this object is a GC
                     // Root, then check if it's of the type BUSY_MONITOR with
                     // the context ID of this thread, and if so, note that this
-                    // is the object thethread is blocked on
-                    if (tsfmln != null && tsfmln.threadStackFrameNode != null && tsfmln.threadStackFrameNode.firstNonNativeFrame)
+                    // is the object the thread is blocked on
+                    if (tsfmln != null && tsfmln.threadStackFrameNode != null)
                     {
+                        boolean topFrame = tsfmln.threadStackFrameNode.firstNonNativeFrame || tsfmln.threadStackFrameNode.depth == 0;
+                        ThreadInfoImpl threadInfo = tsfmln.threadStackFrameNode.threadOverviewNode.threadInfo;
                         int objectId = objectList.getContext(row).getObjectId();
                         try
                         {
@@ -404,11 +472,39 @@ public class ThreadOverviewQuery implements IQuery
                             {
                                 for (GCRootInfo gcRootInfo : gcRootInfos)
                                 {
-                                    if (gcRootInfo.getContextId() != 0
-                                                    && (gcRootInfo.getType() & GCRootInfo.Type.BUSY_MONITOR) != 0
-                                                    && gcRootInfo.getContextId() == tsfmln.threadStackFrameNode.threadOverviewNode.threadInfo
-                                                                    .getThreadObject()
-                                                                    .getObjectId()) { return Messages.ThreadStackQuery_Label_Local_Blocked_On; }
+                                    if (gcRootInfo.getType() == GCRootInfo.Type.BUSY_MONITOR
+                                                    && gcRootInfo.getContextAddress() != 0
+                                                    && gcRootInfo.getContextId() == threadInfo.getThreadId())
+                                    { 
+                                        return topFrame ? Messages.ThreadStackQuery_Label_Local_Probably_Blocked_On
+                                                        : Messages.ThreadStackQuery_Label_Local_Busy_Monitor;
+                                    }
+                                    if (gcRootInfo.getType() == GCRootInfo.Type.BUSY_MONITOR
+                                                    && gcRootInfo.getContextAddress() == 0)
+                                    {
+                                        // HPROF doesn't have a context address
+                                        return topFrame ? Messages.ThreadStackQuery_Label_Local_Possibly_Blocked_On
+                                                        : Messages.ThreadStackQuery_Label_Local_Possible_Busy_Monitor;
+                                    }
+                                }
+                            }
+                            List<NamedReference> refs = threadInfo
+                                            .getThreadObject().getOutboundReferences();
+                            for (NamedReference ref : refs)
+                            {
+                                if (ref.getObjectId() != objectId)
+                                    continue;
+                                if (ref instanceof ThreadToLocalReference)
+                                {
+                                    ThreadToLocalReference tlr = (ThreadToLocalReference)ref;
+                                    for (GCRootInfo gcRootInfo : tlr.getGcRootInfo())
+                                    {
+                                        if (gcRootInfo.getType() == GCRootInfo.Type.BUSY_MONITOR)
+                                        {
+                                            return topFrame ? Messages.ThreadStackQuery_Label_Local_Probably_Blocked_On
+                                                            : Messages.ThreadStackQuery_Label_Local_Busy_Monitor;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -482,6 +578,8 @@ public class ThreadOverviewQuery implements IQuery
                 final int numFrames = frames.length;
                 List<ThreadStackFrameNode> stackFrameNodes = new ArrayList<ThreadStackFrameNode>(numFrames);
                 boolean foundNonNativeFrame = false;
+
+                int frameIds[] = frameIds(ton);
                 for (int i = 0; i < numFrames; i++)
                 {
                     IStackFrame frame = frames[i];
@@ -492,13 +590,14 @@ public class ThreadOverviewQuery implements IQuery
                     if (!foundNonNativeFrame)
                     {
                         String frameText = frame.getText();
-                        if (frameText != null && !frameText.contains("Native Method"))
+                        if (frameText != null && !frameText.contains("Native Method")) //$NON-NLS-1$
                         {
                             tsfn.firstNonNativeFrame = true;
                             foundNonNativeFrame = true;
                         }
                     }
                     tsfn.threadOverviewNode = ton;
+                    tsfn.objectId = frameIds[tsfn.depth];
                     stackFrameNodes.add(tsfn);
                 }
                 return stackFrameNodes;
@@ -534,7 +633,45 @@ public class ThreadOverviewQuery implements IQuery
                 return objectList.getChildren(parent);
             }
         }
-        
+
+        private int[] frameIds(ThreadOverviewNode ton)
+        {
+            final int numFrames = ton.stack.getStackFrames().length;
+            int frameIds[] = new int[numFrames];
+            Arrays.fill(frameIds, -1);
+            IObject to = ton.threadInfo.getThreadObject();
+            for (NamedReference ref : to.getOutboundReferences())
+            {
+                if (ref instanceof ThreadToLocalReference)
+                {
+                    ThreadToLocalReference tlr = (ThreadToLocalReference)ref;
+                    for (GCRootInfo gcRootInfo : tlr.getGcRootInfo())
+                    {
+                        if (gcRootInfo.getType() == GCRootInfo.Type.JAVA_STACK_FRAME)
+                        {
+                            try
+                            {
+                                Object fn = tlr.getObject().resolveValue("frameNumber"); //$NON-NLS-1$
+                                if (fn instanceof Integer)
+                                {
+                                    int f = (Integer)fn;
+                                    if (f >= 0 && f < numFrames)
+                                    {
+                                        frameIds[f] = tlr.getObjectId(); 
+                                    }
+                                }
+                            }
+                            catch (SnapshotException e)
+                            {
+                                // Ignore
+                            }
+                        }
+                    }
+                }
+            }
+            return frameIds;
+        }
+
         class NoCompareComparator implements Comparator<Object>
         {
             public int compare(Object o1, Object o2)

@@ -1941,6 +1941,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         SetInt prevRoots = rootSet();
         SetInt newRoots;
 
+        if (goodDTFJRoots)
+        {
+            // getReferences doesn't work as we would like
+            generateMonitorRoots(listener);
+        }
         if (!goodDTFJRoots)
         {
             workCountSoFar = processConservativeRoots(pointerSize, fixedBootLoaderAddress, scanUp, workCountSoFar,
@@ -2739,6 +2744,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             pw.close();
         }
 
+        generateMonitorRoots(listener);
+        return workCountSoFar;
+    }
+
+    private void generateMonitorRoots(IProgressListener listener)
+    {
         // Monitor GC roots
         listener.subTask(Messages.DTFJIndexBuilder_GeneratingMonitorRoots);
 
@@ -2776,7 +2787,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 addRootForThreads(obj, jm.getNotifyWaiters(), listener);
             }
         }
-        return workCountSoFar;
     }
 
     private boolean processDTFJRoots(int pointerSize, boolean scanUp, IProgressListener listener)
@@ -3964,12 +3974,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             JavaObject blockingObject = th.getBlockingObject();
             if (blockingObject != null)
             {
-                long objAddress = blockingObject.getID().getAddress();
-                long thrd2 = getThreadAddress(th, null);
-                if (objAddress != 0 && thrd2 != 0)
-                {
-                    addRoot(gcRoot, objAddress, thrd2, GCRootInfo.Type.BUSY_MONITOR);
-                }
+                addRootForThread(blockingObject, th, listener);
             }
         }
         catch (DTFJException e)

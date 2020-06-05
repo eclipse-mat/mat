@@ -101,10 +101,10 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
         JavaRuntime.class.getName();
     }
 
+    DecimalFormat hex = new HexFormat();
     /**
      * Formatter to display addresses etc. in hex
      */
-    DecimalFormat hex = new HexFormat();
     static class HexFormat extends DecimalFormat
     {
         /** Regex for matching a hex number, don't allow positive sign */

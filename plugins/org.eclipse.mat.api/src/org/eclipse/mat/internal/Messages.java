@@ -562,6 +562,26 @@ public class Messages extends NLS
     public static String TaskInfo_State_Waiting;
     public static String TaskInfo_State_WaitingSyncIO;
 
+    public static String ThreadDetailsResolver_alive;
+    public static String ThreadDetailsResolver_blocked_on_monitor_enter;
+    public static String ThreadDetailsResolver_in_native;
+    public static String ThreadDetailsResolver_in_object_wait;
+    public static String ThreadDetailsResolver_interrupted;
+    public static String ThreadDetailsResolver_parked;
+    public static String ThreadDetailsResolver_Priority;
+    public static String ThreadDetailsResolver_runnable;
+    public static String ThreadDetailsResolver_sleeping;
+    public static String ThreadDetailsResolver_suspended;
+    public static String ThreadDetailsResolver_State;
+    public static String ThreadDetailsResolver_State_value;
+    public static String ThreadDetailsResolver_terminated;
+    public static String ThreadDetailsResolver_vendor1;
+    public static String ThreadDetailsResolver_vendor2;
+    public static String ThreadDetailsResolver_vendor3;
+    public static String ThreadDetailsResolver_waiting;
+    public static String ThreadDetailsResolver_waiting_indefinitely;
+    public static String ThreadDetailsResolver_waiting_with_timeout;
+
     public static String ThreadInfoImpl_Column_ContextClassLoader;
     public static String ThreadInfoImpl_Column_IsDaemon;
     public static String ThreadInfoImpl_Column_Instance;
@@ -580,6 +600,10 @@ public class Messages extends NLS
     public static String ThreadStackQuery_Label_Local;
     public static String ThreadStackQuery_Label_Local_Blocked_On;
 
+    public static String ThreadStackQuery_Label_Local_Busy_Monitor;
+    public static String ThreadStackQuery_Label_Local_Probable_Busy_Monitor;
+
+    public static String ThreadStackQuery_Label_Local_Probably_Blocked_On;
     public static String TopComponentsReportQuery_TopComponentReports;
 
     public static String TopConsumers2Query_BiggestClasses;
