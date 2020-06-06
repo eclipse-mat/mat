@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -39,6 +41,7 @@ import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
@@ -74,6 +77,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>> threadAddressToLocals = new HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>>();
 
+    /** Keep track of numbers and size of discarded objects */
+    private ConcurrentHashMap<Integer, ClassImpl> discardedObjectsByClass = new ConcurrentHashMap<Integer, ClassImpl>();
+
     // The size of (possibly compressed) references in the heap
     private int refSize;
     // The size of uncompressed pointers in the object headers in the heap
@@ -84,6 +90,17 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
     // Largest offset into HPROF file
     private long maxFilePosition = 0;
+
+    /** Which class instances to possibly discard */ 
+    private Pattern discardPattern = Pattern.compile(HprofPreferences.discardPattern());
+    /** How often to discard */
+    private double discardRatio = HprofPreferences.discardRatio();
+    /** Select which group of objects are discarded */
+    private double discardOffset = HprofPreferences.discardOffset();
+    /** Random number seed for choosing discards */
+    private long discardSeed = HprofPreferences.discardSeed();
+    /** Random number generator to choose what to discard */
+    private Random rand = new Random(discardSeed);
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -215,7 +232,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
      * classes also with instance dump records.
      * The classes could be of a type other than java.lang.Class
      * There could also be per-instance fields defined by their type.
-     * Those values can be made accessible to MAT bby creating pseudo-static fields.
+     * Those values can be made accessible to MAT by creating pseudo-static fields.
      */
     private void addTypesAndDummyStatics()
     {
@@ -492,7 +509,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         return r == 0 ? n : n + x - r;
     }
 
-    public IOne2LongIndex fillIn(IPreliminaryIndex index) throws IOException
+    public IOne2LongIndex fillIn(IPreliminaryIndex index, IProgressListener listener) throws IOException
     {
         // ensure all classes loaded by the system class loaders are marked as
         // GCRoots
@@ -520,6 +537,28 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             classesById.put(clazz.getObjectId(), clazz);
         }
         index.setClassesById(classesById);
+
+        // Create Histogram of discarded objects
+        long discardedObjects = 0;
+        long discardedSize = 0;
+        List<UnreachableObjectsHistogram.Record> records = new ArrayList<UnreachableObjectsHistogram.Record>();
+        for(ClassImpl clazz : discardedObjectsByClass.values()) {
+            records.add(new UnreachableObjectsHistogram.Record(
+                            clazz.getName(),
+                            clazz.getObjectAddress(),
+                            clazz.getNumberOfObjects(),
+                            clazz.getTotalSize()));
+            discardedObjects += clazz.getNumberOfObjects();
+            discardedSize += clazz.getTotalSize();
+        }
+        if (discardedObjects > 0)
+        {
+            UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
+            info.setProperty(UnreachableObjectsHistogram.class.getName(), deadObjectHistogram);
+            listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
+                            Messages.HprofParserHandlerImpl_DiscardedObjects, 
+                            discardedObjects, discardedSize, discardRatio, discardPattern), null);
+        }
 
         index.setGcRoots(map2ids(gcRoots));
 
@@ -828,6 +867,30 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // better concurrency than that
 
         int index = mapAddressToId(object.objectAddress);
+        if (index < 0)
+        {
+            // Discarded object
+            ClassImpl cls = discardedObjectsByClass.get(object.clazz.getObjectId());
+            if (cls == null)
+            {
+                cls = new ClassImpl(object.clazz.getObjectAddress(), 
+                                object.clazz.getName(),
+                                object.clazz.getSuperClassAddress(),
+                                object.clazz.getClassLoaderAddress(),
+                                new Field[0],
+                                new FieldDescriptor[0]);
+                cls.setHeapSizePerInstance(object.clazz.getHeapSizePerInstance());
+                ClassImpl clsOld = discardedObjectsByClass.putIfAbsent(object.clazz.getObjectId(), cls);
+                if (clsOld != null)
+                    cls = clsOld;
+            }
+            /*
+             * Keep count of discards
+             * @TODO consider overflow as we count discard >Integer.MAX_VALUE
+             */
+            cls.addInstance(object.usedHeapSize);
+            return;
+        }
 
         // check if some thread to local variables references have to be added
         HashMapLongObject<List<XGCRootInfo>> localVars = threadAddressToLocals.get(object.objectAddress);
@@ -855,27 +918,93 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             array2size.set(index, object.usedHeapSize);
     }
 
-    private void reportInstance(long id, long filePosition)
+    /**
+     * Randomly choose whether to discard
+     * @return
+     */
+    private boolean discard()
     {
-        this.identifiers.add(id);
+        if (discardRatio <= 0.0)
+            return false;
+        double d = rand.nextDouble();
+        double top = discardRatio + discardOffset;
+        /*
+         * Wrap around the range.
+         * [dddddddd..] 0.8,0.0
+         * [..dddddddd] 0.8,0.2
+         * [dd..dddddd] 0.8,0.4
+         */
+        return (d < top && d >= discardOffset) || d < top - 1.0;
+    }
+
+    /** 
+     * Choose to discard also based on object type
+     * 
+     * @param classId the HPROF class Id
+     * @return
+     */
+    private boolean discard(long classId)
+    {
+        if (!discard())
+            return false;
+        ClassImpl cls = lookupClass(classId);
+        if (cls != null && discardPattern.matcher(cls.getName()).matches())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adjust the last seen file position.
+     * Used to see how many bits are needed for the index.
+     * @param filePosition
+     */
+    private void reportFilePosition(long filePosition)
+    {
         if (filePosition > maxFilePosition)
             maxFilePosition = filePosition;
     }
 
+    private void reportInstance(long id, long filePosition)
+    {
+        this.identifiers.add(id);
+        reportFilePosition(filePosition);
+    }
+
     public void reportInstanceWithClass(long id, long filePosition, long classID, int size)
     {
+        if (discard(classID))
+        {
+            // Skip
+            reportFilePosition(filePosition);
+            return;
+        }
         reportInstance(id, filePosition);
         reportRequiredClass(classID, size, true);
     }
 
     public void reportInstanceOfObjectArray(long id, long filePosition, long arrayClassID)
     {
+        if (discard(arrayClassID))
+        {
+            // Skip
+            reportFilePosition(filePosition);
+            return;
+        }
         reportInstance(id, filePosition);
         reportRequiredObjectArray(arrayClassID);
     }
 
     public void reportInstanceOfPrimitiveArray(long id, long filePosition, int arrayType)
     {
+        if (discard() && discardPattern.matcher(IPrimitiveArray.TYPE[arrayType]).matches())
+        {
+            // Skip
+            reportFilePosition(filePosition);
+            reportRequiredPrimitiveArray(arrayType);
+            return;
+        }
         reportInstance(id, filePosition);
         reportRequiredPrimitiveArray(arrayType);
     }

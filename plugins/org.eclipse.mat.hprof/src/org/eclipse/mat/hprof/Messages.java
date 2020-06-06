@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2019 SAP AG and others.
+ * Copyright (c) 2010, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ public class Messages extends NLS
     public static String HprofIndexBuilder_Parsing;
     public static String HprofIndexBuilder_Scanning;
     public static String HprofIndexBuilder_Writing;
+    public static String HprofParserHandlerImpl_DiscardedObjects;
     public static String HprofParserHandlerImpl_Error_ExpectedClassSegment;
     public static String HprofParserHandlerImpl_Error_MultipleClassInstancesExist;
     public static String HprofParserHandlerImpl_HeapContainsObjects;
@@ -88,6 +89,11 @@ public class Messages extends NLS
     public static String Pass1Parser_GuessingLengthOverflow;
     public static String Pass1Parser_HeapDumpCreated;
     public static String Pass1Parser_HeapDumpsFound;
+    public static String HPROFPreferencePage_DiscardOffset;
+    public static String HPROFPreferencePage_DiscardPattern;
+    public static String HPROFPreferencePage_DiscardPercentage;
+    public static String HPROFPreferencePage_DiscardSeed;
+    public static String HPROFPreferencePage_EnableDiscard;
     public static String HPROFPreferences_Description;
     public static String HPROFPreferences_Strictness;
     public static String HPROFPreferences_Strictness_Stop;

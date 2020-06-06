@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,7 +125,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         for (IParsingEnhancer enhancer : enhancers)
             enhancer.onParsingCompleted(handler.getSnapshotInfo());
 
-        id2position = handler.fillIn(preliminary);
+        id2position = handler.fillIn(preliminary, listener);
     }
 
     public void clean(final int[] purgedMapping, IProgressListener listener) throws IOException

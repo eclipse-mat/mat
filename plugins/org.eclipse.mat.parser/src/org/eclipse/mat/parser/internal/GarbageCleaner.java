@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -545,14 +545,37 @@ import org.eclipse.mat.util.SilentProgressListener;
             histogram.putAll(subhistogram.get());
         }
 
+        /*
+         * The parser might have already discarded some objects, so merge the histograms.
+         */
+        Serializable parserDeadObjects = idx.getSnapshotInfo().getProperty(UnreachableObjectsHistogram.class.getName());
+        HashMap<Long, UnreachableObjectsHistogram.Record>parserRecords = new HashMap<Long, UnreachableObjectsHistogram.Record>();
+        if (parserDeadObjects instanceof UnreachableObjectsHistogram)
+        {
+            UnreachableObjectsHistogram parserDeadObjectHistogram = (UnreachableObjectsHistogram)parserDeadObjects;
+            for (UnreachableObjectsHistogram.Record r : parserDeadObjectHistogram.getRecords())
+            {
+                parserRecords.put(r.getClassAddress(), r);
+            }
+        }
         List<UnreachableObjectsHistogram.Record> records = new ArrayList<UnreachableObjectsHistogram.Record>();
         for(Record r : histogram.values()) {
+            UnreachableObjectsHistogram.Record r2 = parserRecords.get(r.clazz.getObjectAddress());
+            int existingCount = 0;
+            long existingSize = 0L;
+            if (r2 != null && r.clazz.getName().equals(r2.getClassName()))
+            {
+                existingCount = r2.getObjectCount();
+                existingSize = r2.getShallowHeapSize();
+                parserRecords.remove(r.clazz.getObjectAddress());
+            }
             records.add(new UnreachableObjectsHistogram.Record(
                             r.clazz.getName(),
                             r.clazz.getObjectAddress(),
-                            r.objectCount,
-                            r.size));
+                            r.objectCount + existingCount,
+                            r.size + existingSize));
         }
+        records.addAll(parserRecords.values());
 
         UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
         idx.getSnapshotInfo().setProperty(UnreachableObjectsHistogram.class.getName(), deadObjectHistogram);

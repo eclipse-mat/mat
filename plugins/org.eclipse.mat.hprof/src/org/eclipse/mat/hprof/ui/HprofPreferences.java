@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 IBM Corporation.
+ * Copyright (c) 2011, 2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,21 @@ public class HprofPreferences
 
     /** Additional references for classes */
     public static final String ADDITIONAL_CLASS_REFERENCES = "hprofAddClassRefs"; //$NON-NLS-1$
+
+    /** Whether to discard some objects when parsing */
+    public static final String DISCARD_ENABLE = "discardEnable"; //$NON-NLS-1$
+
+    /** How often to discard objects when parsing */
+    public static final String DISCARD_RATIO = "discardRatioPercentage"; //$NON-NLS-1$
+
+    /** The types of object to discard */
+    public static final String DISCARD_PATTERN = "discardPattern"; //$NON-NLS-1$
+
+    /** How often to discard objects when parsing */
+    public static final String DISCARD_SEED = "discardSeed"; //$NON-NLS-1$
+
+    /** How often to discard objects when parsing */
+    public static final String DISCARD_OFFSET = "discardOffsetPercentage"; //$NON-NLS-1$
 
     /**
      * Return the currently selected preference for strictness. This first
@@ -122,5 +137,37 @@ public class HprofPreferences
     {
         return Platform.getPreferencesService().getBoolean(HprofPlugin.getDefault().getBundle().getSymbolicName(),
                         HprofPreferences.ADDITIONAL_CLASS_REFERENCES, false, null);
+    }
+
+    public static double discardRatio()
+    {
+        if (!Platform.getPreferencesService().getBoolean(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.DISCARD_ENABLE, false, null))
+        {
+            return 0.0;
+        }
+        else
+        {
+            return Platform.getPreferencesService().getDouble(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.DISCARD_RATIO, 0.0, null) / 100.0;
+        }
+    }
+
+    public static String discardPattern()
+    {
+        return Platform.getPreferencesService().getString(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.DISCARD_PATTERN, "char\\[\\]|java\\.lang\\.String", null); //$NON-NLS-1$
+    }
+
+    public static long discardSeed()
+    {
+        return Platform.getPreferencesService().getLong(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.DISCARD_SEED, 1L, null);
+    }
+
+    public static double discardOffset()
+    {
+        return Platform.getPreferencesService().getDouble(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.DISCARD_OFFSET, 0.0, null) / 100.0;
     }
 }

@@ -104,7 +104,7 @@ public interface IHprofParserHandler
 
     void beforePass2(IProgressListener monitor) throws IOException, SnapshotException;
 
-    IOne2LongIndex fillIn(IPreliminaryIndex index) throws IOException;
+    IOne2LongIndex fillIn(IPreliminaryIndex index, IProgressListener listener) throws IOException;
 
     void cancel();
 

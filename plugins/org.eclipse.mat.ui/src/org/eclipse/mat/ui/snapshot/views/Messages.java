@@ -37,6 +37,8 @@ public class Messages extends NLS
     public static String number_of_classes;
     public static String number_of_classloaders;
     public static String number_of_gc_roots;
+    public static String unreachable_heap;
+    public static String number_of_unreachable_objects;
 
     public static String col_property;
     public static String col_file;
@@ -45,7 +47,7 @@ public class Messages extends NLS
 
     public static String jvm_version;
 
-	static
+    static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

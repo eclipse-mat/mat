@@ -12,9 +12,7 @@
 package org.eclipse.mat.ui.snapshot.views;
 
 import java.io.File;
-import com.ibm.icu.text.DateFormat;
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +27,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
 import org.eclipse.mat.util.MessageUtil;
@@ -40,6 +39,10 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+
+import com.ibm.icu.text.DateFormat;
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 public abstract class SnapshotOutlinePage extends Page implements IContentOutlinePage
 {
@@ -353,6 +356,15 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                             .getNumberOfClassLoaders()));
             category.addChild(new Label(Messages.number_of_gc_roots, info.getNumberOfGCRoots(), bInfo
                             .getNumberOfGCRoots()));
+            long u[] = unreachableObjects(info);
+            long bU[] = unreachableObjects(bInfo);
+            long unreachableObjects = u[0];
+            long bUnreachableObjects = bU[0];
+            if (unreachableObjects > 0 || bUnreachableObjects > 0)
+            {
+                category.addChild(new Label(Messages.unreachable_heap, u[1], bU[1]));
+                category.addChild(new Label(Messages.number_of_unreachable_objects, unreachableObjects, bUnreachableObjects));
+            }
         }
         else if (getSnapshotPath() != null)
         {
@@ -380,6 +392,22 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         treeViewer.setInput(elements);
         treeViewer.expandAll();
         treeViewer.getTree().setRedraw(true);
+    }
+
+    private long[] unreachableObjects(SnapshotInfo info)
+    {
+        long discardedObjects = 0;
+        long discardedHeap = 0;
+        Serializable unreachable = info.getProperty(UnreachableObjectsHistogram.class.getName());
+        if (unreachable instanceof UnreachableObjectsHistogram)
+        {
+            UnreachableObjectsHistogram ur = (UnreachableObjectsHistogram)unreachable;
+            for(UnreachableObjectsHistogram.Record r : ur.getRecords()) {
+                discardedObjects += r.getObjectCount();
+                discardedHeap += r.getShallowHeapSize();
+            }
+        }
+        return new long[] {discardedObjects,discardedHeap};
     }
 
     protected abstract IPath getSnapshotPath();
