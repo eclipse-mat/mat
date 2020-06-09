@@ -35,11 +35,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -73,6 +75,7 @@ import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
@@ -305,6 +308,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private IndexWriter.IntIndexCollector objectToClass2;
     
+    /** Which class instances to possibly discard */
+    private Pattern discardPattern = null;
+    /** How often to discard */
+    private double discardRatio = 0.0;
+    /** Select which group of objects are discarded */
+    private double discardOffset = 0.0;
+    /** Random number seed for choosing discards */
+    private long discardSeed = 1;
+    /** Random number generator to choose what to discard */
+    private Random rand = new Random(discardSeed);
+    /** The class id to MAT class for discarded objects information index */
+    private HashMapIntObject<ClassImpl> discardIdToClass;
+
     /**
      * Used for very corrupt dumps without a java/lang/Class
      */
@@ -729,6 +745,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNoutboundReferences = errorCount;
     private int msgNnoSuperClassForArray = errorCount;
     private int msgNproblemReadingJavaStackFrame = errorCount;
+    private int msgNskipHeapObject = errorCount;
 
     /*
      * (non-Javadoc)
@@ -881,6 +898,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
         DumpCache.clearCachedDump(dump);
         Serializable dumpType = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
         dtfjInfo = DumpCache.getDump(dump, dumpType);
+        if (ifo.getProperty("discard_ratio") instanceof Integer) //$NON-NLS-1$
+        {
+            discardRatio = (Integer)ifo.getProperty("discard_ratio") / 100.0; //$NON-NLS-1$
+        }
+        if (ifo.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
+        {
+            discardOffset = (Integer)ifo.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
+        }
+        if (ifo.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
+        {
+            discardSeed = (Integer)ifo.getProperty("discard_seed"); //$NON-NLS-1$
+        }
+        rand = new Random(discardSeed);
+        if (ifo.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
+        {
+            discardPattern = Pattern.compile((String)ifo.getProperty("discard_pattern")); //$NON-NLS-1$
+        }
 
         long now1 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
@@ -1148,6 +1182,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 long objAddress = jo.getID().getAddress();
                 objAddress = fixBootLoaderAddress(bootLoaderAddress, objAddress);
 
+                if (skipObject(jo, objAddress, allClasses, listener))
+                    continue;
                 rememberObject(jo, objAddress, allClasses, listener);
             }
         }
@@ -1678,6 +1714,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.subTask(Messages.DTFJIndexBuilder_Pass2);
         if (debugInfo) debugPrint("Classes " + nClasses); //$NON-NLS-1$
         idToClass = new HashMapIntObject<ClassImpl>(nClasses);
+        discardIdToClass = new HashMapIntObject<ClassImpl>();
 
         if (debugInfo)
         {
@@ -2049,6 +2086,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 }
 
+                /*
+                 * If we discard heap objects they might end up on the missing objects
+                 * list, so don't process them twice.
+                 */
+                if (missingObjects.containsKey(jo.getID().getAddress()))
+                    continue;
                 processHeapObject(jo, jo.getID().getAddress(), pointerSize, bootLoaderAddress, loaders, jlc, refd, listener);
             }
         }
@@ -2332,6 +2375,33 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         objectToClass = null;
         index.setObject2classId(objectToClass1);
+
+        if (discardIdToClass.size() > 0)
+        {
+            // Create Histogram of discarded objects
+            long discardedObjects = 0;
+            long discardedSize = 0;
+            List<UnreachableObjectsHistogram.Record> records = new ArrayList<UnreachableObjectsHistogram.Record>();
+            for(Iterator<ClassImpl>it = discardIdToClass.values(); it.hasNext(); ) {
+                ClassImpl clazz = it.next();
+                records.add(new UnreachableObjectsHistogram.Record(
+                                clazz.getName(),
+                                clazz.getObjectAddress(),
+                                clazz.getNumberOfObjects(),
+                                clazz.getTotalSize()));
+                discardedObjects += clazz.getNumberOfObjects();
+                discardedSize += clazz.getTotalSize();
+            }
+            if (discardedObjects > 0)
+            {
+                UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
+                ifo.setProperty(UnreachableObjectsHistogram.class.getName(), deadObjectHistogram);
+                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
+                                Messages.DTFJIndexBuilder_DiscardedObjects,
+                                discardedObjects, discardedSize, discardRatio, discardPattern), null);
+            }
+        }
+        discardIdToClass = null;
 
         if (verbose)
         {
@@ -3192,6 +3262,42 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
+     * Randomly choose whether to discard
+     * @return
+     */
+    private boolean discard()
+    {
+        if (discardRatio <= 0.0)
+            return false;
+        double d = rand.nextDouble();
+        double top = discardRatio + discardOffset;
+        /*
+         * Wrap around the range.
+         * [dddddddd..] 0.8,0.0
+         * [..dddddddd] 0.8,0.2
+         * [dd..dddddd] 0.8,0.4
+         */
+        return (d < top && d >= discardOffset) || d < top - 1.0;
+    }
+
+    private boolean skipObject(JavaObject jo, long objAddress, Set<JavaClass> allClasses, IProgressListener listener)
+    {
+        if (discard())
+        {
+            try
+            {
+                JavaClass cls = jo.getJavaClass();
+                String name = getMATClassName(cls, listener);
+                return discardPattern.matcher(name).matches();
+            }
+            catch (CorruptDataException e)
+            {
+            }
+        }
+        return false;
+    }
+
+    /**
      * Record the object address in the list of identifiers and the associated
      * classes in the class list
      * 
@@ -3286,12 +3392,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (objId < 0)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.DTFJIndexBuilder_SkippingObject,
+            if (msgNskipHeapObject-- > 0) listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.DTFJIndexBuilder_SkippingObject,
                             format(objAddr)), null);
-            return;
+            // Continue so as to account for skipped object
         }
 
-        if (idToClass.get(objId) != null)
+        if (objId >= 0 && idToClass.get(objId) != null)
         {
             // Class objects are dealt with elsewhere
             // if (debugInfo) debugPrint("Skipping class "+idToClass.get(objId).getName());
@@ -3371,12 +3477,52 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // elements
         }
 
-        // if (debugInfo) debugPrint("set objectID "+objId+" at address "+format(objAddr)+"
-        // classID "+clsId+" "+format(clsAddr));
-        objectToClass.set(objId, clsId);
+        if (objId >= 0)
+        {
+            // if (debugInfo) debugPrint("set objectID "+objId+" at address "+format(objAddr)+"
+            // classID "+clsId+" "+format(clsAddr));
+            objectToClass.set(objId, clsId);
+        }
 
         // Add object count/size to the class
         ClassImpl cls = idToClass.get(clsId);
+
+        if (objId < 0)
+        {
+            // Handle an object we are skipping
+            if (cls == null)
+                return;
+            // Account for the object we will skip
+            ClassImpl cls2 = discardIdToClass.get(clsId);
+            if (cls2 == null)
+            {
+                cls2 = new ClassImpl(cls.getObjectAddress(), cls.getName(), cls.getSuperClassAddress(),
+                                cls.getClassLoaderAddress(), new Field[0], new FieldDescriptor[0]);
+                discardIdToClass.put(clsId, cls2);
+            }
+            long size;
+            if (jo != null)
+            {
+                try
+                {
+                    size = getObjectSize(jo, pointerSize);
+                }
+                catch (CorruptDataException e)
+                {
+                    // Use the existing size as no size is available
+                    size = cls.getHeapSizePerInstance();
+                    if (size < 0) size = 0;
+                }
+            }
+            else
+            {
+                // Use the existing size as no size is available
+                size = cls.getHeapSizePerInstance();
+                if (size < 0) size = 0;
+            }
+            cls2.addInstance(size);
+            return;
+        }
         try
         {
             if (cls != null)

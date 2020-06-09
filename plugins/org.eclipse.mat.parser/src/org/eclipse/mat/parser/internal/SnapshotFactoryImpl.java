@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -250,6 +250,16 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 if (Boolean.parseBoolean(args.get("keep_unreachable_objects")))//$NON-NLS-1$
                 {
                     snapshotInfo.setProperty("keep_unreachable_objects", GCRootInfo.Type.UNREACHABLE);//$NON-NLS-1$
+                }
+                if (args.containsKey("discard_ratio")) //$NON-NLS-1$
+                {
+                    snapshotInfo.setProperty("discard_ratio", Integer.parseInt(args.get("discard_ratio")));  //$NON-NLS-1$//$NON-NLS-2$
+                    if (args.containsKey("discard_pattern")) //$NON-NLS-1$
+                        snapshotInfo.setProperty("discard_pattern", args.get("discard_pattern")); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (args.containsKey("discard_offset")) //$NON-NLS-1$
+                        snapshotInfo.setProperty("discard_offset", Integer.parseInt(args.get("discard_offset"))); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (args.containsKey("discard_seed")) //$NON-NLS-1$
+                        snapshotInfo.setProperty("discard_seed", Integer.parseInt(args.get("discard_seed"))); //$NON-NLS-1$ //$NON-NLS-2$
                 }
 
                 String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$

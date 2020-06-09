@@ -421,7 +421,7 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
                                     long addr2 = jth.getObject().getID().getAddress();
                                     if (addr2 == thread.getThreadObject().getObjectAddress())
                                     {
-                                        long addr3 = jm.getObject().getID().getAddress();
+                                        long addr3 = jo.getID().getAddress();
                                         try
                                         {
                                             int id2 = snapshot.mapAddressToId(addr3);
@@ -431,7 +431,7 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
                                         {}
                                     }
                                 }
-                                if (jo != null && jo.equals(bo))
+                                if (jo.equals(bo))
                                 {
                                     // Found blocking
                                     JavaThread jth2 = jm.getOwner();

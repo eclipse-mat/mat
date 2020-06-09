@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - discard options
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot;
 
@@ -51,8 +52,19 @@ public abstract class ParseHeapDumpJob extends Job
         {
             args.put("keep_unreachable_objects", Boolean.TRUE.toString()); //$NON-NLS-1$
         }
-            return args;
+        if (prefs.getBoolean(PreferenceConstants.DISCARD_ENABLE))
+        {
+            int ratio = prefs.getInt(PreferenceConstants.DISCARD_RATIO);
+            args.put("discard_ratio", Integer.toString(ratio)); //$NON-NLS-1$
+            int offset = prefs.getInt(PreferenceConstants.DISCARD_OFFSET);
+            args.put("discard_offset", Integer.toString(offset)); //$NON-NLS-1$
+            String pattern = prefs.getString(PreferenceConstants.DISCARD_PATTERN);
+            args.put("discard_pattern", pattern); //$NON-NLS-1$
+            int seed = prefs.getInt(PreferenceConstants.DISCARD_SEED);
+            args.put("discard_seed", Integer.toString(seed)); //$NON-NLS-1$
         }
+        return args;
+    }
 
     public ParseHeapDumpJob(IPath path)
     {

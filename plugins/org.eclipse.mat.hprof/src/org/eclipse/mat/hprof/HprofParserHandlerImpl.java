@@ -92,13 +92,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private long maxFilePosition = 0;
 
     /** Which class instances to possibly discard */ 
-    private Pattern discardPattern = Pattern.compile(HprofPreferences.discardPattern());
+    private Pattern discardPattern = null;
     /** How often to discard */
-    private double discardRatio = HprofPreferences.discardRatio();
+    private double discardRatio = 0.0;
     /** Select which group of objects are discarded */
-    private double discardOffset = HprofPreferences.discardOffset();
+    private double discardOffset = 0.0;
     /** Random number seed for choosing discards */
-    private long discardSeed = HprofPreferences.discardSeed();
+    private long discardSeed = 1;
     /** Random number generator to choose what to discard */
     private Random rand = new Random(discardSeed);
 
@@ -110,6 +110,23 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         this.info = snapshotInfo;
         this.identifiers = new IndexWriter.Identifier();
+        if (info.getProperty("discard_ratio") instanceof Integer) //$NON-NLS-1$
+        {
+            discardRatio = (Integer)info.getProperty("discard_ratio") / 100.0; //$NON-NLS-1$
+        }
+        if (info.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
+        {
+            discardOffset = (Integer)info.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
+        }
+        if (info.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
+        {
+            discardSeed = (Integer)info.getProperty("discard_seed"); //$NON-NLS-1$
+        }
+        rand = new Random(discardSeed);
+        if (info.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
+        {
+            discardPattern = Pattern.compile((String)info.getProperty("discard_pattern")); //$NON-NLS-1$
+        }
     }
 
     public void beforePass2(IProgressListener monitor) throws IOException, SnapshotException

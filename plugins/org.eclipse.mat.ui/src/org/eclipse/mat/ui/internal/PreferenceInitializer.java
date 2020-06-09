@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2012 IBM Corporation.
+ * Copyright (c) 2011,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	    store.setDefault(ArgumentsWizardPage.HIDE_QUERY_HELP, false);
 	    store.setDefault(PreferenceConstants.P_HIDE_WELCOME_SCREEN, false);
 	    store.setDefault(BytesDisplay.PROPERTY_NAME, BytesDisplay.DEFAULT.toString());
+        store.setDefault(PreferenceConstants.DISCARD_ENABLE, Boolean.FALSE);
+        store.setDefault(PreferenceConstants.DISCARD_RATIO, 0);
+        store.setDefault(PreferenceConstants.DISCARD_PATTERN, "char\\[\\]|java\\.lang\\.String"); //$NON-NLS-1$
+        store.setDefault(PreferenceConstants.DISCARD_SEED, 1L);
+        store.setDefault(PreferenceConstants.DISCARD_OFFSET, 0);
 	}
 
 }

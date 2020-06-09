@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2019 IBM Corporation.
+ * Copyright (c) 2011,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.mat.query.BytesDisplay;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -37,6 +42,27 @@ import org.eclipse.ui.PlatformUI;
 
 public class UIPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage
 {
+    /**
+     * Edit a String which will be used as a RegEx pattern.
+     */
+    private static final class PatternFieldEditor extends StringFieldEditor
+    {
+        private PatternFieldEditor(String name, String labelText, Composite parent)
+        {
+            super(name, labelText, parent);
+        }
+
+        public boolean doCheckState() {
+            try {
+                Pattern.compile(getStringValue());
+            } catch (PatternSyntaxException e) {
+                setErrorMessage(e.getDescription());
+                return false;
+            }
+            return true;
+        }
+    }
+
     private String lastBytesDisplay;
 
     public UIPreferencePage()
@@ -69,6 +95,25 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
                       { Messages.UIPreferencePage_BytesDisplay_Gigabytes, BytesDisplay.Gigabytes.toString() },
                       { Messages.UIPreferencePage_BytesDisplay_Smart, BytesDisplay.Smart.toString() },
                     }, getFieldEditorParent(), true));
+        /* Discard options */
+        BooleanFieldEditor enable = new BooleanFieldEditor(PreferenceConstants.DISCARD_ENABLE, 
+                        Messages.UIPreferencePage_DiscardEnable,
+                        getFieldEditorParent());
+        addField(enable);
+        IntegerFieldEditor discardRatio = new IntegerFieldEditor(PreferenceConstants.DISCARD_RATIO, Messages.UIPreferencePage_DiscardPercentage,
+                        getFieldEditorParent());
+        discardRatio.setValidRange(0, 100);
+        addField(discardRatio);
+        StringFieldEditor discardPattern = new PatternFieldEditor(PreferenceConstants.DISCARD_PATTERN, Messages.UIPreferencePage_DiscardPattern, getFieldEditorParent());
+        addField(discardPattern);
+        IntegerFieldEditor discardOffset = new IntegerFieldEditor(PreferenceConstants.DISCARD_OFFSET, Messages.UIPreferencePage_DiscardOffset,
+                        getFieldEditorParent());
+        discardOffset.setValidRange(0, 99);
+        addField(discardOffset);
+        IntegerFieldEditor discardSeed = new IntegerFieldEditor(PreferenceConstants.DISCARD_SEED, Messages.UIPreferencePage_DiscardSeed,
+                        getFieldEditorParent());
+        discardSeed.setValidRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        addField(discardSeed);
     }
 
     /*

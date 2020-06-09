@@ -66,6 +66,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_CorruptDataReadingThreads;
     public static String DTFJIndexBuilder_CorruptDataReadingThreadsFromMonitors;
     public static String DTFJIndexBuilder_DeclaringClassNotFound;
+    public static String DTFJIndexBuilder_DiscardedObjects;
     public static String DTFJIndexBuilder_DTFJDoesNotSupportHeapRoots;
     public static String DTFJIndexBuilder_DTFJgetHeapRootsFromStackFrameReturnsNull;
     public static String DTFJIndexBuilder_DTFJgetHeapRootsReturnsNull;
