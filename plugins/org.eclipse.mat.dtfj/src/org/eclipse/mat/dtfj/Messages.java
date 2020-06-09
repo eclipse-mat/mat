@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2018 IBM Corporation.
+ * Copyright (c) 2009,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -243,6 +243,7 @@ public class Messages extends NLS
     public static String StackFrameResolver_method_file_line;
     public static String ThreadDetailsResolver_alive;
     public static String ThreadDetailsResolver_blocked_on_monitor_enter;
+    public static String ThreadDetailsResolver_CurrentOwner;
     public static String ThreadDetailsResolver_DTFJ_Name;
     public static String ThreadDetailsResolver_in_native;
     public static String ThreadDetailsResolver_in_object_wait;
@@ -250,6 +251,7 @@ public class Messages extends NLS
     public static String ThreadDetailsResolver_JNIEnv;
     public static String ThreadDetailsResolver_Native_id;
     public static String ThreadDetailsResolver_Native_stack;
+    public static String ThreadDetailsResolver_OwnerMonitors;
     public static String ThreadDetailsResolver_parked;
     public static String ThreadDetailsResolver_Priority;
     public static String ThreadDetailsResolver_runnable;
@@ -258,9 +260,12 @@ public class Messages extends NLS
     public static String ThreadDetailsResolver_State;
     public static String ThreadDetailsResolver_State_value;
     public static String ThreadDetailsResolver_terminated;
+    public static String ThreadDetailsResolver_ThreadBlockedOn;
     public static String ThreadDetailsResolver_vendor1;
     public static String ThreadDetailsResolver_vendor2;
     public static String ThreadDetailsResolver_vendor3;
+    public static String ThreadDetailsResolver_WaitEnterThreads;
+    public static String ThreadDetailsResolver_WaitNotifyThreads;
     public static String ThreadDetailsResolver_waiting;
     public static String ThreadDetailsResolver_waiting_indefinitely;
     public static String ThreadDetailsResolver_waiting_with_timeout;

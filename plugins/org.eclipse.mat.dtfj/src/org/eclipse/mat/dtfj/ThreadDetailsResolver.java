@@ -18,18 +18,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.results.TextResult;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IThreadDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
+import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
 import com.ibm.dtfj.image.DataUnavailable;
 import com.ibm.dtfj.image.ImagePointer;
 import com.ibm.dtfj.image.ImageStackFrame;
 import com.ibm.dtfj.image.ImageThread;
+import com.ibm.dtfj.java.JavaMonitor;
+import com.ibm.dtfj.java.JavaObject;
 import com.ibm.dtfj.java.JavaRuntime;
 import com.ibm.dtfj.java.JavaThread;
 import com.ibm.icu.text.DecimalFormat;
@@ -368,6 +375,150 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
             catch (DataUnavailable e)
             {}
             catch (CorruptDataException e)
+            {}
+            try
+            {
+                ISnapshot snapshot = thread.getThreadObject().getSnapshot();
+                JavaObject bo = null;
+                try
+                {
+                    bo = jt.getBlockingObject();
+                }
+                catch (DataUnavailable e)
+                {}
+                catch (CorruptDataException e)
+                {}
+                long addr = 0;
+                ArrayInt blocking = new ArrayInt();
+                if (bo != null)
+                {
+                    addr = bo.getID().getAddress();
+                    int id = snapshot.mapAddressToId(addr);
+                    blocking.add(id);
+                }
+                ArrayInt owned = new ArrayInt();
+                ArrayInt owners = new ArrayInt();
+                ArrayInt enters = new ArrayInt();
+                ArrayInt waits = new ArrayInt();
+                JavaRuntime jr = snapshot.getSnapshotAddons(JavaRuntime.class);
+                if (jr != null)
+                {
+                    for (Iterator<?> it = jr.getMonitors(); it.hasNext();)
+                    {
+                        Object o = it.next();
+                        if (o instanceof CorruptData)
+                            continue;
+                        if (o instanceof JavaMonitor)
+                        {
+                            JavaMonitor jm = (JavaMonitor)o;
+                            JavaObject jo = jm.getObject();
+                            if (jo != null)
+                            {
+                                // Found monitor with object
+                                JavaThread jth = jm.getOwner();
+                                if (jth != null)
+                                {
+                                    long addr2 = jth.getObject().getID().getAddress();
+                                    if (addr2 == thread.getThreadObject().getObjectAddress())
+                                    {
+                                        long addr3 = jm.getObject().getID().getAddress();
+                                        try
+                                        {
+                                            int id2 = snapshot.mapAddressToId(addr3);
+                                            owned.add(id2);
+                                        }
+                                        catch (SnapshotException e)
+                                        {}
+                                    }
+                                }
+                                if (jo != null && jo.equals(bo))
+                                {
+                                    // Found blocking
+                                    JavaThread jth2 = jm.getOwner();
+                                    if (jth2 != null)
+                                    {
+                                        long addr2 = jth2.getObject().getID().getAddress();
+                                        try
+                                        {
+                                            int id2 = snapshot.mapAddressToId(addr2);
+                                            owners.add(id2);
+                                        }
+                                        catch (SnapshotException e)
+                                        {}
+                                    }
+                                    for (Iterator<?> it2 = jm.getEnterWaiters(); it2.hasNext();)
+                                    {
+                                        Object o2 = it2.next();
+                                        if (o2 instanceof CorruptData)
+                                            continue;
+                                        if (o2 instanceof JavaThread)
+                                        {
+                                            jth = (JavaThread)o2;
+                                            long addr2 = jth.getObject().getID().getAddress();
+                                            try
+                                            {
+                                                int id2 = snapshot.mapAddressToId(addr2);
+                                                enters.add(id2);
+                                            }
+                                            catch (SnapshotException e)
+                                            {}
+                                        }
+                                    }
+                                    for (Iterator<?> it2 = jm.getNotifyWaiters(); it2.hasNext();)
+                                    {
+                                        Object o2 = it2.next();
+                                        if (o2 instanceof CorruptData)
+                                            continue;
+                                        if (o2 instanceof JavaThread)
+                                        {
+                                            jth = (JavaThread)o2;
+                                            long addr2 = jth.getObject().getID().getAddress();
+                                            try
+                                            {
+                                                int id2 = snapshot.mapAddressToId(addr2);
+                                                waits.add(id2);
+                                            }
+                                            catch (SnapshotException e)
+                                            {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (true)
+                {
+                    IResult res2 = new ObjectListResult.Outbound(snapshot, owned.toArray());
+                    thread.addDetails(Messages.ThreadDetailsResolver_OwnerMonitors, res2);
+                }
+                if (!blocking.isEmpty())
+                {
+                    if (true)
+                    {
+                        IResult res2 = new ObjectListResult.Outbound(snapshot, blocking.toArray());
+                        thread.addDetails(Messages.ThreadDetailsResolver_ThreadBlockedOn, res2);
+                    }
+                    if (true)
+                    {
+                        IResult res2 = new ObjectListResult.Outbound(snapshot, owners.toArray());
+                        thread.addDetails(Messages.ThreadDetailsResolver_CurrentOwner, res2);
+                    }
+                    if (true)
+                    {
+                        IResult res2 = new ObjectListResult.Outbound(snapshot, enters.toArray());
+                        thread.addDetails(Messages.ThreadDetailsResolver_WaitEnterThreads, res2);
+                    }
+                    if (true)
+                    {
+                        IResult res2 = new ObjectListResult.Outbound(snapshot, waits.toArray());
+                        thread.addDetails(Messages.ThreadDetailsResolver_WaitNotifyThreads, res2);
+                    }
+                }
+            }
+            catch (CorruptDataException e1)
+            {}
+            catch (SnapshotException e1)
             {}
         }
     }
