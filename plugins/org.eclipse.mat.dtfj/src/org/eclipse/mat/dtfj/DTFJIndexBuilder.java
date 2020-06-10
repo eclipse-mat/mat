@@ -309,7 +309,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private IndexWriter.IntIndexCollector objectToClass2;
     
     /** Which class instances to possibly discard */
-    private Pattern discardPattern = null;
+    private Pattern discardPattern = Pattern.compile("char\\[\\]|java\\.lang\\.String"); //$NON-NLS-1$
     /** How often to discard */
     private double discardRatio = 0.0;
     /** Select which group of objects are discarded */
