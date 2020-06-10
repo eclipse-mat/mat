@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2019 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -72,10 +72,14 @@
 				required to parse a dump.
 				</p>
 				<p>Memory Analyzer has an architectural limit of 2<sup>31</sup> - 3 objects,
-				a current limit of 2<sup>31</sup> - 8 = 2,147,483,640 objects, but has not been
+				a current limit of 2<sup>31</sup> - 9 = 2,147,483,639 objects, but has not been
 				tested with that many objects. The current record is a heap dump file of 70Gbytes
 				containing 1,160,000,000 objects, which was opened with Memory Analyzer running
-				with a 64Gbyte heap.</p>
+				with a 64Gbyte heap. 
+				Exceeding the limit can result in an exception such as
+				<systemoutput>OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</systemoutput>.
+				See <xref format="dita" href="#task_configure_mat__discard">enable discard</xref>
+				for options to work around this limit.</p>
 				
 			<p>The preference page is opened via a menu option.
 				<menucascade>
@@ -84,6 +88,8 @@
 				</menucascade>
 			</p>
 			<p id="preferences">The preferences page allows various aspects of Memory Analyzer to be controlled.
+			Some of the preferences can also be controlled from the command line in
+			<xref type="dita" href="batch.dita">batch mode</xref>.
 			<image href="../mimes/preferences.png">
 				<alt>preferences page showing general options with DTFJ subpage</alt>
 			</image>
@@ -153,6 +159,109 @@
 							</dd>
 						</dlentry>
 					</dl>
+				</dd>
+			</dlentry>
+			<dlentry id="discard">
+				<dt>Enable discard (experimental)</dt>
+				<dd>
+					<p>
+					Sometimes a heap dump is generated with more objects than Memory Analyzer
+					can handle, either from lack of heap to run Memory Analyzer itself, or because the number
+					exceeds the Memory Analyzer limit of 2,147,483,639 objects.
+					This option controls some experimental settings to help analyze
+					such huge dumps, by purposely discarding objects in the original
+					heap dump.
+					</p>
+					<p>The discarded objects are counted in the 
+					<xref format="dita" href="../reference/inspections/unreachable_objects.dita">
+					unreachable objects histogram</xref> together with any unreachable objects
+					discarded by Memory Analyzer after parsing but before building the dominator tree.
+					</p>
+					<p>Some trial and error may be required to find suitable values of the options.
+					<ol>
+					<li>If an OutOfMemoryError still occurs on a parse then more objects need to be
+					discarded, either by increasing the discard percentage or by increasing the
+					number of types of discarded objects by changing the pattern.</li>
+					<li>If the leak is
+					not apparent from the snapshot with many discarded objects then examine
+					the unreachable objects histogram to see if any key objects have been discarded
+					and modify the discard pattern. Ideally only primitive arrays or objects which
+					just have primitive fields or refer to primitive arrays should be discarded.
+					This avoids disrupting the object graph too much.</li>
+					<li>If the types of the discarded objects look reasonable then try changing
+					which objects have been discarded, either by varying the offset (if the
+					discard percentage is not <userinput>100</userinput>) or the discard seed.</li>
+					<li>If the available heap to run Memory Analyzer is very small then try
+					discarding all of the ordinary objects by choosing <userinput>100</userinput>
+					for the discard percentage and <userinput>.*</userinput> to match all
+					object types. The resulting snapshot will not be useful for finding leaks,
+					but the unreachable object histogram will show the types of the objects
+					taking most of the heap space, and might give a hint as to the problem.</li>
+					</ol>
+					</p>
+					<note>This feaure is experimental and is subject to change
+					or removal. Please respond on the 
+					<xref format="html" href="https://www.eclipse.org/forums/index.php/f/186/">
+					Memory Analyzer forum</xref> if you try it and
+					find it useful or have suggestions.</note>
+			<dl>
+			<dlentry>
+				<dt>Discard percentage</dt>
+				<dd>
+					A number between <userinput>0</userinput> and <userinput>100</userinput>, treated as a percentage.
+					Approximately this percentage of ordinary objects 
+					matching the discard pattern will be
+					discarded by the HPROF or DTFJ parsers.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Discard pattern</dt>
+				<dd>
+					Only objects with a class name matching this regular expression
+					will be discarded. It is best to chose objects of a type which
+					does not link to other objects, such as primitive arrays, or
+					objects which just link to other such objects. This avoids breaking
+					the object graph too much, and gives a hope that the leak
+					analysis will find the problem.
+					The default pattern of
+					<userinput>char\[\]|java\.lang\.String</userinput> discards
+					character arrays and Strings. For Java 9 heap dumps with
+					compact strings based on byte arrays then 
+					<userinput>byte\[\]|java\.lang\.String</userinput> may be 
+					more appropriate.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Discard offset</dt>
+				<dd>
+					A number between <userinput>0</userinput> and <userinput>99</userinput>.
+					This allows different objects to be discarded from two different
+					parses of the same heap dump. This might be useful to allow objects
+					which have been discarded from one snapshot to be found in the
+					others. For example with a discard percentage of <userinput>25</userinput>, then offsets
+					chosen from <userinput>0</userinput>,<userinput>25</userinput>,<userinput>50</userinput>,<userinput>75</userinput> in successive parses will discard 
+					4 distinct sets of objects.
+					With a discard percentage of <userinput>80</userinput>, and offsets of 
+					<userinput>0</userinput>,
+					<userinput>20</userinput>,
+					<userinput>40</userinput>,
+					<userinput>60</userinput>,
+					<userinput>80</userinput>
+					in successive parses, will have each object present in one of 
+					those five snapshots.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Discard seed</dt>
+				<dd>
+					This controls the starting point of the random number generator
+					used to decide whether to discard particular objects. If after 
+					discarding objects the leak cannot be found then rerunning the
+					parse with a different seed would discard some different objects
+					and might show the leak better.
+				</dd>
+			</dlentry>
+			</dl>
 				</dd>
 			</dlentry>
 			<dlentry id="dtfj_preferences">
@@ -262,7 +371,10 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 									</dt>
 									<dd>Default. Any deviation from the HPROF specification causes
 										an exception to be thrown and processing to stop (with the
-										exception of bug #404679). This option may be specified on the
+										exception of
+										<xref format="html"
+								href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679">bug #404679</xref>
+										.) This option may be specified on the
 										command line with -DhprofStrictnessStop=true
 									</dd>
 								</dlentry>
@@ -283,6 +395,24 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 
 						</dd>
 					</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>HPROF Parser</uicontrol>
+						<uicontrol>Include additional references from class objects 
+						found in a HPROF file.</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+					Class objects have hidden references to the other objects.
+					These include the signers and the protection domain.
+					Memory Analyzer can include them via pseudo-fields named
+					<parmname>&lt;signers&gt;</parmname> and <parmname>&lt;protectionDomain&gt;</parmname>.
+					Sometimes it might be useful to see these references, and this
+					option allows that.
+				</dd>
+			</dlentry>
 			<dlentry>
 				<dt>
 					<menucascade>

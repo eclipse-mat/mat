@@ -92,7 +92,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private long maxFilePosition = 0;
 
     /** Which class instances to possibly discard */ 
-    private Pattern discardPattern = null;
+    private Pattern discardPattern = Pattern.compile("char\\[\\]|java\\.lang\\.String"); //$NON-NLS-1$
     /** How often to discard */
     private double discardRatio = 0.0;
     /** Select which group of objects are discarded */
