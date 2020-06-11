@@ -901,19 +901,31 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (ifo.getProperty("discard_ratio") instanceof Integer) //$NON-NLS-1$
         {
             discardRatio = (Integer)ifo.getProperty("discard_ratio") / 100.0; //$NON-NLS-1$
-        }
-        if (ifo.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
-        {
-            discardOffset = (Integer)ifo.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
-        }
-        if (ifo.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
-        {
-            discardSeed = (Integer)ifo.getProperty("discard_seed"); //$NON-NLS-1$
-        }
-        rand = new Random(discardSeed);
-        if (ifo.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
-        {
-            discardPattern = Pattern.compile((String)ifo.getProperty("discard_pattern")); //$NON-NLS-1$
+            if (ifo.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
+            {
+                discardOffset = (Integer)ifo.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
+            }
+            else
+            {
+                ifo.setProperty("discard_offset", (int)Math.round(discardOffset * 100)); //$NON-NLS-1$
+            }
+            if (ifo.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
+            {
+                discardSeed = (Integer)ifo.getProperty("discard_seed"); //$NON-NLS-1$
+            }
+            else
+            {
+                ifo.setProperty("discard_seed", discardSeed); //$NON-NLS-1$
+            }
+            rand = new Random(discardSeed);
+            if (ifo.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
+            {
+                discardPattern = Pattern.compile((String)ifo.getProperty("discard_pattern")); //$NON-NLS-1$
+            }
+            else
+            {
+                ifo.setProperty("discard_pattern", discardPattern.toString()); //$NON-NLS-1$
+            }
         }
 
         long now1 = System.currentTimeMillis();

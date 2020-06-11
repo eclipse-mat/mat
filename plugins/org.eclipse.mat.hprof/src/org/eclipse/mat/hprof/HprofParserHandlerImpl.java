@@ -113,19 +113,31 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (info.getProperty("discard_ratio") instanceof Integer) //$NON-NLS-1$
         {
             discardRatio = (Integer)info.getProperty("discard_ratio") / 100.0; //$NON-NLS-1$
-        }
-        if (info.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
-        {
-            discardOffset = (Integer)info.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
-        }
-        if (info.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
-        {
-            discardSeed = (Integer)info.getProperty("discard_seed"); //$NON-NLS-1$
-        }
-        rand = new Random(discardSeed);
-        if (info.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
-        {
-            discardPattern = Pattern.compile((String)info.getProperty("discard_pattern")); //$NON-NLS-1$
+            if (info.getProperty("discard_offset") instanceof Integer) //$NON-NLS-1$
+            {
+                discardOffset = (Integer)info.getProperty("discard_offset") / 100.0; //$NON-NLS-1$
+            }
+            else
+            {
+                info.setProperty("discard_offset", (int)Math.round(discardOffset * 100)); //$NON-NLS-1$
+            }
+            if (info.getProperty("discard_seed") instanceof Integer) //$NON-NLS-1$
+            {
+                discardSeed = (Integer)info.getProperty("discard_seed"); //$NON-NLS-1$
+            }
+            else
+            {
+                info.setProperty("discard_seed", discardSeed); //$NON-NLS-1$
+            }
+            rand = new Random(discardSeed);
+            if (info.getProperty("discard_pattern") instanceof String) //$NON-NLS-1$
+            {
+                discardPattern = Pattern.compile((String)info.getProperty("discard_pattern")); //$NON-NLS-1$
+            }
+            else
+            {
+                info.setProperty("discard_pattern", discardPattern.toString()); //$NON-NLS-1$
+            }
         }
     }
 

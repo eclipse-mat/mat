@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -485,7 +485,7 @@
 					<codeph>user.dir</codeph>
 					for the dump files. If this is not the right place then Memory
 					Analyzer will not find the
-					gnerated dump, so the user would have to
+					generated dump, so the user would have to
 					find it manually afterwards. If the
 					user knows
 					where the target JVM
@@ -502,14 +502,14 @@
 					for example
 					<codeph>{0,date,yyyyMMdd.HHmmss}</codeph>
 					.
-					The process identifier is inserted using subsitution variable 1,
+					The process identifier is inserted using substitution variable 1,
 					for
 					example
 					<codeph>{1,number,0}</codeph>
 					.
 					The instance number, used to make the dump file unique, is
 					inserted
-					using subsitution variable 2, for example
+					using substitution variable 2, for example
 					<codeph>{2,number,0000}</codeph>
 					. The extra 0000 is a standard MessageFormat modifier giving the
 					minimum
@@ -518,7 +518,7 @@
 			</dlentry>
 		</dl>
 	</p>
-			<p><b>Multiple snapshots in one heap dump</b></p>
+			<p id="multiple"><b>Multiple snapshots in one heap dump</b></p>
 			<p>
 			Occasionally heap dumps files can be generated which contain multiple heap dumps snapshots.
 			If an HPROF dump is generated using 

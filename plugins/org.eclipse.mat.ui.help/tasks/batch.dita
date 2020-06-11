@@ -52,6 +52,23 @@
 					an ordinary GC root.</cmd>
 				</substep>
 				<substep>
+				<cmd>
+					<userinput>-snapshot_identifier=</userinput><varname>identifier</varname>
+					Selects one snapshot when there is the choice of several in the heap dump file.
+					For HPROF files this might be of the form <userinput>#1</userinput> or
+					<userinput>#2</userinput>.
+					For DTFJ system dump files this might be of the form
+					<userinput><varname>Address space ID</varname>.<varname>Process ID</varname>.<varname>Runtime ID</varname></userinput>.
+					If there are
+					<xref type="dita" href="acquiringheapdump.dita#task_acquiringheapdump__multiple">
+					multiple snapshots</xref> in a heap dump file and a specific snapshot is not
+					selected then the parse will fail with a 
+					<systemoutput>org.eclipse.mat.snapshot.MultipleSnapshotsException</systemoutput>
+					which will list appropriate possible snapshot identifiers to use with this
+					option.
+				</cmd>
+				</substep>
+				<substep>
 				<note>Experimental</note>
 				<cmd><userinput>-discard_ratio=</userinput><varname>percentage</varname>.
 					Option to discard a fraction of the objects from huge dumps.

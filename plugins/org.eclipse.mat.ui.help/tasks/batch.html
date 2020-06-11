@@ -56,6 +56,24 @@
 				</li>
 
 				<li class="li substep">
+				<span class="ph cmd">
+					<kbd class="ph userinput">-snapshot_identifier=</kbd><var class="keyword varname">identifier</var>
+					Selects one snapshot when there is the choice of several in the heap dump file.
+					For HPROF files this might be of the form <kbd class="ph userinput">#1</kbd> or
+					<kbd class="ph userinput">#2</kbd>.
+					For DTFJ system dump files this might be of the form
+					<kbd class="ph userinput"><var class="keyword varname">Address space ID</var>.<var class="keyword varname">Process ID</var>.<var class="keyword varname">Runtime ID</var></kbd>.
+					If there are
+					<a class="xref" href="acquiringheapdump.html#task_acquiringheapdump__multiple">
+					multiple snapshots</a> in a heap dump file and a specific snapshot is not
+					selected then the parse will fail with a 
+					<samp class="ph systemoutput">org.eclipse.mat.snapshot.MultipleSnapshotsException</samp>
+					which will list appropriate possible snapshot identifiers to use with this
+					option.
+				</span>
+				</li>
+
+				<li class="li substep">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><kbd class="ph userinput">-discard_ratio=</kbd><var class="keyword varname">percentage</var>.
