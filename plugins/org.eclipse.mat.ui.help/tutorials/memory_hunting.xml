@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
-    Copyright (c) 2008, 2018 SAP AG and IBM Corporation
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
 -->
    <intro>
       <description>
-         This cheat sheet provides some guidlines how the Memory Analyzer tool could be used 
+         This cheat sheet provides some guidelines how the Memory Analyzer tool could be used 
 			to find memory problems.
       </description>
    </intro>
@@ -35,9 +35,9 @@
       </description>
       <subitem label="Look at the class histogram and find the classes with biggest shallow heap size." skip="true">
       </subitem>
-      <subitem label="Switch to classloader view and find the classesloaders with biggest shallow heap size." skip="true">
+      <subitem label="Switch to classloader view and find the classloaders with biggest shallow heap size." skip="true">
       </subitem>
-      <subitem label="Execute the &quot;top_consumers&quot; query to get a summary of the top-level dominators" skip="true">
+      <subitem label="Execute the &quot;top_consumers&quot; query in the &quot;Leak Identification&quot; submenu to get a summary of the top-level dominators" skip="true">
       </subitem>
    </item>
    <item title="2. Search for and explore the biggest objects" dialog="true" skip="true">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -67,6 +67,7 @@
 
 			There is also a more general comparison view using the compare basket. Tables and trees are added to the compare basket from the Navigation History.
       </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="comparison_report"/>
    </item>
    <item title="Export histogram data" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/exportdata.html">
       <description>
