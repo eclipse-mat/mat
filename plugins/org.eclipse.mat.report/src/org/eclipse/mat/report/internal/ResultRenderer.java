@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -548,10 +550,120 @@ public class ResultRenderer
     // zip directory
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Do two zip files have the same content?
+     * Ignore dates.
+     * For speed just check sizes, CRC etc. 
+     * @param existingZip
+     * @param targetZip
+     * @return true if they are the same
+     */
+    boolean sameZipContents(File existingZip, File targetZip)
+    {
+        if (targetZip.length() == existingZip.length())
+        {
+            /*
+             * Compare the files. They are zips, but the file dates inside might differ.
+             */
+            try (ZipInputStream bis = new ZipInputStream(new BufferedInputStream(new FileInputStream(existingZip)));
+                 ZipInputStream bis2 = new ZipInputStream(new BufferedInputStream(new FileInputStream(targetZip))))
+            {
+                for (;;)
+                {
+                    ZipEntry ze1 = bis.getNextEntry();
+                    ZipEntry ze2 = bis2.getNextEntry();
+                    if (ze1 == null)
+                        return ze2 == null;
+                    if (ze2 == null)
+                        return false;
+                    // Don't bother to check contents
+                    if (ze1.isDirectory() != ze2.isDirectory())
+                        return false;
+                    if (!ze1.getName().equals(ze2.getName()))
+                        return false;
+                    if (ze1.getSize() != ze2.getSize())
+                        return false;
+                    if (ze1.getCrc() != ze2.getCrc())
+                        return false;
+                }
+            }
+            catch (IOException e)
+            {
+                // If a problem reading, then they are not the same
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Zip up a directory.
+     * Copes with an existing zip file which is not writable - e.g. on multi-user
+     * systems where another user has generated a report with different permissions.
+     * Find the first file name in the sequence which can be written to or deleted.
+     * Create a new file, remove if it has the same contents as the previous one.
+     * java_pid13384.0001_System_Overview.zip
+     * java_pid13384.0001_System_Overview_1.zip
+     * java_pid13384.0001_System_Overview_2.zip
+     * ..
+     * java_pid13384.0001_System_Overview_9.zip
+     * @throws IOException
+     */
     private void zipResult() throws IOException
     {
         File targetZip = suite.getOutput();
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(targetZip));
+        // See if we can open the requested file for output
+        final int MAX_RENAMES = 99;
+        File originalZip = targetZip;
+        File existingZip = null;
+        ZipOutputStream zos = null;
+        for (int n = 1; targetZip.exists() && n <= MAX_RENAMES; ++n)
+        {
+            // Perhaps we can overwrite
+            if (targetZip.canWrite())
+            {
+                try
+                {
+                    // Open for output
+                    zos = new ZipOutputStream(new FileOutputStream(targetZip));
+                    /*
+                     * We can overwrite an existing file.
+                     * Consider this:
+                     * report.zip - can't write
+                     * report_1.zip - can't write
+                     * report_2.zip - exists, can overwrite
+                     * At the end, should we delete the new report_2.zip
+                     * if it is the same as report_1.zip ?
+                     * This seems good, so keep existingZip.
+                     */
+                    break;
+                }
+                catch (IOException e)
+                {
+                    // Ignore as we will try a new name
+                }
+            }
+            if (targetZip.delete())
+            {
+                // Deleted, so use the existing name
+                break;
+            }
+            else
+            {
+                String fn = originalZip.getName();
+                int dot = fn.lastIndexOf('.');
+                String fn2 = fn.substring(0, dot) + "_" + n + fn.substring(dot); //$NON-NLS-1$
+                /*
+                 * Use the immediately preceding file for comparison - in case
+                 * the same user generates the file twice.
+                 */
+                
+                existingZip = targetZip;
+                targetZip = new File(originalZip.getParentFile(), fn2);
+            }
+        }
+        if (zos == null)
+            zos = new ZipOutputStream(new FileOutputStream(targetZip));
 
         try
         {
@@ -562,6 +674,14 @@ public class ResultRenderer
             zos.close();
         }
 
+        /**
+         * See if the new file is the same as the old one.
+         */
+        if (existingZip != null && sameZipContents(existingZip, targetZip))
+        {
+            if (targetZip.delete())
+                targetZip = existingZip;
+        }
         suite.addResult(targetZip);
     }
 

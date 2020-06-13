@@ -33,6 +33,7 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -451,6 +452,133 @@ public class GeneralSnapshotTests
         IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
+
+        // See if the zip exists
+        String prefix = snapshot.getSnapshotInfo().getPrefix();
+        // Remove dot
+        prefix = prefix.substring(0, prefix.length() - 1);
+        File locl = new File(prefix + "_System_Overview.zip");
+        assertThat(locl.length(), greaterThan(100L));
+    }
+
+    /**
+     * See if a report with a new name is created if the old one is not writable.
+     * Bug 55835
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testOverviewReportRename() throws SnapshotException, IOException
+    {
+        // Lock the normal output file
+        String prefix = snapshot.getSnapshotInfo().getPrefix();
+        // Remove dot
+        prefix = prefix.substring(0, prefix.length() - 1);
+        File out1 = new File(prefix + "_System_Overview.zip");
+        FileOutputStream fos = new FileOutputStream(out1);
+        //readonly seems to be sufficient for this test
+        //FileLock lock = fos.getChannel().lock();
+        try 
+        {
+            fos.write("Testing".getBytes());
+            out1.setReadOnly();
+
+            // The new output file
+            File out2 = new File(prefix + "_System_Overview_1.zip");
+            assertThat(out2.toString(), out2.exists(), equalTo(false));
+            SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
+            try 
+            {
+                IResult t = query.execute(new CheckedProgressListener(collector));
+                assertNotNull(t);
+                checkHTMLResult(t);
+
+                // check the new zipped report file exists
+                assertThat(out2.toString(), out2.length(), greaterThan(100L));
+                assertTrue(out2.toString(), out2.delete());
+            } 
+            
+            finally {
+                if (out2.exists() && out2.delete())
+                    System.out.println("unable to delete "+out2);
+            }
+            //lock.close();
+            fos.close();
+            assertTrue(out1.toString(), out1.delete());
+        }
+        finally
+        {
+            //lock.close();
+            fos.close();
+            if (out1.exists() && out1.delete())
+                System.out.println("unable to delete "+out1);
+        }
+    }
+
+    /**
+     * See if a new file is not created if the old file is not writable,
+     * but contains the same contents as the new file.
+     * Bug 558353
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testOverviewReportRename2() throws SnapshotException, IOException
+    {
+        String prefix = snapshot.getSnapshotInfo().getPrefix();
+        // Remove dot
+        prefix = prefix.substring(0, prefix.length() - 1);
+        File out1 = new File(prefix + "_System_Overview.zip");
+        if (out1.exists())
+            assertTrue(out1.toString(), out1.delete());
+        // The new output file
+        File out2 = new File(prefix + "_System_Overview_1.zip");
+        if (out2.exists())
+            assertTrue(out2.toString(), out2.delete());
+
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
+        try
+        {
+            IResult t = query.execute(new CheckedProgressListener(collector));
+            assertNotNull(t);
+            checkHTMLResult(t);
+            assertThat(out1.toString(), out1.length(), greaterThan(100L));
+            assertThat(out2.toString(), out2.exists(), equalTo(false));
+
+            // Lock the usual output file
+            out1.setReadOnly();
+            FileInputStream fis = new FileInputStream(out1);
+            //readonly seems to be sufficient for this test
+            //FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true);
+            long mdate = out1.lastModified();
+            long len1 = out1.length();
+            try
+            {
+                query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
+                t = query.execute(new CheckedProgressListener(collector));
+                assertNotNull(t);
+                checkHTMLResult(t);
+                assertThat(out1.length(), equalTo(len1));
+                long mdate2 = out1.lastModified();
+                // Modification date should not change as the file should not have been rewritten
+                assertThat(out1.toString(), mdate2, equalTo(mdate));
+                // but a new file should not have been created either
+                assertThat(out2.toString(), out2.exists(), equalTo(false));
+            }
+            finally
+            {
+                if (out2.exists() && out2.delete())
+                    System.out.println("unable to delete "+out2);
+                //lock.release();
+                fis.close();
+            }
+            assertTrue(out1.toString(), out1.delete());
+        }
+        finally
+        {
+            if (out1.exists() && out1.delete())
+                System.out.println("unable to delete "+out1);
+        }
     }
 
     @Test
