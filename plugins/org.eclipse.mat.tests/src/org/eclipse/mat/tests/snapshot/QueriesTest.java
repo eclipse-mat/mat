@@ -823,7 +823,6 @@ public class QueriesTest
         builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
         double comp = 0.03;
         String p3_0 = builder.getColumns().get(3).getFormatter().format(comp);
-        DecimalFormat t;
         builder.setFilter(3, ">=" + p3_0);
         RefinedTree tree = (RefinedTree) builder.build();
         int found = 0;
@@ -1043,11 +1042,13 @@ public class QueriesTest
             ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String,String>emptyMap(), new VoidProgressListener());
             assertNotNull(newSnapshot);
             SnapshotFactory.dispose(newSnapshot);
+            assertThat(fn.toString(), fn.delete(), equalTo(true));
         }
         finally
         {
             // Rest of the directory will be deleted later
-            fn.delete();
+            if (fn.exists() && !fn.delete())
+                System.err.println("unable to delete " + fn);
         }
     }
 
@@ -1066,6 +1067,7 @@ public class QueriesTest
             // We happen to know where the exporthprof report lives, so copy it
             Bundle bundle = Platform.getBundle("org.eclipse.mat.hprof"); //$NON-NLS-1$
             URL url = bundle.getResource("reports/exporthprof.xml"); //$NON-NLS-1$
+            assertNotNull(url);
             InputStream is = url.openStream();
             OutputStream os = new FileOutputStream(rep);
             try
@@ -1102,16 +1104,20 @@ public class QueriesTest
                                 new VoidProgressListener());
                 assertNotNull(newSnapshot);
                 SnapshotFactory.dispose(newSnapshot);
+                assertThat(fn.toString(), fn.delete(), equalTo(true));
             }
             finally
             {
                 // Rest of the directory will be deleted later
-                fn.delete();
+                if (fn.exists() && !fn.delete())
+                    System.err.println("unable to delete " + fn);
             }
+            assertThat(rep.toString(), rep.delete(), equalTo(true));
         }
         finally
         {
-            rep.delete();
+            if (rep.exists() && !rep.delete())
+                System.err.println("unable to delete " + rep);
         }
     }
 

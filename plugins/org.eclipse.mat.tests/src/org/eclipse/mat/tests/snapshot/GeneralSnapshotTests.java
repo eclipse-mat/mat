@@ -329,7 +329,7 @@ public class GeneralSnapshotTests
         {
             CompositeResult r = (CompositeResult)result;
             // Check each of the subresults
-            for (CompositeResult.Entry e : ((CompositeResult) result).getResultEntries())
+            for (CompositeResult.Entry e : r.getResultEntries())
             {
                 IResult r2 = e.getResult();
                 assertNotNull(r2);
@@ -480,8 +480,9 @@ public class GeneralSnapshotTests
         //FileLock lock = fos.getChannel().lock();
         try 
         {
-            fos.write("Testing".getBytes());
-            out1.setReadOnly();
+            // Charset doesn't really matter
+            fos.write("Testing".getBytes(Charset.defaultCharset()));
+            assertThat(out1.toString(), out1.setReadOnly(), equalTo(true));
             /*
              * Not actually a need to keep the file open as only prevents
              * delete on Windows.
@@ -499,7 +500,7 @@ public class GeneralSnapshotTests
                 // check the new zipped report file exists
                 assertThat(out2.toString(), out2.exists(), equalTo(true));
                 assertThat(out2.toString(), out2.length(), greaterThan(100L));
-                assertTrue(out2.toString(), out2.delete());
+                assertThat(out2.toString(), out2.delete(), equalTo(true));
             }
             finally
             {
@@ -508,7 +509,7 @@ public class GeneralSnapshotTests
             }
             //lock.close();
             fos.close();
-            assertTrue(out1.toString(), out1.delete());
+            assertThat(out1.toString(), out1.delete(), equalTo(true));
         }
         finally
         {
@@ -534,11 +535,11 @@ public class GeneralSnapshotTests
         prefix = prefix.substring(0, prefix.length() - 1);
         File out1 = new File(prefix + "_System_Overview.zip");
         if (out1.exists())
-            assertTrue(out1.toString(), out1.delete());
+            assertThat(out1.toString(), out1.delete(), equalTo(true));
         // The new output file
         File out2 = new File(prefix + "_System_Overview_1.zip");
         if (out2.exists())
-            assertTrue(out2.toString(), out2.delete());
+            assertThat(out2.toString(), out2.delete(), equalTo(true));
 
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
         try
@@ -551,7 +552,7 @@ public class GeneralSnapshotTests
             assertThat(out2.toString(), out2.exists(), equalTo(false));
 
             // Lock the usual output file
-            out1.setReadOnly();
+            assertThat(out1.toString(), out1.setReadOnly(), equalTo(true));
             FileInputStream fis = new FileInputStream(out1);
             //readonly seems to be sufficient for this test
             //FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true);
@@ -578,7 +579,7 @@ public class GeneralSnapshotTests
                 //lock.release();
                 fis.close();
             }
-            assertTrue(out1.toString(), out1.delete());
+            assertThat(out1.toString(), out1.delete(), equalTo(true));
         }
         finally
         {
@@ -1013,32 +1014,42 @@ public class GeneralSnapshotTests
                     assertThat("Should be a non-empty char[] somewhere", nonnull2, greaterThan(0));
                     File newSnapshotFile2 = File.createTempFile(fn.getName(), (compress ? ".hprof.gz" : ".hprof"), tmpdir);
 
-                    // Try reversing the mapping, check the classes come back with the expected names
-                    SnapshotQuery query2 = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile2.getPath() +
-                                    (compress ? " -compress" : "") +
-                                    (mapping != null ? " -redact NONE -undo -map "+mapping.getPath() : "") +
-                                    (segsize > 0 ? " -segsize "+segsize : ""), newSnapshot);
-                    IResult t2 = query2.execute(new CheckedProgressListener(collector));
-                    assertNotNull(t2);
-                    ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new CheckedProgressListener(collector));
-                    try {
-                        for (IClass cl : snapshot.getClasses())
-                        {
-                            // Should be all the classes in the original snapshot
-                            Collection<IClass>classes = newSnapshot2.getClassesByName(cl.getName(), false);
-                            assertThat("Class matching original snapshot "+cl.getName(), classes, not(emptyCollectionOf(IClass.class)));
+                    try
+                    {
+                        // Try reversing the mapping, check the classes come back with the expected names
+                        SnapshotQuery query2 = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile2.getPath() +
+                                        (compress ? " -compress" : "") +
+                                        (mapping != null ? " -redact NONE -undo -map "+mapping.getPath() : "") +
+                                        (segsize > 0 ? " -segsize "+segsize : ""), newSnapshot);
+                        IResult t2 = query2.execute(new CheckedProgressListener(collector));
+                        assertNotNull(t2);
+                        ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new CheckedProgressListener(collector));
+                        try {
+                            for (IClass cl : snapshot.getClasses())
+                            {
+                                // Should be all the classes in the original snapshot
+                                Collection<IClass>classes = newSnapshot2.getClassesByName(cl.getName(), false);
+                                assertThat("Class matching original snapshot "+cl.getName(), classes, not(emptyCollectionOf(IClass.class)));
+                            }
+                        } finally {
+                            SnapshotFactory.dispose(newSnapshot2);
                         }
                     } finally {
-                        SnapshotFactory.dispose(newSnapshot2);
+                        assertThat(newSnapshotFile2.toString(), newSnapshotFile2.delete(), equalTo(true));
                     }
                 }
             } finally {
                 SnapshotFactory.dispose(newSnapshot);
             }
-        } finally {
-            newSnapshotFile.delete();
+            // Currently doesn't work on Windows
+            //assertThat(newSnapshotFile.toString(), newSnapshotFile.delete(), equalTo(true));
             if (mapping != null)
-                mapping.delete();
+                assertThat(mapping.toString(), mapping.delete(), equalTo(true));
+        } finally {
+            if (newSnapshotFile.exists() && !newSnapshotFile.delete())
+                System.err.println("Unable to delete " + newSnapshotFile);
+            if (mapping != null && !mapping.delete())
+                System.err.println("Unable to delete " + mapping);
         }
     }
 
