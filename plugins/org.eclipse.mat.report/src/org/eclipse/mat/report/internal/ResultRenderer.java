@@ -620,7 +620,7 @@ public class ResultRenderer
         for (int n = 1; targetZip.exists() && n <= MAX_RENAMES; ++n)
         {
             // Perhaps we can overwrite
-            if (targetZip.canWrite())
+            if (targetZip.canWrite() && !targetZip.isDirectory())
             {
                 try
                 {
@@ -643,24 +643,20 @@ public class ResultRenderer
                     // Ignore as we will try a new name
                 }
             }
-            if (targetZip.delete())
-            {
-                // Deleted, so use the existing name
-                break;
-            }
-            else
-            {
-                String fn = originalZip.getName();
-                int dot = fn.lastIndexOf('.');
-                String fn2 = fn.substring(0, dot) + "_" + n + fn.substring(dot); //$NON-NLS-1$
-                /*
-                 * Use the immediately preceding file for comparison - in case
-                 * the same user generates the file twice.
-                 */
-                
-                existingZip = targetZip;
-                targetZip = new File(originalZip.getParentFile(), fn2);
-            }
+            /*
+             * Don't delete the existing file if we can't open it for write.
+             * It might be read-only, or a directory, and the user
+             * might have a reason for keeping it.
+             */
+            String fn = originalZip.getName();
+            int dot = fn.lastIndexOf('.');
+            String fn2 = fn.substring(0, dot) + "_" + n + fn.substring(dot); //$NON-NLS-1$
+            /*
+             * Use the immediately preceding file for comparison - in case
+             * the same user generates the file twice.
+             */
+            existingZip = targetZip;
+            targetZip = new File(originalZip.getParentFile(), fn2);
         }
         if (zos == null)
             zos = new ZipOutputStream(new FileOutputStream(targetZip));

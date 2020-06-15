@@ -457,8 +457,8 @@ public class GeneralSnapshotTests
         String prefix = snapshot.getSnapshotInfo().getPrefix();
         // Remove dot
         prefix = prefix.substring(0, prefix.length() - 1);
-        File locl = new File(prefix + "_System_Overview.zip");
-        assertThat(locl.length(), greaterThan(100L));
+        File zipf = new File(prefix + "_System_Overview.zip");
+        assertThat(zipf.toString(), zipf.length(), greaterThan(100L));
     }
 
     /**
@@ -482,7 +482,10 @@ public class GeneralSnapshotTests
         {
             fos.write("Testing".getBytes());
             out1.setReadOnly();
-
+            /*
+             * Not actually a need to keep the file open as only prevents
+             * delete on Windows.
+             */
             // The new output file
             File out2 = new File(prefix + "_System_Overview_1.zip");
             assertThat(out2.toString(), out2.exists(), equalTo(false));
@@ -494,12 +497,13 @@ public class GeneralSnapshotTests
                 checkHTMLResult(t);
 
                 // check the new zipped report file exists
+                assertThat(out2.toString(), out2.exists(), equalTo(true));
                 assertThat(out2.toString(), out2.length(), greaterThan(100L));
                 assertTrue(out2.toString(), out2.delete());
-            } 
-            
-            finally {
-                if (out2.exists() && out2.delete())
+            }
+            finally
+            {
+                if (out2.exists() && !out2.delete())
                     System.out.println("unable to delete "+out2);
             }
             //lock.close();
@@ -510,7 +514,7 @@ public class GeneralSnapshotTests
         {
             //lock.close();
             fos.close();
-            if (out1.exists() && out1.delete())
+            if (out1.exists() && !out1.delete())
                 System.out.println("unable to delete "+out1);
         }
     }
@@ -542,6 +546,7 @@ public class GeneralSnapshotTests
             IResult t = query.execute(new CheckedProgressListener(collector));
             assertNotNull(t);
             checkHTMLResult(t);
+            assertThat(out1.toString(), out1.exists(), equalTo(true));
             assertThat(out1.toString(), out1.length(), greaterThan(100L));
             assertThat(out2.toString(), out2.exists(), equalTo(false));
 
@@ -558,6 +563,7 @@ public class GeneralSnapshotTests
                 t = query.execute(new CheckedProgressListener(collector));
                 assertNotNull(t);
                 checkHTMLResult(t);
+                assertThat(out1.toString(), out1.exists(), equalTo(true));
                 assertThat(out1.length(), equalTo(len1));
                 long mdate2 = out1.lastModified();
                 // Modification date should not change as the file should not have been rewritten
@@ -567,7 +573,7 @@ public class GeneralSnapshotTests
             }
             finally
             {
-                if (out2.exists() && out2.delete())
+                if (out2.exists() && !out2.delete())
                     System.out.println("unable to delete "+out2);
                 //lock.release();
                 fis.close();
@@ -576,7 +582,7 @@ public class GeneralSnapshotTests
         }
         finally
         {
-            if (out1.exists() && out1.delete())
+            if (out1.exists() && !out1.delete())
                 System.out.println("unable to delete "+out1);
         }
     }
