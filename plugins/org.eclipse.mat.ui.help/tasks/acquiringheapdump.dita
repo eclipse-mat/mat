@@ -94,7 +94,7 @@
 			</p>
 			
 			<p>
-			For a comparison of dump types, see <xref format="html" href="http://www.ibm.com/developerworks/library/j-memoryanalyzer/#table1">Debugging from dumps</xref>. 
+			For a comparison of dump types, see <xref format="html" scope="external" href="http://www.ibm.com/developerworks/library/j-memoryanalyzer/#table1">Debugging from dumps</xref>. 
 			System dumps are simply operating system core dumps; therefore, they are a superset of portable heap dumps.
 			System dumps are far superior than PHDs, particularly for more accurate GC roots, thread-based analysis, and unlike PHDs, 
 			system dumps contain memory contents like HPROFs.
@@ -112,8 +112,8 @@
 			The only significant downsides to system dumps over PHDs is that they are much larger, they usually take longer to produce,
 			they may be useless if they are manually taken in the middle of an exclusive event that manipulates the underlying Java heap
 			such as a garbage collection, and they sometimes require operating system configuration (
-			<xref format="html" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/linux_setup.html">Linux</xref>,
-			<xref format="html" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/aix_setup_full_core.html">AIX</xref>) 
+			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/linux_setup.html">Linux</xref>,
+			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/aix_setup_full_core.html">AIX</xref>) 
 			to ensure non-truncation.
 			</p>
 			
@@ -130,9 +130,9 @@
 			<p>
 			In addition to an OutOfMemoryError, system dumps may be produced using operating system tools (e.g. gcore in gdb for Linux, 
 			gencore for AIX, Task Manager for Windows, SVCDUMP for z/OS, etc.), using the 
-			<xref format="html" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.jvm.ras/index.html">IBM Java APIs</xref>, 
-			using the various options of <xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_agents.html">-Xdump</xref>, 
-			using <xref format="html" href="https://www.ibm.com/developerworks/community/groups/service/html/communityview?communityUuid=7d3dc078-131f-404c-8b4d-68b3b9ddd07a">Java Surgery</xref>,
+			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.jvm.ras/index.html">IBM Java APIs</xref>, 
+			using the various options of <xref format="html" scope="external" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_agents.html">-Xdump</xref>, 
+			using <xref format="html" scope="external" href="https://www.ibm.com/developerworks/community/groups/service/html/communityview?communityUuid=7d3dc078-131f-404c-8b4d-68b3b9ddd07a">Java Surgery</xref>,
 			and more.
 			</p>
 
@@ -265,15 +265,13 @@
 				<dt>Attach API</dt>
 				<dd>
 					This uses the
-					<xref
-						href="https://docs.oracle.com/javase/8/docs/jdk/api/attach/spec/com/sun/tools/attach/package-summary.html"
-						format="html">
+					<xref format="html" scope="external"
+						href="https://docs.oracle.com/javase/8/docs/jdk/api/attach/spec/com/sun/tools/attach/package-summary.html">
 						<apiname>com.sun.tools.attach</apiname>
 					</xref>
 					or
-					<xref
-						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/attachapi.html"
-						format="html">
+					<xref format="html" scope="external"
+						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/attachapi.html">
 						<apiname>com.ibm.tools.attach</apiname>
 					</xref>
 					APIs to list the JVMs and then to attach to the chosen JVM to
@@ -406,9 +404,8 @@
 				<dd>
 					<p>
 					System dumps can be processed using
-					<xref
-						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_viewer_dtfjview/jextract.html"
-						format="html">
+					<xref format="html" scope="external"
+						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_viewer_dtfjview/jextract.html">
 						<cmdname>jextract</cmdname>
 					</xref>
 					which compressed the dump and
@@ -557,7 +554,7 @@
 			</p>
 			<p>The following table shows the availability of VM options and tools
 				on the various platforms:</p>
-			<table>
+			<table rowsep="1" colsep="1">
 				<tgroup cols="7">
 					<colspec colname="COLSPEC1" colwidth="2*" />
 					<colspec colname="COLSPEC2" colwidth="4*" />

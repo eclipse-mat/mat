@@ -112,7 +112,7 @@
 			<codeblock>SELECT v, v.@length FROM OBJECTS ( SELECT OBJECTS s.value FROM java.lang.String s  ) v</codeblock>
 			<b>In Memory Analyzer 1.10 and later, sub-selects are now also permitted which have select items.</b>
 			<codeblock>SELECT v,v.s,v.val FROM OBJECTS ( SELECT s,s.value as val FROM java.lang.String s  ) v</codeblock>
-			See <xref format="html" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#Sub_SELECT_with_select_items">Wiki Sub select with select items</xref>
+			See <xref format="html" scope="peer" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#Sub_SELECT_with_select_items">Wiki Sub select with select items</xref>
 			for more details.
 			<note>
 				Please note, that currently the <codeph>FROM OBJECTS</codeph> term is in

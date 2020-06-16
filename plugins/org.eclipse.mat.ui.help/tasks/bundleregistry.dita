@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2017 IBM Corporation.
+    Copyright (c) 2017,2020 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2017 IBM Corporation.
+				Copyright (c) 2017,2020 IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -37,8 +37,8 @@
 			<p>
 				Bundles (or plugins) allow different parts of a system to be isolated. Each has its own class loader
 				and interactions between bundles occurs using defined interfaces.
-				See <xref format="html" href="https://help.eclipse.org/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fruntime_model_bundles.htm">Plug-ins and bundles</xref>
-				and <xref format="html" href="https://www.eclipse.org/equinox/bundles/">Equinox Bundles</xref>.
+				See <xref format="html" scope="peer" href="http://help.eclipse.org/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fruntime_model_bundles.htm">Plug-ins and bundles</xref>
+				and <xref format="html" scope="peer" href="http://www.eclipse.org/equinox/bundles/">Equinox Bundles</xref>.
 			</p>
 			<p>
 				Definitions
@@ -69,7 +69,7 @@
 						<dd>A way of extending the function of a bundle; other bundles may register an extension matching
 						an extension point and then bundles searching for implementations of the extension point
 						would find those extensions and could call them as appropriate.
-						See <xref format="html" href="https://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points%3F">FAQ What are extensions and extension points?</xref></dd>
+						See <xref format="html" scope="peer" href="http://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points%3F">FAQ What are extensions and extension points?</xref></dd>
 					</dlentry>
 					<dlentry>
 						<dt>Extension</dt>

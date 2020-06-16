@@ -120,7 +120,7 @@
 			</p>
 			<p>With Memory Analyzer 1.10 or later, <codeph>DISTINCT</codeph> also operates without
 			<codeph>OBJECTS</codeph> to find items which are distinct.
-			See <xref format="html" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</xref>
+			See <xref format="html" scope="peer" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</xref>
 			for further details.</p>
 			<p><b>Expressions (experimental, Memory Analyzer 1.4 or later)</b></p>
 			<p>

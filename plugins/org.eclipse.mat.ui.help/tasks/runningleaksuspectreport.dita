@@ -49,8 +49,8 @@
 				placement="break"></image>
 			<p>
 				Learn more in this blog posting:
-				<xref format="html"
-					href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/27/automated-heap-dump-analysis-finding-memory-leaks-with-one-click/">Automated Heap Dump Analysis: Finding Memory Leaks with One
+				<xref format="html" scope="external"
+					href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html">Automated Heap Dump Analysis: Finding Memory Leaks with One
 					Click</xref>
 				.
 			</p>

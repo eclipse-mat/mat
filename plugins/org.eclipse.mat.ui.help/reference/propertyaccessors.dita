@@ -68,14 +68,14 @@
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
 				<strow>
 					<stentry>Any heap object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectId--" format="html">objectId</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectId--" format="html">objectId</xref></stentry>
 					<stentry>id of snapshot object</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress--" format="html">objectAddress</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress--" format="html">objectAddress</xref></stentry>
 					<stentry>address of snapshot object</stentry>
 				</strow>
 				<strow>
@@ -87,49 +87,49 @@
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getClazz--" format="html">clazz</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClazz--" format="html">clazz</xref></stentry>
 					<stentry>IClass of this object. See also classof(object).</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize--" format="html">usedHeapSize</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize--" format="html">usedHeapSize</xref></stentry>
 					<stentry>shallow heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize--" format="html">retainedHeapSize</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize--" format="html">retainedHeapSize</xref></stentry>
 					<stentry>retained heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getDisplayName--" format="html">displayName</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getDisplayName--" format="html">displayName</xref></stentry>
 					<stentry>display name</stentry>
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#getClassLoaderId--" format="html">classLoaderId</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClass.html#getClassLoaderId--" format="html">classLoaderId</xref></stentry>
 					<stentry>id of the class loader</stentry>
 				</strow>
 				<strow>
 					<stentry>Any array</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary" format="html">IArray</xref></stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#getLength--" format="html">length</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary" format="html">IArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IArray.html#getLength--" format="html">length</xref></stentry>
 					<stentry>length of the array</stentry>
 				</strow>
 				<strow>
 					<stentry>Primitive array</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueArray--" format="html">valueArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueArray--" format="html">valueArray</xref></stentry>
 					<stentry>the values in the array</stentry>
 				</strow>
 				<strow>
 					<stentry>Reference array</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary" format="html">IObjectArray</xref></stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#getReferenceArray--" format="html">referenceArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary" format="html">IObjectArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#getReferenceArray--" format="html">referenceArray</xref></stentry>
 					<stentry>the objects in the array (as long values, the addresses of the objects)
 					Access a particular element using get() and convert to an object using OBJECTS.
 					</stentry>
@@ -148,9 +148,9 @@
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
 				<strow>
 					<stentry>${snapshot}</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary" format="html">ISnapshot</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary" format="html">ISnapshot</xref></stentry>
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()" format="html">getClasses()</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()" format="html">getClasses()</xref></codeblock>
 					</stentry>
 					<stentry>a collection of all classes</stentry>
 				</strow>
@@ -158,15 +158,15 @@
 					<stentry />
 					<stentry />
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern,%20boolean)" format="html">getClassesByName(String name, boolean includeSubClasses)</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern,%20boolean)" format="html">getClassesByName(String name, boolean includeSubClasses)</xref></codeblock>
 					</stentry>
 					<stentry>a collection of classes</stentry>
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()" format="html">hasSuperClass()</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()" format="html">hasSuperClass()</xref></codeblock>
 					</stentry>
 					<stentry>
 						result is true if the class has a super class
@@ -176,7 +176,7 @@
 					<stentry />
 					<stentry />
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()" format="html">isArrayType()</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()" format="html">isArrayType()</xref></codeblock>
 					</stentry>
 					<stentry>
 						the result is true if the class is an array type
@@ -184,9 +184,9 @@
 				</strow>
 				<strow>
 					<stentry>Any heap object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()" format="html">getObjectAddress()</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()" format="html">getObjectAddress()</xref></codeblock>
 					</stentry>
 					<stentry>
 						The address of a snapshot object as a long integer
@@ -194,9 +194,9 @@
 				</strow>
 				<strow>
 					<stentry>Primitive array</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)" format="html">getValueAt(int index)</xref></codeblock>
+						<codeblock><xref href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)" format="html">getValueAt(int index)</xref></codeblock>
 					</stentry>
 					<stentry>a value from the array</stentry>
 				</strow>
@@ -303,7 +303,7 @@
 			<p>If the array access syntax is used on a map then the map is converted to a list of
 			map entries. These can then be examined using the bean access syntax to retrieve the key
 			<codeph>h[0].@key</codeph> or value <codeph>h[0].@value</codeph>.
-			See <xref format="html" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#Map_processing">Wiki OQL Map processing</xref>
+			See <xref format="html" scope="peer" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#Map_processing">Wiki OQL Map processing</xref>
 			for more details of OQL with maps and collections.</p>
 		</section>
 		<section>

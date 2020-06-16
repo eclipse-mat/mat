@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@
 				<alt>Finalizer overview menu option and report</alt>
 			</image>
 			<p>This query includes the following subqueries:</p>
-			<table>
+			<table rowsep="1" colsep="1">
 				<tgroup cols="2">
 					<tbody>
 						<row>
@@ -128,7 +128,7 @@
 					</tbody>
 				</tgroup>
 			</table>
-			<p>The <xref href="../reference/inspections/component_report.dita#ref_inspections_component_report__finalizer">component report</xref> also includes information about objects
+			<p>The <xref href="../reference/inspections/component_report.dita#ref_inspections_component_report/finalizer">component report</xref> also includes information about objects
 			belonging to the component which implement the <codeph>finalize()</codeph> method
 			and so could be finalized at some point.</p>
 		</context>

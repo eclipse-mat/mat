@@ -60,7 +60,7 @@
 					For DTFJ system dump files this might be of the form
 					<userinput><varname>Address space ID</varname>.<varname>Process ID</varname>.<varname>Runtime ID</varname></userinput>.
 					If there are
-					<xref type="dita" href="acquiringheapdump.dita#task_acquiringheapdump__multiple">
+					<xref format="dita" href="acquiringheapdump.dita#task_acquiringheapdump/multiple">
 					multiple snapshots</xref> in a heap dump file and a specific snapshot is not
 					selected then the parse will fail with a 
 					<systemoutput>org.eclipse.mat.snapshot.MultipleSnapshotsException</systemoutput>

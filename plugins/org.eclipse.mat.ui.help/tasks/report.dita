@@ -107,7 +107,7 @@ sudo apt-get install libwebkit2gtk-4.0
 					Run a report such as
 					<xref href="runningleaksuspectreport.dita">Leak Suspects report</xref>
 					or
-					<xref href="../reference/inspections/component_report.dita#ref_inspections_component_report__run">Component report</xref>
+					<xref href="../reference/inspections/component_report.dita#ref_inspections_component_report/run">Component report</xref>
 					and check how the report looks.
 				</cmd>
 				<stepresult>

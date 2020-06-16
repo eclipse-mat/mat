@@ -46,7 +46,7 @@
 
 			<p>
 				For more details, check out the section
-				<xref format="html"
+				<xref format="html" scope="peer"
 					href="http://help.eclipse.org/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</xref>
 				in the Help Center. It also contains more details if you are running
 				on Mac OS X.
@@ -78,7 +78,7 @@
 				with a 64Gbyte heap. 
 				Exceeding the limit can result in an exception such as
 				<systemoutput>OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</systemoutput>.
-				See <xref format="dita" href="#task_configure_mat__discard">enable discard</xref>
+				See <xref format="dita" href="#task_configure_mat/discard">enable discard</xref>
 				for options to work around this limit.</p>
 				
 			<p>The preference page is opened via a menu option.
@@ -89,7 +89,7 @@
 			</p>
 			<p id="preferences">The preferences page allows various aspects of Memory Analyzer to be controlled.
 			Some of the preferences can also be controlled from the command line in
-			<xref type="dita" href="batch.dita">batch mode</xref>.
+			<xref type="task" href="batch.dita">batch mode</xref>.
 			<image href="../mimes/preferences.png">
 				<alt>preferences page showing general options with DTFJ subpage</alt>
 			</image>
@@ -201,7 +201,8 @@
 					</p>
 					<note>This feaure is experimental and is subject to change
 					or removal. Please respond on the 
-					<xref format="html" href="https://www.eclipse.org/forums/index.php/f/186/">
+					<xref format="html" scope="peer"
+						href="http://www.eclipse.org/forums/index.php/f/186/">
 					Memory Analyzer forum</xref> if you try it and
 					find it useful or have suggestions.</note>
 			<dl>
@@ -341,12 +342,12 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 						<dd>
 							By default, the HPROF parser runs in strict mode. This means that
 							any deviation in the file from the
-							<xref format="html"
+							<xref format="html" scope="external"
 								href="http://java.net/downloads/heap-snapshot/hprof-binary-format.html">HPROF specification</xref>
 							is treated as a severe error, an exception is thrown, and dump
 							processing stops. There is one exception to this rule which is
 							that we can reliably workaround the observed issue in
-							<xref format="html"
+							<xref format="html" scope="external"
 								href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679">bug #404679</xref>
 							.
 
@@ -372,7 +373,7 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 									<dd>Default. Any deviation from the HPROF specification causes
 										an exception to be thrown and processing to stop (with the
 										exception of
-										<xref format="html"
+										<xref format="html" scope="external"
 								href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679">bug #404679</xref>
 										.) This option may be specified on the
 										command line with -DhprofStrictnessStop=true

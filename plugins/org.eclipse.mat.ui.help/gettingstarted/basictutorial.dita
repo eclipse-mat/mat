@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <!--
-    Copyright (c) 2008, 2017 SAP AG and others.
+    Copyright (c) 2008, 2020 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2017 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -65,8 +65,9 @@
 				<image href="../mimes/me76fc4.png">
 					<alt></alt>
 				</image>
-				<xref format="html"
+				<xref format="html" scope="peer"
 					href='javascript:liveAction(%22org.eclipse.mat.ui%22,%22org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction%22,%22org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof%22)'>
+					
 					a sample heap dump</xref>
 				if you view this page inside the Eclipse help center.
 			</p>
@@ -311,8 +312,8 @@
 
 			<p>
 				Learn more in this blog posting:
-				<xref format="html"
-					href="http://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html">Automated Heap Dump Analysis: Finding Memory Leaks with One
+				<xref format="html" scope="external"
+					href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html">Automated Heap Dump Analysis: Finding Memory Leaks with One
 					Click</xref>
 				.
 			</p>

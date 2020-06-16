@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<!--
+    Copyright (c) 2008, 2020 SAP AG and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial API and implementation
+        IBM Corporation - minor updates
+ -->
 <reference id="ref_inspections_component_report" xml:lang="en-us">
 	<title>Component Report</title>
 	<shortdesc>Analyze a component for possible memory waste and
@@ -8,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -123,9 +134,8 @@
 					</li>
 					<li>
 						Another option is
-						<xref
-							href="http://java.sun.com/javase/6/docs/api/java/lang/String.html#intern()"
-							format="html">interning</xref>
+						<xref format="html" scope="external"
+							href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#intern--">interning</xref>
 						the String. This adds the string to a pool of strings which is
 						maintained privately by the class
 						<codeph>String</codeph>
