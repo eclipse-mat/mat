@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 IBM Corporation
+ * Copyright (c) 2018, 2020 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -970,11 +970,15 @@ public class ExportHprof implements IQuery
                 throw new OperationCanceledException();
         }
         // As well as actual used class loader types, include any classes extending the java classloader
-        for (IClass cls: snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true))
+        Collection<IClass> loaders = snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true);
+        if (loaders != null)
         {
-            for (int i : cls.getObjectIds())
+            for (IClass cls: loaders)
             {
-                classloaders.add(i);
+                for (int i : cls.getObjectIds())
+                {
+                    classloaders.add(i);
+                }
             }
         }
         return;

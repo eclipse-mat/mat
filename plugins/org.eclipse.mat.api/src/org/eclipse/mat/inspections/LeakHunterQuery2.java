@@ -65,6 +65,8 @@ public class LeakHunterQuery2 extends LeakHunterQuery
     {
         // Get a signed bytes formatter
         Histogram dummy = snapshot.getHistogram(new int[0], listener);
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
         dummy = dummy.diffWithBaseline(dummy);
         Format f = dummy.getColumns()[2].getFormatter();
         if (f instanceof BytesFormat)

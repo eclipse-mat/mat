@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,7 +163,7 @@ public interface ISnapshot
      * @param progressListener
      *            progress listener informing about the current state of
      *            execution
-     * @return histogram
+     * @return histogram - current implementations can return null if the listener is cancelled
      * @throws SnapshotException
      */
     public Histogram getHistogram(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
@@ -224,7 +224,7 @@ public interface ISnapshot
      * @param progressListener
      *            progress listener informing about the current state of
      *            execution
-     * @return objects referencing the given objects
+     * @return objects referencing the given objects - current implementations can return null if the operation is cancelled
      * @throws SnapshotException
      */
     public int[] getInboundRefererIds(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
@@ -245,7 +245,7 @@ public interface ISnapshot
      * @param progressListener
      *            progress listener informing about the current state of
      *            execution
-     * @return objects referenced by the given objects
+     * @return objects referenced by the given objects - current implementations can return null if the operation is cancelled
      * @throws SnapshotException
      */
     public int[] getOutboundReferentIds(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
