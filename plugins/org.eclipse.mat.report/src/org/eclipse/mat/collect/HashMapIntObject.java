@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,7 +93,7 @@ public final class HashMapIntObject<E> implements Serializable
             resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
         }
 
-        int hash = (key & Integer.MAX_VALUE) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key)
@@ -102,13 +102,36 @@ public final class HashMapIntObject<E> implements Serializable
                 values[hash] = value;
                 return oldValue;
             }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         used[hash] = true;
         keys[hash] = key;
         values[hash] = value;
         size++;
         return null;
+    }
+
+    private int step(int hash)
+    {
+        hash += step;
+        if (hash >= capacity || hash < 0)
+            hash -= capacity;
+        return hash;
+    }
+
+    /**
+     * Hash function.
+     * Constant is phi and should be odd.
+     * Capacity is positive, so 31 bits, so we carefully
+     * shift down and expand up to 64 bits before extracting
+     * the result.
+     * @param key
+     * @return
+     */
+    private int hash(int key)
+    {
+        int r = (int)(((key * 0x9e3779b97f4a7c15L >>> 31) * capacity) >>> 33);
+        return r;
     }
 
     /**
@@ -118,7 +141,7 @@ public final class HashMapIntObject<E> implements Serializable
      */
     public E remove(int key)
     {
-        int hash = (key & Integer.MAX_VALUE) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key)
@@ -128,24 +151,24 @@ public final class HashMapIntObject<E> implements Serializable
                 size--;
                 // Re-hash all follow-up entries anew; Do not fiddle with the
                 // capacity limit (75 %) otherwise this code may loop forever
-                hash = (hash + step) % capacity;
+                hash = step(hash);
                 while (used[hash])
                 {
                     key = keys[hash];
                     used[hash] = false;
-                    int newHash = (key & Integer.MAX_VALUE) % capacity;
+                    int newHash = hash(key);
                     while (used[newHash])
                     {
-                        newHash = (newHash + step) % capacity;
+                        newHash = step(newHash);
                     }
                     used[newHash] = true;
                     keys[newHash] = key;
                     values[newHash] = values[hash];
-                    hash = (hash + step) % capacity;
+                    hash = step(hash);
                 }
                 return oldValue;
             }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return null;
     }
@@ -157,11 +180,11 @@ public final class HashMapIntObject<E> implements Serializable
      */
     public boolean containsKey(int key)
     {
-        int hash = (key & Integer.MAX_VALUE) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return true; }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return false;
     }
@@ -173,11 +196,11 @@ public final class HashMapIntObject<E> implements Serializable
      */
     public E get(int key)
     {
-        int hash = (key & Integer.MAX_VALUE) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return values[hash]; }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return null;
     }
@@ -414,10 +437,10 @@ public final class HashMapIntObject<E> implements Serializable
             if (oldUsed[i])
             {
                 key = oldKeys[i];
-                hash = (key & Integer.MAX_VALUE) % capacity;
+                hash = hash(key);
                 while (used[hash])
                 {
-                    hash = (hash + step) % capacity;
+                    hash = step(hash);
                 }
                 used[hash] = true;
                 keys[hash] = key;
@@ -458,7 +481,7 @@ public final class HashMapIntObject<E> implements Serializable
 
     private void putQuick(int key, E value)
     {
-        int hash = (key & Integer.MAX_VALUE) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key)
@@ -466,7 +489,7 @@ public final class HashMapIntObject<E> implements Serializable
                 values[hash] = value;
                 return;
             }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         used[hash] = true;
         keys[hash] = key;

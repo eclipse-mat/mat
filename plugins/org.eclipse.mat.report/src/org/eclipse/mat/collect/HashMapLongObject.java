@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,7 @@ public final class HashMapLongObject<E> implements Serializable
             resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
         }
 
-        int hash = hash(key) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key)
@@ -99,7 +99,7 @@ public final class HashMapLongObject<E> implements Serializable
                 values[hash] = value;
                 return oldValue;
             }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         used[hash] = true;
         keys[hash] = key;
@@ -108,9 +108,33 @@ public final class HashMapLongObject<E> implements Serializable
         return null;
     }
 
+    private int step(int hash)
+    {
+        hash += step;
+        // Allow for overflow
+        if (hash >= capacity || hash < 0)
+            hash -= capacity;
+        return hash;
+    }
+
+    private int oldHash(long key)
+    {
+        return ((int) (key & Integer.MAX_VALUE)) % capacity;
+    }
+
+    /**
+     * Hash function.
+     * Constant is phi and should be odd.
+     * Capacity is positive, so 31 bits, so we carefully
+     * shift down and expand up to 64 bits before extracting
+     * the result.
+     * @param key
+     * @return
+     */
     private int hash(long key)
     {
-        return (int) (key & Integer.MAX_VALUE);
+        int r = (int)(((key * 0x9e3779b97f4a7c15L >>> 31) * capacity) >>> 33);
+        return r;
     }
 
     /**
@@ -120,7 +144,7 @@ public final class HashMapLongObject<E> implements Serializable
      */
     public E remove(long key)
     {
-        int hash = hash(key) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key)
@@ -130,24 +154,24 @@ public final class HashMapLongObject<E> implements Serializable
                 size--;
                 // Re-hash all follow-up entries anew; Do not fiddle with the
                 // capacity limit (75 %) otherwise this code may loop forever
-                hash = (hash + step) % capacity;
+                hash = step(hash);
                 while (used[hash])
                 {
                     key = keys[hash];
                     used[hash] = false;
-                    int newHash = hash(key) % capacity;
+                    int newHash = hash(key);
                     while (used[newHash])
                     {
-                        newHash = (newHash + step) % capacity;
+                        newHash = step(newHash);
                     }
                     used[newHash] = true;
                     keys[newHash] = key;
                     values[newHash] = values[hash];
-                    hash = (hash + step) % capacity;
+                    hash = step(hash);
                 }
                 return oldValue;
             }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return null;
     }
@@ -159,11 +183,11 @@ public final class HashMapLongObject<E> implements Serializable
      */
     public boolean containsKey(long key)
     {
-        int hash = hash(key) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return true; }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return false;
     }
@@ -175,11 +199,11 @@ public final class HashMapLongObject<E> implements Serializable
      */
     public E get(long key)
     {
-        int hash = hash(key) % capacity;
+        int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return values[hash]; }
-            hash = (hash + step) % capacity;
+            hash = step(hash);
         }
         return null;
     }
@@ -417,10 +441,10 @@ public final class HashMapLongObject<E> implements Serializable
             if (oldUsed[i])
             {
                 key = oldKeys[i];
-                hash = hash(key) % capacity;
+                hash = hash(key);
                 while (used[hash])
                 {
-                    hash = (hash + step) % capacity;
+                    hash = step(hash);
                 }
                 used[hash] = true;
                 keys[hash] = key;
@@ -428,5 +452,73 @@ public final class HashMapLongObject<E> implements Serializable
             }
         }
         size = oldSize;
+    }
+
+    /**
+     * Calculate a suitable initial capacity
+     * @return initial capacity which has the same capacity, step 
+     */
+    private int calcInit()
+    {
+        // calculate initial capacity for this capacity and step
+        int c2 = capacity - 1;
+        int c1c = PrimeFinder.findPrevPrime(capacity);
+        int c1s = (step + 1) * 3;
+        int c1 = Math.max(c1c, c1s);
+        for (int c = c1; c <= c2; ++c)
+        {
+            int s1 = Math.max(1, PrimeFinder.findPrevPrime(c / 3));
+            if (s1 == step)
+                return c;
+        }
+        return c2;
+    }
+
+    /**
+     * Return a serializable version of this HashMap.
+     * Previous versions of the code use an old hash function
+     * and deserialize the fields directly, so we must map
+     * the values to the correct position for the old hash function.
+     * @return a old-style HashMapLongObject only suitable for serialization
+     */
+    private Object writeReplace() {
+        HashMapLongObject<E> out = new HashMapLongObject<E>(calcInit());
+        for (int i = 0; i < capacity; ++i)
+        {
+            if (used[i])
+            {
+                long key = keys[i];
+                int hash = out.oldHash(key);
+                while (out.used[hash])
+                {
+                    hash = out.step(hash);
+                }
+                out.used[hash] = true;
+                out.keys[hash] = key;
+                out.values[hash] = values[i];
+                ++out.size;
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Previous versions serialized the object directly using
+     * an old hash function, and the current version does
+     * the same for compatibility, 
+     * so rebuild allowing a new hash function.
+     * @return
+     */
+    private Object readResolve()
+    {
+        HashMapLongObject<E> out = new HashMapLongObject<E>(calcInit());
+        for (int i = 0; i < capacity; ++i)
+        {
+            if (used[i])
+            {
+                out.put(keys[i], values[i]);
+            }
+        }
+        return out;
     }
 }

@@ -823,16 +823,40 @@ public class OQLTest
     @Test
     public void testGetClasses1() throws SnapshotException
     {
+        // The order of classes can vary in different versions of MAT
+        IResultTable cls = (IResultTable)execute("SELECT @name FROM OBJECTS ${snapshot}.getClasses()");
+        int clsidx = 0;
+        for (int i = 0; i < cls.getRowCount(); ++i)
+        {
+            Object row = cls.getRow(i);
+            if ("byte[]".equals(cls.getColumnValue(row, 0)))
+            {
+                clsidx = i;
+                break;
+            }
+        }
         // 21 byte arrays
-        int res[] = (int[])execute("SELECT * FROM ${snapshot}.getClasses().get(2)");
+        int res[] = (int[])execute("SELECT * FROM ${snapshot}.getClasses().get("+clsidx+")");
         assertEquals(21, res.length);
     }
 
     @Test
     public void testGetClasses2() throws SnapshotException
     {
+        // The order of classes can vary in different versions of MAT
+        IResultTable cls = (IResultTable)execute("SELECT @name FROM OBJECTS ${snapshot}.getClasses()");
+        int clsidx = 0;
+        for (int i = 0; i < cls.getRowCount(); ++i)
+        {
+            Object row = cls.getRow(i);
+            if ("byte[]".equals(cls.getColumnValue(row, 0)))
+            {
+                clsidx = i;
+                break;
+            }
+        }
         // 21 byte arrays
-        int res[] = (int[])execute("SELECT * FROM (SELECT OBJECTS s FROM OBJECTS ${snapshot}.getClasses().get(2).@objectId s)");
+        int res[] = (int[])execute("SELECT * FROM (SELECT OBJECTS s FROM OBJECTS ${snapshot}.getClasses().get("+clsidx+").@objectId s)");
         assertEquals(21, res.length);
     }
 

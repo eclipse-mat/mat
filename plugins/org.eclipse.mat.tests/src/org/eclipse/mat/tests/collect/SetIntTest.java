@@ -26,7 +26,6 @@ import java.util.Random;
 
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -207,7 +206,6 @@ public class SetIntTest
      * Check performance is as expected.
      */
     @Test
-    @Ignore
     public void testSetInt5()
     {
         long best = Long.MAX_VALUE;

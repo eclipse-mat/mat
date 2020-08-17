@@ -43,7 +43,6 @@ import org.eclipse.mat.collect.HashMapObjectLong;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.tests.TestSnapshots;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class PrimitiveMapTests
@@ -108,7 +107,6 @@ public class PrimitiveMapTests
     }
 
     @Test
-    @Ignore
     public void testIntLongMapPerf()
     {
         long best = Long.MAX_VALUE;
@@ -401,7 +399,6 @@ public class PrimitiveMapTests
     }
 
     @Test
-    @Ignore
     public void testIntObjectMapPerf()
     {
         long best = Long.MAX_VALUE;
@@ -687,7 +684,6 @@ public class PrimitiveMapTests
     }
 
     @Test
-    @Ignore
     public void testLongObjectMapPerf()
     {
         long best = Long.MAX_VALUE;
@@ -988,7 +984,6 @@ public class PrimitiveMapTests
     }
 
     @Test
-    @Ignore
     public void testObjectLongMapPerf()
     {
         long best = Long.MAX_VALUE;

@@ -26,7 +26,6 @@ import java.util.Random;
 
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.collect.SetLong;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -207,7 +206,6 @@ public class SetLongTest
      * Check performance is as expected.
      */
     @Test
-    @Ignore
     public void testSetLong5()
     {
         long best = Long.MAX_VALUE;
