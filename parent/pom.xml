@@ -31,7 +31,7 @@
 		<!--  Track the branding plugin for each feature. Current doesn't work and all artifacts tracked. -->
 		<p2.statsTrackedArtifacts>org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.rcp</p2.statsTrackedArtifacts>
 		<!-- For Mac notarizing -->
-		<cbi-plugins.version>1.1.8-SNAPSHOT</cbi-plugins.version>
+		<cbi-plugins.version>1.1.7</cbi-plugins.version>
 		<macSigner.forceContinue>false</macSigner.forceContinue>
 	</properties>
 

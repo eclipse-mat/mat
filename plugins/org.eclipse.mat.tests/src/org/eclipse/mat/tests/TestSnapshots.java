@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -270,7 +270,7 @@ public class TestSnapshots
         }
         catch (IOException e)
         {
-            if (!file.delete())
+            if (file.exists() && !file.delete())
             {
                 System.out.println("Unable to delete " + file);
             }
@@ -348,7 +348,7 @@ public class TestSnapshots
             }
             catch (IOException e)
             {
-                if (!out.delete())
+                if (out.exists() && !out.delete())
                 {
                     System.err.println("Unable to delete " + out);
                 }

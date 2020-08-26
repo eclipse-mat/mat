@@ -1048,7 +1048,7 @@ public class GeneralSnapshotTests
         } finally {
             if (newSnapshotFile.exists() && !newSnapshotFile.delete())
                 System.err.println("Unable to delete " + newSnapshotFile);
-            if (mapping != null && !mapping.delete())
+            if (mapping != null && mapping.exists() && !mapping.delete())
                 System.err.println("Unable to delete " + mapping);
         }
     }
