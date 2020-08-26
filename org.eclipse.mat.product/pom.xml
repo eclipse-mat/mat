@@ -33,14 +33,14 @@
 						<goals>
 							<goal>materialize-products</goal>
 						</goals>
-						<phase>prepare-package</phase>
+						<phase>package</phase>
 					</execution>
 					<execution>
 						<id>archive-products</id>
 						<goals>
 							<goal>archive-products</goal>
 						</goals>
-						<phase>package</phase>
+						<phase>pre-integration-test</phase>
 					</execution>
 				</executions>
 				<configuration>
@@ -98,7 +98,7 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
-								<phase>prepare-package</phase>
+								<phase>package</phase>
 								<configuration>
 									<fileNames>
 										<fileName>MemoryAnalyzer.exe</fileName>
@@ -117,7 +117,7 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
-								<phase>prepare-package</phase>
+								<phase>package</phase>
 								<configuration>
 									<fileNames>
 										<fileName>map.app</fileName>
