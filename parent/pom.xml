@@ -30,7 +30,9 @@
 		<p2.mirrorsURL>https://www.eclipse.org/downloads/download.php?format=xml&amp;file=${p2.mirrorsPrefix}</p2.mirrorsURL>
 		<!--  Track the branding plugin for each feature. Current doesn't work and all artifacts tracked. -->
 		<p2.statsTrackedArtifacts>org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.rcp</p2.statsTrackedArtifacts>
-
+		<!-- For Mac notarizing -->
+		<cbi-plugins.version>1.1.8-SNAPSHOT</cbi-plugins.version>
+		<macSigner.forceContinue>false</macSigner.forceContinue>
 	</properties>
 
 	<profiles>
