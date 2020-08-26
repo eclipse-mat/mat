@@ -120,7 +120,7 @@
 								<phase>package</phase>
 								<configuration>
 									<fileNames>
-										<fileName>map.app</fileName>
+										<fileName>mat.app</fileName>
 									</fileNames>
 									<timeoutMillis>300000</timeoutMillis> <!-- 5 min -->
 									<continueOnFail>${macSigner.forceContinue}</continueOnFail>
