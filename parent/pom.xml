@@ -31,7 +31,12 @@
 		<!--  Track the branding plugin for each feature. Current doesn't work and all artifacts tracked. -->
 		<p2.statsTrackedArtifacts>org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.rcp</p2.statsTrackedArtifacts>
 		<!-- For Mac notarizing -->
+		<!-- 
+		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-releases/</cbi-repo-url>
 		<cbi-plugins.version>1.1.7</cbi-plugins.version>
+		-->
+		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-snapshots/</cbi-repo-url>
+		<cbi-plugins.version>1.1.8-SNAPSHOT</cbi-plugins.version>
 		<macSigner.forceContinue>false</macSigner.forceContinue>
 	</properties>
 
@@ -104,7 +109,7 @@
 				<!-- Repository for the signing/publishing plugins -->
 				<pluginRepository>
 					<id>maven.eclipse.org</id>
-					<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+					<url>${cbi-repo-url}</url>
 				</pluginRepository>
 			</pluginRepositories>
 
@@ -147,7 +152,7 @@
 					<plugin>
 						<groupId>org.eclipse.cbi.maven.plugins</groupId>
 						<artifactId>eclipse-jarsigner-plugin</artifactId>
-						<version>1.1.3</version>
+						<version>${cbi-plugins.version}</version>
 						<executions>
 							<execution>
 								<id>sign</id>

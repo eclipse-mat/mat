@@ -72,7 +72,7 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<delete includeemptydirs="false">
 											<fileset dir="${download-publish-rcp-path}">
 												<include name="**" />
@@ -84,7 +84,7 @@
 												<include name="*.dmg" />
 											</fileset>
 										</copy>
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 						</executions>
@@ -142,7 +142,6 @@
 								<phase>integration-test</phase>
 								<configuration>
 									<source>${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer-macosx.cocoa.x86_64.zip</source>
-									<continueOnFail>true</continueOnFail>
 									<timeoutMillis>600000</timeoutMillis> <!-- 10 min -->
 									<continueOnFail>${macSigner.forceContinue}</continueOnFail>
 									<sign>true</sign>
