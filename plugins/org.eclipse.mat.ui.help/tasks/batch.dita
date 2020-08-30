@@ -33,13 +33,25 @@
 		<steps>
 			<step>
 				<note>On Windows, use <keyword>.\mat\ParseHeapDump.bat</keyword> instead of <keyword>./mat/ParseHeapDump.sh</keyword></note>
-				<cmd>Run <cmdname>./mat/ParseHeapDump.sh</cmdname> <parmname>myheapdump.hprof</parmname> <parmname>org.eclipse.mat.api:suspects</parmname>
+				<cmd>Run <cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <parmname>org.eclipse.mat.api:suspects</parmname>
 				</cmd>
 				<choices>
 					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname></choice>
 					<choice>For an overview report use <parmname>org.eclipse.mat.api:overview</parmname></choice>
 					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname></choice>
-					<choice>To compare two heap dumps use<cmdname>./mat/ParseHeapDump.sh</cmdname> <parmname>myheapdump.hprof</parmname> <option>-snapshot2=</option><parmname>myheapdump2.hprof</parmname> <parmname>org.eclipse.mat.api:compare</parmname></choice>					
+					<choice>To compare two heap dumps use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
+					<choice>To compare two heap dumps for memory leaks with a leak suspects report use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
+					See <xref type="task" href="runningleaksuspectreport.dita">running leak suspect report</xref> for more details.</choice>
+					<choice>To export a new copy of the heap dump with redactions use a command like
+					<codeblock>
+					<cmdname>./mat/ParseHeapDump.sh</cmdname>
+					<varname>myheapdump.hprof</varname>
+					<option>-output=</option><varname>myheapdump2.hprof</varname>
+					<option>-redact=</option><parmname>BASIC</parmname>
+					<option>-map=</option><varname>myheapdump2.map</varname>
+					<parmname>org.eclipse.mat.hprof:export</parmname>
+					</codeblock>
+					See <xref type="task" href="exportdump.dita">export heap dump</xref> for more details.</choice>
 				</choices>
 				<info>
 				Command line options controlling the parse.
@@ -220,7 +232,7 @@ Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
 			</step>
 			<step>
 				<cmd>
-					Unzip the report <parmname>myheapdump_Leak_Suspects.zip</parmname>
+					Unzip the report <varname>myheapdump_Leak_Suspects.zip</varname>
 				</cmd>
 			</step>
 			<step>

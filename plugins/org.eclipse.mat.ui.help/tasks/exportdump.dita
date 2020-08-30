@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2018 IBM Corporation.
+    Copyright (c) 2018,2020 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2018 IBM Corporation.
+				Copyright (c) 2018,2020 IBM Corporation.
 				All rights reserved. This program and the accompanying materials
 				are made available under the terms of the Eclipse Public License v1.0
 				which accompanies this distribution, and is available at
@@ -281,6 +281,25 @@
 						'<apiname>java.lang.</apiname>'
 						package may have broken links and be hard to
 						interpret.
+					</p>
+				</li>
+				<li>
+					<p>The export query can be run in <xref type="task" href="batch.dita">batch mode</xref>.
+					To export a new copy of the heap dump with redactions use
+					<userinput>
+					<cmdname>./mat/ParseHeapDump.sh</cmdname>
+					<varname>myheapdump.hprof</varname>
+					<option>-output=</option><varname>myheapdump2.hprof</varname>
+					<option>-redact=BASIC</option>
+					<option>-map=</option><varname>myheapdump2.map</varname>
+					<parmname>org.eclipse.mat.hprof:export</parmname>
+					</userinput>
+					Other options to consider are:
+					<userinput>
+					<option>-skip=</option><varname>"java\\..*|boolean|byte|char|short|int|long|float|double|void"</varname>
+					<option>-avoid=</option><varname>".*ae.*|.*oe.*|.*uu.*|.*kr.*|.*kw.*|.*[cC]ie.*|.*[^c]ei.*"</varname>
+					<option>-options=</option><parmname>"-compress"</parmname>
+					</userinput>
 					</p>
 				</li>
 			</ul>

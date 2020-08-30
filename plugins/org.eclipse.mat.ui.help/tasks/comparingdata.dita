@@ -191,7 +191,8 @@
 				available from the Overview pane runs a special <xref href="runningleaksuspectreport.dita">Leak Suspects report</xref>
 				which operates by comparing the dominator trees of the two snapshots and detects larger changes in retained sizes between
 				corresponding objects.
-				The query is also available from <menucascade><uicontrol>Leak Suspects</uicontrol><uicontrol>Compare Snapshots Leak Report</uicontrol></menucascade>.
+				The query is also available from <menucascade><uicontrol>Leak Suspects</uicontrol><uicontrol>Compare Snapshots Leak Report</uicontrol></menucascade>
+				and in <xref type="task" href="batch.dita">batch mode</xref>.
 			</info>
 			</step>
 		</steps>

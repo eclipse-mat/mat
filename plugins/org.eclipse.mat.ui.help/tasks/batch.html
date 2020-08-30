@@ -31,7 +31,7 @@
 		<ol class="ol steps"><li class="li step stepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> On Windows, use <span class="keyword">.\mat\ParseHeapDump.bat</span> instead of <span class="keyword">./mat/ParseHeapDump.sh</span></div>
 
-				<span class="ph cmd">Run <span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <span class="keyword parmname">myheapdump.hprof</span> <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
+				<span class="ph cmd">Run <span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
 				</span>
 				<ul class="ul choices">
 					<li class="li choice">For a simple suspects report use <span class="keyword parmname">org.eclipse.mat.api:suspects</span></li>
@@ -40,8 +40,23 @@
 
 					<li class="li choice">For a report on memory usage by component use <span class="keyword parmname">org.eclipse.mat.api:top_components</span></li>
 
-					<li class="li choice">To compare two heap dumps use<span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <span class="keyword parmname">myheapdump.hprof</span> <span class="keyword option">-snapshot2=</span><span class="keyword parmname">myheapdump2.hprof</span> <span class="keyword parmname">org.eclipse.mat.api:compare</span></li>
-					
+					<li class="li choice">To compare two heap dumps use<span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-snapshot2=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:compare</span></li>
+
+					<li class="li choice">To compare two heap dumps for memory leaks with a leak suspects report use<span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-baseline=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:suspects2</span>
+					See <a class="xref" href="runningleaksuspectreport.html">running leak suspect report</a> for more details.</li>
+
+					<li class="li choice">To export a new copy of the heap dump with redactions use a command like
+					<pre class="pre codeblock">
+					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
+					<var class="keyword varname">myheapdump.hprof</var>
+					<span class="keyword option">-output=</span><var class="keyword varname">myheapdump2.hprof</var>
+					<span class="keyword option">-redact=</span><span class="keyword parmname">BASIC</span>
+					<span class="keyword option">-map=</span><var class="keyword varname">myheapdump2.map</var>
+					<span class="keyword parmname">org.eclipse.mat.hprof:export</span>
+					</pre>
+
+					See <a class="xref" href="exportdump.html">export heap dump</a> for more details.</li>
+
 				</ul>
 
 				<div class="itemgroup info">
@@ -235,7 +250,7 @@ Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
 			</li>
 <li class="li step stepexpand">
 				<span class="ph cmd">
-					Unzip the report <span class="keyword parmname">myheapdump_Leak_Suspects.zip</span>
+					Unzip the report <var class="keyword varname">myheapdump_Leak_Suspects.zip</var>
 				</span>
 			</li>
 <li class="li step stepexpand">
