@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -334,7 +334,9 @@ public class HashEntriesQuery implements IQuery
                         }
                         else
                         {
-                            e = new Entry(id, obj.getDisplayName(), me.getKey().getObjectId(), me.getValue().getObjectId());
+                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
+                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
+                            e = new Entry(id, obj.getDisplayName(), keyId, valueId);
                         }
                         hashEntries.add(e);
                     }

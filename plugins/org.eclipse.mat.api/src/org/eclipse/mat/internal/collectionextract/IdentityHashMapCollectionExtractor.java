@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -220,7 +220,10 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
                 {
                     try
                     {
-                        return snapshot.getObject(ids[oidx]);
+                        int objectId = ids[oidx];
+                        if (objectId == -1)
+                            return null;
+                        return snapshot.getObject(objectId);
                     }
                     catch (SnapshotException e)
                     {
@@ -232,7 +235,10 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
                 {
                     try
                     {
-                        return snapshot.getObject(ids[oidx + 1]);
+                        int objectId = ids[oidx + 1];
+                        if (objectId == -1)
+                            return null;
+                        return snapshot.getObject(objectId);
                     }
                     catch (SnapshotException e)
                     {
