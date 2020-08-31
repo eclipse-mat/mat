@@ -8,7 +8,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -35,7 +35,11 @@
 				</strow>
 				<strow>
 					<stentry>-excludes</stentry>
-					<stentry>Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.</stentry>
+					<stentry>Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.
+					This is of the format <varname>class name pattern</varname>[:<varname>field name</varname>[,<varname>field name</varname>]*].
+					Subclasses of the class are also included.
+					If no field names are specified for the class then all fields are excluded.
+					</stentry>
 				</strow>
 				<strow>
 					<stentry>-numberofpaths</stentry>

@@ -144,7 +144,7 @@
 			<!-- ***************************************************************
 			* Acquire from Memory Analyzer
 			****************************************************************** -->
-			<p><b>Acquire Heap Dump from Memory Analyzer</b></p>
+			<p id="acquire"><b>Acquire Heap Dump from Memory Analyzer</b></p>
 			<p>
 			If the Java process from which the heap dump is to be acquired is on the 
 			same machine as the Memory Analyzer, it is possible to acquire a heap dump

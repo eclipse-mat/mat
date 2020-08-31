@@ -124,6 +124,59 @@
 				<image href="../mimes/compare_basket_context_menu.png">
 					<alt>Context menu in the Compare Basket</alt>
 				</image>
+				<p>The comparison query has several options to control the comparison in
+				more detail.
+				<dl>
+					<dlentry>
+						<dt>-mode</dt>
+						<dd>Whether to show absolute values in columns, or the difference from the base table, or the difference from the preceding table.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-setop</dt>
+						<dd>Whether to just show the raw tables, or only a particular set operation, or all the tables and the set operations as context menus.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-keycolumn</dt>
+						<dd>The number of the column to be matched between the tables (default of column 1).</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-mask</dt>
+						<dd>Regular expression to mask part of the key, for example addresses using: <userinput>\s@ 0x[0-9a-f]+</userinput> or an array index using <userinput>^\[[0-9]+\]$</userinput>
+						The same object in two consecutive heap dumps may have a different address if it has been moved 
+						by garbage collection. Two corresponding objects from two different heap dumps will have different addresses.
+						If these two objects are to matched by the comparison then the addresses need to be removed from the display value
+						of the key. This option allows this to happen.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-replace</dt>
+						<dd>Replacement text for mask matches. This will be displayed as part of the key column.
+							Regular expression terms <userinput>$0</userinput>, <userinput>$1</userinput> may be used to
+							extract the value of groups defined by the <parmname>mask</parmname> option.
+						</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-prefix</dt>
+						<dd>Whether to include the prefix of the key column in the match &#x2014; for example the field name or array index in a path.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-suffix</dt>
+						<dd>Whether to include the suffix of the key column in the match &#x2014; for example the GC root type.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-x</dt>
+						<dd>The key can be extended by adding field references to be matched. The extra key values are specified as follows:
+							<parmname>extra</parmname> ::= <userinput><varname>className</varname>[:<varname>field</varname>[,<varname>field</varname>]]</userinput>
+							Example:
+								<userinput>java.lang.Module:name</userinput>
+							If the object is an instance of that type then the values of those fields are resolved and added to the key. If the fields are omitted then the class specific name of the object itself is resolved.
+						</dd>
+					</dlentry>
+					<dlentry>
+						<dt>-xfile</dt>
+						<dd>Read extra key values from the file. Each line must have the same format as for the -x argument.</dd>
+					</dlentry>
+				</dl>
+				</p>
 			</choice>
 			</choices>
 			<stepresult>
@@ -173,7 +226,7 @@
 					</menucascade> then it is possible to perform different set operations on the comparison result using the
 					context menu.
 					Set operations only operate when there are two or more tables or trees from the current snapshot.
-					In this situation, even if other comparison query has been chosen, then the menu toolbar contain a <menucascade><uicontrol>Choose set operation ...</uicontrol></menucascade>
+					In this situation, even if another comparison query has been chosen, then the menu toolbar contain a <menucascade><uicontrol>Choose set operation ...</uicontrol></menucascade>
 					menu which will select which set operations appear on the context menu.
 				</p>
 				<image href="../mimes/setops_menu.png">
