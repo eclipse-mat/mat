@@ -22,287 +22,379 @@
 	<h1 class="title topictitle1">Basic Tutorial</h1>
 
 	
-	
+
 	<div class="body taskbody">
+		<div class="section prereq p">
+			<p class="p">
+				If you are using Memory Analyzer installed into Eclipse rather than
+				a stand-alone Memory Analyzer,
+				first open the 'Memory Analysis'
+				perspective using:
+				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Perspective</span> &gt; <span class="ph uicontrol">Open Perspective</span> &gt; <span class="ph uicontrol">Other ...</span> &gt; <span class="ph uicontrol">Memory Analysis</span></span>
+			</p>
+
+		</div>
+
 		<div class="section context">
 			<p class="p">
 				This tutorial provides a "jumping-off place" to get familiar with
 				Memory Analyzer.
 			</p>
 
-			
-			<p class="p">
-				If you are using Memory Analyzer installed into Eclipse rather than a stand-alone Memory Analyzer, 
-				first open the 'Memory Analysis' perspective using:
-				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Perspective</span> &gt; <span class="ph uicontrol">Open Perspective</span> &gt; <span class="ph uicontrol">Other ...</span> &gt; <span class="ph uicontrol">Memory Analysis</span></span>
-			</p>
-
-
-			<p class="p">
-				<strong class="ph b">Step 1 - Getting a Heap Dump</strong>
-			</p>
-
-
-			<p class="p">
-				The Memory Analyzer works with
-				<a class="xref" href="../concepts/heapdump.html">heap dumps</a>
-				. Such a heap dump contains information about all Java objects alive
-				at a given point in time. All current Java Virtual Machines can
-				write heap dumps, but the exact steps depend on vendor, version and
-				operation system. Find out more in the section
-				<a class="xref" href="../tasks/acquiringheapdump.html">Acquiring Heap Dumps</a>
-				.
-			</p>
-
-
-			<p class="p">
-				Open
-				<img class="image" src="../mimes/me76fc4.png" alt=""/>
-				<a class="xref" href="javascript:liveAction(%22org.eclipse.mat.ui%22,%22org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction%22,%22org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof%22)">
-					
-					a sample heap dump</a>
-				if you view this page inside the Eclipse help center.
-			</p>
-
-
-			<p class="p">
-				For the purpose of this tutorial, we use Java 6 and JConsole on
-				Windows. Start your application with Java 6, then start
-				<samp class="ph codeph">&lt;jre6&gt;/bin/jconsole.exe</samp>
-				and select the running application (in this case Eclipse):
-			</p>
-
-
-			<img class="image" src="basictutorial_jconsole_open.png" alt="JConsole dialog to open a connection to a Virtual Machine."/>
-
-			<p class="p">
-				Then, select the operation
-				<em class="ph i">dumpHeap</em>
-				from the
-				<em class="ph i">com.sun.management.HotSpotDiagnostic</em>
-				MBean. The first parameter
-				<em class="ph i">p0</em>
-				is the full path to the heap dump file. Make sure you give it the
-				file extension .hprof. The second parameter
-				<em class="ph i">p1</em>
-				should be left at true as we are only interested in live objects.
-			</p>
-
-
-			<img class="image" src="basictutorial_jconsole_mbean.png" alt="Select the dumpHeap method of the HotspotDiagnostics mbean."/>
-
-			<p class="p">
-				<strong class="ph b">Step 2 - The Overview</strong>
-			</p>
-
-
-			<p class="p">
-				Open the heap dump via
-				<span class="ph menucascade"><span class="ph uicontrol">File</span> &gt; <span class="ph uicontrol">
-						<img class="image" src="../mimes/i-openhd.png" alt=""/>
-						Open Heap Dump...
-					</span></span>
-				to see the overview page.
-			</p>
-
-
-			<img class="image" src="basictutorial_overview.png" alt="Memory Analyzer's overview page for a heap dump"/>
-
-			<p class="p">
-				On the right, you'll find the size of the dump and the number of
-				classes, objects and class loaders.
-			</p>
-
-			<p class="p">
-				If the total size of the dump is much smaller than the size of the file it is possible
-				that the heap dump contained many 'garbage' objects which would be discarded at the next garbage
-				collection. See the <a class="xref" href="../reference/inspections/unreachable_objects.html" title="Find out more about objects that could or should be garbage collected.">unreachable objects</a>
-				query to examine these 'garbage' objects.
-			</p>
-
-			<p class="p">
-				Right below, the pie chart gives an impression on the biggest
-				objects in the dump. Move your mouse over a slice to see the details
-				of the objects in the object inspector on the left. Click on any
-				slice to drill down and follow for example the outgoing references. 
-			</p>
-
-
-			<p class="p">
-				<strong class="ph b">Step 3 - The Histogram</strong>
-			</p>
-
-
-			<p class="p">
-				Select the
-				<em class="ph i">histogram</em>
-				from the tool bar to list the number of instances per class, the
-				<a class="xref" href="../concepts/shallowretainedheap.html">shallow size</a>
-				and the
-				<a class="xref" href="../concepts/shallowretainedheap.html">retained size</a>
-				.
-			</p>
-
-
-			<img class="image" src="basictutorial_histogram.png" alt="Histogram"/>
-
-			<p class="p">
-				The Memory Analyzer displays by default the retained size of
-				individual objects. However, the retained size of a set of objects -
-				in this case all instances of a particular class - needs to be
-				calculated. 
-			</p>
-
-
-			<p class="p">
-				To approximate the retained sizes for all rows, pick
-				<img class="image" src="../mimes/i-calcrs.png" alt="Calculate retained size"/> icon
-				from the tool bar. Alternatively, select a couple rows and use the
-				context menu.
-			</p>
-
-
-			<img class="image" src="basictutorial_calc_retained.png" alt="Select calculate retained sizes from the tool bar"/>
-
-			<p class="p">
-				Using the
-				<strong class="ph b">context menu</strong>
-				, you can drill-down into the set of objects
-				which the selected row
-				represents. For example, you can list the
-				objects with outgoing or
-				incoming references. Or group the objects
-				by the value of an
-				attribute. Or group the collections by their
-				size. Or or or...
-			</p>
-
-
-			<p class="p">
-				One thing that makes the Memory Analyzer so powerful is the fact
-				that one can run any action on any set of objects. Just drill down
-				and slice your objects the way you need them.
-			</p>
-
-
-			<img class="image" src="basictutorial_context_menu.png" alt="Drill down via the context menu"/>
-
-			<p class="p">
-				Another important feature is the facility to
-				<strong class="ph b">group any histogram by class loader, packages or superclass</strong>
-				.
-			</p>
-
-
-			<img class="image" src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the tool bar"/>
-
-			<p class="p">
-				Any decent application loads different components by different
-				class loaders. The Memory Analyzer attaches a meaningful label to
-				the class loader - in the case of OSGi bundles it is the bundle id.
-				Therefore it becomes a lot easier to divide the heap dump into
-				smaller parts.
-			</p>
-
-			
-			<p class="p">
-				More: <a class="xref" href="../tasks/analyzingclassloader.html" title="Class loaders load classes into the memory of the JVM. When analyzing the heap, class loaders are very important for two reasons: First, applications typically load components using separate class loaders. Second, the loaded classes are usually stored in a separate space (e.g. the perm space) which can also be depleted.">Analyze Class Loader</a>
-			</p>
-
-
-			<img class="image" src="basictutorail_by_classloader.png" alt="Histogram grouped by class loader"/>
-
-			<p class="p">
-				Grouping the histogram by packages allows to drill-down along the
-				Java package hierarchy.
-			</p>
-
-
-			<img class="image" src="basictutorail_by_package.png" alt="Histogram grouped by packages"/>
-			
-			<p class="p">
-				Grouping the histogram by superclass provides an easy way to find for example all the subclasses of java.util.AbstractMap, etc...
-			</p>
-
-			
-			<img class="image" src="basictutorial_by_superclass.png" alt="Histogram grouped by superclass"/>
-
-			<p class="p">
-				<strong class="ph b">Step 4 - The Dominator Tree</strong>
-			</p>
-
-
-			<p class="p">
-				The
-				<a class="xref" href="../concepts/dominatortree.html">dominator tree</a>
-				displays the biggest objects in the heap dump. The next level of the
-				tree lists those objects that would be garbage collected if all
-				incoming references to the parent node were removed.
-			</p>
-
-
-			<p class="p">
-				The dominator tree is a powerful tool to investigate which objects
-				keep which other objects alive. Again, the tree can be grouped by
-				class loader (e.g. components) and packages to ease the analysis.
-			</p>
-
-
-			<img class="image" src="basictutorial_dominator_tree.png" alt="Dominator Tree"/>
-
-			<p class="p">
-				<strong class="ph b">Step 5 - Path to GC Roots</strong>
-			</p>
-
-
-			<p class="p">
-				<a class="xref" href="../concepts/gcroots.html">Garbage Collections Roots (GC roots)</a>
-				are objects that are kept alive by the Virtual Machines itself.
-				These include for example the thread objects of the threads
-				currently running, objects currently on the call stack and classes
-				loaded by the system class loader.
-			</p>
-
-
-			<p class="p">
-				The (reverse) reference chain from an object to a GC root - the so
-				called path to GC roots - explains why the object cannot be garbage
-				collected. The path helps solving the classical memory leak in Java:
-				those leaks exist because an object is still referenced even though
-				the program logic will not access the object anymore.
-			</p>
-
-
-			<img class="image" src="basictutorial_path_menu.png" alt="Select path to GC roots from the context menu"/>
-
-			<p class="p">
-				Initially, the GC root reached by the shortest path is selected.
-			</p>
-
-
-			<img class="image" src="basictutorial_path.png" alt="Path to GC roots"/>
-
-			<p class="p">
-				<strong class="ph b">Step 6 - The Leak Report</strong>
-			</p>
-
-
-			<p class="p">
-				The Memory Analyzer can inspect the heap dump for leak suspects,
-				e.g. objects or set of objects which are suspiciously big. 
-			</p>
-
-
-			<img class="image" src="basictutorial_run_leak_suspects.png" alt="Run the leak report"/>
-
-			<p class="p">
-				Learn more in this blog posting:
-				<a class="xref" href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html" target="_blank">Automated Heap Dump Analysis: Finding Memory Leaks with One
-					Click</a>
-				.
-			</p>
-
 		</div>
+
+		<ol class="ol steps"><li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">Get a Heap Dump</strong>
+				</span>
+				<div class="itemgroup info">
+					<p class="p">
+						The Memory Analyzer works with
+						<a class="xref" href="../concepts/heapdump.html">heap dumps</a>
+						. Such a heap dump contains information about all Java objects
+						alive
+						at a given point in time. All current Java Virtual Machines
+						can
+						write heap dumps, but the exact steps depend on vendor, version
+						and
+						operation system. Find out more in the section
+						<a class="xref" href="../tasks/acquiringheapdump.html">Acquiring Heap Dumps</a>
+						.
+					</p>
+
+				</div>
+				<ol type="a" class="ol substeps">
+					<li class="li substep substepexpand">
+						<span class="ph cmd">
+							Open
+							<img class="image" src="../mimes/me76fc4.png" alt=""/>
+							<a class="xref" href="javascript:liveAction(%22org.eclipse.mat.ui%22,%22org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction%22,%22org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof%22)">
+								a sample heap dump
+							</a>
+							if you view this page inside the Eclipse help center.
+						</span>
+					</li>
+
+					<li class="li substep substepexpand">
+						<span class="ph cmd">Start your application with Java 6</span>
+						<div class="itemgroup info">
+							<p class="p">
+								For the purpose of this tutorial, we use Java 6 and JConsole
+								on
+								Windows.
+							</p>
+
+						</div>
+					</li>
+
+					<li class="li substep substepexpand">
+						<span class="ph cmd">
+							Start
+							<samp class="ph codeph">&lt;jre6&gt;/bin/jconsole.exe</samp>
+							and select the running application (in this case Eclipse):
+						</span>
+						<div class="itemgroup stepresult">
+							<img class="image" src="basictutorial_jconsole_open.png" alt="JConsole dialog to open a connection to a Virtual Machine."/>
+						</div>
+					</li>
+
+					<li class="li substep substepexpand">
+						<span class="ph cmd">
+							Select the operation
+							<em class="ph i">dumpHeap</em>
+							from the
+							<em class="ph i">com.sun.management.HotSpotDiagnostic</em>
+							MBean.
+						</span>
+						<div class="itemgroup info">
+							The first parameter
+							<em class="ph i">p0</em>
+							is the full path to the heap dump file. Make sure you give it the
+							file extension .hprof. The second parameter
+							<em class="ph i">p1</em>
+							should be left at true as we are only interested in live objects.
+						</div>
+						<div class="itemgroup stepresult">
+							<img class="image" src="basictutorial_jconsole_mbean.png" alt="Select the dumpHeap method of the HotspotDiagnostics mbean."/>
+						</div>
+					</li>
+
+					<li class="li substep substepexpand">
+						<span class="ph cmd">Acquire a heap dump directly using Eclipse Memory Analyzer
+						</span>
+						<div class="itemgroup info">
+							<p class="p">
+								See
+								<a class="xref" href="../tasks/acquiringheapdump.html#task_acquiringheapdump__acquire">
+									Acquire Heap Dump from Memory Analyzer
+								</a>
+								to acquire a heap dump from a locally running Java process
+								directly using Eclipse Memory Analyzer.
+								The actual Eclipse Memory
+								Analyzer process could be used as a
+								example Java process to
+								generate a example heap dump.
+							</p>
+
+						</div>
+					</li>
+
+				</ol>
+
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">Examine the Overview</strong>
+				</span>
+				<div class="itemgroup info">
+					Open the heap dump via
+					<span class="ph menucascade"><span class="ph uicontrol">File</span> &gt; <span class="ph uicontrol">
+							<img class="image" src="../mimes/i-openhd.png" alt=""/>
+							Open Heap Dump...
+						</span></span>
+					to see the overview page.
+				</div>
+				<div class="itemgroup stepresult">
+					<img class="image" src="basictutorial_overview.png" alt="Memory Analyzer's overview page for a heap dump"/>
+
+					<p class="p">
+						On the right, you'll find the size of the dump and the number of
+						classes, objects and class loaders.
+					</p>
+
+					<p class="p">
+						If the total size of the dump is much smaller than the size of the
+						file it is possible
+						that the heap dump contained many 'garbage'
+						objects which would be
+						discarded at the next garbage
+						collection. See
+						the
+						<a class="xref" href="../reference/inspections/unreachable_objects.html" title="Find out more about objects that could or should be garbage collected.">unreachable objects</a>
+						query to examine these 'garbage' objects.
+					</p>
+
+					<p class="p">
+						Right below, the pie chart gives an impression on the biggest
+						objects in the dump. Move your mouse over a slice to see the
+						details
+						of the objects in the object inspector on the left. Click
+						on any
+						slice to drill down and follow for example the outgoing
+						references.
+					</p>
+
+				</div>
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">Get the Histogram</strong>
+				</span>
+				<div class="itemgroup info">
+					Select the
+					<span class="ph uicontrol">
+						<img class="image" src="../mimes/i-histogram.png" alt="histogram icon"/>
+						histogram
+					</span>
+					icon
+					from the tool bar to list the number of instances per class,
+					the
+					<a class="xref" href="../concepts/shallowretainedheap.html">shallow size</a>
+					and the
+					<a class="xref" href="../concepts/shallowretainedheap.html">retained size</a>
+					.
+				</div>
+				<div class="itemgroup stepresult">
+					<img class="image" src="basictutorial_histogram.png" alt="Histogram"/>
+
+					<p class="p">
+						The Memory Analyzer displays by default the retained size of
+						individual objects. However, the retained size of a set of objects
+						-
+						in this case all instances of a particular class - needs to be
+						calculated.
+					</p>
+
+
+					<p class="p">
+						To approximate the retained sizes for all rows, pick
+						<img class="image" src="../mimes/i-calcrs.png" alt="Calculate retained size"/>
+						icon
+						from the tool bar. Alternatively, select a couple rows and use
+						the
+						context menu.
+					</p>
+
+
+					<img class="image" src="basictutorial_calc_retained.png" alt="Select calculate retained sizes from the tool bar"/>
+
+					<p class="p">
+						Using the
+						<strong class="ph b">context menu</strong>
+						, you can drill-down into the set of objects
+						which the selected row
+						represents. For example, you can list the
+						objects with outgoing or
+						incoming references. Or group the objects
+						by the value of an
+						attribute. Or group the collections by their
+						size. Or or or...
+					</p>
+
+
+					<p class="p">
+						One thing that makes the Memory Analyzer so powerful is the fact
+						that one can run any action on any set of objects. Just drill down
+						and slice your objects the way you need them.
+					</p>
+
+
+					<img class="image" src="basictutorial_context_menu.png" alt="Drill down via the context menu"/>
+
+					<p class="p">
+						Another important feature is the facility to
+						<strong class="ph b">group any histogram by class loader, packages or superclass</strong>
+						.
+					</p>
+
+
+					<img class="image" src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the tool bar"/>
+
+					<p class="p">
+						Any decent application loads different components by different
+						class loaders. The Memory Analyzer attaches a meaningful label to
+						the class loader - in the case of OSGi bundles it is the bundle
+						id.
+						Therefore it becomes a lot easier to divide the heap dump into
+						smaller parts.
+					</p>
+
+
+					<p class="p">
+						More:
+						<a class="xref" href="../tasks/analyzingclassloader.html" title="Class loaders load classes into the memory of the JVM. When analyzing the heap, class loaders are very important for two reasons: First, applications typically load components using separate class loaders. Second, the loaded classes are usually stored in a separate space (e.g. the perm space) which can also be depleted.">Analyze Class Loader</a>
+					</p>
+
+
+					<img class="image" src="basictutorail_by_classloader.png" alt="Histogram grouped by class loader"/>
+
+					<p class="p">
+						Grouping the histogram by packages allows to drill-down along
+						the
+						Java package hierarchy.
+					</p>
+
+
+					<img class="image" src="basictutorail_by_package.png" alt="Histogram grouped by packages"/>
+
+					<p class="p">
+						Grouping the histogram by superclass provides an easy way to
+						find for
+						example all the subclasses of java.util.AbstractMap,
+						etc...
+					</p>
+
+
+					<img class="image" src="basictutorial_by_superclass.png" alt="Histogram grouped by superclass"/>
+				</div>
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">View the Dominator Tree</strong>
+				</span>
+				<div class="itemgroup info">
+					<p class="p">
+						The
+						<a class="xref" href="../concepts/dominatortree.html">dominator tree</a>
+						displays the biggest objects in the heap dump. The next level of
+						the
+						tree lists those objects that would be garbage collected if all
+						incoming references to the parent node were removed.
+					</p>
+
+
+					<p class="p">
+						The dominator tree is a powerful tool to investigate which
+						objects
+						keep which other objects alive. Again, the tree can be
+						grouped by
+						class loader (e.g. components) and packages to ease the
+						analysis.
+					</p>
+
+				</div>
+				<div class="itemgroup stepresult">
+					<img class="image" src="basictutorial_dominator_tree.png" alt="Dominator Tree"/>
+				</div>
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">Path to GC Roots</strong>
+				</span>
+				<div class="itemgroup info">
+					<p class="p">
+						<a class="xref" href="../concepts/gcroots.html">Garbage Collections Roots (GC roots)</a>
+						are objects that are kept alive by the Virtual Machines itself.
+						These include for example the thread objects of the threads
+						currently running, objects currently on the call stack and classes
+						loaded by the system class loader.
+					</p>
+
+
+					<p class="p">
+						The (reverse) reference chain from an object to a GC root - the
+						so
+						called path to GC roots - explains why the object cannot be
+						garbage
+						collected. The path helps solving the classical memory leak
+						in
+						Java:
+						those leaks exist because an object is still referenced
+						even though
+						the program logic will not access the object anymore.
+					</p>
+
+
+					<img class="image" src="basictutorial_path_menu.png" alt="Select path to GC roots from the context menu"/>
+				</div>
+				<div class="itemgroup stepresult">
+
+					<p class="p">
+						Initially, the GC root reached by the shortest path is selected.
+					</p>
+
+
+					<img class="image" src="basictutorial_path.png" alt="Path to GC roots"/>
+				</div>
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">
+					<strong class="ph b">Generate the Leak Report</strong>
+				</span>
+				<div class="itemgroup info">
+					<p class="p">
+						The Memory Analyzer can inspect the heap dump for leak suspects,
+						e.g. objects or set of objects which are suspiciously big.
+					</p>
+
+					<img class="image" src="basictutorial_run_leak_suspects.png" alt="Run the leak report"/>
+
+					<p class="p">
+						Learn more in this blog posting:
+						<a class="xref" href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html" target="_blank">Automated Heap Dump Analysis: Finding Memory Leaks with One
+							Click
+						</a>
+						.
+					</p>
+
+				</div>
+				<div class="itemgroup stepresult">
+					See
+					<a class="xref" href="../tasks/runningleaksuspectreport.html">running leak suspect report</a>
+					for information about the report.
+				</div>
+			</li>
+</ol>
 
 	</div>
 

@@ -8,8 +8,8 @@
 <meta name="DC.Title" content="Path to GC Roots"/>
 <meta name="abstract" content="Find out who is keeping alive a set of objects."/>
 <meta name="description" content="Find out who is keeping alive a set of objects."/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_inspections_path_to_gc_roots"/>
 <meta name="DC.Language" content="en-us"/>
@@ -36,27 +36,31 @@
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-					<th valign="bottom" align="left" id="d4522e43" class="stentry">Argument</th>
+					<th valign="bottom" align="left" id="d5310e43" class="stentry">Argument</th>
 
-					<th valign="bottom" align="left" id="d4522e46" class="stentry">Description</th>
-
-				</tr>
-<tr class="strow">
-					<td valign="top" headers="d4522e43" class="stentry">object</td>
-
-					<td valign="top" headers="d4522e46" class="stentry">One object for which the paths to GC roots should be found.</td>
+					<th valign="bottom" align="left" id="d5310e46" class="stentry">Description</th>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d4522e43" class="stentry">-excludes</td>
+					<td valign="top" headers="d5310e43" class="stentry">object</td>
 
-					<td valign="top" headers="d4522e46" class="stentry">Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.</td>
+					<td valign="top" headers="d5310e46" class="stentry">One object for which the paths to GC roots should be found.</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d4522e43" class="stentry">-numberofpaths</td>
+					<td valign="top" headers="d5310e43" class="stentry">-excludes</td>
 
-					<td valign="top" headers="d4522e46" class="stentry">The number of different paths to be displayed.</td>
+					<td valign="top" headers="d5310e46" class="stentry">Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.
+					This is of the format <var class="keyword varname">class name pattern</var>[:<var class="keyword varname">field name</var>[,<var class="keyword varname">field name</var>]*].
+					Subclasses of the class are also included.
+					If no field names are specified for the class then all fields are excluded.
+					</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5310e43" class="stentry">-numberofpaths</td>
+
+					<td valign="top" headers="d5310e46" class="stentry">The number of different paths to be displayed.</td>
 
 				</tr>
 </table>

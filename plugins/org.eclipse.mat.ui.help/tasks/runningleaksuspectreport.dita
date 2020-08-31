@@ -54,7 +54,13 @@
 					Click</xref>
 				.
 			</p>
-			
+			<p>There is also a leak suspects report made by comparing two snapshots.
+			This is available via <menucascade><uicontrol>Leak Identification</uicontrol>
+			<uicontrol>Compare Snapshots Leak Report</uicontrol></menucascade>
+			or from the <wintitle>Overview</wintitle> panel as <cmdname>Leak Suspects by Snapshot Comparison</cmdname> which includes leak suspects and a system overview from comparing two snapshots.
+			This works by comparing the dominator tree of the two snapshots, identifying
+			big changes in the size of items in the dominator tree as possible leaks.
+			</p>
 		</context>
 	</taskbody>
 </task>

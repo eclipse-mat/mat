@@ -125,6 +125,79 @@
 				When comparing tables from one and the same heap dump, it is now possible
 			to perform different set operations on the comparison result.
 				<img class="image" src="../mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
+				<div class="p">The comparison query has several options to control the comparison in
+				more detail.
+				<dl class="dl">
+					
+						<dt class="dt dlterm">-mode</dt>
+
+						<dd class="dd">Whether to show absolute values in columns, or the difference from the base table, or the difference from the preceding table.</dd>
+
+					
+					
+						<dt class="dt dlterm">-setop</dt>
+
+						<dd class="dd">Whether to just show the raw tables, or only a particular set operation, or all the tables and the set operations as context menus.</dd>
+
+					
+					
+						<dt class="dt dlterm">-keycolumn</dt>
+
+						<dd class="dd">The number of the column to be matched between the tables (default of column 1).</dd>
+
+					
+					
+						<dt class="dt dlterm">-mask</dt>
+
+						<dd class="dd">Regular expression to mask part of the key, for example addresses using: <kbd class="ph userinput">\s@ 0x[0-9a-f]+</kbd> or an array index using <kbd class="ph userinput">^\[[0-9]+\]$</kbd>
+						The same object in two consecutive heap dumps may have a different address if it has been moved 
+						by garbage collection. Two corresponding objects from two different heap dumps will have different addresses.
+						If these two objects are to matched by the comparison then the addresses need to be removed from the display value
+						of the key. This option allows this to happen.</dd>
+
+					
+					
+						<dt class="dt dlterm">-replace</dt>
+
+						<dd class="dd">Replacement text for mask matches. This will be displayed as part of the key column.
+							Regular expression terms <kbd class="ph userinput">$0</kbd>, <kbd class="ph userinput">$1</kbd> may be used to
+							extract the value of groups defined by the <span class="keyword parmname">mask</span> option.
+						</dd>
+
+					
+					
+						<dt class="dt dlterm">-prefix</dt>
+
+						<dd class="dd">Whether to include the prefix of the key column in the match — for example the field name or array index in a path.</dd>
+
+					
+					
+						<dt class="dt dlterm">-suffix</dt>
+
+						<dd class="dd">Whether to include the suffix of the key column in the match — for example the GC root type.</dd>
+
+					
+					
+						<dt class="dt dlterm">-x</dt>
+
+						<dd class="dd">The key can be extended by adding field references to be matched. The extra key values are specified as follows:
+							<span class="keyword parmname">extra</span> ::= <kbd class="ph userinput"><var class="keyword varname">className</var>[:<var class="keyword varname">field</var>[,<var class="keyword varname">field</var>]]</kbd>
+							Example:
+								<kbd class="ph userinput">java.lang.Module:name</kbd>
+							If the object is an instance of that type then the values of those fields are resolved and added to the key. If the fields are omitted then the class specific name of the object itself is resolved.
+						</dd>
+
+					
+					
+						<dt class="dt dlterm">-xfile</dt>
+
+						<dd class="dd">Read extra key values from the file. Each line must have the same format as for the -x argument.</dd>
+
+					
+				</dl>
+
+				</div>
+
 			</li>
 
 			</ul>
@@ -172,7 +245,7 @@
 				<p class="p">If the tables have been compared using <span class="ph menucascade"><span class="ph uicontrol">Compare tables and trees with all set operations</span></span> then it is possible to perform different set operations on the comparison result using the
 					context menu.
 					Set operations only operate when there are two or more tables or trees from the current snapshot.
-					In this situation, even if other comparison query has been chosen, then the menu toolbar contain a <span class="ph menucascade"><span class="ph uicontrol">Choose set operation ...</span></span>
+					In this situation, even if another comparison query has been chosen, then the menu toolbar contain a <span class="ph menucascade"><span class="ph uicontrol">Choose set operation ...</span></span>
 					menu which will select which set operations appear on the context menu.
 				</p>
 
