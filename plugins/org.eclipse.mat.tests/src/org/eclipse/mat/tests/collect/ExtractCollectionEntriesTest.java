@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2020 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -359,5 +359,23 @@ public class ExtractCollectionEntriesTest extends ExtractCollectionEntriesBase
 
         assert rowCount == numEntries : MessageUtil.format("Expected to extract {0} entries from collection 0x{1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
                         numEntries, Long.toHexString(objAddress), snapshot.getSnapshotInfo().getPath(), rowCount);
+    }
+
+    @Test
+    public void testIdentityHashMapCollection_Sun_JDK6() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        String type = "java.util.IdentityHashMap"; //$NON-NLS-1$
+        int numEntries = 3;
+
+        // One instance of IdentityHashMap has two keys with null values
+        SnapshotQuery query = SnapshotQuery
+                        .parse("hash_entries " + type, snapshot); //$NON-NLS-1$
+        IResult result = query.execute(new VoidProgressListener());
+        IResultTable table = (IResultTable) result;
+        int rowCount = table.getRowCount();
+
+        assert rowCount == numEntries : MessageUtil.format("Expected to extract {0} entries from collections of type {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
+                        numEntries, type, snapshot.getSnapshotInfo().getPath(), rowCount);
     }
 }
