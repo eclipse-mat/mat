@@ -66,6 +66,29 @@
 						<version>1.7</version>
 						<executions>
 							<execution>
+								<id>tidyp2</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<delete includeemptydirs="false">
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/mat.app/Contents/Eclipse/p2/org.eclipse.equinox.p2.core/cache/">
+												<include name="**" />
+											</fileset>
+										</delete>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<executions>
+							<execution>
 								<id>publish</id>
 								<phase>install</phase>
 								<goals>
