@@ -30,7 +30,7 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<delete includeemptydirs="false" verbose="true">
 											<fileset dir="${download-publish-path}">
 												<include name="**" />
@@ -41,7 +41,7 @@
 												<include name="**" />
 											</fileset>
 										</copy>
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 						</executions>

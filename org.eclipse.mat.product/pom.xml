@@ -69,7 +69,7 @@
 								<id>tidyp2</id>
 								<phase>package</phase>
 								<goals>
-									<goal>run</goal>
+									<goal>sign</goal>
 								</goals>
 								<configuration>
 									<target>
