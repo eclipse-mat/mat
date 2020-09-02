@@ -78,6 +78,19 @@
 												<include name="**" />
 											</fileset>
 										</delete>
+										<first id="eclipse.so">
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/mat.app/Contents/Eclipse/plugins" includes="**/*.so" />
+										</first>
+										<exec dir="${project.build.directory}" executable="curl">
+											<arg value="--output"/>
+											<arg value="${eclipse.so}"/>
+											<arg value="--form"/>
+											<arg value="file=@${eclipse.so}"/>
+											<arg value="--silent"/>
+											<arg value="--show-error"/>
+											<arg value="--fail"/>
+											<arg value="http://172.30.206.146:8282/macosx-signing-service/1.0.1-SNAPSHOT"/>
+   										</exec>
 									</target>
 								</configuration>
 							</execution>
