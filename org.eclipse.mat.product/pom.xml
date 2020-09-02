@@ -83,9 +83,9 @@
 										</first>
 										<exec dir="${project.build.directory}" executable="curl">
 											<arg value="--output"/>
-											<arg value="${eclipse.so}"/>
+											<arg value="${toString:eclipse.so}"/>
 											<arg value="--form"/>
-											<arg value="file=@${eclipse.so}"/>
+											<arg value="file=@${toString:eclipse.so}"/>
 											<arg value="--silent"/>
 											<arg value="--show-error"/>
 											<arg value="--fail"/>
