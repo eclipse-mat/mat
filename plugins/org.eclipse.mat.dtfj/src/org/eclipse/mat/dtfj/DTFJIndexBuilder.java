@@ -7133,7 +7133,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void addRoot(HashMapIntObject<List<XGCRootInfo>> gc, long obj, long ctx, int type)
     {
         XGCRootInfo rri = new XGCRootInfo(obj, ctx, newRootType(type));
-        rri.setContextId(indexToAddress.reverse(rri.getContextAddress()));
+        int contextId = indexToAddress.reverse(rri.getContextAddress());
+        if (contextId < 0)
+        {
+            rri = new XGCRootInfo(obj, obj, newRootType(type));
+            rri.setContextId(indexToAddress.reverse(rri.getObjectAddress()));
+        }
+        else
+        {
+            rri.setContextId(contextId);
+        }
         rri.setObjectId(indexToAddress.reverse(rri.getObjectAddress()));
         int objectId = rri.getObjectId();
         List<XGCRootInfo> rootsForID = gc.get(objectId);
