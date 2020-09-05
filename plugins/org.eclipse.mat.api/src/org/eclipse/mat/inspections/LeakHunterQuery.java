@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.FindLeaksQuery.AccumulationPoint;
 import org.eclipse.mat.inspections.FindLeaksQuery.SuspectRecord;
 import org.eclipse.mat.inspections.FindLeaksQuery.SuspectRecordGroupOfObjects;
@@ -42,11 +43,15 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
+import org.eclipse.mat.query.refined.RefinedResultBuilder;
+import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -386,7 +391,7 @@ public class LeakHunterQuery implements IQuery
         ThreadInfoQuery.Result threadDetails = null;
         if (isThreadRelated)
         {
-            threadDetails = extractThreadData(suspectId, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
+            threadDetails = extractThreadData(suspect, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
         }
         overview.append("<br><br>"); //$NON-NLS-1$
 
@@ -866,9 +871,10 @@ public class LeakHunterQuery implements IQuery
         }
     }
 
-    private ThreadInfoQuery.Result extractThreadData(int threadId, Set<String> keywords,
+    private ThreadInfoQuery.Result extractThreadData(SuspectRecord suspect, Set<String> keywords,
                     List<IObject> involvedClassloaders, StringBuilder builder, TextResult textResult)
     {
+        final int threadId = suspect.getSuspect().getObjectId();
         ThreadInfoQuery.Result threadDetails = null;
 
         try
@@ -899,19 +905,106 @@ public class LeakHunterQuery implements IQuery
             IThreadStack stack = snapshot.getThreadStack(threadId);
             if (stack != null)
             {
+                // Find the local variables involved in the path to the accumulation point
+                final SetInt locals = new SetInt();
+                IObject acc = suspect.getAccumulationPoint().getObject();
+                if (acc != null)
+                {
+                    IResultTree tree = (IResultTree) SnapshotQuery.lookup("merge_shortest_paths", snapshot) //$NON-NLS-1$
+                                    .setArgument("objects", acc) //$NON-NLS-1$
+                                    .execute(listener);
+                    for (Object row : tree.getElements())
+                    {
+                        IContextObject co = tree.getContext(row);
+                        if (co.getObjectId() == threadId)
+                        {
+                            for (Object row2 : tree.getChildren(row))
+                            {
+                                IContextObject co2 = tree.getContext(row2);
+                                int o2 = co2.getObjectId();
+                                if (o2 >= 0)
+                                    locals.add(o2);
+                            }
+                        }
+                    }
+                }
+
                 StringBuilder stackBuilder = new StringBuilder();
                 IObject threadObject = snapshot.getObject(threadId);
                 stackBuilder.append(threadObject.getClassSpecificName()).append("\r\n"); //$NON-NLS-1$
                 for (IStackFrame frame : stack.getStackFrames())
                 {
+                    boolean involved = false;
+                    for (int l : frame.getLocalObjectsIds())
+                    {
+                        if (locals.contains(l))
+                            involved = true;
+                    }
                     stackBuilder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (involved)
+                    {
+                        String frameText = frame.getText();
+                        String p[] = frameText.split("\\s+"); //$NON-NLS-1$
+                        // Extract the method
+                        if (p.length > 1)
+                            keywords.add(p[1]);
+                        // Extract the source file
+                        if (p.length > 2)
+                            keywords.add(p[2].substring(1, p[2].length() - 1));
+                    }
                 }
                 QuerySpec stackResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStack, new TextResult(stackBuilder
                                 .toString()));
+                stackResult.setCommand("thread_details 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
 
                 builder.append("<p>"); //$NON-NLS-1$
                 builder.append(Messages.LeakHunterQuery_StackTraceAvailable + " ").append( //$NON-NLS-1$
                                 textResult.linkTo(Messages.LeakHunterQuery_SeeStackstrace, stackResult)).append('.');
+
+                if (!locals.isEmpty())
+                {
+                    RefinedResultBuilder rbuilder = SnapshotQuery.lookup("thread_overview", snapshot) //$NON-NLS-1$
+                                    .setArgument("objects", suspect.getSuspect()) //$NON-NLS-1$
+                                    .refine(listener);
+                    final RefinedTree rt = (RefinedTree) rbuilder.build();
+                    rt.setSelectionProvider(new ISelectionProvider()
+                    {
+                        /**
+                         * Select the thread and the involved local variables.
+                         */
+                        public boolean isSelected(Object row)
+                        {
+                            IContextObject co = rt.getContext(row);
+                            if (co != null && (locals.contains(co.getObjectId()) || co.getObjectId() == threadId))
+                                return true;
+                            return false;
+                        }
+
+                        /**
+                         * Expand the thread and a row if it refers to an involved
+                         * local variable.
+                         */
+                        public boolean isExpanded(Object row)
+                        {
+                            if (rt.getElements().contains(row))
+                                return true;
+                            for (Object r2 : rt.getChildren(row))
+                            {
+                                // if row is a stack frame row
+                                IContextObject co = rt.getContext(r2);
+                                if (co != null && locals.contains(co.getObjectId()))
+                                { return true; }
+                            }
+                            return false;
+                        }
+                    });
+                    QuerySpec threadResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStackAndLocals, rt);
+                    threadResult.setCommand(
+                                    "thread_overview 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
+                    builder.append(" ").append( //$NON-NLS-1$
+                                    textResult.linkTo(Messages.LeakHunterQuery_SeeStackstraceVars, threadResult))
+                                    .append('.');
+                }
                 builder.append("</p>"); //$NON-NLS-1$
             }
 
