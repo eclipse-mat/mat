@@ -55,7 +55,7 @@ public class Service
     }
 
     /**
-     * Get bundle descriptor of a bundle, that registeres this service
+     * Get bundle descriptor of a bundle, that registers this service
      * 
      * @return BundleDescriptor
      */

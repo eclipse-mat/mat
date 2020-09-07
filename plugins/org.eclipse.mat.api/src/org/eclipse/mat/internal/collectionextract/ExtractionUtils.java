@@ -256,7 +256,7 @@ public class ExtractionUtils
             }
         }
 
-        if ((classes = snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false)) != null && !classes.isEmpty())return IBM15; //$NON-NLS-1$
+        if ((classes = snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false)) != null && !classes.isEmpty()) return IBM15; //$NON-NLS-1$
         else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())
         {
             // com.ibm.oti.util.Msg
@@ -275,8 +275,15 @@ public class ExtractionUtils
             try
             {
                 Object ver = classes.iterator().next().resolveValue("java_version");
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA18; }
+                if (ver instanceof IObject)
+                {
+                    String sver = ((IObject) ver).getClassSpecificName();
+                    if (sver != null)
+                    {
+                        if (sver.startsWith("1.8.")) { return JAVA18; }
+                        if (sver.startsWith("9.")) { return JAVA18; }
+                    }
+                }
             }
             catch (SnapshotException e)
             {
@@ -288,16 +295,23 @@ public class ExtractionUtils
             try
             {
                 Object ver = classes.iterator().next().resolveValue("java_version");
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9-")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10.")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10-")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA_11; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA_11; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA_11; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA_11; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("13.")) { return JAVA_11; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("13-")) { return JAVA_11; }
+                if (ver instanceof IObject)
+                {
+                    String sver = ((IObject) ver).getClassSpecificName();
+                    if (sver != null)
+                    {
+                        if (sver.startsWith("9.")) { return JAVA19; }
+                        if (sver.startsWith("9-")) { return JAVA19; }
+                        if (sver.startsWith("10.")) { return JAVA19; }
+                        if (sver.startsWith("10-")) { return JAVA19; }
+                        if (sver.startsWith("11.")) { return JAVA_11; }
+                        if (sver.startsWith("11-")) { return JAVA_11; }
+                        if (sver.startsWith("12.")) { return JAVA_11; }
+                        if (sver.startsWith("12-")) { return JAVA_11; }
+                        if (sver.startsWith("13.")) { return JAVA_11; }
+                        if (sver.startsWith("13-")) { return JAVA_11; }
+                    }
+                }
                 // Lots of new Java versions planned
                 return JAVA_11;
             }

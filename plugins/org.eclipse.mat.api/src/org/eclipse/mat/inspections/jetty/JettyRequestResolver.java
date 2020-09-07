@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - null check
  *******************************************************************************/
 package org.eclipse.mat.inspections.jetty;
 
@@ -43,8 +44,10 @@ public class JettyRequestResolver implements IRequestDetailsResolver
 
         // Summary
         StringBuilder buf = new StringBuilder(256);
-        buf.append(MessageUtil.format(Messages.JettyRequestResolver_Msg_ThreadExecutesHTTPRequest, HTMLUtils.escapeText(requestURI
-                        .getClassSpecificName())));
+        String requestString = requestURI.getClassSpecificName();
+        if (requestString == null)
+            requestString = ""; //$NON-NLS-1$
+        buf.append(MessageUtil.format(Messages.JettyRequestResolver_Msg_ThreadExecutesHTTPRequest, HTMLUtils.escapeText(requestString)));
         String summary = buf.toString();
         QuerySpec spec = new QuerySpec(Messages.JettyRequestResolver_Summary);
         spec.setCommand("list_objects 0x" + Long.toHexString(httpRequest.getObjectAddress())); //$NON-NLS-1$

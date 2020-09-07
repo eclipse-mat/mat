@@ -931,7 +931,10 @@ public class LeakHunterQuery implements IQuery
 
                 StringBuilder stackBuilder = new StringBuilder();
                 IObject threadObject = snapshot.getObject(threadId);
-                stackBuilder.append(threadObject.getClassSpecificName()).append("\r\n"); //$NON-NLS-1$
+                String threadName = threadObject.getClassSpecificName();
+                if (threadName == null)
+                    threadName = threadObject.getTechnicalName();
+                stackBuilder.append(threadName).append("\r\n"); //$NON-NLS-1$
                 for (IStackFrame frame : stack.getStackFrames())
                 {
                     boolean involved = false;
