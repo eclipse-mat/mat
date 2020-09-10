@@ -713,11 +713,15 @@ public class LeakHunterQuery implements IQuery
             IContextObject x = tree.getContext(row);
             if (x != null)
                 prev = x.getObjectId();
-            for (Object r2 : tree.getChildren(row))
+            List<?> children = tree.getChildren(row);
+            if (children != null)
             {
-                int ret[] = findEndTree(tree, sel, r2, prev);
-                if (ret != null)
-                    return ret;
+                for (Object r2 : children)
+                {
+                    int ret[] = findEndTree(tree, sel, r2, prev);
+                    if (ret != null)
+                        return ret;
+                }
             }
         }
         return null;
