@@ -221,7 +221,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.awt.RenderingHints", new WrapperMapExtractor("hintmap")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // singletons
-                    new CollectionExtractionInfo("java.util.Collections$SingletonSet", new SingletonCollectionExtractor("element")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.Collections$SingletonSet", new SetFromCollectionExtractor(new SingletonCollectionExtractor("element"), 0.0)), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$SingletonList", new SingletonCollectionExtractor("element")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$SingletonMap", new SingletonMapExtractor("k", "v")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.Collections$CopiesList", new ReplicatedValueCollectionExtractor("n", "element")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
