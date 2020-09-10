@@ -458,6 +458,7 @@ public class Messages extends NLS
     public static String LeakHunterQuery_StackTraceAvailable;
     public static String LeakHunterQuery_SystemClassLoader;
     public static String LeakHunterQuery_ThreadDetails;
+    public static String LeakHunterQuery_ThreadRootShortestPath;
     public static String LeakHunterQuery_ThreadStack;
     public static String LeakHunterQuery_ThreadStackAndLocals;
     public static String LeakHunterQuery_TicketForSuspect;

@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -419,6 +420,33 @@ public class LeakHunterQuery implements IQuery
             QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_ShortestPaths, result);
             qs.setCommand("path2gc 0x" + Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
             composite.addResult(qs);
+            if (!isThreadRelated && result instanceof IResultTree && result instanceof ISelectionProvider)
+            {
+                IResultTree tree = (IResultTree)result;
+                ISelectionProvider sel = (ISelectionProvider)result;
+                for (Object row : tree.getElements())
+                {
+                    int r[] = findEndTree(tree, sel, row, describedObject.getObjectId());
+                    if (r != null)
+                    {
+                        if (isThread(r[0]))
+                        {
+                            isThreadRelated = true;
+                            AccumulationPoint ap = new AccumulationPoint(snapshot.getObject(r[1]));
+                            SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(r[0]), totalHeap, ap);
+                            StringBuilder overview2 = new StringBuilder();
+                            TextResult threadOverview = new TextResult();
+                            Set<String>keywords2 = new LinkedHashSet<String>();
+                            threadDetails = extractThreadData(suspect2, keywords2, objectsForTroubleTicketInfo, overview2, threadOverview);
+                            /* append keywords */
+                            appendKeywords(keywords2, overview2);
+                            threadOverview.setText(overview2.toString());
+                            composite.addResult(Messages.LeakHunterQuery_ThreadRootShortestPath, threadOverview);
+                            break;
+                        }
+                    }
+                }
+            }
         }
         catch (Exception e)
         {
@@ -659,6 +687,40 @@ public class LeakHunterQuery implements IQuery
         }
 
         return composite;
+    }
+
+    /**
+     * Find the end of the path to GC roots.
+     * Relies on end being selected.
+     * @param tree the tree
+     * @param sel the selection provider (the tree)
+     * @param row the current row
+     * @param prev previous object in tree
+     * @return array [root object, previous object traversed] or
+     *     null if no selected object at root 
+     */
+    private int[] findEndTree(IResultTree tree, ISelectionProvider sel, Object row, int prev)
+    {
+        if (sel.isSelected(row))
+        {
+            IContextObject x = tree.getContext(row);
+            if (x != null && x.getObjectId() >= 0)
+                return new int[] {x.getObjectId(), prev};
+        }
+        if (sel.isExpanded(row))
+        {
+            // Recurse
+            IContextObject x = tree.getContext(row);
+            if (x != null)
+                prev = x.getObjectId();
+            for (Object r2 : tree.getChildren(row))
+            {
+                int ret[] = findEndTree(tree, sel, r2, prev);
+                if (ret != null)
+                    return ret;
+            }
+        }
+        return null;
     }
 
     private String OQLclassName(IClass ic)
@@ -980,7 +1042,8 @@ public class LeakHunterQuery implements IQuery
                             IContextObject co = rt.getContext(row);
                             if (co != null && (locals.contains(co.getObjectId()) || co.getObjectId() == threadId))
                                 return true;
-                            return false;
+                            // Also select the stack frame(s) containing the locals
+                            return isExpanded(row);
                         }
 
                         /**
