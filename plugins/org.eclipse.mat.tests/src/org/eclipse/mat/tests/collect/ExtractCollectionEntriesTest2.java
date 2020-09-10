@@ -171,7 +171,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                             checkCollectionFillRatio(objAddress, numEntries, snapshot);
                         }
                         if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque")
-                            && !(name.startsWith("java.util.Collections") && (name.endsWith("Collection") || name.endsWith("SingletonSet"))))
+                            && !(name.startsWith("java.util.Collections") && name.endsWith("Collection")))
                         {
                             checkHashEntries(objAddress, numEntries, snapshot, true, false);
                             checkMapCollisionRatio(objAddress, numEntries, snapshot);
