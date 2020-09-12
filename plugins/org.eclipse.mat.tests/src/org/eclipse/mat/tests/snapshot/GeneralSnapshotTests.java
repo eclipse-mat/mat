@@ -351,10 +351,13 @@ public class GeneralSnapshotTests
                             if (ss.isExpanded(o))
                                 ++expanded;
                         }
-                        if (!rt.hasChildren(o))
-                            break;
                         while (rt.hasChildren(o))
                         {
+                            // Has children, but zero of them?
+                            if (rt.getChildren(o).size() == 0)
+                                break;
+                            // Just search the first entry each time
+                            o = rt.getChildren(o).get(0);
                             if (rt instanceof ISelectionProvider)
                             {
                                 ISelectionProvider ss = (ISelectionProvider)rt;
@@ -363,14 +366,10 @@ public class GeneralSnapshotTests
                                 if (ss.isExpanded(o))
                                     ++expanded;
                             }
-                            // Has children, but zero of them?
-                            if (rt.getChildren(o).size() == 0)
-                                break;
-                            o = rt.getChildren(o).get(0);
                         }
                     }
-                    assertThat("selected", selected, greaterThan(0));
-                    assertThat("expanded", expanded, greaterThan(0));
+                    assertThat("selected "+e.getName(), selected, greaterThan(0));
+                    assertThat("expanded "+e.getName(), expanded, greaterThan(0));
                 }
             }
         }

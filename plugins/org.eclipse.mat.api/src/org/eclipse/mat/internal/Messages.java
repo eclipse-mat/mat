@@ -480,6 +480,9 @@ public class Messages extends NLS
     public static String MultiplePath2GCRootsQuery_Group_FromGCRoots;
     public static String MultiplePath2GCRootsQuery_Group_FromGCRootsOnClass;
     public static String MultiplePath2GCRootsQuery_Group_ToGCRoots;
+    public static String MultiplePath2GCRootsQuery_PathNodeObject;
+    public static String MultiplePath2GCRootsQuery_PathNodeObjects;
+    public static String MultiplePath2GCRootsQuery_ReferencedObjects;
 
     public static String ObjectTreeFactory_Column_Percentage;
     public static String ObjectTreeFactory_ErrorMsg_addChild;
