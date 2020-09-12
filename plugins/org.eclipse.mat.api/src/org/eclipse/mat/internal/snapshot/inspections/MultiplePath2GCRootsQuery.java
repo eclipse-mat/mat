@@ -24,6 +24,7 @@ import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
@@ -483,7 +484,63 @@ public class MultiplePath2GCRootsQuery implements IQuery
         public URL getIcon(Object row)
         {
             Node n = (Node) row;
-            return n.level == 0 ? Icons.forObject(snapshot, n.objectId) : Icons.outbound(snapshot, n.objectId);
+            return n.paths.size() == 1 && n.paths.get(0)[0] == n.objectId
+               ? Icons.forObject(snapshot, n.objectId) : Icons.outbound(snapshot, n.objectId);
+        }
+
+        @Override
+        public boolean hasChildren(Object row)
+        {
+            Node n = (Node) row;
+            return !(n.paths.size() == 1 && n.paths.get(0)[0] == n.objectId);
+        }
+
+        @Override
+        public ResultMetaData getResultMetaData()
+        {
+            ResultMetaData.Builder builder = new ResultMetaData.Builder();
+            builder.addContext(new ContextProvider(Messages.MultiplePath2GCRootsQuery_PathNodeObject) {
+
+                @Override
+                public IContextObject getContext(Object row)
+                {
+                    return TreeByObject.this.getContext(row);
+                }
+                
+                public URL getIcon()
+                {
+                    return Icons.getURL("heapobjects/out/instance_obj.gif"); //$NON-NLS-1$
+                }
+            });
+            builder.addContext(new ContextProvider(Messages.MultiplePath2GCRootsQuery_ReferencedObjects) {
+
+                @Override
+                public IContextObject getContext(final Object row)
+                {
+                    return new IContextObjectSet()
+                    {
+                        public int getObjectId()
+                        {
+                            return ((Node) row).objectId;
+                        }
+
+                        public int[] getObjectIds()
+                        {
+                            return ((Node) row).getReferencedObjects();
+                        }
+
+                        public String getOQL()
+                        {
+                            return null;
+                        }
+                    };
+                }
+                public URL getIcon()
+                {
+                    return Icons.OBJECT_INSTANCE;
+                }
+            });
+            return builder.build();
         }
 
         @Override
@@ -636,15 +693,74 @@ public class MultiplePath2GCRootsQuery implements IQuery
         {
             Node n = (Node) row;
             if (mergeFromRoots)
+            {
+                if (n.paths.size() == 1 && n.level == n.paths.get(0).length - 1)
+                    return Icons.CLASS;
                 return Icons.CLASS_OUT;
+            }
             else
                 return n.level == 0 ? Icons.CLASS : Icons.CLASS_IN;
+        }
+
+        @Override
+        public boolean hasChildren(Object row)
+        {
+            Node n = (Node) row;
+            return !(n.paths.size() == 1 && n.level == n.paths.get(0).length - 1);
         }
 
         @Override
         public Grouping getGroupedBy()
         {
             return mergeFromRoots ? Grouping.FROM_GC_ROOTS_BY_CLASS : Grouping.FROM_OBJECTS_BY_CLASS;
+        }
+
+        @Override
+        public ResultMetaData getResultMetaData()
+        {
+            ResultMetaData.Builder builder = new ResultMetaData.Builder();
+            builder.addContext(new ContextProvider(Messages.MultiplePath2GCRootsQuery_PathNodeObjects) {
+
+                @Override
+                public IContextObject getContext(Object row)
+                {
+                    return TreeByClass.this.getContext(row);
+                }
+                
+                public URL getIcon()
+                {
+                    return mergeFromRoots ? Icons.CLASS_OUT : Icons.CLASS_IN;
+                }
+            });
+            builder.addContext(new ContextProvider(Messages.MultiplePath2GCRootsQuery_ReferencedObjects) {
+
+                @Override
+                public IContextObject getContext(final Object row)
+                {
+                    return new IContextObjectSet()
+                    {
+                        public int getObjectId()
+                        {
+                            return ((Node) row).objectId;
+                        }
+
+                        public int[] getObjectIds()
+                        {
+                            return ((ClassNode) row).getReferencedObjects();
+                        }
+
+                        public String getOQL()
+                        {
+                            return null;
+                        }
+                    };
+                }
+                public URL getIcon()
+                {
+                    return Icons.OBJECT_INSTANCE;
+                }
+            });
+            return builder.build();
         }
     }
 
@@ -692,6 +808,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
                 try
                 {
                     selected = selection[ii] == snapshot.getClassOf(path[path.length - ii - 1]).getObjectId();
+                    //selected = selection[ii] == path[path.length - ii - 1];
                 }
                 catch (SnapshotException e)
                 {

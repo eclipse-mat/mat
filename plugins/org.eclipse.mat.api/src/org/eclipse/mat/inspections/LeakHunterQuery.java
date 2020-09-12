@@ -243,7 +243,7 @@ public class LeakHunterQuery implements IQuery
         TextResult overviewResult = new TextResult(); // used to create links
         // from it to other
         // results
-        Set<String> keywords = new HashSet<String>();
+        Set<String> keywords = new LinkedHashSet<String>();
         List<IObject> objectsForTroubleTicketInfo = new ArrayList<IObject>(2);
         int suspectId = suspect.getSuspect().getObjectId();
 
@@ -437,9 +437,12 @@ public class LeakHunterQuery implements IQuery
                             StringBuilder overview2 = new StringBuilder();
                             TextResult threadOverview = new TextResult();
                             Set<String>keywords2 = new LinkedHashSet<String>();
+                            objectsForTroubleTicketInfo.add(suspect2.getSuspect());
                             threadDetails = extractThreadData(suspect2, keywords2, objectsForTroubleTicketInfo, overview2, threadOverview);
                             /* append keywords */
                             appendKeywords(keywords2, overview2);
+                            // add CSN components data
+                            appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview2);
                             threadOverview.setText(overview2.toString());
                             composite.addResult(Messages.LeakHunterQuery_ThreadRootShortestPath, threadOverview);
                             break;
@@ -489,7 +492,7 @@ public class LeakHunterQuery implements IQuery
                     throws SnapshotException
     {
         StringBuilder builder = new StringBuilder(256);
-        Set<String> keywords = new HashSet<String>();
+        Set<String> keywords = new LinkedHashSet<String>();
         List<IObject> involvedClassLoaders = new ArrayList<IObject>(2);
 
         /* get leak suspect info */
@@ -574,6 +577,7 @@ public class LeakHunterQuery implements IQuery
                                 classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
         }
+        ThreadInfoQuery.Result threadDetails = null;
         builder.append("<br><br>"); //$NON-NLS-1$
 
         // append keywords
@@ -666,6 +670,27 @@ public class LeakHunterQuery implements IQuery
                 qs.setCommand(sb.toString());
             }
             composite.addResult(qs);
+            int path[] = suspect.getCommonPath();
+            if (path.length > 0)
+            {
+                if (isThread(path[0]))
+                {
+                    AccumulationPoint ap = new AccumulationPoint(path.length > 1 ? snapshot.getObject(path[1]) : null);
+                    SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(path[0]), totalHeap, ap);
+                    StringBuilder overview2 = new StringBuilder();
+                    TextResult threadOverview = new TextResult();
+                    Set<String>keywords2 = new LinkedHashSet<String>();
+                    List<IObject> objectsForTroubleTicketInfo = new ArrayList<IObject>(2);
+                    objectsForTroubleTicketInfo.add(suspect2.getSuspect());
+                    threadDetails = extractThreadData(suspect2, keywords2, objectsForTroubleTicketInfo, overview2, threadOverview);
+                    /* append keywords */
+                    appendKeywords(keywords2, overview2);
+                    // add CSN components data
+                    appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview2);
+                    threadOverview.setText(overview2.toString());
+                    composite.addResult(Messages.LeakHunterQuery_ThreadRootShortestPath, threadOverview);
+                }
+            }
         }
         else
         {
@@ -684,6 +709,13 @@ public class LeakHunterQuery implements IQuery
                 }
                 composite.addResult(qs);
             }
+        }
+
+        if (threadDetails != null)
+        {
+            QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_ThreadDetails, threadDetails);
+            qs.setCommand("thread_details 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
+            composite.addResult(qs);
         }
 
         return composite;
