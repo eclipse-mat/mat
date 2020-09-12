@@ -345,7 +345,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         {
             return new Column[] {
                             new Column(Messages.Column_ClassName).decorator(this), //
-                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_ReferencedObjects, int.class), //
                             new Column(Messages.Column_ShallowHeap, Bytes.class), //
                             new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, Bytes.class)
                                             .sorting(Column.SortDirection.DESC), //
@@ -521,7 +521,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
                     {
                         public int getObjectId()
                         {
-                            return ((Node) row).objectId;
+                            return -1;
                         }
 
                         public int[] getObjectIds()
@@ -606,7 +606,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
             return new Column[] {
                             new Column(Messages.Column_ClassName), //
                             new Column(Messages.Column_Objects, int.class).noTotals(), //
-                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_ReferencedObjects, int.class), //
                             new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, Bytes.class)
                                             .sorting(Column.SortDirection.DESC) };
         }
@@ -719,7 +719,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         public ResultMetaData getResultMetaData()
         {
             ResultMetaData.Builder builder = new ResultMetaData.Builder();
-            builder.addContext(new ContextProvider(Messages.MultiplePath2GCRootsQuery_PathNodeObjects) {
+            builder.addContext(new ContextProvider(Messages.Column_Objects) {
 
                 @Override
                 public IContextObject getContext(Object row)
@@ -741,7 +741,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
                     {
                         public int getObjectId()
                         {
-                            return ((Node) row).objectId;
+                            return -1;
                         }
 
                         public int[] getObjectIds()
