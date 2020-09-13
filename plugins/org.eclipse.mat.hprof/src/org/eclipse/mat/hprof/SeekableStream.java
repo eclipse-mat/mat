@@ -220,6 +220,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         {
             if (state)
             {
+                if (savedStream == null)
+                    return false;
                 in = savedStream.get();
                 return in != null;
             }
@@ -456,6 +458,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         if (nextseq % cleanup == 0)
         {
             clearClosest();
+            // Occasionally make some extra space
+            clearClosest();
             return;
         }
         PosStream last = ts.last();
@@ -486,6 +490,9 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         long pos = 0;
         PosStream best = null;
         long bestgap = Long.MAX_VALUE;
+        long gaptotal = 0L;
+        long gapstotal = 0L;
+        int n = 0;
         for (Iterator<PosStream> ip = ts.iterator(); ip.hasNext(); )
         {
             PosStream p = ip.next();
@@ -495,11 +502,15 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 ip.remove();
                 continue;
             }
-            if (p.position() - pos < bestgap)
+            long gap = p.position() - pos;
+            if (gap < bestgap)
             {
                 best = p;
-                bestgap = p.position() - pos;
+                bestgap = gap;
             }
+            gaptotal += gap;
+            gapstotal += gap * gap;
+            ++n;
             pos = p.position();
         }
         if (best != null)
@@ -507,6 +518,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             ts.remove(best);
             streamClose(best);
         }
+        if (verbose && n > 0 && bestgap < 64)
+            System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     /**
@@ -592,18 +605,36 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         current = found;
         long toSkip = pos - found.position();
         long toSkip1 = toSkip;
+        if (ts.size() >= cachesize)
+        {
+            // If a very large skip
+            int factor = 10;
+            if (lastpos > 0 && toSkip / factor > lastpos / cachesize ||
+                estlen > 0 && toSkip / factor > estlen / cachesize ||
+                lastpos == 0 && estlen == 0 && toSkip / factor > 500L*1024*1024*1024 / cachesize)
+            {
+                // make some space for an intermediate position
+                clearClosest();
+            }
+        }
         while (toSkip > 0)
         {
             // Skip in 1GB chunks so we can save intermediate readers
             long skipNow;
             if (ts.size() < cachesize)
             {
+                int space = cachesize - ts.size();
                 if (lastpos > 0)
-                    skipNow = Math.min(toSkip, lastpos / (cachesize - ts.size()));
+                    skipNow = Math.min(toSkip, lastpos / space);
                 else if (estlen > 0)
-                    skipNow = Math.min(toSkip, estlen / (cachesize - ts.size()));
+                    skipNow = Math.min(toSkip, estlen / space);
                 else
                     skipNow = Math.min(toSkip, 1L << 30);
+                int fewleft = 2;
+                if (space <= fewleft)
+                {
+                    skipNow = (toSkip + space) / (space + 1);
+                }
             }
             else
             {
@@ -629,7 +660,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
         long now = System.currentTimeMillis();
         if (verbose && now - then > 1000)
-            System.out.println(MessageUtil.format("Slow gzip seek to offset {0} by {1} cache size {2} took {3}ms", pos,toSkip1,ts.size(),(now-then))); //$NON-NLS-1$
+            System.out.println(MessageUtil.format("Slow gzip seek to offset {0} from {1} by {2} cache size {3} took {4}ms", pos, pos - toSkip1, toSkip1, ts.size(), (now-then))); //$NON-NLS-1$
     }
 
     public long position()
