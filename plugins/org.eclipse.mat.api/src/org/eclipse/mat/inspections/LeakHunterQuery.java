@@ -1101,6 +1101,14 @@ public class LeakHunterQuery implements IQuery
                         }
                     });
                     QuerySpec threadResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStackAndLocals, rt);
+                    // Make sure the whole stack trace is expanded
+                    List<?> l = rt.getElements();
+                    if (l.size() >= 1 && rt.hasChildren(l.get(0)))
+                    {
+                        List<?> l2 = rt.getChildren(l.get(0));
+                        int limit = l2.size();
+                        threadResult.set(Params.Rendering.LIMIT, String.valueOf(limit));
+                    }
                     threadResult.setCommand(
                                     "thread_overview 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
                     builder.append(" ").append( //$NON-NLS-1$
