@@ -605,7 +605,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         current = found;
         long toSkip = pos - found.position();
         long toSkip1 = toSkip;
-        if (ts.size() >= cachesize)
+        if (ts.size() >= cachesize && cachesize > 0)
         {
             // If a very large skip
             int factor = 10;
