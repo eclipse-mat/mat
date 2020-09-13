@@ -33,6 +33,7 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 
 /**
@@ -283,15 +284,50 @@ public final class ObjectListResult
         protected String extractAttribute(IObject heapObject, long parentAddress)
         {
             StringBuilder s = new StringBuilder(64);
-
-            List<NamedReference> refs = heapObject.getOutboundReferences();
-            for (NamedReference reference : refs)
+            if (heapObject instanceof IObjectArray)
             {
-                if (reference.getObjectAddress() == parentAddress)
+                // Arrays can be huge, extracting references could be huge
+                IObjectArray heapArray = (IObjectArray)heapObject;
+                int length = heapArray.getLength();
+                int step = 65536;
+                int maxarray = Integer.MAX_VALUE;
+                int maxattribute = 1024;
+                if (length <= maxarray)
                 {
-                    if (s.length() > 0)
-                        s.append(", "); //$NON-NLS-1$
-                    s.append(reference.getName());
+                    for (int i = 0; i < length; i += step)
+                    {
+                        long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                        for (int j = 0; j < l.length; ++j)
+                        {
+                            if (l[j] == parentAddress)
+                            {
+                                if (s.length() > 0)
+                                    s.append(", "); //$NON-NLS-1$
+                                s.append('[');
+                                s.append(i + j);
+                                s.append(']');
+                                if (s.length() > maxattribute)
+                                {
+                                    s.append(",..."); //$NON-NLS-1$
+                                    i = length;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                List<NamedReference> refs = heapObject.getOutboundReferences();
+                for (NamedReference reference : refs)
+                {
+                    if (reference.getObjectAddress() == parentAddress)
+                    {
+                        if (s.length() > 0)
+                            s.append(", "); //$NON-NLS-1$
+                        s.append(reference.getName());
+                    }
                 }
             }
 

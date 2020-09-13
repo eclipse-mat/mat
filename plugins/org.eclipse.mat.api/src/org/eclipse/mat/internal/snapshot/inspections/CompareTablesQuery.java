@@ -387,15 +387,34 @@ public class CompareTablesQuery implements IQuery
                         // Don't get named references for object array - expensive
                         if (immobj instanceof IObjectArray)
                         {
-                            IObjectArray immarr = (IObjectArray)immobj;
-                            long arr[] = immarr.getReferenceArray();
-                            for (int j = 0; j < arr.length; ++j)
+                            // Arrays can be huge, extracting references could be huge
+                            IObjectArray heapArray = (IObjectArray)immobj;
+                            int length = heapArray.getLength();
+                            int step = 65536;
+                            int maxarray = 1024*1024;
+                            int maxattribute = 1024;
+                            if (length <= maxarray)
                             {
-                                if (arr[j] == obj.getObjectAddress())
+                                for (int i = 0; i < length; i += step)
                                 {
-                                    if (sb.length() > 0)
-                                        sb.append(',');
-                                    sb.append('[').append(j).append(']');
+                                    long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                                    for (int j = 0; j < l.length; ++j)
+                                    {
+                                        if (l[j] == obj.getObjectAddress())
+                                        {
+                                            if (sb.length() > 0)
+                                                sb.append(", "); //$NON-NLS-1$
+                                            sb.append('[');
+                                            sb.append(i + j);
+                                            sb.append(']');
+                                            if (sb.length() > maxattribute)
+                                            {
+                                                sb.append(",..."); //$NON-NLS-1$
+                                                i = length;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -765,7 +784,7 @@ public class CompareTablesQuery implements IQuery
             if (addr1 == addr2)
                 return true;
             // Classes don't match, so different
-            if (snapshots[table1].getClassOf(objectId1).equals(snapshots[table2].getClassOf(objectId2)))
+            if (!snapshots[table1].getClassOf(objectId1).getName().equals(snapshots[table2].getClassOf(objectId2).getName()))
                 return false;
             if (matchType >= 1)
             {
