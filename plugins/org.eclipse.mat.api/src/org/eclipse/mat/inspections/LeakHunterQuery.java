@@ -1102,11 +1102,18 @@ public class LeakHunterQuery implements IQuery
                     });
                     QuerySpec threadResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStackAndLocals, rt);
                     // Make sure the whole stack trace is expanded
-                    List<?> l = rt.getElements();
-                    if (l.size() >= 1 && rt.hasChildren(l.get(0)))
+                    List<?> lThreads = rt.getElements();
+                    if (rt instanceof ISelectionProvider && lThreads.size() >= 1 && rt.hasChildren(lThreads.get(0)))
                     {
-                        List<?> l2 = rt.getChildren(l.get(0));
-                        int limit = l2.size();
+                        ISelectionProvider sel = (ISelectionProvider)rt;
+                        List<?> lFrames = rt.getChildren(lThreads.get(0));
+                        int limit = lFrames.size();
+                        for (Object row : lFrames)
+                        {
+                            // Max sure all expanded stack frames are rendered in full
+                            if (sel.isExpanded(row))
+                                limit = Math.max(limit, rt.getChildren(row).size());
+                        }
                         threadResult.set(Params.Rendering.LIMIT, String.valueOf(limit));
                     }
                     threadResult.setCommand(
