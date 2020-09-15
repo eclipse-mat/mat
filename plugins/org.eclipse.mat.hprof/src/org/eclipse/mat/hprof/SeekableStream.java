@@ -150,6 +150,12 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         boolean eof;
         /** Used to save the stream when not in active use */
         SoftReference<InputStream> savedStream;
+        /** previously used PosStream - used for LRU */
+        PosStream prev;
+        /** more recently used PosStream - used for LRU */
+        PosStream next;
+        /** Used to tweek LRU */
+        long decay;
 
         @Override
         public int read() throws IOException
@@ -273,6 +279,15 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     int cleanup;
     /** Keeps the different unseekable streams in order of position */
     TreeSet<PosStream> ts = new TreeSet<PosStream>();
+    /** Oldest used PosStream */
+    PosStream tail = new PosStream(0, -2);
+    /** Latest used PosStream */
+    PosStream head = new PosStream(Long.MAX_VALUE, -1);
+    {
+        // Initialize sentinels
+        tail.next = head;
+        head.prev = tail;
+    }
     /** The current stream used for reading */
     PosStream current;
     /** How many streams to keep active */
@@ -447,6 +462,66 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     }
 
     /**
+     * Add a currently unused PosStream to
+     * the cache.
+     * Maintains the LRU for the cache.
+     * @param toAdd
+     * @return If added (i.e. doesn't already exist)
+     */
+    boolean add(PosStream toAdd)
+    {
+        if (ts.add(toAdd))
+        {
+            toAdd.prev = head.prev;
+            toAdd.next = head;
+            toAdd.decay = 0;
+            head.prev.next = toAdd;
+            head.prev = toAdd;
+            return true;
+        }
+        else
+        {
+            // Move existing to front
+            PosStream existing = ts.floor(toAdd);
+            if (existing != null)
+            {
+                // Move to front of LRU
+                existing.prev.next = existing.next;
+                existing.next.prev = existing.prev;
+                existing.prev = head.prev;
+                existing.next = head;
+                existing.decay = 0;
+                head.prev.next = existing;
+                head.prev = existing;
+            }
+            return false;
+        }
+    }
+
+    /** 
+     * Removes a PosStream from the cache, ready
+     * for use or discard.
+     * Maintains the LRU data for the cache.
+     * @param toRemove
+     * @return True if the item was in the cache.
+     */
+    boolean remove(PosStream toRemove)
+    {
+        if (ts.remove(toRemove))
+        {
+            toRemove.prev.next = toRemove.next;
+            toRemove.next.prev = toRemove.prev;
+            toRemove.prev = null;
+            toRemove.next = null;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
      * Remove an entry in the decompression stream cache.
      * @throws IOException
      */
@@ -462,18 +537,57 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             clearClosest();
             return;
         }
-        PosStream last = ts.last();
-        if (last != null)
+        /* 
+         * Find a PosStream which has not been used for a while
+         * and is not too big.
+         */
+        int iterations = 10;
+        if (iterations <= 1)
         {
-            PosStream first = ts.first();
-            PosStream toremove = last;
-            PosStream lastbutone = ts.lower(last);
-            if (lastbutone != null)
+            PosStream toremove = tail.next;
+            if (remove(toremove))
             {
-                if (first.position() < last.position() - lastbutone.position())
-                    toremove = first;
+                streamClose(toremove);
+                return;
             }
-            ts.remove(toremove);
+        }
+        PosStream test = tail.next;
+        PosStream toremove = null;
+        int factor = 10;
+        // A PosStream covering a gap this or smaller is okay
+        long okaygap;
+        if (lastpos > 0)
+            okaygap = lastpos / cachesize * factor;
+        else if (estlen > 0)
+            okaygap = estlen / cachesize * factor;
+        else
+            okaygap = 0;
+        long bestgap = Long.MAX_VALUE;
+        for (int i = 0; i < iterations && test != head && bestgap > okaygap; ++i, test = test.next)
+        {
+            PosStream prev = ts.lower(test);
+            long gap = prev == null ? test.pos : test.pos - prev.pos;
+            /*
+             * A simple cost-sensitive cache replacement algorithm.
+             * If this item gets skipped over multiple times,
+             * make it more likely to be evicted.
+             */
+            gap -= test.decay;
+            if (gap < bestgap)
+            {
+                bestgap = gap;
+                toremove = test;
+            }
+            //System.out.println("Gap "+i+" "+test.pos+" "+gap+" "+bestgap);
+        }
+        if (toremove != null)
+        {
+            // Update decay for skipped over items
+            for (PosStream skipped = tail.next; skipped != toremove; skipped = skipped.next)
+            {
+                skipped.decay += bestgap;
+            }
+            remove(toremove);
             streamClose(toremove);
         }
     }
@@ -499,6 +613,10 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             // Also remove PosStream which have SoftReferences which have been cleared
             if (p.isCleared())
             {
+                p.prev.next = p.next;
+                p.next.prev = p.prev;
+                p.prev = null;
+                p.next = null;
                 ip.remove();
                 continue;
             }
@@ -515,8 +633,46 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
         if (best != null)
         {
-            ts.remove(best);
+            //System.out.println("Removed "+best.position()+","+best.seq+","+bestgap);
+            remove(best);
             streamClose(best);
+        }
+        if (verbose && n > 0 && bestgap < 64)
+            System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    }
+
+    void dump()
+    {
+        if (ts.size() == 0)
+            return;
+        // Find the smallest gap in positions between two streams
+        long pos = 0;
+        PosStream best = null;
+        long bestgap = Long.MAX_VALUE;
+        long gaptotal = 0L;
+        long gapstotal = 0L;
+        int n = 0;
+        for (Iterator<PosStream> ip = ts.iterator(); ip.hasNext(); )
+        {
+            PosStream p = ip.next();
+            // Also remove PosStream which have SoftReferences which have been cleared
+            if (p.isCleared())
+            {
+                long gap = p.position() - pos;
+                System.out.println(n+","+p.position()+","+gap+","+p.seq+",cleared");
+                continue;
+            }
+            long gap = p.position() - pos;
+            System.out.println(n+","+p.position()+","+p.seq+","+gap);
+            if (gap < bestgap)
+            {
+                best = p;
+                bestgap = gap;
+            }
+            gaptotal += gap;
+            gapstotal += gap * gap;
+            ++n;
+            pos = p.position();
         }
         if (verbose && n > 0 && bestgap < 64)
             System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -540,7 +696,12 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             current.basepos = underlyingPosition();
             // Add the current stream to the list so it can be searched for
             current.setActive(false);
-            ts.add(current);
+            if (!add(current))
+            {
+                // Exact match already exists
+                streamClose(current);
+                current = null;
+            }
         }
         // Create a PosStream so we can search for an existing close one
         PosStream dummy = new PosStream(pos, nextseq);
@@ -549,28 +710,23 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         {
             found = ts.floor(dummy);
         } 
-        while (found != null && !found.setActive(true) && ts.remove(found));
+        while (found != null && remove(found) && !found.setActive(true));
         if (found != null)
         {
             PosStream copy = found.copy(nextseq);
             if (copy != null)
             {
                 ++nextseq;
-                ts.remove(found);
                 // Put the copy back, and use the original
                 copy.setActive(false);
-                ts.add(copy);
+                // Should always succeed
+                add(copy);
                 // Only do the cleanup after we have removed the 
                 // PosStream we want to use - don't want clean up closing it.
                 if (ts.size() > cachesize)
                 {
                     clearEntry();
                 }
-            }
-            else
-            {
-                // remove from tree set as we change the position
-                ts.remove(found);
             }
             underlyingPosition(found.basepos);
         }
@@ -592,7 +748,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 // Switch back to the current
                 if (current != null)
                 {
-                    ts.remove(current);
+                    remove(current);
                     underlyingPosition(current.basepos);
                     if (!current.setActive(true))
                     {
@@ -614,7 +770,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 lastpos == 0 && estlen == 0 && toSkip / factor > 500L*1024*1024*1024 / cachesize)
             {
                 // make some space for an intermediate position
-                clearClosest();
+                clearEntry();
             }
         }
         while (toSkip > 0)
@@ -625,9 +781,9 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             {
                 int space = cachesize - ts.size();
                 if (lastpos > 0)
-                    skipNow = Math.min(toSkip, lastpos / space);
+                    skipNow = Math.min(toSkip, lastpos / (cachesize + 1));
                 else if (estlen > 0)
-                    skipNow = Math.min(toSkip, estlen / space);
+                    skipNow = Math.min(toSkip, estlen / (cachesize + 1));
                 else
                     skipNow = Math.min(toSkip, 1L << 30);
                 int fewleft = 2;
@@ -654,13 +810,17 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 {
                     ++nextseq;
                     extra.setActive(false);
-                    ts.add(extra);
+                    // Should always succeed
+                    add(extra);
                 }
             }
         }
         long now = System.currentTimeMillis();
         if (verbose && now - then > 1000)
+        {
+            dump();
             System.out.println(MessageUtil.format("Slow gzip seek to offset {0} from {1} by {2} cache size {3} took {4}ms", pos, pos - toSkip1, toSkip1, ts.size(), (now-then))); //$NON-NLS-1$
+        }
     }
 
     public long position()
@@ -674,10 +834,13 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         if (current == null)
             return -1;
         int r = current.read();
+        if (current.position() > estlen && estlen > 0)
+            estlen = current.position();
         if (r < 0)
         {
             // Indicate at end of stream
             lastpos = current.position();
+            estlen = lastpos;
             // Come to the end of the stream, so remove the underlying stream
             streamClose(current);
             current = null;
@@ -691,10 +854,13 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         if (current == null)
             return -1;
         int r = current.read(buffer, offset, length);
+        if (current.position() > estlen && estlen > 0)
+            estlen = current.position();
         if (r < 0)
         {
             // Indicate at end of stream
             lastpos = current.position();
+            estlen = lastpos;
             // Come to the end of the stream, so remove the underlying stream
             streamClose(current);
             current = null;
@@ -716,12 +882,17 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             // We can close the streams now as the
             // underlying stream is about to be closed too.
             streamClose(ps);
+            ps.prev.next = ps.next;
+            ps.next.prev = ps.prev;
+            ps.prev = null;
+            ps.next = null;
             it.remove();
         }
         if (current != null)
         {
             // Indicate at end of stream
             lastpos = current.position();
+            estlen = lastpos;
             streamClose(current);
         }
         current = null;
