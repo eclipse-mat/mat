@@ -52,14 +52,15 @@ public class Perspective implements IPerspectiveFactory
         topLeft.addView(Views.INSPECTOR_VIEW.getId());
         topLeft.addPlaceholder(Views.DETAILS_VIEW.getId());
 
-        IPlaceholderFolderLayout bottomLeft = layout.createPlaceholderFolder("bottomLeft", IPageLayout.BOTTOM,//$NON-NLS-1$
-                        (float) 0.60, Views.DETAILS_VIEW.getId());
-        bottomLeft.addPlaceholder(Views.HISTORY_VIEW.getId());
+        IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, (float) 0.60, "topLeft");//$NON-NLS-1$
+        bottomLeft.addView(Views.HISTORY_VIEW.getId());
 
         IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM, (float) 0.80, editorArea);//$NON-NLS-1$
+        bottomMiddle.addView(Views.ERROR_VIEW.getId());
         bottomMiddle.addView(Views.NOTES_VIEW.getId());
         bottomMiddle.addPlaceholder(IPageLayout.ID_PROGRESS_VIEW);
         bottomMiddle.addView(Views.NAVIGATOR_VIEW.getId());
+        bottomMiddle.addView(Views.COMPARE_BASKET_VIEW.getId());
 
         layout.addShowViewShortcut(Views.HISTORY_VIEW.getId());
         layout.addShowViewShortcut(Views.DETAILS_VIEW.getId());
