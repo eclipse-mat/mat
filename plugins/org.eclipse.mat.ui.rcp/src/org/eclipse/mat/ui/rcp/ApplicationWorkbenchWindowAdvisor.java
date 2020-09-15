@@ -26,9 +26,11 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.intro.IIntroPart;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 {
+    private static final boolean FORCE_NO_WELCOME = Boolean.getBoolean("org.eclipse.mat.ui.force_no_welcome");
 
     public ApplicationWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer)
     {
@@ -82,9 +84,14 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         if (!prefs.getBoolean(PreferenceConstants.P_HIDE_WELCOME_SCREEN))
         {
-            boolean isStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(
-                            PlatformUI.getWorkbench().getIntroManager().getIntro());
-            PlatformUI.getWorkbench().getIntroManager().showIntro(getWindowConfigurer().getWindow(), isStandby);
+            boolean isStandby = PlatformUI.getWorkbench().getIntroManager()
+                            .isIntroStandby(PlatformUI.getWorkbench().getIntroManager().getIntro());
+            IIntroPart intro = PlatformUI.getWorkbench().getIntroManager().showIntro(getWindowConfigurer().getWindow(),
+                            isStandby);
+            if (intro != null && FORCE_NO_WELCOME)
+            {
+                PlatformUI.getWorkbench().getIntroManager().closeIntro(intro);
+            }
         }
     }
 }
