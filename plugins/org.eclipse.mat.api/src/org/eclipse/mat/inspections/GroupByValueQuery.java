@@ -41,14 +41,20 @@ public class GroupByValueQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        listener.subTask(Messages.GroupByValueQuery_GroupingObjects);
-
         Quantize quantize = Quantize.valueDistribution(Messages.GroupByValueQuery_Column_StringValue) //
                         .column(Messages.GroupByValueQuery_Column_Objects, Quantize.COUNT) //
                         .column(Messages.Column_ShallowHeap, Quantize.SUM_LONG, SortDirection.DESC) //
                         .column(Messages.GroupByValueQuery_Column_AvgRetainedSize, Quantize.AVERAGE_LONG) //
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
+        
+        int totalWork = 0;
+        for (int[] objectIds : objects)
+        {
+            totalWork += objectIds.length;
+        }
+        
+        listener.beginTask(Messages.GroupByValueQuery_GroupingObjects, totalWork);
 
         boolean canceled = false;
         for (int[] objectIds : objects)
@@ -72,10 +78,14 @@ public class GroupByValueQuery implements IQuery
                     subject = ((IObject) subject).getClassSpecificName();
 
                 quantize.addValue(objectId, subject, null, object.getUsedHeapSize(), object.getRetainedHeapSize());
+                
+                listener.worked(1);
             }
             if (canceled)
                 break;
         }
+        
+        listener.done();
 
         return quantize.getResult();
     }
