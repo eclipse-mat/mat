@@ -296,6 +296,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     long estlen;
     /** The last position if the current stream has been closed */
     long lastpos;
+    /** Total seek time */
+    long totalseek;
     /**
      * The underlying random access stream which all of the decompression
      * streams use. When switching streams seek() will be used to switch
@@ -308,6 +310,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     SeekableByteChannel underlyingChannel;
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/gzip")); //$NON-NLS-1$
+    /**
+     * Reopening the file and reading to location 0 with GZip2 
+     * has a cost of seeking roughly this far.
+     */
+    private static final long READ0COST = 80000;
     /**
      * Creates a seekable stream out of a non-seekable stream.
      *
@@ -563,10 +570,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         else
             okaygap = 0;
         long bestgap = Long.MAX_VALUE;
+        long biggestgap = 0;
         for (int i = 0; i < iterations && test != head && bestgap > okaygap; ++i, test = test.next)
         {
             PosStream prev = ts.lower(test);
-            long gap = prev == null ? test.pos : test.pos - prev.pos;
+            long gap = prev == null ? test.pos + READ0COST : test.pos - prev.pos;
             /*
              * A simple cost-sensitive cache replacement algorithm.
              * If this item gets skipped over multiple times,
@@ -578,14 +586,18 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 bestgap = gap;
                 toremove = test;
             }
+            if (gap > biggestgap)
+                biggestgap = gap;
             //System.out.println("Gap "+i+" "+test.pos+" "+gap+" "+bestgap);
         }
         if (toremove != null)
         {
             // Update decay for skipped over items
+            // Big gaps cost more to redo and might be more likely
+            long adjust = (long)((double)bestgap * bestgap / biggestgap);
             for (PosStream skipped = tail.next; skipped != toremove; skipped = skipped.next)
             {
-                skipped.decay += bestgap;
+                skipped.decay += adjust;
             }
             remove(toremove);
             streamClose(toremove);
@@ -601,7 +613,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         if (ts.size() == 0)
             return;
         // Find the smallest gap in positions between two streams
-        long pos = 0;
+        long pos = -READ0COST * 0;
         PosStream best = null;
         long bestgap = Long.MAX_VALUE;
         long gaptotal = 0L;
@@ -637,8 +649,6 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             remove(best);
             streamClose(best);
         }
-        if (verbose && n > 0 && bestgap < 64)
-            System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     void dump()
@@ -646,7 +656,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         if (ts.size() == 0)
             return;
         // Find the smallest gap in positions between two streams
-        long pos = 0;
+        long pos = -READ0COST;
         PosStream best = null;
         long bestgap = Long.MAX_VALUE;
         long gaptotal = 0L;
@@ -659,11 +669,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             if (p.isCleared())
             {
                 long gap = p.position() - pos;
-                System.out.println(n+","+p.position()+","+gap+","+p.seq+",cleared");
+                System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay+",cleared"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 continue;
             }
             long gap = p.position() - pos;
-            System.out.println(n+","+p.position()+","+p.seq+","+gap);
+            System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             if (gap < bestgap)
             {
                 best = p;
@@ -675,7 +685,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             pos = p.position();
         }
         if (verbose && n > 0 && bestgap < 64)
-            System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            System.out.println("n="+n+" avg="+(gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap+" pos="+best.pos); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
     /**
@@ -816,6 +826,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             }
         }
         long now = System.currentTimeMillis();
+        totalseek += now - then;
         if (verbose && now - then > 1000)
         {
             dump();
@@ -897,6 +908,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
         current = null;
         // No need to close the underlying streams, that is the job of the caller
+        if (verbose) 
+            System.out.println("Total seek time "+totalseek+"ms"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public String toString()
