@@ -234,8 +234,8 @@ public class ObjectMarker
         private int totalThreads;
         private int waits; // Debug
         private long waitsduration; // Debug
-        static final int RESERVED_WAITING = 20;
-        static final int RESERVED_RUNNING = 5;
+        static final int RESERVED_WAITING = 50;
+        static final int RESERVED_RUNNING = 15;
         int totalWork;
         int worked; // ticks done so far
         int pushed; // items pushed to the stack
@@ -675,13 +675,12 @@ public class ObjectMarker
                                              * Other threads might still need more,
                                              * so transfer more from the queue which is non-local
                                              */
-                                            while (check && (queue.size() > 0 && queue.size() + size > RESERVED))
-                                            {
-                                                check = rootsStack.pushIfWaiting(queue.get());
-                                            }
                                         }
                                         if (check)
+                                        {
+                                            check = fillRootsStack();
                                             continue;
+                                        }
                                     }
                                     if (size == 0)
                                     {
@@ -785,9 +784,13 @@ public class ObjectMarker
                 {
                     do
                     {
-                        check = rootsStack.pushIfWaiting(current);
-                        if (check)
-                            current = data[--size];
+                        /* Leave current unaffected */
+                        /* start stack.pop() */
+                        int item = data[--size];
+                        check = rootsStack.pushIfWaiting(item);
+                        if (!check)
+                            /* start stack.push() */
+                            data[size++] = item;
                     }
                     while (check && size > RESERVED);
                 }
