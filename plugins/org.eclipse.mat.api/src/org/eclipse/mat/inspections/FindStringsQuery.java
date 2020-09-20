@@ -94,29 +94,32 @@ public class FindStringsQuery implements IQuery
             if (classes != null && !classes.isEmpty())
             {
                 IClass javaLangString = classes.iterator().next();
+                HeapObjectsTracker hot = new HeapObjectsTracker(objects);
 
-                int totalWork = 0;
-                for (int[] objectIds : objects)
+                listener.beginTask(Messages.FindStringsQuery_SearchingStrings, hot.totalWork());
+
+                ObjectsLoop: for (Iterator<int[]> it = objects.iterator(); it.hasNext();)
                 {
-                    totalWork += objectIds.length;
-                }
-
-                listener.beginTask(Messages.FindStringsQuery_SearchingStrings, totalWork);
-
-                ObjectsLoop: for (int[] objectIds : objects)
-                {
+                    int objectIds[] = it.next();
+                    hot.beginBlock(objectIds, !it.hasNext());
                     for (int id : objectIds)
                     {
                         if (listener.isCanceled())
                             break ObjectsLoop;
 
                         if (snapshot.isArray(id) || snapshot.isClass(id) || snapshot.isClassLoader(id))
+                        {
+                            listener.worked(hot.work());
                             continue;
+                        }
 
                         IObject instance = snapshot.getObject(id);
                         // if (!classes.contains(instance.getClazz()))
                         if (!javaLangString.equals(instance.getClazz()))
+                        {
+                            listener.worked(hot.work());
                             continue;
+                        }
 
                         String value = instance.getClassSpecificName();
                         if (value != null && pattern.matcher(value).matches())
@@ -124,8 +127,9 @@ public class FindStringsQuery implements IQuery
                             result.add(id);
                         }
 
-                        listener.worked(1);
+                        listener.worked(hot.work());
                     }
+                    listener.worked(hot.endBlock());
                 }
 
                 listener.done();
@@ -137,5 +141,4 @@ public class FindStringsQuery implements IQuery
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());
     }
-
 }
