@@ -1064,6 +1064,27 @@ public class QueriesTest
     }
 
     /**
+     * Test find Strings and also parsing of OQL with leading minus.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testFindStrings3() throws SnapshotException
+    {
+        // 3 object arguments
+        SnapshotQuery query = SnapshotQuery.parse("find_strings select * from java.lang.String s" +
+        " where s.@objectId != -1 - -123 + -123L + -1.0 + 1. + -.1 + -1.0f + -1.0F + -1.0d + -1.0E12d + -1.0e-1f + -0.1E-2d + -1e5 ;"
+                        + " java.lang.String select * from java.lang.String -pattern p0", snapshot);
+        CheckedWorkProgressListener listener = new CheckedWorkProgressListener(collector);
+        IResultTree t = (IResultTree)query.execute(listener);
+        assertTrue(t != null);
+        assertThat(t.getElements().size(), equalTo(28 * 3));
+        assertThat("Total work should match", listener.work, equalTo(listener.total));
+        assertThat("Should be some work done", listener.work, greaterThan(0));
+        // As we have an OQL query, the total work is unknown and so set to this
+        assertThat("Total work should match", listener.work, equalTo(1000000));
+    }
+
+    /**
      * Test parsing of class pattern argument
      * @throws SnapshotException
      */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,14 @@ import org.eclipse.mat.util.PatternUtil;
 public final class ArgumentParser
 {
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("^0x\\p{XDigit}+$"); //$NON-NLS-1$
-
+    /** matches definition of INTEGER_LITERAL and FLOATING_POINT_LITERAL in OQLParser.jj */
+    private static final Pattern OQL_NUMBER_PATTERN = Pattern.compile("^[+-]?((\\p{Digit}+[lL]?)" //$NON-NLS-1$
+                    + "|(\\p{Digit}+\\.\\p{Digit}*([eE][+-]?\\p{Digit}+)?[fFdD]?)" //$NON-NLS-1$
+                    + "|(\\.\\p{Digit}*([eE][+-]?\\p{Digit}+)?[fFdD]?)" //$NON-NLS-1$
+                    + "|(\\p{Digit}+([eE][+-]?\\p{Digit}+)[fFdD]?)" //$NON-NLS-1$
+                    + "|(\\p{Digit}+([eE][+-]?\\p{Digit}+)?[fFdD])" //$NON-NLS-1$
+                    + ")$"); //$NON-NLS-1$
+    
     public static HeapObjectParamArgument consumeHeapObjects(ISnapshot snapshot, String line) throws SnapshotException
     {
         String[] args = CommandLine.tokenize(line);
@@ -124,9 +131,12 @@ public final class ArgumentParser
                         pos.setIndex(pos.getIndex() + 1);
                         break;
                     }
-                    else if (arg.charAt(0) == '-')
+                    else if (arg.charAt(0) == '-' && arg.length() > 1)
                     {
-                        break;
+                        // Already excluded OQL '-' operator
+                        // OQL numbers look a bit like another flag argument
+                        if (!OQL_NUMBER_PATTERN.matcher(arg).matches())
+                            break;
                     }
                     query.append(" ").append(arg); //$NON-NLS-1$
                     pos.setIndex(pos.getIndex() + 1);
