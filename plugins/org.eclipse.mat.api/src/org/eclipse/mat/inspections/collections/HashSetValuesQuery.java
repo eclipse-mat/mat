@@ -38,6 +38,7 @@ import org.eclipse.mat.util.IProgressListener;
     "java.util.Collections$CheckedSet",
     "java.util.Collections$CheckedMap$CheckedEntrySet",
     "java.util.Collections$SetFromMap",
+    "java.util.Properties$EntrySet",
 
     "java.util.concurrent.ConcurrentHashMap$KeySetView",
     "java.util.concurrent.ConcurrentHashMap$EntrySetView",

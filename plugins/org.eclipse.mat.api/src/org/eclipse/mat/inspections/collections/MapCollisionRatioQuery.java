@@ -53,7 +53,9 @@ import org.eclipse.mat.util.MessageUtil;
     "com.sap.engine.lib.util.AbstractDataStructure",
 
     // Sometimes useful to see collision ratio of a HashSet
-    "java.util.HashSet"
+    "java.util.HashSet",
+    "java.util.Collections$SetFromMap",
+    "java.util.Properties$EntrySet",
 })
 public class MapCollisionRatioQuery implements IQuery
 {

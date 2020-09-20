@@ -128,6 +128,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // Actually a ConcurrentHashMap for Java 9, even though subclass of Hashtable
                     new CollectionExtractionInfo("java.util.Properties", JdkVersion.of(JAVA19, IBM19, JAVA_11), // //$NON-NLS-1$
                                     new HashMapCollectionExtractor("map.baseCount", "map.table", "key", "val")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new CollectionExtractionInfo("java.util.Properties$EntrySet", new WrapperMapExtractor("entrySet")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // Some Java 5 PHD files don't have superclass info so add
                     // LinkedHashSet to list

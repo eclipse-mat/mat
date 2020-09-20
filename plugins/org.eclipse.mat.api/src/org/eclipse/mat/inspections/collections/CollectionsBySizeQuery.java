@@ -53,6 +53,7 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.Collections$CheckedMap",
     "java.util.Collections$CheckedMap$CheckedEntrySet",
     "java.util.Collections$SetFromMap",
+    "java.util.Properties$EntrySet",
     "java.util.ResourceBundle",
     "java.awt.RenderingHints",
     "java.beans.beancontext.BeanContextSupport",
