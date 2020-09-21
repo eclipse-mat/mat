@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.util.Iterator;
+
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -48,17 +50,15 @@ public class GroupByValueQuery implements IQuery
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
 
-        int totalWork = 0;
-        for (int[] objectIds : objects)
-        {
-            totalWork += objectIds.length;
-        }
+        HeapObjectsTracker hot = new HeapObjectsTracker(objects);
 
-        listener.beginTask(Messages.GroupByValueQuery_GroupingObjects, totalWork);
+        listener.beginTask(Messages.GroupByValueQuery_GroupingObjects, hot.totalWork());
 
         boolean canceled = false;
-        for (int[] objectIds : objects)
+        for (Iterator<int[]> it = objects.iterator(); it.hasNext();)
         {
+            int objectIds[] = it.next();
+            hot.beginBlock(objectIds, !it.hasNext());
             for (int ii = 0; ii < objectIds.length; ii++)
             {
                 if (listener.isCanceled())
@@ -79,10 +79,11 @@ public class GroupByValueQuery implements IQuery
 
                 quantize.addValue(objectId, subject, null, object.getUsedHeapSize(), object.getRetainedHeapSize());
 
-                listener.worked(1);
+                listener.worked(hot.work());
             }
             if (canceled)
                 break;
+            listener.worked(hot.endBlock());
         }
 
         listener.done();
