@@ -37,7 +37,7 @@ import org.eclipse.mat.util.IProgressListener;
  */
 @CommandName("leakhunter2")
 @Icon("/META-INF/icons/leak.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html#task_runningleaksuspectreport__compare")
 public class LeakHunterQuery2 extends LeakHunterQuery
 {
 

@@ -1594,7 +1594,10 @@ public class OQLQueryImpl implements IOQLQuery
 
     private Object doSubQuery(IProgressListener monitor) throws SnapshotException
     {
-        int percentages[] = new int[] {300,100};
+        // If there is a WHERE clause then allocate more ticks for processing that
+        int percentages[] = query.getWhereClause() == null ?
+                          new int[] {300,100}
+                        : new int[] {200,200};
         SimpleMonitor listener = new SimpleMonitor(query.toString(), monitor, percentages);
         OQLQueryImpl subQuery = new OQLQueryImpl(this.ctx, query.getFromClause().getSubSelect());
         Object result = subQuery.internalExecute(listener.nextMonitor());
@@ -1616,13 +1619,20 @@ public class OQLQueryImpl implements IOQLQuery
             else if (result instanceof Iterable)
             {
                 List<Object> r = new ArrayList<Object>();
-
+                if (result instanceof Collection)
+                {
+                    int count = ((Collection<?>)result).size();
+                    String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+                    monitor.beginTask(task, count);
+                }
                 for (Object obj : (Iterable<?>) result)
                 {
                     if (accept(obj, monitor))
                         r.add(obj);
                     if (monitor.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
+                    if (result instanceof Collection)
+                        monitor.worked(1);
                 }
 
                 return r.isEmpty() ? null : select(r, monitor);
@@ -1632,6 +1642,8 @@ public class OQLQueryImpl implements IOQLQuery
                 List<Object> r = new ArrayList<Object>();
 
                 int length = Array.getLength(result);
+                String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+                monitor.beginTask(task, length);
                 for (int ii = 0; ii < length; ii++)
                 {
                     Object obj = Array.get(result, ii);
@@ -1639,6 +1651,7 @@ public class OQLQueryImpl implements IOQLQuery
                         r.add(obj);
                     if (monitor.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
+                    monitor.worked(1);
                 }
                 return r.isEmpty() ? null : select(r, monitor);
             }
@@ -1835,7 +1848,9 @@ public class OQLQueryImpl implements IOQLQuery
         this.ctx.setSubject(this.ctx.getSnapshot());
         IProgressListener old = ctx.getProgressListener();
         this.ctx.setProgressListener(smlistener.nextMonitor());
+        this.ctx.getProgressListener().subTask("FROM "+query.getFromClause().toString()); //$NON-NLS-1$
         Object result = method.compute(this.ctx);
+        this.ctx.getProgressListener().done();
         this.ctx.setProgressListener(old);
         listener = smlistener.nextMonitor();
 
@@ -1848,13 +1863,20 @@ public class OQLQueryImpl implements IOQLQuery
             else if (result instanceof Iterable)
             {
                 List<Object> r = new ArrayList<Object>();
-
+                if (result instanceof Collection)
+                {
+                    int length = ((Collection<?>)result).size();
+                    String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+                    listener.beginTask(task, length);
+                }
                 for (Object obj : (Iterable<?>) result)
                 {
                     if (accept(obj, listener))
                         r.add(obj);
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
+                    if (result instanceof Collection)
+                        listener.worked(1);
                 }
 
                 return r.isEmpty() ? null : select(r, listener);
@@ -1864,6 +1886,8 @@ public class OQLQueryImpl implements IOQLQuery
                 List<Object> r = new ArrayList<Object>();
 
                 int length = Array.getLength(result);
+                String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+                listener.beginTask(task, length);
                 for (int ii = 0; ii < length; ii++)
                 {
                     Object obj = Array.get(result, ii);
@@ -1871,6 +1895,7 @@ public class OQLQueryImpl implements IOQLQuery
                         r.add(obj);
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
+                    listener.worked(1);
                 }
 
                 return r.isEmpty() ? null : select(r, listener);
@@ -2118,6 +2143,9 @@ public class OQLQueryImpl implements IOQLQuery
 
     private Object filterAndSelect(IntResult objectIds, IProgressListener listener) throws SnapshotException
     {
+        String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+        listener.beginTask(task, objectIds.size());
+
         IntResult filteredSet = createIntResult(objectIds.size());
 
         for (IntIterator iter = objectIds.iterator(); iter.hasNext();)
@@ -2128,6 +2156,7 @@ public class OQLQueryImpl implements IOQLQuery
             int id = iter.nextInt();
             if (accept(id, listener))
                 filteredSet.add(id);
+            listener.worked(1);
         }
 
         return filteredSet.isEmpty() ? null : select(filteredSet, listener);
@@ -2223,7 +2252,8 @@ public class OQLQueryImpl implements IOQLQuery
         IStructuredResult irt = (IStructuredResult)result;
         List<?>elements = irt instanceof IResultTree ? ((IResultTree)irt).getElements() : null;
         int count = irt instanceof IResultTable ? ((IResultTable)irt).getRowCount() : elements.size();
-        listener.beginTask(Messages.OQLQueryImpl_Selecting, count);
+        String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+        listener.beginTask(task, count);
         for (int ii = 0; ii < count; ii++)
         {
             if (listener.isCanceled())
@@ -2244,7 +2274,8 @@ public class OQLQueryImpl implements IOQLQuery
     private Object filterAndSelect(AbstractCustomTableResultSet result, IProgressListener listener) throws SnapshotException
     {
         List<Object> r = new ArrayList<Object>();
-        listener.beginTask(Messages.OQLQueryImpl_Selecting, result.getRowCount() * 2);
+        String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+        listener.beginTask(task, result.getRowCount() * 2);
         IProgressListener old = this.ctx.getProgressListener();
         this.ctx.setProgressListener(new SilentProgressListener(listener));
         for (AbstractCustomTableResultSet.RowMap rowobj : result)

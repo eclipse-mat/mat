@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -39,6 +40,7 @@ import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.EditorPaneRegistry;
@@ -498,6 +500,13 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     public Image getTitleImage()
     {
         return MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.INFO);
+    }
+
+    @Override
+    public void contributeToToolBar(IToolBarManager manager)
+    {
+        manager.appendToGroup("help", new OpenHelpPageAction("/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html#task_basictutorial__overview")); //$NON-NLS-1$ //$NON-NLS-2$
+        super.contributeToToolBar(manager);
     }
 
     @Override

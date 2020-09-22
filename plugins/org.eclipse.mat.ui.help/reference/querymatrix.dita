@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2020 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@
 
 			<simpletable relcolwidth="2* 3*" id="querymatrixoverview">
 
-				<strow>
+				<strow id="histogram">
 					<stentry>Histogram</stentry>
 					<stentry>
 						Class histogram is a list of all the objects in
@@ -50,11 +50,12 @@
 						button
 						<image href="../mimes/i-histogram.png" />
 						or by activating the action link on the Overview
-						pane.
+						pane. See the <xref href="../gettingstarted/basictutorial.dita#task_basictutorial__histogram">Basic Tutorial</xref>
+						for more information.
 					</stentry>
 				</strow>
 				<strow>
-					<stentry>Top Consumers</stentry>
+					<stentry id="top_consumers">Top Consumers</stentry>
 					<stentry>
 						Top Consumers query returns information about
 						the biggest objects grouped by class, class
@@ -62,7 +63,7 @@
 						is included in the analysis.
 					</stentry>
 				</strow>
-				<strow>
+				<strow id="heap_dump_overview">
 					<stentry>Heap Dump Overview</stentry>
 					<stentry>
 						<p>
@@ -84,6 +85,80 @@
 						</p>
 						<image href="../mimes/6f9c3893.png"></image>
 						<p>Overview report contains a histogram and a top consumers overview.</p>
+					</stentry>
+				</strow>
+				<strow id="list_objects">
+					<stentry>List Objects</stentry>
+					<stentry>
+						<p>
+						This shows the selected objects in a tree view.
+						With each object the class specific name of the referenced object is
+						also shown, if it is a known type such as <codeph>java.lang.String</codeph>,
+						<codeph>byte[]</codeph> etc.
+						The suffix field shows whether the object is 
+						a <xref href="../concepts/gcroots.dita">garbage collection root</xref>.
+						</p>
+						<p>
+						The <xref href="iconassist.dita">icon</xref> shows whether the object is a
+						<dl>
+						<dlentry>
+						<dt><image href="../mimes/i-arrayobject.png"></image>
+						</dt>
+						<dd>an array object</dd>
+						</dlentry>
+						<dlentry>
+						<dt><image href="../mimes/i-classloaderobject.png"></image>
+						</dt>
+						<dd>a class loader object</dd>
+						</dlentry>
+						<dlentry>
+						<dt><image href="../mimes/i-classobject.png"></image>
+						</dt>
+						<dd>a class object</dd>
+						</dlentry>
+						<dlentry>
+						<dt><image href="../mimes/i-otherobject.png"></image>
+						</dt>
+						<dd>a standard object</dd>
+						</dlentry>
+						</dl>
+						</p>
+						<p>
+						With the standard mode then expanding an object
+						shows the outbound references in rows below
+						and to the right of the object,
+						indicated by
+						the field name or array index as a prefix in <b>bold</b>.
+						The <xref href="iconassist.dita">icons</xref> have an arrow which points down and to the right 
+						<image href="../mimes/i-horefbelow.png"></image>.
+						</p>
+						<p>
+						In inbound mode the query shows which objects point to the
+						expanded object. In this mode the arrows on the <xref href="iconassist.dita">icons</xref>
+						point up and to the left <image href="../mimes/i-horefabove.png"></image>.
+						</p>
+					</stentry>
+				</strow>
+				<strow id="show_objects_by_class">
+					<stentry>Show Objects by Class</stentry>
+					<stentry>
+					This works rather like the <cmdname>List objects</cmdname>
+					query except that it groups objects of the same class at
+					the same level into one row.
+					The inspector view shows the actual class; the context menu
+					allows operations on all the objects of that class in that row.
+					<p>The color of the class <xref href="iconassist.dita">icon</xref> shows if all the objects in that
+					row are new or not. If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class.png"></image> green
+					then none of the objects have been shown further up the tree.
+					If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class_old.png"></image> gray
+					then all of the objects have been shown further up the tree.
+					If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class_mixed.png"></image>green and gray
+					then some of the objects have been shown further up the tree.
+					This can be useful when expanding the tree to see whether you
+					are still finding new objects or whether they link back to
+					objects you have already seen.
+					</p>
+					<p>This query can also operate in <parmname>inbound</parmname> mode.</p>
 					</stentry>
 				</strow>
 			</simpletable>

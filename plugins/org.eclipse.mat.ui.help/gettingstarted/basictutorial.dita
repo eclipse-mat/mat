@@ -149,7 +149,7 @@
 					</substep>
 				</substeps>
 			</step>
-			<step>
+			<step id="overview">
 				<cmd>
 					<b>Examine the Overview</b>
 				</cmd>
@@ -198,7 +198,7 @@
 					</p>
 				</stepresult>
 			</step>
-			<step>
+			<step id="histogram">
 				<cmd>
 					<b>Get the Histogram</b>
 				</cmd>

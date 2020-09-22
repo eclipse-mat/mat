@@ -117,7 +117,7 @@
 			</p>
 			<p>
 				The
-				<b>Shortest Paths To the Accumulation Point</b>
+				<wintitle>Shortest Paths To the Accumulation Point</wintitle>
 				shows a
 				path from a garbage collection route to the accumulation
 				point.
@@ -130,7 +130,7 @@
 			</p>
 			<p>
 				The
-				<b>Accumulated Objects in Dominator Tree</b>
+				<wintitle>Accumulated Objects in Dominator Tree</wintitle>
 				shows
 				the dominator tree from the leak suspect to the accumulation
 				point and
@@ -138,7 +138,7 @@
 				helps understand the context of the leak, and what is being
 				accumulated.
 				The
-				<b>Accumulated Objects by Class in Dominator Tree</b>
+				<wintitle>Accumulated Objects by Class in Dominator Tree</wintitle>
 				shows just
 				the children in the dominator tree of the accumulation
 				point, grouped
@@ -146,7 +146,7 @@
 				class. This is useful if there are many objects, as
 				there will be fewer
 				types.
-				<b>All Accumulated Objects by Class</b>
+				<wintitle>All Accumulated Objects by Class</wintitle>
 				shows all the objects
 				retained by the accumulation point, including
 				the accumulation point,
@@ -158,7 +158,7 @@
 				If the leak suspect is a group of objects then
 				the biggest few
 				objects are shown by
-				<b>Biggest Instances</b>
+				<wintitle>Biggest Instances</wintitle>
 				.
 				If there are many objects and none uses more than 1% of the leak
 				then this is omitted.
@@ -178,7 +178,7 @@
 				below the leak suspects in the dominator tree, rather than
 				above
 				the leak suspect object in the single object case.
-				<b>Common Path To the Accumulation Point</b>
+				<wintitle>Common Path To the Accumulation Point</wintitle>
 				shows a shortest path
 				from a GC root to the accumulation point,
 				giving a guide as to
@@ -197,7 +197,7 @@
 				</xref>
 				.
 			</p>
-			<p>
+			<p id="compare">
 				There is also a leak suspects report made by comparing two
 				snapshots.
 				This is available via

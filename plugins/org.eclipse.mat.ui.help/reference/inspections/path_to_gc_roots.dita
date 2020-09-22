@@ -2,7 +2,7 @@
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_inspections_path_to_gc_roots" xml:lang="en-us">
 	<title>Path to GC Roots</title>
-	<shortdesc>Find out who is keeping alive a set of objects.
+	<shortdesc>Find out who is keeping alive a single object.
 	</shortdesc>
 	<prolog>
 		<copyright>
@@ -34,7 +34,7 @@
 					<stentry>One object for which the paths to GC roots should be found.</stentry>
 				</strow>
 				<strow>
-					<stentry>-excludes</stentry>
+					<stentry><parmname>-excludes</parmname></stentry>
 					<stentry>Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.
 					This is of the format <varname>class name pattern</varname>[:<varname>field name</varname>[,<varname>field name</varname>]*].
 					Subclasses of the class are also included.
@@ -42,13 +42,17 @@
 					</stentry>
 				</strow>
 				<strow>
-					<stentry>-numberofpaths</stentry>
+					<stentry><parmname>-numberofpaths</parmname></stentry>
 					<stentry>The number of different paths to be displayed.</stentry>
 				</strow>
 			</simpletable>
 		</section>
 		<section id="result">
 			<title>Result</title>
+			<image href="../../gettingstarted/basictutorial_path.png"></image>
+			<note>With the arrows in each <xref href="../../reference/iconassist.dita"><image href="../../mimes/i-horefabove.png"></image>icon</xref> points up and to the left, showing
+			that the field in <b>bold</b> of the object of a line actually refers
+			to the preceding object in the tree view which is up and to the left.</note>
 		</section>
 	</refbody>
 </reference>

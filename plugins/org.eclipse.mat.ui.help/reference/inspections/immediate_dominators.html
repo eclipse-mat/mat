@@ -35,7 +35,7 @@
 			<p class="p">
 				To find out why a single object is still in the heap is easy: follow
 				the
-				<a class="xref" href="path_to_gc_roots.html" title="Find out who is keeping alive a set of objects.">shortest path</a>
+				<a class="xref" href="path_to_gc_roots.html" title="Find out who is keeping alive a single object.">shortest path</a>
 				to any GC root. But what if you have thousands of objects? Expanding
 				every single path is too time consuming. Immediate dominators is a
 				very effective way to find out who is keeping a set of objects
@@ -85,21 +85,21 @@
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-					<th valign="bottom" align="left" id="d4207e100" class="stentry">Argument</th>
+					<th valign="bottom" align="left" id="d5137e100" class="stentry">Argument</th>
 
-					<th valign="bottom" align="left" id="d4207e103" class="stentry">Description</th>
-
-				</tr>
-<tr class="strow">
-					<td valign="top" headers="d4207e100" class="stentry">objects</td>
-
-					<td valign="top" headers="d4207e103" class="stentry">An arbitrary set of objects to be analyzed.</td>
+					<th valign="bottom" align="left" id="d5137e103" class="stentry">Description</th>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d4207e100" class="stentry">-skip</td>
+					<td valign="top" headers="d5137e100" class="stentry">objects</td>
 
-					<td valign="top" headers="d4207e103" class="stentry">
+					<td valign="top" headers="d5137e103" class="stentry">An arbitrary set of objects to be analyzed.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5137e100" class="stentry">-skip</td>
+
+					<td valign="top" headers="d5137e103" class="stentry">
 						<p class="p"> A regular expression specifying which objects to skip while
 							going up the dominator tree. If the dominator of an object
 							matches the pattern, then the dominator of that dominator will be

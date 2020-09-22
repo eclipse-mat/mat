@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
@@ -48,6 +49,7 @@ import org.eclipse.mat.util.VoidProgressListener;
 @Menu( { @Entry(icon = "/META-INF/icons/class_refs_outbound.gif"), //
                 @Entry(options = "-inbound", icon = "/META-INF/icons/class_refs_inbound.gif") //
 })
+@HelpUrl("/org.eclipse.mat.ui.help/reference/querymatrix.html#ref_querymatrix__show_objects_by_class")
 public class ClassReferrersQuery implements IQuery
 {
 

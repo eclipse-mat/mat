@@ -124,9 +124,9 @@ public class TopComponentsReportQuery implements IQuery
         //"select * from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$
         "select objects b as \"" + name + "\" from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$ //$NON-NLS-2$
         " where"+ //$NON-NLS-1$
-        " b.@objectAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
+        " b implements org.eclipse.mat.snapshot.model.IClassLoader and b.@objectAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
         " b implements org.eclipse.mat.snapshot.model.IClass and b.@classLoaderAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
-        " (b implements org.eclipse.mat.snapshot.model.IClassLoader) = false and (b implements org.eclipse.mat.snapshot.model.IClass) = false and b.@clazz.@classLoaderAddress = " + loaderAddress + "L"; //$NON-NLS-1$ //$NON-NLS-2$
+        " b implements org.eclipse.mat.snapshot.model.IClassLoader = false and b implements org.eclipse.mat.snapshot.model.IClass = false and b.@clazz.@classLoaderAddress = " + loaderAddress + "L"; //$NON-NLS-1$ //$NON-NLS-2$
         //" $ {snapshot}.isClass(b.@objectId) and b.@classLoaderAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
         //" $ {snapshot}.isClassLoader(b.@objectId) = false and $ {snapshot}.isClass(b.@objectId) = false and b.@clazz.@classLoaderAddress = " + loaderAddress + "L"; //$NON-NLS-1$ //$NON-NLS-2$
     }
