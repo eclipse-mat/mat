@@ -10,8 +10,8 @@
 <meta name="description" content="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories."/>
 <meta name="DC.Relation" scheme="URI" content="../reference/findingmemoryleak.html"/>
 <meta name="DC.Relation" scheme="URI" content="../reference/analyzingmemoryconsumption.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_querymatrix"/>
 <meta name="DC.Language" content="en-us"/>
@@ -36,7 +36,7 @@
 		<div class="section"><h2 class="title sectiontitle">Overview</h2>
 			
 
-			<table cellpadding="4" cellspacing="0" summary="" id="ref_querymatrix__querymatrixoverview" border="1" class="simpletable"><tr class="strow">
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_querymatrix__querymatrixoverview" border="1" class="simpletable"><tr id="ref_querymatrix__histogram" class="strow">
 					<td valign="top" class="stentry" width="40%">Histogram</td>
 
 					<td valign="top" class="stentry" width="60%">
@@ -50,12 +50,13 @@
 						button
 						<img class="image" src="../mimes/i-histogram.png"/>
 						or by activating the action link on the Overview
-						pane.
+						pane. See the <a class="xref" href="../gettingstarted/basictutorial.html#task_basictutorial__histogram">Basic Tutorial</a>
+						for more information.
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">Top Consumers</td>
+					<td valign="top" id="top_consumers" class="stentry">Top Consumers</td>
 
 					<td valign="top" class="stentry">
 						Top Consumers query returns information about
@@ -65,7 +66,7 @@
 					</td>
 
 				</tr>
-<tr class="strow">
+<tr id="ref_querymatrix__heap_dump_overview" class="strow">
 					<td valign="top" class="stentry">Heap Dump Overview</td>
 
 					<td valign="top" class="stentry">
@@ -93,6 +94,103 @@
 
 						<img class="image" src="../mimes/6f9c3893.png"/>
 						<p class="p">Overview report contains a histogram and a top consumers overview.</p>
+
+					</td>
+
+				</tr>
+<tr id="ref_querymatrix__list_objects" class="strow">
+					<td valign="top" class="stentry">List Objects</td>
+
+					<td valign="top" class="stentry">
+						<p class="p">
+						This shows the selected objects in a tree view.
+						With each object the class specific name of the referenced object is
+						also shown, if it is a known type such as <samp class="ph codeph">java.lang.String</samp>,
+						<samp class="ph codeph">byte[]</samp> etc.
+						The suffix field shows whether the object is 
+						a <a class="xref" href="../concepts/gcroots.html">garbage collection root</a>.
+						</p>
+
+						<div class="p">
+						The <a class="xref" href="iconassist.html">icon</a> shows whether the object is a
+						<dl class="dl">
+						
+						<dt class="dt dlterm"><img class="image" src="../mimes/i-arrayobject.png"/>
+						
+						</dt>
+
+						<dd class="dd">an array object</dd>
+
+						
+						
+						<dt class="dt dlterm"><img class="image" src="../mimes/i-classloaderobject.png"/>
+						
+						</dt>
+
+						<dd class="dd">a class loader object</dd>
+
+						
+						
+						<dt class="dt dlterm"><img class="image" src="../mimes/i-classobject.png"/>
+						
+						</dt>
+
+						<dd class="dd">a class object</dd>
+
+						
+						
+						<dt class="dt dlterm"><img class="image" src="../mimes/i-otherobject.png"/>
+						
+						</dt>
+
+						<dd class="dd">a standard object</dd>
+
+						
+						</dl>
+
+						</div>
+
+						<p class="p">
+						With the standard mode then expanding an object
+						shows the outbound references in rows below
+						and to the right of the object,
+						indicated by
+						the field name or array index as a prefix in <strong class="ph b">bold</strong>.
+						The <a class="xref" href="iconassist.html">icons</a> have an arrow which points down and to the right 
+						<img class="image" src="../mimes/i-horefbelow.png"/>.
+						</p>
+
+						<p class="p">
+						In inbound mode the query shows which objects point to the
+						expanded object. In this mode the arrows on the <a class="xref" href="iconassist.html">icons</a>
+						point up and to the left <img class="image" src="../mimes/i-horefabove.png"/>.
+						</p>
+
+					</td>
+
+				</tr>
+<tr id="ref_querymatrix__show_objects_by_class" class="strow">
+					<td valign="top" class="stentry">Show Objects by Class</td>
+
+					<td valign="top" class="stentry">
+					This works rather like the <span class="keyword cmdname">List objects</span>
+					query except that it groups objects of the same class at
+					the same level into one row.
+					The inspector view shows the actual class; the context menu
+					allows operations on all the objects of that class in that row.
+					<p class="p">The color of the class <a class="xref" href="iconassist.html">icon</a> shows if all the objects in that
+					row are new or not. If the <a class="xref" href="iconassist.html">icon</a> is <img class="image" src="../mimes/i-class.png"/> green
+					then none of the objects have been shown further up the tree.
+					If the <a class="xref" href="iconassist.html">icon</a> is <img class="image" src="../mimes/i-class_old.png"/> gray
+					then all of the objects have been shown further up the tree.
+					If the <a class="xref" href="iconassist.html">icon</a> is <img class="image" src="../mimes/i-class_mixed.png"/>green and gray
+					then some of the objects have been shown further up the tree.
+					This can be useful when expanding the tree to see whether you
+					are still finding new objects or whether they link back to
+					objects you have already seen.
+					</p>
+
+					<p class="p">This query can also operate in <span class="keyword parmname">inbound</span> mode.</p>
 
 					</td>
 

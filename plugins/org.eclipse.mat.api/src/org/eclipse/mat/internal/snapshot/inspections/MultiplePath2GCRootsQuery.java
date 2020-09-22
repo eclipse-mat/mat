@@ -36,6 +36,7 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
@@ -62,6 +63,7 @@ import org.eclipse.mat.util.VoidProgressListener;
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>"), //
                 @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.Runtime:<Unfinalized>") //
 })
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/merge_shortest_paths.html")
 public class MultiplePath2GCRootsQuery implements IQuery
 {
     public enum Grouping
@@ -520,15 +522,20 @@ public class MultiplePath2GCRootsQuery implements IQuery
         public URL getIcon(Object row)
         {
             Node n = (Node) row;
-            return n.paths.size() == 1 && n.paths.get(0)[0] == n.objectId
-               ? Icons.forObject(snapshot, n.objectId) : Icons.outbound(snapshot, n.objectId);
+            return hasChildren(row)
+               ? Icons.outbound(snapshot, n.objectId) : Icons.forObject(snapshot, n.objectId);
         }
 
         @Override
         public boolean hasChildren(Object row)
         {
             Node n = (Node) row;
-            return !(n.paths.size() == 1 && n.paths.get(0)[0] == n.objectId);
+            for (int p[] : n.paths)
+            {
+                if (p[0] != n.objectId)
+                    return true;
+            }
+            return false;
         }
 
         @Override
@@ -730,7 +737,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
             Node n = (Node) row;
             if (mergeFromRoots)
             {
-                if (n.paths.size() == 1 && n.level == n.paths.get(0).length - 1)
+                if (!hasChildren(row))
                     return Icons.CLASS;
                 return Icons.CLASS_OUT;
             }
@@ -742,7 +749,12 @@ public class MultiplePath2GCRootsQuery implements IQuery
         public boolean hasChildren(Object row)
         {
             Node n = (Node) row;
-            return !(n.paths.size() == 1 && n.level == n.paths.get(0).length - 1);
+            for (int p[] : n.paths)
+            {
+                if (n.level != p.length - 1)
+                    return true;
+            }
+            return false;
         }
 
         @Override

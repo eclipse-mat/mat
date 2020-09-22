@@ -111,7 +111,7 @@
 
 			<p class="p">
 				The
-				<strong class="ph b">Shortest Paths To the Accumulation Point</strong>
+				<span class="keyword wintitle">Shortest Paths To the Accumulation Point</span>
 				shows a
 				path from a garbage collection route to the accumulation
 				point.
@@ -125,7 +125,7 @@
 
 			<p class="p">
 				The
-				<strong class="ph b">Accumulated Objects in Dominator Tree</strong>
+				<span class="keyword wintitle">Accumulated Objects in Dominator Tree</span>
 				shows
 				the dominator tree from the leak suspect to the accumulation
 				point and
@@ -133,7 +133,7 @@
 				helps understand the context of the leak, and what is being
 				accumulated.
 				The
-				<strong class="ph b">Accumulated Objects by Class in Dominator Tree</strong>
+				<span class="keyword wintitle">Accumulated Objects by Class in Dominator Tree</span>
 				shows just
 				the children in the dominator tree of the accumulation
 				point, grouped
@@ -141,7 +141,7 @@
 				class. This is useful if there are many objects, as
 				there will be fewer
 				types.
-				<strong class="ph b">All Accumulated Objects by Class</strong>
+				<span class="keyword wintitle">All Accumulated Objects by Class</span>
 				shows all the objects
 				retained by the accumulation point, including
 				the accumulation point,
@@ -154,7 +154,7 @@
 				If the leak suspect is a group of objects then
 				the biggest few
 				objects are shown by
-				<strong class="ph b">Biggest Instances</strong>
+				<span class="keyword wintitle">Biggest Instances</span>
 				.
 				If there are many objects and none uses more than 1% of the leak
 				then this is omitted.
@@ -175,7 +175,7 @@
 				below the leak suspects in the dominator tree, rather than
 				above
 				the leak suspect object in the single object case.
-				<strong class="ph b">Common Path To the Accumulation Point</strong>
+				<span class="keyword wintitle">Common Path To the Accumulation Point</span>
 				shows a shortest path
 				from a GC root to the accumulation point,
 				giving a guide as to
@@ -195,7 +195,7 @@
 				.
 			</p>
 
-			<p class="p">
+			<p class="p" id="task_runningleaksuspectreport__compare">
 				There is also a leak suspects report made by comparing two
 				snapshots.
 				This is available via
@@ -243,7 +243,7 @@ org.eclipse.mat.tests.CreateCollectionDump.main([Ljava/lang/String;)V<br/>
 CreateCollectionDump.java:174<br/>
 				</samp></p>
 
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 3</span>			<br/>
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 3</span><br/>
 The classloader/component "com.ibm.dtfj.j9" occupies 551,743,560 (55.09%) bytes. <br/>
 The memory is accumulated in one instance of "com.ibm.j9ddr.corereaders.minidump.WindowsProcessAddressSpace", <br/>
 loaded by "com.ibm.dtfj.j9", which occupies 540,840,744 (54.00%) bytes.<br/>

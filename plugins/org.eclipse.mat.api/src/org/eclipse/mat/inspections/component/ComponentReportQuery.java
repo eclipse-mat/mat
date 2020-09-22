@@ -859,9 +859,15 @@ public class ComponentReportQuery implements IQuery
                 {
                     IInstance obj = (IInstance) snapshot.getObject(objectId);
 
-                    ObjectReference ref = ReferenceQuery.getReferent(obj);
-                    if (ref != null)
-                        referentSet.add(ref.getObjectId());
+                    try
+                    {
+                        ObjectReference ref = ReferenceQuery.getReferent(obj);
+                        if (ref != null)
+                            referentSet.add(ref.getObjectId());
+                    }
+                    catch (SnapshotException e)
+                    {
+                    }
                     if (ticks.isCanceled())
                         break;
                 }
@@ -946,6 +952,7 @@ public class ComponentReportQuery implements IQuery
              * but through others.
              */
             int maxpaths = 10;
+            double factor = 0.6;
 
             /*
              * Examine per class of the referred-to objects - as they might have different uses.
@@ -978,7 +985,7 @@ public class ComponentReportQuery implements IQuery
                                 .setArgument("objects", ai.toArray()) //$NON-NLS-1$
                                 .setArgument("maxpaths", maxpaths) //$NON-NLS-1$
                                 .setArgument("maxobjs", maxsuspectspertype) //$NON-NLS-1$
-                                .setArgument("factor", 0.6) //$NON-NLS-1$
+                                .setArgument("factor", factor) //$NON-NLS-1$
                                 .execute(ticks);
                 if (result instanceof CompositeResult)
                 {
@@ -989,6 +996,24 @@ public class ComponentReportQuery implements IQuery
                         commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                         QuerySpec child1 = new QuerySpec(MessageUtil.format(Messages.ComponentReportQuery_ExampleLeakDetails, cr.getLabel()), cr1);
                         child1.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                        // Set the command for further analysis later
+                        if (ai.size() <= 30)
+                        {
+                            try
+                            {
+                                StringBuilder sb = new StringBuilder("reference_leak"); //$NON-NLS-1$
+                                sb.append(" -maxpaths ").append(maxpaths); //$NON-NLS-1$
+                                sb.append(" -maxobjs ").append(maxsuspectspertype); //$NON-NLS-1$
+                                sb.append(" -factor ").append(factor); //$NON-NLS-1$
+                                for (int i : ai.toArray())
+                                {
+                                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i))); //$NON-NLS-1$
+                                }
+                                child1.setCommand(sb.toString());
+                            }
+                            catch (SnapshotException e)
+                            {} // Ignore if problem
+                        }
                         overview.add(child1);
                     }
                     else

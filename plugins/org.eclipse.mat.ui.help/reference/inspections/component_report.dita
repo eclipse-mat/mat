@@ -193,6 +193,57 @@
 						is stopped.
 					</li>
 				</ul>
+				The report shows:
+				<ul>
+					<li><wintitle>Comment</wintitle>
+					An example is the following:
+						<lines><systemoutput>A total of 217,035 java.lang.ref.SoftReference objects have been found, which softly reference 38,874 objects.
+77,745 objects totalling 20.8 MB are retained (kept alive) only via soft references.
+No objects totalling 0 B are softly referenced and also strongly retained (kept alive) via soft references.
+						</systemoutput></lines>
+					</li>
+					<li><wintitle>Histogram of Soft References</wintitle>
+					These are the reference objects which are instances of a type or subclass of <codeph>java.lang.ref.SoftReference</codeph></li>
+					<li><wintitle>Histogram of Softly Referenced</wintitle>
+					These are the objects which the referent fields point to.</li>
+					<li><wintitle>Only Softly Retained</wintitle>
+					These are all the objects retained the objects in the <wintitle>Only Softly Retained</wintitle>
+					table. All these objects could be freed in the next garbage collection cycle
+					if the VM was short of memory.</li>
+					<li><wintitle>Referents strongly retained by soft reference</wintitle>
+					These could indicate a possible memory leak, as the referent field can
+					never be cleared while there is a strong path from the soft references
+					to the referenced objects.</li>
+					<li>If there are objects in the <wintitle>Referents strongly retained by soft reference</wintitle>
+					table then the <xref href="reference_leak.dita"><cmdname>Reference Leak</cmdname></xref>
+					is run to examine the possible leaks in more detail.
+					<note>
+					This might not show the same problems because the initial report 
+					<wintitle>Referents strongly retained by soft reference</wintitle> is done for
+					all references of a particular type whereas the <cmdname>Reference Leak</cmdname>
+					query operates on individual references.</note></li>
+				</ul>
+			</p>
+		</section>
+		<section>
+			<title>Weak Reference Statistics</title>
+			<p>
+				Weak references are cleared by the virtual machine when the
+				object referred to by the referent is no longer strongly reachable
+				or softly reachable
+				via another path. 
+				Usually, weak references are used to retain extra data associated
+				with an object in a <codeph>java.util.WeakHashMap</codeph>
+				or to maintain a canonical mapping as the canonical object can
+				be retrieved if it is in use anywhere, but if no longer in use
+				then the mapping table will not keep it alive.
+			</p>
+			<p>The report follows the format of the <xref href="#ref_inspections_component_report__softref">Soft Reference</xref>
+			section above. An example of the comment is
+				<lines><systemoutput>A total of 620 java.lang.ref.WeakReference objects have been found, which weakly reference 436 objects.
+No objects totalling 0 B are retained (kept alive) only via weak references.
+Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also strongly retained (kept alive) via weak references.
+				</systemoutput></lines>
 			</p>
 		</section>
 		<section id="finalizer">

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Reference Leak"/>
+<meta name="abstract" content="Find incorrect uses of soft or weak references."/>
+<meta name="description" content="Find incorrect uses of soft or weak references."/>
+<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_inspections_group_by_value"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<title>Reference Leak</title>
+</head>
+<body id="ref_inspections_group_by_value">
+
+
+	<h1 class="title topictitle1">Reference Leak</h1>
+
+	
+	
+	<div class="body refbody"><p class="shortdesc">Find incorrect uses of soft or weak references.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			<p class="p">Soft references <samp class="ph codeph">java.lang.ref.SoftReference</samp> and
+			weak references <samp class="ph codeph">java.lang.ref.WeakReference</samp> are used
+			to keep references to objects which can be cleared by garbage collection
+			if there are no other strong references.</p>
+
+			<p class="p">Soft references can be used for object caching, so that
+			an object can usually be retained for fast access, but if
+			memory is tight then garbage collection can break the link and free the
+			object. Next time it is needed then the application program can
+			regenerate the object.</p>
+
+			<p class="p">Weak references can be used in a weak hash map <samp class="ph codeph">java.util.WeakHashMap</samp> to hold information associated with
+			another object, but if that object is no longer available
+			then the associated information can be freed too.</p>
+
+			<p class="p">Sometimes an error in the application program can mean that
+			the object which is supposed to be softly or weakly referenced is 
+			also strongly retained by the reference object. For example the
+			key of a weak hash map is weakly retained, but if there is a strong
+			reference to it from the value of the weak hash map entry then the
+			object will never be freed.</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Operation</h2>
+			
+			<div class="p">This query performs the following steps:
+			<ol class="ol">
+			<li class="li">For each reference object supplied to the query, 
+			find the object referred to by the reference object via the
+			reference field.</li>
+
+			<li class="li">Find all the objects strongly retained by the reference object.</li>
+
+			<li class="li">Find if the object from the first step is also in the
+			second list. If so:
+				<ol class="ol" type="a">
+					<li class="li">Generate a tree with a path showing the reference object, the referent
+					and the strong path to the referent.</li>
+
+					<li class="li">Generate a tree showing paths from GC roots to the
+					reference object including showing field names.</li>
+
+				</ol>
+
+			</li>
+
+			</ol>
+
+			</div>
+
+			<p class="p">This type of query is also performed by the component report.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
+			
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
+					<th valign="bottom" align="left" id="d5950e94" class="stentry">Argument</th>
+
+					<th valign="bottom" align="left" id="d5950e97" class="stentry">Description</th>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e94" class="stentry">objects</td>
+
+					<td valign="top" headers="d5950e97" class="stentry">Reference objects for which the reference leaks query should be run.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e94" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
+
+					<td valign="top" headers="d5950e97" class="stentry">The referent field name for the reference objects.
+					The default is <samp class="ph codeph">referent</samp></td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e94" class="stentry"><span class="keyword parmname">-maxresults</span></td>
+
+					<td valign="top" headers="d5950e97" class="stentry">The maximum number of objects for which a tree should be shown.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e94" class="stentry"><span class="keyword parmname">-maxobjs</span></td>
+
+					<td valign="top" headers="d5950e97" class="stentry">The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e94" class="stentry"><span class="keyword parmname">-factor</span></td>
+
+					<td valign="top" headers="d5950e97" class="stentry">For common paths, how much to truncate the path as the number of objects reduces.</td>
+
+				</tr>
+</table>
+
+		</div>
+
+		<div class="section" id="ref_inspections_group_by_value__result"><h2 class="title sectiontitle">Result</h2>
+			
+		</div>
+
+	</div>
+
+
+</body>
+</html>

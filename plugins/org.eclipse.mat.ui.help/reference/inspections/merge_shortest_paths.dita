@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_path_to_gc_roots"
+	xml:lang="en-us">
+	<title>Merge Shortest Paths</title>
+	<shortdesc>Find out who is keeping alive a set of objects.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2020 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<p>Having found an expensive object it is then important to find all
+				the reasons it is kept alive.
+			</p>
+		</section>
+		<section>
+			<title>Explanation</title>
+			<p>
+				Unlike the
+				<xref href="path_to_gc_roots.dita">Path to GC roots</xref>
+				query, this query
+				can operate on multiple objects.
+				However, it only
+				finds the shortest path to GC roots; there may
+				be other paths, but
+				this query does not show them.
+				As it operates on multiple objects
+				there are multiple paths,
+				and the query has the option to merge
+				objects on a path by
+				class.
+				Seeing a common path can be useful in
+				understanding why a
+				set of objects is being kept alive.
+			</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>Objects for which paths to garbage collection roots should
+						be
+						found.
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<parmname>-excludes</parmname>
+					</stentry>
+					<stentry>
+						Fields of certain classes which should be ignored when finding
+						paths. For example this allows paths through Weak or Soft
+						Reference referents to be ignored.
+						This is of the format
+						<varname>class name pattern</varname>
+						[:
+						<varname>field name</varname>
+						[,
+						<varname>field name</varname>
+						]*].
+						Subclasses of the class are also included.
+						If no field names
+						are specified for the class then all fields are
+						excluded.
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<parmname>-groupby</parmname>
+					</stentry>
+					<stentry>
+						Whether to show:
+						<ul>
+							<li>
+								<parmname>Merge Paths from GC Roots</parmname>
+								merged paths from garbage collection roots to the objects
+							</li>
+							<li>
+								<parmname>Merge Paths from GC Roots on Class</parmname>
+								merged paths from garbage collection roots to the objects
+								grouped by class, so all objects of the same class are shown as
+								one
+							</li>
+							<li>
+								<parmname>Merge to GC Roots on Class</parmname>
+								merged paths from the objects to garbage collection roots
+								grouped
+								by class, so all objects of the same class are shown as
+								one
+							</li>
+						</ul>
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>
+				The tree shows objects or sets of objects grouped by class on a path
+				to or from GC roots.
+				The
+				<wintitle>Referenced Objects</wintitle>
+				column shows how many
+				of the objects supplied to this query are on a path through this
+				row.
+			</p>
+			<p>The context menu allows the objects on this segment of the path,
+				or the referenced objects through this path to be separately
+				examined with other queries.
+			</p>
+			<wintitle>Merge shortest paths from GC roots</wintitle>
+			<image href="../../mimes/merge_shortest_paths1.png" scale="75"></image>
+			<note>
+				With
+				<parmname>Merge Paths from GC Roots</parmname>
+				and
+				<parmname>Merge from GC Roots on Class</parmname>
+				the arrows in each
+				<xref href="../../reference/iconassist.dita">
+					<image href="../../mimes/i-horefbelow.png"></image>
+					icon
+				</xref>
+				points down and to the right, showing
+				that the objects or objects of
+				a line refer via the field in
+				<b>bold</b>
+				to the following object or objects in
+				the tree view which is down and
+				to the right.
+				The
+				<parmname>Merge from GC Roots on Class</parmname>
+				does
+				not show field names as different objects may refer to
+				the
+				following objects by different fields.
+			</note>
+			<wintitle>Merge shortest paths from GC roots on class</wintitle>
+			<image href="../../mimes/merge_shortest_paths2.png" scale="75"></image>
+			<note>See the menu option to switch between the different <parmname>groupby</parmname>
+				options.</note>
+			<wintitle>Merge shortest paths to GC roots on class</wintitle>
+			<image href="../../mimes/merge_shortest_paths3.png" scale="75"></image>
+			<note>
+				With
+				<parmname>Merge to GC Roots on Class</parmname>
+				the arrows in each
+				<xref href="../../reference/iconassist.dita">
+					<image href="../../mimes/i-horefabove.png"></image>
+					icon
+				</xref>
+				points up and to the left, showing
+				that the object or objects of a
+				line actually refer
+				to the preceding objects in
+				the tree view which is
+				up and to the left.
+			</note>
+		</section>
+	</refbody>
+</reference>
