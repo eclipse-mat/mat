@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -110,7 +111,7 @@ public class Pass1Parser extends AbstractParser
             long fileSize = estimatedLength;
             long curPos = in.position();
 
-            while (true)
+            recordLoop: while (true)
             {
                 if (monitor.isProbablyCanceled())
                     throw new IProgressListener.OperationCanceledException();
@@ -138,7 +139,7 @@ public class Pass1Parser extends AbstractParser
                 if (verbose)
                     System.out.println("Read record type " + record + ", length " + length + " at position 0x" + Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-                if (curPos + 9 >= fileSize && fileSize > fileSize0 && curPos + 9 >= 0x100000000L)
+                if (curPos + 9 >= fileSize && fileSize > fileSize0 && curPos + 9 + length >= 0x100000000L)
                 {
                     /*
                      * Gzip has uncertain stream length though the lower 32-bits are correct,
@@ -207,7 +208,13 @@ public class Pass1Parser extends AbstractParser
                                 handler.addProperty(IHprofParserHandler.CREATION_DATE, String.valueOf(dumpTime));
                                 foundDump = true;
                             }
-                            readDumpSegments(length);
+                            long posnext = readDumpSegments(length);
+                            if (posnext < curPos + length)
+                            {
+                                // Truncated file, so could not read to end of segment
+                                curPos = posnext;
+                                break recordLoop;
+                            }
                         }
                         else
                             in.skipBytes(length);
@@ -376,12 +383,12 @@ public class Pass1Parser extends AbstractParser
         serNum2stackTrace.put(stackTraceNr, stackTrace);
     }
 
-    private void readDumpSegments(long length) throws IOException, SnapshotException
+    private long readDumpSegments(long length) throws IOException, SnapshotException
     {
         long segmentStartPos = in.position();
         long segmentsEndPos = segmentStartPos + length;
 
-        while (segmentStartPos < segmentsEndPos)
+        subrecordLoop: while (segmentStartPos < segmentsEndPos)
         {
             long workDone = segmentStartPos / 1000;
             if (this.monitor.getWorkDone() < workDone)
@@ -391,53 +398,77 @@ public class Pass1Parser extends AbstractParser
                 this.monitor.totalWorkDone(workDone);
             }
 
-            int segmentType = in.readUnsignedByte();
-            if (verbose)
-                System.out.println("    Read heap sub-record type " + segmentType + " at position 0x" + Long.toHexString(segmentStartPos)); //$NON-NLS-1$ //$NON-NLS-2$
-            switch (segmentType)
+            int segmentType = -1;
+            try
             {
-                case Constants.DumpSegment.ROOT_UNKNOWN:
-                    readGC(GCRootInfo.Type.UNKNOWN, 0);
-                    break;
-                case Constants.DumpSegment.ROOT_THREAD_OBJECT:
-                    readGCThreadObject(GCRootInfo.Type.THREAD_OBJ);
-                    break;
-                case Constants.DumpSegment.ROOT_JNI_GLOBAL:
-                    readGC(GCRootInfo.Type.NATIVE_STATIC, idSize);
-                    break;
-                case Constants.DumpSegment.ROOT_JNI_LOCAL:
-                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, true);
-                    break;
-                case Constants.DumpSegment.ROOT_JAVA_FRAME:
-                    readGCWithThreadContext(GCRootInfo.Type.JAVA_LOCAL, true);
-                    break;
-                case Constants.DumpSegment.ROOT_NATIVE_STACK:
-                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_STACK, false);
-                    break;
-                case Constants.DumpSegment.ROOT_STICKY_CLASS:
-                    readGC(GCRootInfo.Type.SYSTEM_CLASS, 0);
-                    break;
-                case Constants.DumpSegment.ROOT_THREAD_BLOCK:
-                    readGCWithThreadContext(GCRootInfo.Type.THREAD_BLOCK, false);
-                    break;
-                case Constants.DumpSegment.ROOT_MONITOR_USED:
-                    readGC(GCRootInfo.Type.BUSY_MONITOR, 0);
-                    break;
-                case Constants.DumpSegment.CLASS_DUMP:
-                    readClassDump(segmentStartPos);
-                    break;
-                case Constants.DumpSegment.INSTANCE_DUMP:
-                    readInstanceDump(segmentStartPos);
-                    break;
-                case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
-                    readObjectArrayDump(segmentStartPos);
-                    break;
-                case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
-                    readPrimitiveArrayDump(segmentStartPos);
-                    break;
-                default:
-                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
-                                    Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)));
+                segmentType = in.readUnsignedByte();
+                if (verbose)
+                    System.out.println("    Read heap sub-record type " + segmentType + " at position 0x" + Long.toHexString(segmentStartPos)); //$NON-NLS-1$ //$NON-NLS-2$
+                switch (segmentType)
+                {
+                    case Constants.DumpSegment.ROOT_UNKNOWN:
+                        readGC(GCRootInfo.Type.UNKNOWN, 0);
+                        break;
+                    case Constants.DumpSegment.ROOT_THREAD_OBJECT:
+                        readGCThreadObject(GCRootInfo.Type.THREAD_OBJ);
+                        break;
+                    case Constants.DumpSegment.ROOT_JNI_GLOBAL:
+                        readGC(GCRootInfo.Type.NATIVE_STATIC, idSize);
+                        break;
+                    case Constants.DumpSegment.ROOT_JNI_LOCAL:
+                        readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, true);
+                        break;
+                    case Constants.DumpSegment.ROOT_JAVA_FRAME:
+                        readGCWithThreadContext(GCRootInfo.Type.JAVA_LOCAL, true);
+                        break;
+                    case Constants.DumpSegment.ROOT_NATIVE_STACK:
+                        readGCWithThreadContext(GCRootInfo.Type.NATIVE_STACK, false);
+                        break;
+                    case Constants.DumpSegment.ROOT_STICKY_CLASS:
+                        readGC(GCRootInfo.Type.SYSTEM_CLASS, 0);
+                        break;
+                    case Constants.DumpSegment.ROOT_THREAD_BLOCK:
+                        readGCWithThreadContext(GCRootInfo.Type.THREAD_BLOCK, false);
+                        break;
+                    case Constants.DumpSegment.ROOT_MONITOR_USED:
+                        readGC(GCRootInfo.Type.BUSY_MONITOR, 0);
+                        break;
+                    case Constants.DumpSegment.CLASS_DUMP:
+                        readClassDump(segmentStartPos);
+                        break;
+                    case Constants.DumpSegment.INSTANCE_DUMP:
+                        readInstanceDump(segmentStartPos);
+                        break;
+                    case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
+                        readObjectArrayDump(segmentStartPos);
+                        break;
+                    case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
+                        readPrimitiveArrayDump(segmentStartPos);
+                        break;
+                    default:
+                        throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
+                                        Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)));
+                }
+            }
+            catch (EOFException e)
+            {
+                switch (strictnessPreference)
+                {
+                    case STRICTNESS_STOP:
+                        throw e;
+                    case STRICTNESS_WARNING:
+                    case STRICTNESS_PERMISSIVE:
+                        /*
+                         * Recover from early end of file.
+                         * The EOFException occurred in this record
+                         * so the start of the record is an okay
+                         * end point.
+                         */
+                        monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                        Messages.Pass1Parser_ExceptionReadingSubrecord,
+                                        Integer.toHexString(segmentType), Long.toHexString(in.position()), Long.toHexString(segmentStartPos), segmentStartPos - (segmentsEndPos - length)), e);
+                        break subrecordLoop;
+                }
             }
 
             segmentStartPos = in.position();
@@ -466,6 +497,31 @@ public class Pass1Parser extends AbstractParser
                     throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
             }
         }
+        return segmentStartPos;
+    }
+
+    /**
+     * Guaranteed skip of skips, and that
+     * we can read the last byte, so we haven't
+     * skipped beyond the end of the file
+     * @param s
+     * @return bytes skipped
+     * @throws IOException if unable to skip the bytes
+     * or read the last byte
+     */
+    private long checkSkipBytes(long s) throws IOException
+    {
+        if (s > 0)
+        {
+            if (s > 1)
+            {
+                long l = in.skipBytes(s - 1);
+                if (l < (s-1))
+                    throw new EOFException();
+            }
+            in.readByte();
+        }
+        return s;
     }
 
     private void readGCThreadObject(int gcType) throws IOException
@@ -475,7 +531,7 @@ public class Pass1Parser extends AbstractParser
         thread2id.put(threadSerialNo, id);
         handler.addGCRoot(id, 0, gcType);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
     }
 
     private void readGC(int gcType, int skip) throws IOException
@@ -484,7 +540,7 @@ public class Pass1Parser extends AbstractParser
         handler.addGCRoot(id, 0, gcType);
 
         if (skip > 0)
-            in.skipBytes(skip);
+            checkSkipBytes(skip);
     }
 
     private void readGCWithThreadContext(int gcType, boolean hasLineInfo) throws IOException
@@ -699,7 +755,7 @@ public class Pass1Parser extends AbstractParser
         long classID = in.readID(idSize);
         int payload = in.readInt();
 
-        in.skipBytes(payload);
+        checkSkipBytes(payload);
 
         handler.reportInstanceWithClass(address, segmentStartPos, classID, payload);
     }
@@ -721,7 +777,7 @@ public class Pass1Parser extends AbstractParser
         int size = in.readInt();
         long arrayClassObjectID = in.readID(idSize);
 
-        in.skipBytes((long) size * idSize);
+        checkSkipBytes((long) size * idSize);
         previousArrayStart = address;
         previousArrayUncompressedEnd = address + 16 + (long)size * 8;
         if (size > biggestArrays[0])
@@ -745,7 +801,7 @@ public class Pass1Parser extends AbstractParser
             throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes((long) elementSize * size);
+        checkSkipBytes((long) elementSize * size);
 
         handler.reportInstanceOfPrimitiveArray(address, segmentStartPos, elementType);
     }

@@ -21,6 +21,7 @@ public class Messages extends NLS
     public static String AbstractParser_Error_NotHeapDump;
     public static String AbstractParser_Error_UnknownHPROFVersion;
     public static String AbstractParser_Error_UnsupportedHPROFVersion;
+    public static String AbstractParser_GuessedRecordLength;
     public static String EnhancerRegistry_ErrorCreatingParser;
     public static String EnhancerRegistry_ErrorCreatingRuntime;
     public static String ExportHprof_AvoidExample;
@@ -84,6 +85,7 @@ public class Messages extends NLS
     public static String Pass1Parser_Info_UsingDumpIndex;
     public static String Pass1Parser_Info_WroteThreadsTo;
     public static String Pass1Parser_Error_WritingThreadsInformation;
+    public static String Pass1Parser_ExceptionReadingSubrecord;
     public static String Pass1Parser_UnexpectedEndPosition;
     public static String Pass1Parser_UnexpectedRecord;
     public static String Pass1Parser_GuessingLengthOverflow;

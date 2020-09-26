@@ -124,10 +124,9 @@ public class AcquireDumpTest
         File tmpdir = TestSnapshots.createGeneratedName("acquire", null);
         HeapDumpProviderDescriptor hd = hdpd;
         do {
-            // Currently compressed HPROF is too slow
-            assumeThat(compress, equalTo(false));
+            // Currently compressed HPROF is not too slow, but IBM is
             if (compress)
-                assumeThat(hd.getName(), not(containsString("HPROF")));
+                assumeThat(hd.getName(), containsString("HPROF"));
             IHeapDumpProvider hdp = hd.getHeapDumpProvider();
             collector.checkThat("Heap Dump Provider", hdp, notNullValue());
             IProgressListener l = new VoidProgressListener();

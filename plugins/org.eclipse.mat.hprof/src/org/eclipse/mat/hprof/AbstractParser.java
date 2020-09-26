@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.mat.hprof.ui.HprofPreferences;
+import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -319,6 +320,22 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
      */
     protected long updateLengthIfNecessary(long fileSize, long curPos, int record, long length, Listener monitor)
     {
+        // Sometimes the HPROF file is truncated during the write and the
+        // length field is never updated from 0. Presume it goes to the end .
+        if (length == 0 && (
+                        strictnessPreference == HprofStrictness.STRICTNESS_WARNING ||
+                        strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE))
+        {
+            long length1 = fileSize - curPos - 9;
+            if (length1 > 0)
+            {
+                monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                Messages.AbstractParser_GuessingRecordLength,
+                                Integer.toHexString(record),
+                                Long.toHexString(curPos), length, length1), null);
+                length = length1;
+            }
+        }
         // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679
         //
         // We do this check no matter the strictness preference. Since we're

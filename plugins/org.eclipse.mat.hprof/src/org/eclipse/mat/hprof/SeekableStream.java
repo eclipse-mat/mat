@@ -11,6 +11,7 @@
 package org.eclipse.mat.hprof;
 
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -808,11 +809,18 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             }
             long skipped = skip(skipNow);
             if (skipped == 0)
-                throw new IOException();
+            {
+                // skip can read to the end of the stream and close current
+                if (current == null)
+                    throw new EOFException(Long.toString(position()));
+                else
+                    throw new IOException(Long.toString(position()));
+            }
             // Skip should normally call read() which will update pos
             toSkip -= skipped;
             // Possibly create some readers for intermediate places
-            if (toSkip > 0 && ts.size() < cachesize)
+            // current is null if we have skipped beyond the end of the stream
+            if (toSkip > 0 && ts.size() < cachesize && current != null)
             {
                 current.basepos = underlyingPosition();
                 PosStream extra = current.copy(nextseq);
