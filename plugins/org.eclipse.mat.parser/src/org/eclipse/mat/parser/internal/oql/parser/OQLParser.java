@@ -1241,27 +1241,42 @@ public class OQLParser implements OQLParserConstants
         {
             case INTEGER_LITERAL:
                 t = jj_consume_token(INTEGER_LITERAL);
-                int anInt = Integer.parseInt(t.image);
+                int anInt;
                 if (unary != null && "-".equals(unary.image))
-                    anInt *= -1;
+                    anInt = Integer.parseInt(unary.image + t.image);
+                else
+                    anInt = Integer.parseInt(t.image);
 
                 ex = compiler.literal(anInt);
                 break;
             case LONG_LITERAL:
                 t = jj_consume_token(LONG_LITERAL);
-                long aLong = Long.parseLong(t.image.substring(0, t.image.length() - 1));
+                long aLong;
                 if (unary != null && "-".equals(unary.image))
-                    aLong *= -1;
+                    aLong = Long.parseLong(unary.image + t.image.substring(0, t.image.length() - 1));
+                else
+                    aLong = Long.parseLong(t.image.substring(0, t.image.length() - 1));
 
                 ex = compiler.literal(aLong);
                 break;
             case FLOATING_POINT_LITERAL:
                 t = jj_consume_token(FLOATING_POINT_LITERAL);
-                float aFloat = Float.parseFloat(t.image);
-                if (unary != null && "-".equals(unary.image))
-                    aFloat *= -1;
+                if (t.image.endsWith("d") || t.image.endsWith("D"))
+                {
+                    double aDouble = Double.parseDouble(t.image);
+                    if (unary != null && "-".equals(unary.image))
+                        aDouble *= -1;
 
-                ex = compiler.literal(aFloat);
+                    ex = compiler.literal(aDouble);
+                }
+                else
+                {
+                    float aFloat = Float.parseFloat(t.image);
+                    if (unary != null && "-".equals(unary.image))
+                        aFloat *= -1;
+
+                    ex = compiler.literal(aFloat);
+                }
                 break;
             default:
                 jj_la1[35] = jj_gen;
@@ -1518,6 +1533,13 @@ public class OQLParser implements OQLParserConstants
         return false;
     }
 
+    private boolean jj_3R_29()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
     private boolean jj_3R_31()
     {
         if (jj_scan_token(IDENTIFIER))
@@ -1529,6 +1551,23 @@ public class OQLParser implements OQLParserConstants
     {
         if (jj_scan_token(IDENTIFIER))
             return true;
+        return false;
+    }
+
+    private boolean jj_3R_16()
+    {
+        Token xsp;
+        if (jj_3R_29())
+            return true;
+        while (true)
+        {
+            xsp = jj_scanpos;
+            if (jj_3R_29())
+            {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
         return false;
     }
 
@@ -1609,13 +1648,6 @@ public class OQLParser implements OQLParserConstants
         return false;
     }
 
-    private boolean jj_3R_29()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
     private boolean jj_3R_27()
     {
         if (jj_scan_token(IMPLEMENTS))
@@ -1667,23 +1699,6 @@ public class OQLParser implements OQLParserConstants
     {
         if (jj_scan_token(IDENTIFIER))
             return true;
-        return false;
-    }
-
-    private boolean jj_3R_16()
-    {
-        Token xsp;
-        if (jj_3R_29())
-            return true;
-        while (true)
-        {
-            xsp = jj_scanpos;
-            if (jj_3R_29())
-            {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
         return false;
     }
 
@@ -1743,8 +1758,8 @@ public class OQLParser implements OQLParserConstants
     {
         jj_la1_1 = new int[] { 0x200, 0x100, 0x186000, 0x0, 0x20400, 0x400000, 0x20400, 0x20400, 0x400000, 0x20400,
                         0x2000, 0x200, 0x186000, 0x186000, 0x4000, 0x200, 0x200, 0x0, 0x400, 0x10000, 0x0, 0x0, 0x48,
-                        0x48, 0x36, 0x0, 0x180000, 0x180000, 0x200100, 0x200100, 0x186000, 0x186000, 0x180000,
-                        0x180000, 0x180000, 0x0, 0x0, };
+                        0x48, 0x36, 0x0, 0x180000, 0x180000, 0x200100, 0x200100, 0x186000, 0x186000, 0x180000, 0x180000,
+                        0x180000, 0x0, 0x0, };
     }
 
     final private JJCalls[] jj_2_rtns = new JJCalls[7];

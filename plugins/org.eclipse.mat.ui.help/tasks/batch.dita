@@ -36,12 +36,24 @@
 				<cmd>Run <cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <parmname>org.eclipse.mat.api:suspects</parmname>
 				</cmd>
 				<choices>
-					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname></choice>
-					<choice>For an overview report use <parmname>org.eclipse.mat.api:overview</parmname></choice>
-					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname></choice>
+					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname>
+					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport">running leak suspect report</xref> for more details.</choice>
+					<choice>For an overview report use <parmname>org.eclipse.mat.api:overview</parmname>
+					This report is included at the begining of the leak suspects report
+					and shows:
+					<ul>
+					 	<li>Heap Dump Overview</li> 
+						<li>System Properties</li> 
+						<li>Thread Overview</li>
+						<li>Top Consumers</li>
+						<li>Class Histogram</li>
+					</ul></choice>
+					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname>
+					See <xref type="task" href="../reference/inspections/component_report.dita">Component report</xref> for more details
+					of the report run on each of the top components by memory usage.</choice>
 					<choice>To compare two heap dumps use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
 					<choice>To compare two heap dumps for memory leaks with a leak suspects report use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
-					See <xref type="task" href="runningleaksuspectreport.dita">running leak suspect report</xref> for more details.</choice>
+					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport__compare">running leak suspect report by snapshot comparison</xref> for more details.</choice>
 					<choice>To export a new copy of the heap dump with redactions use a command like
 					<codeblock>
 					<cmdname>./mat/ParseHeapDump.sh</cmdname>

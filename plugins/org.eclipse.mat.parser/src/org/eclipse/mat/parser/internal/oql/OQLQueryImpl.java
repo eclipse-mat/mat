@@ -172,13 +172,11 @@ public class OQLQueryImpl implements IOQLQuery
             public Set<Entry<String, Object>> entrySet()
             {
                 Set<Entry<String, Object>> set = new LinkedHashSet<Entry<String, Object>>();
+                final Object NULL_VALUE = new Object();
                 for (int col = 0; col < isr.getColumns().length; ++col)
                 {
                     String key = isr.getColumns()[col].getLabel();
                     set.add(new Entry<String, Object>() {
-
-                        final Object NULL_VALUE = new Object();
-
                         Object value;
 
                         public Object getValue()
@@ -189,7 +187,10 @@ public class OQLQueryImpl implements IOQLQuery
                             else if (o != null)
                                 return o;
                             o = get(getKey());
-                            value = o;
+                            if (o == null)
+                                value = NULL_VALUE;
+                            else
+                                value = o;
                             return o;
                         }
 
@@ -666,9 +667,7 @@ public class OQLQueryImpl implements IOQLQuery
                             from = String.valueOf(getObjectId());
                         else
                         {
-                            // OQL literals (not Byte or Short)
-                            String oql = OQLforSubject("*", subject, alias2); //$NON-NLS-1$
-                            from = "(" + oql + ")";//$NON-NLS-1$ //$NON-NLS-2$
+                            return OQLforSubject(sc.toString(), subject, alias2);
                         }
                         return "SELECT "+sc.toString() +" FROM OBJECTS " + from + alias2; //$NON-NLS-1$ //$NON-NLS-2$
                     }
@@ -855,11 +854,57 @@ public class OQLQueryImpl implements IOQLQuery
             return "'" + subject + "'"; //$NON-NLS-1$ //$NON-NLS-2$
         else if (subject instanceof String)
             return "\"" + subject + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-        else if (subject instanceof Boolean || subject instanceof Integer
-                        || subject instanceof Float || subject instanceof Double || subject == null)
+        else if (subject instanceof Boolean || subject instanceof Integer)
             return String.valueOf(subject);
+        else if (subject instanceof Float)
+        {
+            float f = (float)subject;
+            // OQL doesn't have literal NaN or infinity
+            if (Float.isFinite(f))
+                return String.valueOf(f);
+            else if (f == Float.POSITIVE_INFINITY)
+                return "1E99F"; //$NON-NLS-1$
+            else if (f == Float.NEGATIVE_INFINITY)
+                return "-1E99F"; //$NON-NLS-1$
+            else
+                // Actually evaluates to a Double, but hard to get OQL Float NaN
+                return "0.0F / 0.0F"; //$NON-NLS-1$
+        }
+        else if (subject instanceof Double)
+        {
+            double d = (double)subject;
+            // OQL doesn't have literal NaN or infinity
+            if (Double.isFinite(d))
+            {
+                // OQL doesn't parse double constants
+                // Evaluate as an expression of float constants
+                float f1 = (float)d;
+                double d2 = (d - f1);
+                if (d2 == 0)
+                    return String.valueOf(f1) + "F + 0.0"; //$NON-NLS-1$
+                float f2 = (float)d2;
+                // Promote to a double as OQL add will do this
+                double d3 = d - ((double)f1 + f2);
+                if (d3 == 0)
+                    return String.valueOf(f1) + "F + " + String.valueOf(f2) + "F"; //$NON-NLS-1$ //$NON-NLS-2$
+                float f3 = (float)d3;
+                double d4 = d - ((double)f1 + f2 / 1.0 + f3);
+                if (d4 == 0)
+                    return String.valueOf(f1) + "F + " + String.valueOf(f2)+ "F + " + String.valueOf(f3) + "F"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                return String.valueOf(d)+"D"; //$NON-NLS-1$
+            }
+            else if (d == Double.POSITIVE_INFINITY)
+                return "1.0D / 0.0D"; //$NON-NLS-1$
+            else if (d == Double.NEGATIVE_INFINITY)
+                return "-1.0D / 0.0D"; //$NON-NLS-1$
+            else
+                return "0.0D / 0.0D"; //$NON-NLS-1$
+        }
+        else if (subject == null)
+            // OQL null?
+            return "null"; //$NON-NLS-1$
         else if (subject instanceof Long)
-            return Long.toHexString((Long) subject) + "L)"; //$NON-NLS-1$
+            return Long.toString((Long) subject) + "L"; //$NON-NLS-1$
         else if (subject instanceof IObject)
             return "${snapshot}.getObject(" + Integer.toString(((IObject) subject).getObjectId()) + ")";  //$NON-NLS-1$//$NON-NLS-2$
         else
@@ -884,7 +929,7 @@ public class OQLQueryImpl implements IOQLQuery
                 if (val == null)
                 {
                     // "null" doesn't work
-                    v1 = "toString(\"\").toCharArray()[0:-1]"; //$NON-NLS-1$
+                    v1 = "(SELECT * FROM \"\")"; //$NON-NLS-1$
                 }
                 else
                 {
@@ -910,10 +955,11 @@ public class OQLQueryImpl implements IOQLQuery
                 if (quote)
                     buf.append('"');
             }
-            buf.append(" FROM OBJECTS (null)").append(alias); //$NON-NLS-1$
+            buf.append(" FROM OBJECTS (null)"); //$NON-NLS-1$
             from = buf.toString();
             if (select.equals("*")) //$NON-NLS-1$
                 return from;
+            from = "(" + from + ")";  //$NON-NLS-1$//$NON-NLS-2$
         }
         else
             return null;
@@ -2074,6 +2120,7 @@ public class OQLQueryImpl implements IOQLQuery
             boolean countObjs = work < 1000;
             if (countObjs)
             {
+                work = 0;
                 for (IClass clasz : classes)
                 {
                     work += clasz.getNumberOfObjects();

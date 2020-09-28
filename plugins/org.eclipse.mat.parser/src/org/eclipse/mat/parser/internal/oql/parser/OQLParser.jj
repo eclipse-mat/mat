@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -921,29 +921,44 @@ Object NumberLiteral():
 	(
 		t = <INTEGER_LITERAL>
 		{
-			int anInt = Integer.parseInt(t.image);
+			int anInt;
 			if (unary != null && "-".equals(unary.image))
-				anInt *= -1;
+				anInt = Integer.parseInt(unary.image + t.image);
+			else
+				anInt = Integer.parseInt(t.image);
 				
 			ex = compiler.literal(anInt);
 		}
 	|
 		t = <LONG_LITERAL>
 		{
-			long aLong = Long.parseLong(t.image.substring(0, t.image.length()-1));
+			long aLong;
 			if (unary != null && "-".equals(unary.image))
-				aLong *= -1;
+				aLong = Long.parseLong(unary.image + t.image.substring(0, t.image.length()-1));
+			else
+				aLong = Long.parseLong(t.image.substring(0, t.image.length()-1));
 			
 			ex = compiler.literal(aLong);
 		}
 	|
 		t = <FLOATING_POINT_LITERAL>
 		{
-			float aFloat = Float.parseFloat(t.image);
-			if (unary != null && "-".equals(unary.image))
-				aFloat *= -1;
+			if (t.image.endsWith("d") || t.image.endsWith("D"))
+			{
+				double aDouble = Double.parseDouble(t.image);
+				if (unary != null && "-".equals(unary.image))
+					aDouble *= -1;
 			
-			ex = compiler.literal(aFloat);
+				ex = compiler.literal(aDouble);
+			}
+			else
+			{
+				float aFloat = Float.parseFloat(t.image);
+				if (unary != null && "-".equals(unary.image))
+					aFloat *= -1;
+			
+				ex = compiler.literal(aFloat);
+			}
 		}
 	)
 	{

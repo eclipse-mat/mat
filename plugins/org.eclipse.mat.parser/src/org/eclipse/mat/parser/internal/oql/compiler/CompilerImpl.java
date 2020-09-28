@@ -232,6 +232,24 @@ public class CompilerImpl implements ICompiler
                 return literal.toString();
             else if (literal instanceof Long)
                 return literal + "L";//$NON-NLS-1$
+            else if (literal instanceof Float)
+                if (Float.isFinite((Float)literal))
+                    return literal.toString();
+                else if ((Float)literal == Float.POSITIVE_INFINITY)
+                    return ("(1.0E99)"); //$NON-NLS-1$
+                else if ((Float)literal == Float.NEGATIVE_INFINITY)
+                    return ("(-1.0E99)"); //$NON-NLS-1$
+                else
+                    return literal.toString();
+            else if (literal instanceof Double)
+                if (Double.isFinite((Double)literal))
+                    return literal.toString()+"D"; //$NON-NLS-1$
+                else if ((Double)literal == Double.POSITIVE_INFINITY)
+                    return ("(1.0D / 0.0D)"); //$NON-NLS-1$
+                else if ((Double)literal == Double.NEGATIVE_INFINITY)
+                    return ("(-1.0D / 0.0D)"); //$NON-NLS-1$
+                else
+                    return literal.toString();
             else if (literal == NULL)
                 return "null";//$NON-NLS-1$
             else
