@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
@@ -147,6 +148,69 @@ public class OQLTest
         IResultTable resulttable = (IResultTable)execute("SELECT AS RETAINED SET s FROM OBJECTS ( SELECT * FROM java.lang.String  ) s ");
         assertThat("963 objects expected", resulttable.getRowCount(), equalTo(963));
         checkGetOQL(resulttable);
+    }
+
+    @Test
+    public void testSelectRetained5() throws SnapshotException
+    {
+        IResultTable resulttable = (IResultTable)execute("SELECT AS RETAINED SET s FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.String\", false) s");
+        assertThat("3 objects expected", resulttable.getRowCount(), equalTo(3));
+        checkGetOQL(resulttable);
+    }
+
+    @Test
+    public void testSelectRetained6() throws SnapshotException
+    {
+        int[] objectIds = (int[])execute("SELECT AS RETAINED SET * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.String\", false)");
+        assertThat("3 objects expected", objectIds.length, equalTo(3));
+    }
+
+    @Test
+    public void testSelectRetained7() throws SnapshotException
+    {
+        int[] objectIds = (int[])execute("SELECT AS RETAINED SET * FROM OBJECTS ${snapshot}.getObject(0)");
+        assertThat("1 object expected", objectIds.length, equalTo(1));
+    }
+
+    /**
+     * Check filtering of objects from classes
+     * @throws SnapshotException
+     */
+    @Test
+    public void testSelectFromObjectsClasses() throws SnapshotException
+    {
+        int []cls1 = (int[])execute("SELECT * FROM OBJECTS \"java.lang.*\" s");
+        assertThat(cls1.length, greaterThan(0));
+        int []cls2 = (int[])execute("SELECT * FROM OBJECTS \"java.lang.*\" s WHERE s.@name.length() > 40");
+        assertThat(cls2.length, greaterThan(0));
+        assertThat(cls2.length, lessThan(cls1.length));
+    }
+
+    /**
+     * Check filtering of objects from classes giving nothing
+     * @throws SnapshotException
+     */
+    @Test
+    public void testSelectFromObjectsClasses2() throws SnapshotException
+    {
+        int []cls1 = (int[])execute("SELECT * FROM OBJECTS \"java.lang.*\" s");
+        assertThat(cls1.length, greaterThan(0));
+        int []cls2 = (int[])execute("SELECT * FROM OBJECTS \"java.lang.*\" s WHERE s.@name.length() > 100");
+        assertThat(cls2, nullValue());
+    }
+
+    /**
+     * Check progress counting where fewer objects than classes
+     * @throws SnapshotException
+     */
+    @Test
+    public void testSelectFromAbstract() throws SnapshotException
+    {
+        int []cls1 = (int[])execute("SELECT * FROM OBJECTS \".*Ab.*|java.lang.Runtime\" s");
+        assertThat(cls1.length, greaterThan(0));
+        int []cls2 = (int[])execute("SELECT * FROM \".*Ab.*|java.lang.Runtime\" s");
+        assertThat(cls2.length, greaterThan(0));
+        assertThat(cls2.length, lessThan(cls1.length));
     }
 
     @Test
@@ -443,6 +507,62 @@ public class OQLTest
         assertEquals(28 + 492, r.length);
     }
 
+
+    @Test
+    public void testUnionCommand14() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2839) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2896) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2796) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        String s1 = sb.toString();
+        assertThat(s1, containsString("2839"));
+        assertThat(s1, containsString("2896"));
+        assertThat(s1, containsString("2796"));
+        IResultTable irt = (IResultTable)execute(s1, dump);
+        assertThat(irt.getRowCount(), equalTo(3));
+        checkGetOQL(irt, dump);
+    }
+
+    /**
+     * OQL UNION with no column names
+     * @throws SnapshotException
+     */
+    @Test
+    public void testUnionCommand15() throws SnapshotException 
+    {
+        String oql = "SELECT c.@objectIds FROM OBJECTS java.lang.String c  UNION (SELECT c.@objectIds FROM OBJECTS java.lang.Integer c )";
+        IResultTable res = (IResultTable)execute(oql);
+        assertEquals(2, res.getRowCount());
+        checkGetOQL(res);
+    }
+
+    /**
+     * OQL UNION with no alias names
+     * @throws SnapshotException
+     */
+    @Test
+    public void testUnionCommand16() throws SnapshotException 
+    {
+        String oql = "SELECT @objectIds FROM OBJECTS java.lang.String UNION (SELECT @objectIds FROM OBJECTS java.lang.Integer)";
+        IResultTable res = (IResultTable)execute(oql);
+        assertEquals(2, res.getRowCount());
+        checkGetOQL(res);
+    }
+
+    /**
+     * OQL UNION with no alias names and multiple columns
+     * @throws SnapshotException
+     */
+    @Test
+    public void testUnionCommand17() throws SnapshotException 
+    {
+        String oql = "SELECT @objectIds, @clazz FROM OBJECTS java.lang.String  UNION (SELECT @objectIds, 1.0 FROM OBJECTS java.lang.Integer )";
+        IResultTable res = (IResultTable)execute(oql);
+        assertEquals(2, res.getRowCount());
+        checkGetOQL(res);
+    }
+
     @Test
     public void testFromPattern() throws SnapshotException
     {
@@ -544,6 +664,87 @@ public class OQLTest
                         + "WHERE c implements org.eclipse.mat.snapshot.model.IClass )";
         int[] objectIds = (int[]) execute(oql);
         assertThat("expected 2058 instances of IClass", objectIds.length, equalTo(2058));
+    }
+
+    /**
+     * Test filtering from subselect
+     * @throws SnapshotException
+     */
+    @Test
+    public void testFromSubSelect2() throws SnapshotException
+    {
+        String oql1 = "SELECT OBJECTS t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true) c ) t ";
+        int[] objectIds1 = (int[]) execute(oql1);
+        assertThat(objectIds1.length, greaterThan(0));
+        String oql2 = "SELECT OBJECTS t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true) c ) t WHERE t.@name.startsWith(\"java\")";
+        int[] objectIds2 = (int[]) execute(oql2);
+        assertThat(objectIds2.length, greaterThan(0));
+        assertThat(objectIds2.length, lessThan(objectIds1.length));
+        String oql3 = "SELECT OBJECTS t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true) c WHERE c.@name.startsWith(\"java\")) t";
+        int[] objectIds3 = (int[]) execute(oql3);
+        assertThat(objectIds3.length, greaterThan(0));
+        assertThat(objectIds3.length, equalTo(objectIds2.length));
+    }
+
+    /**
+     * Test filtering from subselect
+     * @throws SnapshotException
+     */
+    @Test
+    public void testFromSubSelect3() throws SnapshotException
+    {
+        String oql1 = "SELECT OBJECTS t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true) c ) t ";
+        int[] objectIds1 = (int[]) execute(oql1);
+        assertThat(objectIds1.length, greaterThan(0));
+        String oql2 = "SELECT OBJECTS t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true) c ) t WHERE t.@name.startsWith(\"javazzz\")";
+        int[] objectIds2 = (int[]) execute(oql2);
+        assertThat(objectIds2, nullValue());
+    }
+
+
+    /**
+     * Test filtering from subselect
+     * @throws SnapshotException
+     */
+    @Test
+    public void testFromSubSelect4() throws SnapshotException
+    {
+        String oql1 = "SELECT t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot} c) t ";
+        IResultTable irt1 = (IResultTable)execute(oql1);
+        assertThat(irt1.getRowCount(), greaterThan(0));
+        String oql2 = "SELECT t FROM OBJECTS ( SELECT * FROM OBJECTS ${snapshot} c ) t WHERE t.@GCRoots = null";
+        IResultTable irt2 = (IResultTable) execute(oql2);
+        assertThat(irt2, nullValue());
+    }
+
+    /**
+     * Flatten ids from UNION
+     * @throws SnapshotException
+     */
+    @Test
+    public void testFromSubSelect5() throws SnapshotException
+    {
+        String oql1 = "SELECT * FROM java.lang.String s";
+        int[] objectIds1 = (int[]) execute(oql1);
+        assertThat(objectIds1.length, greaterThan(0));
+        String oql2 = "SELECT * FROM java.lang.Integer s";
+        int[] objectIds2 = (int[]) execute(oql2);
+        assertThat(objectIds2.length, greaterThan(0));
+        String oql3 = "SELECT objects t.o FROM OBJECTS ( SELECT c.@objectIds AS o FROM OBJECTS java.lang.String c  UNION ( SELECT c.@objectIds AS o FROM OBJECTS java.lang.Integer c  ) ) t";
+        int[] objectIds3 = (int[]) execute(oql3);
+        assertThat(objectIds3.length, equalTo(objectIds1.length + objectIds2.length));
+    }
+
+    @Test
+    public void testFromSubSelect6() throws SnapshotException
+    {
+        String oql1 = "SELECT * FROM java.lang.Class s WHERE s implements org.eclipse.mat.snapshot.model.IClass";
+        int[] objectIds1 = (int[]) execute(oql1);
+        assertThat(objectIds1.length, greaterThan(0));
+        String oql2 = "SELECT * FROM OBJECTS ( SELECT OBJECTS s.getClassesByName(\"java.lang.Object\",true).toArray() AS cn FROM OBJECTS ${snapshot} s  ) t"; 
+        int[] objectIds2 = (int[]) execute(oql2);
+        assertThat(objectIds2.length, greaterThan(0));
+        assertThat(objectIds2.length, equalTo(objectIds1.length));
     }
 
     @Test
@@ -1172,22 +1373,6 @@ public class OQLTest
         assertEquals("select s from 1,2,3 s UNION (select t from 17,23 t)", sb.toString());
     }
 
-    @Test
-    public void testOQLunion7() throws SnapshotException {
-        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2839) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
-        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2896) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
-        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2796) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
-        String s1 = sb.toString();
-        assertThat(s1, containsString("2839"));
-        assertThat(s1, containsString("2896"));
-        assertThat(s1, containsString("2796"));
-        IResultTable irt = (IResultTable)execute(s1, dump);
-        assertThat(irt.getRowCount(), equalTo(3));
-        checkGetOQL(irt, dump);
-    }
-
     /**
      * Complex test to check that the second FROM clause is reevaluated.
      * @throws SnapshotException
@@ -1448,6 +1633,363 @@ public class OQLTest
         IResultTable irt = (IResultTable)execute("SELECT v, v.i.value FROM OBJECTS ( SELECT i FROM java.lang.String i  UNION ( SELECT i FROM java.lang.Integer i  ) ) v");
         assertThat(irt.getColumns().length, equalTo(2));
         checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex18() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1234567890123456789L) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex19() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1234567) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+
+    @Test
+    public void testComplex20() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (\"1234567\") e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+
+    @Test
+    public void testComplex21() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS ('d') e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex22() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (12.25) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex23() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (12.25d) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex24() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (true) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex25() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex26() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (-1.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex27() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (0.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    public void testComplex28() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e.floatValue() FROM OBJECTS (1.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex29() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e.floatValue() FROM OBJECTS (-1.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex30() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e.floatValue() FROM OBJECTS (0.0 / 0.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * This test used to fail as 1.0/3.0 is evaluated as 0.3333333333333333
+     * (a double) but OQL literal constants are only floats 0.33333334F.
+     * Now the value is generated as a float expression.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex31() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1.0 / 3.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * This test used to fail as 1.0/3.0 is evaluated as 0.3333333333333333
+     * (a double) but OQL literal constants are only floats 0.33333334F.
+     * Now the value is generated as a float expression.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex32() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e.floatValue() FROM OBJECTS (1.0 / 3.0) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Test Integer.MIN_VALUE
+     * Care needed to parse this without overflow.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex33() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (" + Integer.MIN_VALUE + ") e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Test Long.MIN_VALUE
+     * Care needed to parse this without overflow.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex34() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (" + Long.MIN_VALUE + "L) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Needs two floats to express a double in the result OQL
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex35() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1 + 1 / (1024 * 1024 * 16)) e");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+    /**
+     * Needs three floats to express a double in the result OQL
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex36() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS ((1 + (1 / ((1024 * 1024) * 16))) - (1.0 / ((((1024L * 1024) * 1024) * 1024) * 512))) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Float infinity
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex37() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1E40) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Float infinity
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex38() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (-1E40) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * large Double
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex39() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1E308D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * large Double
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex40() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (-1E308D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * small Double
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex41() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1E-320D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Double infinity
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex42() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (-1E320D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Double infinity
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex43() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (1E309D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Double infinity
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex44() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT e FROM OBJECTS (-1E309D) e"); 
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(1));
+        Object row = irt.getRow(0);
+        assertNotNull(row);
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Special case for single column name ""
+     * Doesn't create a new map if the source is a map, just
+     * passes on the old map. Used for complex join queries
+     * and compare tables.
+     * @throws SnapshotException
+     */
+    @Test
+    public void emptyColumnName() throws SnapshotException 
+    {
+        IResultTable irt = (IResultTable)execute("SELECT u FROM OBJECTS ( SELECT t AS \"\" FROM OBJECTS ( SELECT s.hash AS Hash FROM java.lang.String s  ) t  ) u WHERE (u.Hash != null)");
+        assertThat(irt.getRowCount(), greaterThan(0));
+    }
+
+    /**
+     * Check column names to not cause special behaviour
+     * @throws SnapshotException
+     */
+    @Test
+    public void nonEmptyColumnName() throws SnapshotException 
+    {
+        IResultTable irt = (IResultTable)execute("SELECT u FROM OBJECTS ( SELECT t AS \"t\" FROM OBJECTS ( SELECT s.hash AS Hash FROM java.lang.String s  ) t  ) u WHERE (u.Hash != null)");
+        assertThat(irt, nullValue());
     }
 
     /**
@@ -1739,7 +2281,46 @@ public class OQLTest
                                 }
                                 else
                                 {
-                                    assertThat(ai.toArray(), equalTo(ai2.toArray()));
+                                    assertThat(ai2.toArray(), equalTo(ai.toArray()));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            IContextObject c = p.getContext(rt.getRow(i));
+                            if (!(o == null && c == null))
+                            {
+                                assertThat("row="+i+" col="+j+" "+o, c, instanceOf(IContextObjectSet.class));
+                                IContextObjectSet cs = (IContextObjectSet)c;
+                                int []csobjs = cs.getObjectIds();
+                                assertThat("row="+i+" col="+j, csobjs.length, equalTo(0));
+                                String oql = cs.getOQL();
+                                if (oql == null)
+                                {
+                                    
+                                    if (o instanceof Iterable)
+                                    {
+                                        assertThat("row="+i+" col="+j, ((Iterable<?>)o).iterator().hasNext(), equalTo(false));
+                                    }
+                                    else
+                                    {
+                                        assertThat("row="+i+" col="+j, o, nullValue());
+                                    }
+                                }
+                                else
+                                {
+                                    Object res = execute(oql, dump);
+                                    if (res instanceof IResultTable)
+                                    {
+                                        IResultTable rt2 = (IResultTable)res;
+                                        assertEquals("row="+i+" col="+j, 1, rt2.getRowCount());
+                                        assertEquals("row="+i+" col="+j, 1, rt2.getColumns().length);
+                                        for (int r = 0; r < rt2.getRowCount(); ++r)
+                                        {
+                                            Object o2 = rt2.getColumnValue(rt2.getRow(r), 0);
+                                            assertThat("row="+i+" col="+j, o2, equalTo(o));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1779,7 +2360,7 @@ public class OQLTest
                     {
                         Object o1 = rt.getColumnValue(rt.getRow(row), j);
                         Object o2 = rt2.getColumnValue(rt2.getRow(0), j);
-                        assertThat("row="+row+" col="+j+" oql="+oql, o1, equalTo(o2));
+                        assertThat("row="+row+" col="+j+" oql="+oql, o2, equalTo(o1));
                     }
                     IContextObject ic = rt2.getContext(rt2.getRow(0));
                     assertThat("row="+row+" oql="+oql, ic, instanceOf(IContextObjectSet.class));
@@ -1843,14 +2424,19 @@ public class OQLTest
             IResultTable rt2 = (IResultTable)res;
             assertEquals(oql, 1, rt2.getRowCount());
             assertEquals(oql, rt.getColumns().length, rt2.getColumns().length);
+            IContextObject c2 = rt2.getContext(rt2.getRow(0));
+            assertThat(c2, instanceOf(IContextObjectSet.class));
+            IContextObjectSet cs2 = (IContextObjectSet)c2;
+            String oql2 = cs2.getOQL();
+            assertNotNull(oql2);
             for (int j = 0; j < rt.getColumns().length; ++j)
             {
                 Object o1 = rt.getColumnValue(rt.getRow(row), j);
                 Object o2 = rt2.getColumnValue(rt2.getRow(0), j);
                 if (o1 instanceof int[] && o2 instanceof int[])
-                    assertArrayEquals("Row="+row+" col="+j, (int[])o1, (int[])o2);
+                    assertArrayEquals("Row="+row+" col="+j+" "+oql+"; "+oql2, (int[])o1, (int[])o2);
                 else
-                    assertEquals("Row="+row+" col="+j, o1, o2);
+                    assertEquals("Row="+row+" col="+j+" "+oql+"; "+oql2, o1, o2);
             }
         }
     }
