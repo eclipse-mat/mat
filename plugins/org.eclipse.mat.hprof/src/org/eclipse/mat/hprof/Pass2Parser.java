@@ -92,6 +92,11 @@ public class Pass2Parser extends AbstractParser
                                     length, in.position(), record));
 
                 length = updateLengthIfNecessary(fileSize, curPos, record, length, monitor);
+                // Do not read beyond the available space
+                if (curPos + 9 + length > fileSize)
+                {
+                    length = fileSize - curPos - 9;
+                }
 
                 switch (record)
                 {

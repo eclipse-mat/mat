@@ -156,7 +156,7 @@ public class Pass1Parser extends AbstractParser
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength,
                                     length, Long.toHexString(in.position() - 4), Integer.toHexString(record), Long.toHexString(curPos)));
 
-                if (curPos + length - 9 > fileSize)
+                if (curPos + 9 + length > fileSize)
                 {
                     switch (strictnessPreference)
                     {
