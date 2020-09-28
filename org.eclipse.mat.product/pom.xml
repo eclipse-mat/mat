@@ -91,7 +91,7 @@
 											<arg value="--silent"/>
 											<arg value="--show-error"/>
 											<arg value="--fail"/>
-											<arg value="http://172.30.206.146:8282/macosx-signing-service/1.0.1-SNAPSHOT"/>
+											<arg value="http://172.30.206.146:8282/macosx-signing-service/1.3.0-SNAPSHOT"/>
    										</exec>
 									</target>
 								</configuration>
@@ -156,7 +156,6 @@
 									<timeoutMillis>300000</timeoutMillis> <!-- 5 min -->
 									<continueOnFail>${macSigner.forceContinue}</continueOnFail>
 									<entitlements>${project.basedir}/mat.entitlement</entitlements>
-									<signerUrl>http://172.30.206.146:8282/macosx-signing-service/1.0.1-SNAPSHOT</signerUrl>
 								</configuration>
 							</execution>
 						</executions>
