@@ -336,6 +336,32 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
                 length = length1;
             }
         }
+        /*
+         * Has the file been truncated after the length field
+         * was updated by the HPROF dump procedure?
+         * Need to be aware of GZipped files where the length could
+         * be an estimate and might not be big enough. 
+         * It should be correct modulo 2^32 so the only problem would
+         * be if the HEAP_DUMP_SEGMENT was greater than 2^32 e.g.
+         * with one huge array (perhaps not allowed anyway).
+         * The size even if too small would allow one record to be
+         * parsed, then in the main loop parsing would continue
+         * and the streamLength finally updated with the final
+         * position. Pass2 would then use this length.
+         */
+        if (strictnessPreference == HprofStrictness.STRICTNESS_WARNING ||
+            strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE)
+        {
+            long length1 = fileSize - curPos - 9;
+            if (length1 < length)
+            {
+                monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                Messages.AbstractParser_GuessedRecordLength,
+                                Integer.toHexString(record),
+                                Long.toHexString(curPos), length, length1), null);
+                length = length1;
+            }
+        }
         // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679
         //
         // We do this check no matter the strictness preference. Since we're
