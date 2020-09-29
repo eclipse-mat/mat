@@ -455,7 +455,9 @@ public class Pass1Parser extends AbstractParser
                 switch (strictnessPreference)
                 {
                     case STRICTNESS_STOP:
-                        throw e;
+                        throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
+                                        MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, segmentsEndPos - segmentStartPos,
+                                                        in.position() - segmentStartPos, Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)), e));
                     case STRICTNESS_WARNING:
                     case STRICTNESS_PERMISSIVE:
                         /*

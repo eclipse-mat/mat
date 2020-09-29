@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -142,11 +143,11 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         final Form form = toolkit.createForm(parent);
         form.setText(Messages.MultiPaneEditor_Opening);
-        RowLayout layout = new RowLayout(SWT.VERTICAL);
+        final RowLayout layout = new RowLayout(SWT.VERTICAL);
         layout.marginLeft = 10;
         form.getBody().setLayout(layout);
 
-        final Text text = new Text(form.getBody(), SWT.WRAP);
+        final Text text = new Text(form.getBody(), SWT.MULTI | SWT.WRAP);
         text.setText(job.getName());
 
         final Button cancel = new Button(form.getBody(), SWT.FLAT);
@@ -191,7 +192,10 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                             case IStatus.INFO:
                                 cancel.setEnabled(false);
                                 form.setText(Messages.MultiPaneEditor_Failed_to_open);
+                                RowData rd = new RowData(form.getBody().getClientArea().width - layout.marginLeft - layout.marginRight, SWT.DEFAULT);
+                                text.setLayoutData(rd);
                                 text.setText(event.getResult().getMessage());
+                                text.requestLayout();
                                 break;
                         }
                     }

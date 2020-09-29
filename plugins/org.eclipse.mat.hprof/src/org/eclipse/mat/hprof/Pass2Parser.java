@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
+import org.eclipse.mat.util.IProgressListener.Severity;
 
 /**
  * Parser used to read the hprof formatted heap dump
@@ -95,7 +96,20 @@ public class Pass2Parser extends AbstractParser
                 // Do not read beyond the available space
                 if (curPos + 9 + length > fileSize)
                 {
-                    length = fileSize - curPos - 9;
+                    switch (strictnessPreference)
+                    {
+                        case STRICTNESS_STOP:
+                            break;
+                        case STRICTNESS_WARNING:
+                        case STRICTNESS_PERMISSIVE:
+                            long length1 = fileSize - curPos - 9;
+                            monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                            Messages.AbstractParser_GuessedRecordLength,
+                                            Integer.toHexString(record),
+                                            Long.toHexString(curPos), length, length1), null);
+                            length = length1;
+                            break;
+                    }
                 }
 
                 switch (record)
