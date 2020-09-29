@@ -32,7 +32,6 @@ Visit http://www.eclipse.org/mat
       startupMessageRect="7,252,445,20"
       startupForegroundColor="000000" />
    <launcher name="MemoryAnalyzer">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -194,17 +193,16 @@ Contributors:
    </features>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
 
-      <property name="org.eclipse.update.reconcile" value="false" />
-      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4"/>
-
-      <property name="osgi.requiredJavaVersion" value="1.8" />
       <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
+      <property name="osgi.requiredJavaVersion" value="1.8" />
       <property name="applicationCSSResources" value="platform:/plugin/org.eclipse.platform/images/" />
+      <property name="org.eclipse.update.reconcile" value="false" />
    </configurations>
 
 </product>

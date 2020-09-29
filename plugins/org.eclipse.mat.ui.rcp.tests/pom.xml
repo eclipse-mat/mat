@@ -15,8 +15,9 @@
 	<packaging>eclipse-test-plugin</packaging>
 
 	<properties>
-		<uitest.vmparams>-Dorg.eclipse.swtbot.search.timeout=30000 -Xmx512m
-			-XX:MaxPermSize=256m</uitest.vmparams>
+		<!-- Please don't pretty-format the vmparams line -->
+		<!-- a new line in the vmparams caused issues with starting the tests, at least on Mac -->
+		<uitest.vmparams>-Dorg.eclipse.swtbot.search.timeout=30000 -Xmx512m -XX:MaxPermSize=256m</uitest.vmparams>
 	</properties>
 
 	<profiles>
