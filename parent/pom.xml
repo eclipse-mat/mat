@@ -16,12 +16,12 @@
 	<name>MAT Parent</name>
 
 	<properties>
-		<tycho-version>1.3.0</tycho-version>
+		<tycho-version>1.7.0</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 		<!-- mat-target specifies which .target definition file will be used -->
-		<mat-target>mat-photon</mat-target>
+		<mat-target>mat-2020-03</mat-target>
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
@@ -224,11 +224,6 @@
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
 							<arch>x86_64</arch>
 						</environment>
 						<environment>
@@ -239,17 +234,7 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>ppc64</arch>
 						</environment>
 						<environment>
 							<os>linux</os>
