@@ -32,7 +32,7 @@ Visit http://www.eclipse.org/mat
       startupMessageRect="7,252,445,20"
       startupForegroundColor="000000" />
    <launcher name="MemoryAnalyzer">
-      <solaris/>
+      <macosx icon="../plugins/org.eclipse.mat.ui.rcp/icons/memory_analyzer.icns"/>
       <win useIco="false">
          <bmp/>
       </win>
