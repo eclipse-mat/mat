@@ -410,6 +410,7 @@ public class ResultRenderer
         directory = FileUtils.createTempDirectory("report", null);
 
         copyResource(PREFIX + "styles.css", new File(directory, "styles.css"));
+        copyResource(PREFIX + "styles-dark.css", new File(directory, "styles-dark.css"));
         copyResource(PREFIX + "code.js", new File(directory, "code.js"));
 
         File imgDir = new File(directory, "img");
