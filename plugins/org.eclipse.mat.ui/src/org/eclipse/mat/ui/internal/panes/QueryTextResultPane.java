@@ -11,7 +11,12 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.panes;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +56,7 @@ import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.OpenWindowListener;
 import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.browser.WindowEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -189,7 +195,28 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             {
                 DisplayFileResult r = (DisplayFileResult) queryResult.getSubject();
                 if (browser != null)
+                {
+                    // Current Eclipse browser doesn't handle @media prefers-color-scheme
+                    if (darkMode())
+                    {
+                        File p = r.getFile().getParentFile();
+                        File styles = new File(p, "styles.css"); //$NON-NLS-1$
+                        File stylesDark = new File(p, "styles-dark.css"); //$NON-NLS-1$
+                        if (styles.canWrite() && stylesDark.canRead())
+                        {
+                            try
+                            {
+                                Files.copy(stylesDark.toPath(), styles.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            catch (IOException e)
+                            {
+                                // Log and leave in light mode
+                                ErrorHelper.logThrowableAndShowMessage(e);
+                            }
+                        }
+                    }
                     browser.setUrl(r.getFile().toURI().toURL().toExternalForm());
+                }
                 else
                     text.setText(r.getFile().toURI().toURL().toExternalForm());
             }
@@ -207,6 +234,16 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         }
 
         firePropertyChange(IWorkbenchPart.PROP_TITLE);
+    }
+
+    boolean darkMode()
+    {
+        // Get the system colors
+        Color bgColor = browser.getBackground();
+        int br = bgColor.getRed();
+        int bg = bgColor.getGreen();
+        int bb = bgColor.getBlue();
+        return br * br + bg * bg + bb * bb < 128 * 128 * 3;
     }
 
     @Override
