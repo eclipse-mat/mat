@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,7 @@ function treerow(imageBaseValue, element)
 		
 		var replace = document.createElement('img');
 		replace.alt = c;
+		replace.className = 'line'
 
 	
 		switch(c)
@@ -84,7 +85,7 @@ function treerow(imageBaseValue, element)
 		case "+":
 			replace.src = imageBaseValue + "fork.gif";
 			break;
-		case  ".":
+		case ".":
 			replace.src = imageBaseValue + "empty.gif";
 			break;
 		case "\\":
@@ -125,8 +126,6 @@ function hasClass(obj)
 function stripe(table)
 {
 	var even = false;
-	var evenColor = "#fff";
-	var oddColor = "#eee";
 
 	var tbodies = table.getElementsByTagName("tbody");
 	for (var h = 0; h < tbodies.length; h++)
@@ -135,24 +134,13 @@ function stripe(table)
 		for (var i = 0; i < trs.length; i++)
 		{
 
-			if (!hasClass(trs[i]) && ! trs[i].style.backgroundColor)
+			if (!hasClass(trs[i]))
 			{
-				var tds = trs[i].getElementsByTagName("td");
-				for (var j = 0; j < tds.length; j++)
-				{
-        
-					var mytd = tds[j];
-
-					if (!hasClass(mytd) && ! mytd.style.backgroundColor)
-					{
-						mytd.style.backgroundColor = even ? evenColor : oddColor;
-					}
-				}
+				trs[i].className = even ? "evenrow" : "oddrow";
 			}
-
 			even =  ! even;
 		}
-   	}
+	}
 }
 
 

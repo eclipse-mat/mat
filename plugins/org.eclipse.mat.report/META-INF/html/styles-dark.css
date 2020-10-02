@@ -16,7 +16,7 @@ body {
 	font-size: 10pt;
 	font-family: verdana, arial, helvetica, sans-serif;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	body {
 		background: #101010;
 		color: white;
@@ -36,7 +36,7 @@ img {
 	border: 0;
 	vertical-align: middle;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	/* Only match the big images, not icons */
 	/* flips white and black, but keeps hues */
 	/* 94% means white goes to near black matching background */
@@ -55,7 +55,7 @@ img {
 	font-weight: bold;
 	line-height: normal;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	#header {
 		background: #182830;
 	}
@@ -86,7 +86,7 @@ img {
 	line-height: normal;
 	padding: 5px 5px;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	#footer {
 		background: #182830;
 	}
@@ -107,7 +107,7 @@ img {
 	max-width: 600px;
 	overflow: visible;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.important {
 		background-color: #c27f20;
 		border: 1px dotted white;
@@ -121,7 +121,7 @@ img {
 	font-family: "lucida grande", verdana, sans-serif;
 	font-size: 8pt;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result {
 		border: 1px solid #999999;
 	}
@@ -136,17 +136,17 @@ img {
 	padding: 3px 8px;
 	border-left: 1px solid #D9D9D9;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr td {
 		border-left: 1px solid #262626;
 	}
 }
 
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	/* For the tree icons */
 	/* flips white and black, but keeps hues */
 	/* 94% means white goes to near black matching background */
-	img.line {
+	.line {
 		filter: invert(94%) hue-rotate(180deg);
 	}
 }
@@ -157,7 +157,7 @@ img {
 .oddrow {
 	background-color: #eeeeee;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.evenrow {
 		background-color: #101010;
 	}
@@ -173,7 +173,7 @@ img {
 	border-left: 1px solid #346DBE;
 	border-bottom: 1px solid #7DAAEA;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr.selected td {
 		background-color: #4d90ef;
 		color: #101010;
@@ -185,7 +185,7 @@ img {
 .result tbody tr.selected td a {
 	color: #ffffff;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr.selected td a {
 		color: #101010;
 	}
@@ -196,7 +196,7 @@ img {
     outline-width: 1px;
     outline-color: #ffffff
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr.selected td a:focus {
     	outline-color: #101010;
 	}
@@ -206,7 +206,7 @@ img {
 	font-weight: bold;
 	background-color: #D3D3D3;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr.totals td {
 		font-weight: bold;
 		background-color: #2c2c2c;
@@ -219,7 +219,7 @@ img {
 	text-align: left;
 	font-weight: bold;
 }
-@media screen and (prefers-color-scheme: dark) {
+@media screen {
 	.result tbody tr.filter td {
 		background-color: #2c2c2c;
 		color: green;
