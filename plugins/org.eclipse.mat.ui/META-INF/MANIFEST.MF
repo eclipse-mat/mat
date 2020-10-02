@@ -19,7 +19,7 @@ Export-Package: org.eclipse.mat.ui;x-friends:="org.eclipse.mat.chart.ui,org.ecli
  org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;x-friends:="org.eclipse.mat.tests",
  org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning;x-friends:="org.eclipse.mat.tests",
  org.eclipse.mat.ui.util;x-friends:="org.eclipse.mat.chart.ui,org.eclipse.mat.ui.rcp"
-Bundle-RequiredExecutionEnvironment: J2SE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.icu.text;version="3.6.1",
  org.eclipse.core.commands,
  org.eclipse.core.commands.common,
