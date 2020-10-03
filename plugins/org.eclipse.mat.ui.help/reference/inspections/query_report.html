@@ -71,7 +71,7 @@
 		</div>
 
 		<div class="example">
-			<p class="p">Simple example of a histogram</p>
+			<p class="p">Simple example of a histogram for Windows</p>
 
 			<p class="p">
 				<samp class="ph codeph">
@@ -85,7 +85,21 @@
 		</div>
 
 		<div class="example">
-			<p class="p">Simple OQL example</p>
+			<p class="p">Simple example of a histogram for Linux</p>
+
+			<p class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
+					<var class="keyword varname">myheapdump.hprof</var> 
+					<span class="keyword option">-command=</span><span class="keyword cmdname">histogram</span>
+					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
+				</samp>
+			</p>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Simple OQL example for Windows</p>
 
 			<div class="p">
 				<samp class="ph codeph">
@@ -106,13 +120,34 @@
 		</div>
 
 		<div class="example">
-			<p class="p">Another OQL example</p>
+		<p class="p">Simple OQL example for Linux</p>
+
+			<div class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
+					<var class="keyword varname">myheapdump.hprof</var>
+					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"SELECT * FROM java.lang.String s\"</var>"
+					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
+				</samp>
+				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <span class="keyword option">-command</span>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.</div>
+
+			</div>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Another OQL example for Windows</p>
 
 			<div class="p">
 				<samp class="ph codeph">
 					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
 					<var class="keyword varname">myheapdump.hprof</var>
-					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT s AS Object, toString(s) as \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\[\\\\\\\"\\\"</var>"
+					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT s AS Object, toString(s) AS \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\..*\\\\\\\" AND s.hash ^^^&gt; 0\\\"</var>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span>
 				</samp>
 				<pre class="pre msgblock">
@@ -123,7 +158,7 @@ Subtask: Query
 [
 Subtask: Test 'Query command' of section 'Query'
 [
-Subtask: SELECT s AS Object, toString(s) AS "String value" FROM "java.lang.String.*" s WHERE (toString(s) LIKE ".*\[")
+Subtask: SELECT s AS Object, toString(s) AS "String value" FROM "java.lang.String.*" s WHERE ((toString(s) LIKE ".*\..*") and (s.hash &gt; 0))
 [
 Subtask: Collecting objects of classes
 [
@@ -156,6 +191,71 @@ Subtask: Checking class java.lang.String
 				whole argument is surrounded by double quotes so the operating system
 				treats it as a single item.
 				Any double quotes in the OQL statement need 7 backslashes before.
+				The greater-than sign &gt; needs to be escaped with 3 carets ^^^ as it appears
+				to be outside of double-quotes to the Windows command line interpreter and so
+				would be misinterpreted as a redirect.
+				A backslash in the OQL statement needs to be doubled.
+				There are no character escapes in OQL string literals.
+				It is not therefore possible to add a double quote to a <span class="keyword cmdname">SELECT</span>
+				<span class="keyword cmdname">AS</span> column name. It makes no sense to add it to a
+				class pattern for a <span class="keyword cmdname">FROM</span> item.
+				It is not possible to add a double quote to a <span class="keyword cmdname">LIKE</span>
+				regular expression string literal. It would be possible to use the <samp class="ph codeph">matches()</samp>
+				method and build the pattern using a string concatenation using character quote holding a double quote.
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Another OQL example for Linux</p>
+
+			<div class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
+					<var class="keyword varname">myheapdump.hprof</var>
+					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"select s as \\\"a b\\\" from \\\"java.lang.String.*\\\" WHERE toString(s) LIKE \\\".*\\\..*\\\" AND s.hash &gt; 0\"</var>
+					<span class="keyword parmname">org.eclipse.mat.api:query</span>
+				</samp>
+				<pre class="pre msgblock">
+Task: Reopening parsed heap dump file
+[.........]
+
+Subtask: Single Query
+[
+Subtask: Test 'Query Command' of section 'Single Query'
+[
+Subtask: SELECT s AS Object, toString(s) AS "String value" FROM "java.lang.String.*" s WHERE ((toString(s) LIKE ".*\..*") and (s.hash &gt; 0))
+[
+Subtask: Collecting objects of classes
+[
+Subtask: Checking class java.lang.String[]
+[
+Subtask: Checking class java.lang.String[][]
+[
+Subtask: Checking class java.lang.String$CaseInsensitiveComparator
+[
+Subtask: Checking class java.lang.StringCoding$StringEncoder
+[
+Subtask: Checking class java.lang.StringCoding
+[
+Subtask: Checking class java.lang.StringBuffer
+[
+Subtask: Checking class java.lang.StringBuilder
+[
+Subtask: Checking class java.lang.String
+[
+Subtask: Checking class java.lang.StringCoding$StringDecoder
+				</pre>
+
+				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <span class="keyword option">-command</span>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.
+				Any double quotes in the OQL statement need 3 backslashes before.
 				A backslash in the OQL statement needs to be doubled.
 				There are no character escapes in OQL string literals.
 				It is not therefore possible to add a double quote to a <span class="keyword cmdname">SELECT</span>
