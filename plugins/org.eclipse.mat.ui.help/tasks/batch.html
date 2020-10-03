@@ -38,7 +38,7 @@
 					See <a class="xref" href="runningleaksuspectreport.html#task_runningleaksuspectreport">running leak suspect report</a> for more details.</li>
 
 					<li class="li choice">For an overview report use <span class="keyword parmname">org.eclipse.mat.api:overview</span>
-					This report is included at the begining of the leak suspects report
+					This report is included at the beginning of the leak suspects report
 					and shows:
 					<ul class="ul">
 					 	<li class="li">Heap Dump Overview</li>
@@ -75,20 +75,26 @@
 
 					See <a class="xref" href="exportdump.html">export heap dump</a> for more details.</li>
 
+					<li class="li choice">To run a single query on a heap dump and produce an HTML report use<samp class="ph codeph"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-command=</span><var class="keyword varname">histogram</var> <span class="keyword parmname">org.eclipse.mat.api:query</span></samp>
+					See <a class="xref" href="../reference/inspections/query_report.html" title="Run a single query to produce a HTML report in batch mode.">Query Report</a> for more details.</li>
+
 				</ul>
 
+			</li>
+<li class="li step stepexpand">
+				<span class="ph cmd">Choose additional options to control the parse and report generation.</span>
 				<div class="itemgroup info">
 				Command line options controlling the parse.
 				</div>
 				<ol type="a" class="ol substeps">
-				<li class="li substep">
+				<li class="li substep substepexpand">
 				<span class="ph cmd">
 					<kbd class="ph userinput">-keep_unreachable_objects</kbd> means that all
 					objects are retained in the snapshot, even if they are not reachable from
 					an ordinary GC root.</span>
 				</li>
 
-				<li class="li substep">
+				<li class="li substep substepexpand">
 				<span class="ph cmd">
 					<kbd class="ph userinput">-snapshot_identifier=</kbd><var class="keyword varname">identifier</var>
 					Selects one snapshot when there is the choice of several in the heap dump file.
@@ -106,7 +112,7 @@
 				</span>
 				</li>
 
-				<li class="li substep">
+				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><kbd class="ph userinput">-discard_ratio=</kbd><var class="keyword varname">percentage</var>.
@@ -114,7 +120,7 @@
 				</span>
 				</li>
 
-				<li class="li substep">
+				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><kbd class="ph userinput">-discard_pattern=</kbd><var class="keyword varname">regex</var>.
@@ -122,7 +128,7 @@
 				</span>
 				</li>
 
-				<li class="li substep">
+				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><kbd class="ph userinput">-discard_offset=</kbd><var class="keyword varname">offset value</var>.
@@ -130,12 +136,60 @@
 				</span>
 				</li>
 
-								<li class="li substep">
+				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><kbd class="ph userinput">-discard_seed=</kbd><var class="keyword varname">random number generator seed</var>.
 					Controls which particular objects are discarded.
 				</span>
+				</li>
+
+				<li class="li substep substepexpand" id="task_batch__report_options">
+					<span class="ph cmd">Other report options</span>
+					<div class="itemgroup stepxmp">
+						<p class="p">Other parameters controlling output include the following:</p>
+
+						<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
+								<th valign="bottom" align="left" id="d16875e321" class="stentry">Argument</th>
+
+								<th valign="bottom" align="left" id="d16875e324" class="stentry">Description</th>
+
+							</tr>
+<tr class="strow">
+								<td valign="top" headers="d16875e321" class="stentry">-limit</td>
+
+								<td valign="top" headers="d16875e324" class="stentry">Controls the number of entries generated in an output table.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT">org.eclipse.mat.report.Params.Rendering.LIMIT</a>
+								</td>
+
+							</tr>
+<tr class="strow">
+								<td valign="top" headers="d16875e321" class="stentry">-format</td>
+
+								<td valign="top" headers="d16875e324" class="stentry">Controls the type of the output (HTML or CSV).
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.html#FORMAT">org.eclipse.mat.report.Params.FORMAT</a>
+								</td>
+
+							</tr>
+<tr class="strow">
+								<td valign="top" headers="d16875e321" class="stentry">-html.show_table_headings</td>
+
+								<td valign="top" headers="d16875e324" class="stentry">Controls whether table headings should be shown for tables.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</a>
+								</td>
+
+							</tr>
+<tr class="strow">
+								<td valign="top" headers="d16875e321" class="stentry">-html.show_totals</td>
+
+								<td valign="top" headers="d16875e324" class="stentry">Controls whether totals should be shown for tables.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</a>
+								</td>
+
+							</tr>
+</table>
+
+					</div>
 				</li>
 
 				</ol>

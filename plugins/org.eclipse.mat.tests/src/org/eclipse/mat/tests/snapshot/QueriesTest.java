@@ -1442,4 +1442,64 @@ public class QueriesTest
         assertThat("Expected dominator tree section", domtree, equalTo(expectedDomTree));
         assertThat("Expected subqueries with commands", subcommands, equalTo(expectedSubCommands));
     }
+
+    /**
+     * Test running the single query report for a simple command
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testQueryReport1() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params command=histogram", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        assertThat(t, instanceOf(DisplayFileResult.class));
+        if (t instanceof DisplayFileResult)
+        {
+            // If an error occurred the file might be short
+            assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
+        }
+    }
+
+    /**
+     * Test running the single query report for an OQL command
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testQueryReport2() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params \"command=oql \\\"select * from java.lang.String\\\"\"", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        assertThat(t, instanceOf(DisplayFileResult.class));
+        if (t instanceof DisplayFileResult)
+        {
+            // If an error occurred the file might be short
+            assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
+        }
+    }
+
+    /**
+     * Test running the single query report for a complex OQL command
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testQueryReport3() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params " +
+                        "\"command=oql \\\"SELECT s AS Object, toString(s) as \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\.\\\\\\\"\\\"\"",
+                        snapshot);
+
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        assertThat(t, instanceOf(DisplayFileResult.class));
+        if (t instanceof DisplayFileResult)
+        {
+            // If an error occurred the file might be short
+            assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
+        }
+    }
 }

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2019,2020 IBM Corporation. All rights reserved. This program 
+	and the accompanying materials are made available under the terms of the 
+	Eclipse Public License v1.0 which accompanies this distribution, and is available 
+	at http://www.eclipse.org/legal/epl-v10.html Contributors: Andrew Johnson/IBM 
+	- initial API and implementation -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_query_report" xml:lang="en-us">
+	<title>Query Report</title>
+	<shortdesc>Run a single query to produce a HTML report in batch mode.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2020 IBM Corporation.
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License v1.0
+				which accompanies this distribution, and is available at
+				http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<p>Sometime it is useful to run a single query on a heap dump when in
+				batch mode. This could be because it is known in advance what needs
+				to be
+				run, or the heap dump needs to remain on a big machine with no easily
+				available graphical user interface.
+			</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>-command</stentry>
+					<stentry>The command line version of the query to be run. This
+						is like the text typed into the <xref format="dita" href="../selectingqueries.dita">'Search Queries' query browser</xref> command line.
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>other report options</stentry>
+					<stentry>See <xref format="dita" href="../../tasks/batch.dita#task_batch__report_options">batch mode control of report options</xref></stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>An HTML report holding the result of the query.</p>
+		</section>
+		<example>
+			<p>Simple example of a histogram</p>
+			<p>
+				<codeph>
+					<cmdname>./mat/ParseHeapDump.bat</cmdname>
+					<varname>myheapdump.hprof</varname> 
+					<option>-command=</option><cmdname>histogram</cmdname>
+					<parmname>org.eclipse.mat.api:query</parmname> 
+				</codeph>
+			</p>
+		</example>
+		<example>
+			<p>Simple OQL example</p>
+			<p>
+				<codeph>
+					<cmdname>./mat/ParseHeapDump.bat</cmdname>
+					<varname>myheapdump.hprof</varname>
+					"<option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT * FROM java.lang.String s\\\"</varname>"
+					<parmname>org.eclipse.mat.api:query</parmname> 
+				</codeph>
+				<note>The OQL query <cmdname>oql</cmdname> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <option>-command</option>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.</note>
+			</p>
+		</example>
+		<example>
+			<p>Another OQL example</p>
+			<p>
+				<codeph>
+					<cmdname>./mat/ParseHeapDump.bat</cmdname>
+					<varname>myheapdump.hprof</varname>
+					"<option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT s AS Object, toString(s) as \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\[\\\\\\\"\\\"</varname>"
+					<parmname>org.eclipse.mat.api:query</parmname>
+				</codeph>
+				<msgblock>
+Task: Reopening parsed heap dump file
+[.........]
+
+Subtask: Query
+[
+Subtask: Test 'Query command' of section 'Query'
+[
+Subtask: SELECT s AS Object, toString(s) AS "String value" FROM "java.lang.String.*" s WHERE (toString(s) LIKE ".*\[")
+[
+Subtask: Collecting objects of classes
+[
+Subtask: Checking class java.lang.StringConcatHelper
+[
+Subtask: Checking class java.lang.String[][]
+[
+Subtask: Checking class java.lang.StringLatin1
+[
+Subtask: Checking class java.lang.StringCoding$Result
+[
+Subtask: Checking class java.lang.StringBuilder
+[
+Subtask: Checking class java.lang.String$CaseInsensitiveComparator
+[
+Subtask: Checking class java.lang.StringCoding$1
+[
+Subtask: Checking class java.lang.String[]
+[
+Subtask: Checking class java.lang.StringCoding
+[
+Subtask: Checking class java.lang.String
+[
+				</msgblock>
+				<note>The OQL query <cmdname>oql</cmdname> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <option>-command</option>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.
+				Any double quotes in the OQL statement need 7 backslashes before.
+				A backslash in the OQL statement needs to be doubled.
+				There are no character escapes in OQL string literals.
+				It is not therefore possible to add a double quote to a <cmdname>SELECT</cmdname>
+				<cmdname>AS</cmdname> column name. It makes no sense to add it to a
+				class pattern for a <cmdname>FROM</cmdname> item.
+				It is not possible to add a double quote to a <cmdname>LIKE</cmdname>
+				regular expression string literal. It would be possible to use the <codeph>matches()</codeph>
+				method and build the pattern using a string concatenation using character quote holding a double quote.
+				</note>
+			</p>
+		</example>
+	</refbody>
+</reference>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Query Report"/>
+<meta name="abstract" content="Run a single query to produce a HTML report in batch mode."/>
+<meta name="description" content="Run a single query to produce a HTML report in batch mode."/>
+<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_query_report"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<title>Query Report</title>
+</head>
+<body id="ref_query_report">
+
+
+	<h1 class="title topictitle1">Query Report</h1>
+
+	
+	
+
+	<div class="body refbody"><p class="shortdesc">Run a single query to produce a HTML report in batch mode.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			<p class="p">Sometime it is useful to run a single query on a heap dump when in
+				batch mode. This could be because it is known in advance what needs
+				to be
+				run, or the heap dump needs to remain on a big machine with no easily
+				available graphical user interface.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
+			
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
+					<th valign="bottom" align="left" id="d5950e43" class="stentry">Argument</th>
+
+					<th valign="bottom" align="left" id="d5950e46" class="stentry">Description</th>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e43" class="stentry">-command</td>
+
+					<td valign="top" headers="d5950e46" class="stentry">The command line version of the query to be run. This
+						is like the text typed into the <a class="xref" href="../selectingqueries.html">'Search Queries' query browser</a> command line.
+					</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" headers="d5950e43" class="stentry">other report options</td>
+
+					<td valign="top" headers="d5950e46" class="stentry">See <a class="xref" href="../../tasks/batch.html#task_batch__report_options">batch mode control of report options</a></td>
+
+				</tr>
+</table>
+
+		</div>
+
+		<div class="section" id="ref_query_report__result"><h2 class="title sectiontitle">Result</h2>
+			
+			<p class="p">An HTML report holding the result of the query.</p>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Simple example of a histogram</p>
+
+			<p class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
+					<var class="keyword varname">myheapdump.hprof</var> 
+					<span class="keyword option">-command=</span><span class="keyword cmdname">histogram</span>
+					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
+				</samp>
+			</p>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Simple OQL example</p>
+
+			<div class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
+					<var class="keyword varname">myheapdump.hprof</var>
+					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT * FROM java.lang.String s\\\"</var>"
+					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
+				</samp>
+				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <span class="keyword option">-command</span>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.</div>
+
+			</div>
+
+		</div>
+
+		<div class="example">
+			<p class="p">Another OQL example</p>
+
+			<div class="p">
+				<samp class="ph codeph">
+					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
+					<var class="keyword varname">myheapdump.hprof</var>
+					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT s AS Object, toString(s) as \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\[\\\\\\\"\\\"</var>"
+					<span class="keyword parmname">org.eclipse.mat.api:query</span>
+				</samp>
+				<pre class="pre msgblock">
+Task: Reopening parsed heap dump file
+[.........]
+
+Subtask: Query
+[
+Subtask: Test 'Query command' of section 'Query'
+[
+Subtask: SELECT s AS Object, toString(s) AS "String value" FROM "java.lang.String.*" s WHERE (toString(s) LIKE ".*\[")
+[
+Subtask: Collecting objects of classes
+[
+Subtask: Checking class java.lang.StringConcatHelper
+[
+Subtask: Checking class java.lang.String[][]
+[
+Subtask: Checking class java.lang.StringLatin1
+[
+Subtask: Checking class java.lang.StringCoding$Result
+[
+Subtask: Checking class java.lang.StringBuilder
+[
+Subtask: Checking class java.lang.String$CaseInsensitiveComparator
+[
+Subtask: Checking class java.lang.StringCoding$1
+[
+Subtask: Checking class java.lang.String[]
+[
+Subtask: Checking class java.lang.StringCoding
+[
+Subtask: Checking class java.lang.String
+[
+				</pre>
+
+				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
+				double quotes. These need to be escaped here as shown.
+				The whole of the command option must be passed to Eclipse Memory Analyzer as a single argument
+				starting with <span class="keyword option">-command</span>. As the query command has spaces the
+				whole argument is surrounded by double quotes so the operating system
+				treats it as a single item.
+				Any double quotes in the OQL statement need 7 backslashes before.
+				A backslash in the OQL statement needs to be doubled.
+				There are no character escapes in OQL string literals.
+				It is not therefore possible to add a double quote to a <span class="keyword cmdname">SELECT</span>
+				<span class="keyword cmdname">AS</span> column name. It makes no sense to add it to a
+				class pattern for a <span class="keyword cmdname">FROM</span> item.
+				It is not possible to add a double quote to a <span class="keyword cmdname">LIKE</span>
+				regular expression string literal. It would be possible to use the <samp class="ph codeph">matches()</samp>
+				method and build the pattern using a string concatenation using character quote holding a double quote.
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+
+</body>
+</html>

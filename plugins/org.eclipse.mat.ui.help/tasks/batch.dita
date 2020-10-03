@@ -39,7 +39,7 @@
 					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname>
 					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport">running leak suspect report</xref> for more details.</choice>
 					<choice>For an overview report use <parmname>org.eclipse.mat.api:overview</parmname>
-					This report is included at the begining of the leak suspects report
+					This report is included at the beginning of the leak suspects report
 					and shows:
 					<ul>
 					 	<li>Heap Dump Overview</li> 
@@ -64,7 +64,12 @@
 					<parmname>org.eclipse.mat.hprof:export</parmname>
 					</codeblock>
 					See <xref type="task" href="exportdump.dita">export heap dump</xref> for more details.</choice>
+					<choice>To run a single query on a heap dump and produce an HTML report use<codeph><cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-command=</option><varname>histogram</varname> <parmname>org.eclipse.mat.api:query</parmname></codeph>
+					See <xref type="task" href="../reference/inspections/query_report.dita">Query Report</xref> for more details.</choice>
 				</choices>
+			</step>
+			<step>
+				<cmd>Choose additional options to control the parse and report generation.</cmd>
 				<info>
 				Command line options controlling the parse.
 				</info>
@@ -110,11 +115,47 @@
 					Controls which particular objects are discarded.
 				</cmd>
 				</substep>
-								<substep>
+				<substep>
 				<note>Experimental</note>
 				<cmd><userinput>-discard_seed=</userinput><varname>random number generator seed</varname>.
 					Controls which particular objects are discarded.
 				</cmd>
+				</substep>
+				<substep id="report_options">
+					<cmd>Other report options</cmd>
+					<stepxmp>
+						<p>Other parameters controlling output include the following:</p>
+						<simpletable>
+							<sthead>
+								<stentry>Argument</stentry>
+								<stentry>Description</stentry>
+							</sthead>
+							<strow>
+								<stentry>-limit</stentry>
+								<stentry>Controls the number of entries generated in an output table.
+								See <xref href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT" format="html">org.eclipse.mat.report.Params.Rendering.LIMIT</xref>
+								</stentry>
+							</strow>
+							<strow>
+								<stentry>-format</stentry>
+								<stentry>Controls the type of the output (HTML or CSV).
+								See <xref href="../doc/org/eclipse/mat/report/Params.html#FORMAT" format="html">org.eclipse.mat.report.Params.FORMAT</xref>
+								</stentry>
+							</strow>
+							<strow>
+								<stentry>-html.show_table_headings</stentry>
+								<stentry>Controls whether table headings should be shown for tables.
+								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER" format="html">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</xref>
+								</stentry>
+							</strow>
+							<strow>
+								<stentry>-html.show_totals</stentry>
+								<stentry>Controls whether totals should be shown for tables.
+								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS" format="html">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</xref>
+								</stentry>
+							</strow>
+						</simpletable>
+					</stepxmp>
 				</substep>
 				</substeps>
 				<stepresult>

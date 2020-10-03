@@ -52,7 +52,7 @@
 
 		<!-- basics -->		
 		<query impl="org.eclipse.mat.inspections.WasteInCharArraysQuery" />
-  		<query impl="org.eclipse.mat.inspections.UnreachableObjectsQuery"/>
+		<query impl="org.eclipse.mat.inspections.UnreachableObjectsQuery"/>
 		
 		<!-- leak identification -->
 		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>
@@ -161,6 +161,9 @@
 		<report id="overview2" name="%report.overview2.name Heap Dump Overview comparison"
 				description="%report.overview.help"
 				file="META-INF/reports/overview2.xml" />
+		<report id="query" name="%report.query.name"
+				description="%report.query.help"
+				file="META-INF/reports/query.xml" />
 	</extension>
 
     <extension point="org.eclipse.mat.api.collectionExtractorProvider">
