@@ -29,9 +29,9 @@
 		</div>
 
 		<ol class="ol steps"><li class="li step stepexpand">
-				<div class="note note"><span class="notetitle">Note:</span> On Windows, use <span class="keyword">.\mat\ParseHeapDump.bat</span> instead of <span class="keyword">./mat/ParseHeapDump.sh</span></div>
+				<div class="note note"><span class="notetitle">Note:</span> On Windows, use <span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span> instead of <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span></div>
 
-				<span class="ph cmd">Run <span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
+				<span class="ph cmd">Run <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span> <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
 				</span>
 				<ul class="ul choices">
 					<li class="li choice">For a simple suspects report use <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
@@ -58,24 +58,25 @@
 					See <a class="xref" href="../reference/inspections/component_report.html" title="Analyze a component for possible memory waste and other inefficiencies.">Component report</a> for more details
 					of the report run on each of the top components by memory usage.</li>
 
-					<li class="li choice">To compare two heap dumps use<span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-snapshot2=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:compare</span></li>
+					<li class="li choice">To compare two heap dumps use <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-snapshot2=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:compare</span></li>
 
-					<li class="li choice">To compare two heap dumps for memory leaks with a leak suspects report use<span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-baseline=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:suspects2</span>
+					<li class="li choice">To compare two heap dumps for memory leaks with a leak suspects report use <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-baseline=</span><var class="keyword varname">myheapdump2.hprof</var> <span class="keyword parmname">org.eclipse.mat.api:suspects2</span>
 					See <a class="xref" href="runningleaksuspectreport.html#task_runningleaksuspectreport__compare">running leak suspect report by snapshot comparison</a> for more details.</li>
 
 					<li class="li choice">To export a new copy of the heap dump with redactions use a command like
 					<pre class="pre codeblock">
-					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
-					<var class="keyword varname">myheapdump.hprof</var>
-					<span class="keyword option">-output=</span><var class="keyword varname">myheapdump2.hprof</var>
-					<span class="keyword option">-redact=</span><span class="keyword parmname">BASIC</span>
-					<span class="keyword option">-map=</span><var class="keyword varname">myheapdump2.map</var>
-					<span class="keyword parmname">org.eclipse.mat.hprof:export</span>
+<span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span>
+<span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span>
+<span class="keyword option">-output=</span><span class="ph filepath"><var class="keyword varname">myheapdump2.hprof</var></span>
+<span class="keyword option">-redact=</span><span class="keyword parmname">BASIC</span>
+<span class="keyword option">-map=</span><span class="ph filepath"><var class="keyword varname">myheapdump2.map</var></span>
+<span class="keyword parmname">org.eclipse.mat.hprof:export</span>
 					</pre>
 
-					See <a class="xref" href="exportdump.html">export heap dump</a> for more details.</li>
+					See <a class="xref" href="exportdump.html">export heap dump</a> for more details.
+					</li>
 
-					<li class="li choice">To run a single query on a heap dump and produce an HTML report use<samp class="ph codeph"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span> <var class="keyword varname">myheapdump.hprof</var> <span class="keyword option">-command=</span><var class="keyword varname">histogram</var> <span class="keyword parmname">org.eclipse.mat.api:query</span></samp>
+					<li class="li choice">To run a single query on a heap dump and produce an HTML report use <samp class="ph codeph"><span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span> <span class="keyword option">-command=</span><var class="keyword varname">histogram</var> <span class="keyword parmname">org.eclipse.mat.api:query</span></samp>
 					See <a class="xref" href="../reference/inspections/query_report.html" title="Run a single query to produce a HTML report in batch mode.">Query Report</a> for more details.</li>
 
 				</ul>
@@ -106,7 +107,7 @@
 					<a class="xref" href="acquiringheapdump.html#task_acquiringheapdump__multiple">
 					multiple snapshots</a> in a heap dump file and a specific snapshot is not
 					selected then the parse will fail with a 
-					<samp class="ph systemoutput">org.eclipse.mat.snapshot.MultipleSnapshotsException</samp>
+					<a class="xref" href="../doc/org/eclipse/mat/snapshot/MultipleSnapshotsException.html"><samp class="ph systemoutput"><span class="keyword apiname">org.eclipse.mat.snapshot.MultipleSnapshotsException</span></samp></a>
 					which will list appropriate possible snapshot identifiers to use with this
 					option.
 				</span>
@@ -150,40 +151,40 @@
 						<p class="p">Other parameters controlling output include the following:</p>
 
 						<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-								<th valign="bottom" align="left" id="d16875e321" class="stentry">Argument</th>
+								<th valign="bottom" align="left" id="d17191e336" class="stentry">Argument</th>
 
-								<th valign="bottom" align="left" id="d16875e324" class="stentry">Description</th>
+								<th valign="bottom" align="left" id="d17191e339" class="stentry">Description</th>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d16875e321" class="stentry">-limit</td>
+								<td valign="top" headers="d17191e336" class="stentry">-limit</td>
 
-								<td valign="top" headers="d16875e324" class="stentry">Controls the number of entries generated in an output table.
-								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT">org.eclipse.mat.report.Params.Rendering.LIMIT</a>
+								<td valign="top" headers="d17191e339" class="stentry">Controls the number of entries generated in an output table.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT"><span class="keyword apiname">org.eclipse.mat.report.Params.Rendering.LIMIT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d16875e321" class="stentry">-format</td>
+								<td valign="top" headers="d17191e336" class="stentry">-format</td>
 
-								<td valign="top" headers="d16875e324" class="stentry">Controls the type of the output (HTML or CSV).
-								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.html#FORMAT">org.eclipse.mat.report.Params.FORMAT</a>
+								<td valign="top" headers="d17191e339" class="stentry">Controls the type of the output (HTML or CSV).
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.html#FORMAT"><span class="keyword apiname">org.eclipse.mat.report.Params.FORMAT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d16875e321" class="stentry">-html.show_table_headings</td>
+								<td valign="top" headers="d17191e336" class="stentry">-html.show_table_headings</td>
 
-								<td valign="top" headers="d16875e324" class="stentry">Controls whether table headings should be shown for tables.
-								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</a>
+								<td valign="top" headers="d17191e339" class="stentry">Controls whether table headings should be shown for tables.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d16875e321" class="stentry">-html.show_totals</td>
+								<td valign="top" headers="d17191e336" class="stentry">-html.show_totals</td>
 
-								<td valign="top" headers="d16875e324" class="stentry">Controls whether totals should be shown for tables.
-								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</a>
+								<td valign="top" headers="d17191e339" class="stentry">Controls whether totals should be shown for tables.
+								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</span></a>
 								</td>
 
 							</tr>
@@ -322,12 +323,12 @@ Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
 			</li>
 <li class="li step stepexpand">
 				<span class="ph cmd">
-					Unzip the report <var class="keyword varname">myheapdump_Leak_Suspects.zip</var>
+					Unzip the report <span class="ph filepath"><var class="keyword varname">myheapdump_Leak_Suspects.zip</var></span>
 				</span>
 			</li>
 <li class="li step stepexpand">
 				<span class="ph cmd">
-					View the <span class="keyword parmname">index.html</span>
+					View the <span class="ph filepath"><span class="keyword parmname">index.html</span></span>
 				</span>
 			</li>
 </ol>

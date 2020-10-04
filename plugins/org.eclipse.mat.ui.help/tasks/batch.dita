@@ -32,8 +32,8 @@
 		</context>
 		<steps>
 			<step>
-				<note>On Windows, use <keyword>.\mat\ParseHeapDump.bat</keyword> instead of <keyword>./mat/ParseHeapDump.sh</keyword></note>
-				<cmd>Run <cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <parmname>org.eclipse.mat.api:suspects</parmname>
+				<note>On Windows, use <filepath><cmdname>.\mat\ParseHeapDump.bat</cmdname></filepath> instead of <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath></note>
+				<cmd>Run <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <filepath><varname>myheapdump.hprof</varname></filepath> <parmname>org.eclipse.mat.api:suspects</parmname>
 				</cmd>
 				<choices>
 					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname>
@@ -51,20 +51,21 @@
 					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname>
 					See <xref type="task" href="../reference/inspections/component_report.dita">Component report</xref> for more details
 					of the report run on each of the top components by memory usage.</choice>
-					<choice>To compare two heap dumps use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
-					<choice>To compare two heap dumps for memory leaks with a leak suspects report use<cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
+					<choice>To compare two heap dumps use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
+					<choice>To compare two heap dumps for memory leaks with a leak suspects report use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
 					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport__compare">running leak suspect report by snapshot comparison</xref> for more details.</choice>
 					<choice>To export a new copy of the heap dump with redactions use a command like
 					<codeblock>
-					<cmdname>./mat/ParseHeapDump.sh</cmdname>
-					<varname>myheapdump.hprof</varname>
-					<option>-output=</option><varname>myheapdump2.hprof</varname>
-					<option>-redact=</option><parmname>BASIC</parmname>
-					<option>-map=</option><varname>myheapdump2.map</varname>
-					<parmname>org.eclipse.mat.hprof:export</parmname>
+<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
+<filepath><varname>myheapdump.hprof</varname></filepath>
+<option>-output=</option><filepath><varname>myheapdump2.hprof</varname></filepath>
+<option>-redact=</option><parmname>BASIC</parmname>
+<option>-map=</option><filepath><varname>myheapdump2.map</varname></filepath>
+<parmname>org.eclipse.mat.hprof:export</parmname>
 					</codeblock>
-					See <xref type="task" href="exportdump.dita">export heap dump</xref> for more details.</choice>
-					<choice>To run a single query on a heap dump and produce an HTML report use<codeph><cmdname>./mat/ParseHeapDump.sh</cmdname> <varname>myheapdump.hprof</varname> <option>-command=</option><varname>histogram</varname> <parmname>org.eclipse.mat.api:query</parmname></codeph>
+					See <xref type="task" href="exportdump.dita">export heap dump</xref> for more details.
+					</choice>
+					<choice>To run a single query on a heap dump and produce an HTML report use <codeph><filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <filepath><varname>myheapdump.hprof</varname></filepath> <option>-command=</option><varname>histogram</varname> <parmname>org.eclipse.mat.api:query</parmname></codeph>
 					See <xref type="task" href="../reference/inspections/query_report.dita">Query Report</xref> for more details.</choice>
 				</choices>
 			</step>
@@ -92,7 +93,7 @@
 					<xref format="dita" href="acquiringheapdump.dita#task_acquiringheapdump/multiple">
 					multiple snapshots</xref> in a heap dump file and a specific snapshot is not
 					selected then the parse will fail with a 
-					<systemoutput>org.eclipse.mat.snapshot.MultipleSnapshotsException</systemoutput>
+					<xref href="../doc/org/eclipse/mat/snapshot/MultipleSnapshotsException.html" format="html"><systemoutput><apiname>org.eclipse.mat.snapshot.MultipleSnapshotsException</apiname></systemoutput></xref>
 					which will list appropriate possible snapshot identifiers to use with this
 					option.
 				</cmd>
@@ -133,25 +134,25 @@
 							<strow>
 								<stentry>-limit</stentry>
 								<stentry>Controls the number of entries generated in an output table.
-								See <xref href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT" format="html">org.eclipse.mat.report.Params.Rendering.LIMIT</xref>
+								See <xref href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT" format="html"><apiname>org.eclipse.mat.report.Params.Rendering.LIMIT</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
 								<stentry>-format</stentry>
 								<stentry>Controls the type of the output (HTML or CSV).
-								See <xref href="../doc/org/eclipse/mat/report/Params.html#FORMAT" format="html">org.eclipse.mat.report.Params.FORMAT</xref>
+								See <xref href="../doc/org/eclipse/mat/report/Params.html#FORMAT" format="html"><apiname>org.eclipse.mat.report.Params.FORMAT</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
 								<stentry>-html.show_table_headings</stentry>
 								<stentry>Controls whether table headings should be shown for tables.
-								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER" format="html">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</xref>
+								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER" format="html"><apiname>org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
 								<stentry>-html.show_totals</stentry>
 								<stentry>Controls whether totals should be shown for tables.
-								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS" format="html">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</xref>
+								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS" format="html"><apiname>org.eclipse.mat.report.Params.Html.SHOW_TOTALS</apiname></xref>
 								</stentry>
 							</strow>
 						</simpletable>
@@ -285,12 +286,12 @@ Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
 			</step>
 			<step>
 				<cmd>
-					Unzip the report <varname>myheapdump_Leak_Suspects.zip</varname>
+					Unzip the report <filepath><varname>myheapdump_Leak_Suspects.zip</varname></filepath>
 				</cmd>
 			</step>
 			<step>
 				<cmd>
-					View the <parmname>index.html</parmname>
+					View the <filepath><parmname>index.html</parmname></filepath>
 				</cmd>
 			</step>
 			

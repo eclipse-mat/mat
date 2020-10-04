@@ -8,6 +8,12 @@
 <meta name="DC.Title" content="Query Report"/>
 <meta name="abstract" content="Run a single query to produce a HTML report in batch mode."/>
 <meta name="description" content="Run a single query to produce a HTML report in batch mode."/>
+<meta name="prodname" content="Eclipse Memory Analyzer"/>
+<meta name="version" content="1"/>
+<meta name="release" content="11"/>
+<meta name="modification" content="0"/>
+<meta name="platform" content="Windows"/>
+<meta name="platform" content="Linux"/>
 <meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
@@ -41,23 +47,23 @@
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-					<th valign="bottom" align="left" id="d5950e43" class="stentry">Argument</th>
+					<th valign="bottom" align="left" id="d5950e61" class="stentry">Argument</th>
 
-					<th valign="bottom" align="left" id="d5950e46" class="stentry">Description</th>
+					<th valign="bottom" align="left" id="d5950e64" class="stentry">Description</th>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d5950e43" class="stentry">-command</td>
+					<td valign="top" headers="d5950e61" class="stentry">-command</td>
 
-					<td valign="top" headers="d5950e46" class="stentry">The command line version of the query to be run. This
+					<td valign="top" headers="d5950e64" class="stentry">The command line version of the query to be run. This
 						is like the text typed into the <a class="xref" href="../selectingqueries.html">'Search Queries' query browser</a> command line.
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d5950e43" class="stentry">other report options</td>
+					<td valign="top" headers="d5950e61" class="stentry">other report options</td>
 
-					<td valign="top" headers="d5950e46" class="stentry">See <a class="xref" href="../../tasks/batch.html#task_batch__report_options">batch mode control of report options</a></td>
+					<td valign="top" headers="d5950e64" class="stentry">See <a class="xref" href="../../tasks/batch.html#task_batch__report_options">batch mode control of report options</a></td>
 
 				</tr>
 </table>
@@ -70,12 +76,24 @@
 
 		</div>
 
-		<div class="example">
-			<p class="p">Simple example of a histogram for Windows</p>
-
+		<div class="example"><h2 class="title sectiontitle">Simple example of a histogram for Windows</h2>
+			
 			<p class="p">
 				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
+					<span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span>
+					<span class="ph filepath">myheapdump.hprof</span>
+					<span class="keyword option">-command=</span><span class="keyword cmdname">histogram</span>
+					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
+				</samp>
+			</p>
+
+		</div>
+
+		<div class="example"><h2 class="title sectiontitle">Simple example of a histogram for Linux</h2>
+			
+			<p class="p">
+				<samp class="ph codeph">
+					<span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span>
 					<var class="keyword varname">myheapdump.hprof</var> 
 					<span class="keyword option">-command=</span><span class="keyword cmdname">histogram</span>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
@@ -84,28 +102,13 @@
 
 		</div>
 
-		<div class="example">
-			<p class="p">Simple example of a histogram for Linux</p>
-
-			<p class="p">
-				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
-					<var class="keyword varname">myheapdump.hprof</var> 
-					<span class="keyword option">-command=</span><span class="keyword cmdname">histogram</span>
-					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
-				</samp>
-			</p>
-
-		</div>
-
-		<div class="example">
-			<p class="p">Simple OQL example for Windows</p>
-
+		<div class="example"><h2 class="title sectiontitle">Simple OQL example for Windows</h2>
+			
 			<div class="p">
 				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
-					<var class="keyword varname">myheapdump.hprof</var>
-					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT * FROM java.lang.String s\\\"</var>"
+					<span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span>
+					<span class="ph filepath">myheapdump.hprof</span>
+					<span class="ph synph"><span class="ph delim">"</span></span><span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT * FROM java.lang.String s\\\"</var><span class="ph synph"><span class="ph delim">"</span></span>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
 				</samp>
 				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
@@ -119,14 +122,13 @@
 
 		</div>
 
-		<div class="example">
-		<p class="p">Simple OQL example for Linux</p>
-
+		<div class="example"><h2 class="title sectiontitle">Simple OQL example for Linux</h2>
+			
 			<div class="p">
 				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
-					<var class="keyword varname">myheapdump.hprof</var>
-					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"SELECT * FROM java.lang.String s\"</var>"
+					<span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span>
+					<span class="ph filepath">myheapdump.hprof</span>
+					<span class="ph synph"><span class="ph delim">"</span></span><span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"SELECT * FROM java.lang.String s\"</var><span class="ph synph"><span class="ph delim">"</span></span>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span> 
 				</samp>
 				<div class="note note"><span class="notetitle">Note:</span> The OQL query <span class="keyword cmdname">oql</span> has the actual OQL statement surrounded by
@@ -140,14 +142,13 @@
 
 		</div>
 
-		<div class="example">
-			<p class="p">Another OQL example for Windows</p>
-
+		<div class="example"><h2 class="title sectiontitle">Another OQL example for Windows</h2>
+			
 			<div class="p">
 				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.bat</span>
-					<var class="keyword varname">myheapdump.hprof</var>
-					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT s AS Object, toString(s) AS \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\..*\\\\\\\" AND s.hash ^^^&gt; 0\\\"</var>
+					<span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span>
+					<span class="ph filepath">myheapdump.hprof</span>
+					<span class="ph synph"><span class="ph delim">"</span></span><span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\\\"SELECT s AS Object, toString(s) AS \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\..*\\\\\\\" AND s.hash ^^^&gt; 0\\\"</var><span class="ph synph"><span class="ph delim">"</span></span>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span>
 				</samp>
 				<pre class="pre msgblock">
@@ -208,14 +209,13 @@ Subtask: Checking class java.lang.String
 
 		</div>
 
-		<div class="example">
-			<p class="p">Another OQL example for Linux</p>
-
+		<div class="example"><h2 class="title sectiontitle">Another OQL example for Linux</h2>
+			
 			<div class="p">
 				<samp class="ph codeph">
-					<span class="keyword cmdname">./mat/ParseHeapDump.sh</span>
-					<var class="keyword varname">myheapdump.hprof</var>
-					"<span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"select s as \\\"a b\\\" from \\\"java.lang.String.*\\\" WHERE toString(s) LIKE \\\".*\\\..*\\\" AND s.hash &gt; 0\"</var>
+					<span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span>
+					<span class="ph filepath">myheapdump.hprof</span>
+					<span class="ph synph"><span class="ph delim">"</span></span><span class="keyword option">-command=</span><span class="keyword cmdname">oql</span> <var class="keyword varname">\"select s as \\\"a b\\\" from \\\"java.lang.String.*\\\" WHERE toString(s) LIKE \\\".*\\\..*\\\" AND s.hash &gt; 0\"</var><span class="ph synph"><span class="ph delim">"</span></span>
 					<span class="keyword parmname">org.eclipse.mat.api:query</span>
 				</samp>
 				<pre class="pre msgblock">

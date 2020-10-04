@@ -20,6 +20,14 @@
 				http://www.eclipse.org/legal/epl-v10.html
 			</copyrholder>
 		</copyright>
+			<metadata>
+				<prodinfo>
+					<prodname>Eclipse Memory Analyzer</prodname>
+					<vrmlist><vrm version="1" release="11" modification="0"/></vrmlist>
+					<platform>Windows</platform>
+					<platform>Linux</platform>
+				</prodinfo>
+ 			</metadata>
 	</prolog>
 
 	<refbody>
@@ -55,35 +63,35 @@
 			<title>Result</title>
 			<p>An HTML report holding the result of the query.</p>
 		</section>
-		<example platform="windows">
-			<p>Simple example of a histogram for Windows</p>
+		<example platform="Windows">
+			<title>Simple example of a histogram for Windows</title>
 			<p>
 				<codeph>
-					<cmdname>./mat/ParseHeapDump.bat</cmdname>
+					<filepath><cmdname>.\mat\ParseHeapDump.bat</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<option>-command=</option><cmdname>histogram</cmdname>
+					<parmname>org.eclipse.mat.api:query</parmname> 
+				</codeph>
+			</p>
+		</example>
+		<example platform="Linux">
+			<title>Simple example of a histogram for Linux</title>
+			<p>
+				<codeph>
+					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
 					<varname>myheapdump.hprof</varname> 
 					<option>-command=</option><cmdname>histogram</cmdname>
 					<parmname>org.eclipse.mat.api:query</parmname> 
 				</codeph>
 			</p>
 		</example>
-		<example platform="linux">
-			<p>Simple example of a histogram for Linux</p>
+		<example platform="Windows">
+			<title>Simple OQL example for Windows</title>
 			<p>
 				<codeph>
-					<cmdname>./mat/ParseHeapDump.sh</cmdname>
-					<varname>myheapdump.hprof</varname> 
-					<option>-command=</option><cmdname>histogram</cmdname>
-					<parmname>org.eclipse.mat.api:query</parmname> 
-				</codeph>
-			</p>
-		</example>
-		<example platform="windows">
-			<p>Simple OQL example for Windows</p>
-			<p>
-				<codeph>
-					<cmdname>./mat/ParseHeapDump.bat</cmdname>
-					<varname>myheapdump.hprof</varname>
-					"<option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT * FROM java.lang.String s\\\"</varname>"
+					<filepath><cmdname>.\mat\ParseHeapDump.bat</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<synph><delim>"</delim></synph><option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT * FROM java.lang.String s\\\"</varname><synph><delim>"</delim></synph>
 					<parmname>org.eclipse.mat.api:query</parmname> 
 				</codeph>
 				<note>The OQL query <cmdname>oql</cmdname> has the actual OQL statement surrounded by
@@ -94,13 +102,13 @@
 				treats it as a single item.</note>
 			</p>
 		</example>
-		<example platform="linux">
-		<p>Simple OQL example for Linux</p>
+		<example platform="Linux">
+			<title>Simple OQL example for Linux</title>
 			<p>
 				<codeph>
-					<cmdname>./mat/ParseHeapDump.sh</cmdname>
-					<varname>myheapdump.hprof</varname>
-					"<option>-command=</option><cmdname>oql</cmdname> <varname>\"SELECT * FROM java.lang.String s\"</varname>"
+					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<synph><delim>"</delim></synph><option>-command=</option><cmdname>oql</cmdname> <varname>\"SELECT * FROM java.lang.String s\"</varname><synph><delim>"</delim></synph>
 					<parmname>org.eclipse.mat.api:query</parmname> 
 				</codeph>
 				<note>The OQL query <cmdname>oql</cmdname> has the actual OQL statement surrounded by
@@ -111,13 +119,13 @@
 				treats it as a single item.</note>
 			</p>
 		</example>
-		<example platform="windows">
-			<p>Another OQL example for Windows</p>
+		<example platform="Windows">
+			<title>Another OQL example for Windows</title>
 			<p>
 				<codeph>
-					<cmdname>./mat/ParseHeapDump.bat</cmdname>
-					<varname>myheapdump.hprof</varname>
-					"<option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT s AS Object, toString(s) AS \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\..*\\\\\\\" AND s.hash ^^^&gt; 0\\\"</varname>
+					<filepath><cmdname>.\mat\ParseHeapDump.bat</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<synph><delim>"</delim></synph><option>-command=</option><cmdname>oql</cmdname> <varname>\\\"SELECT s AS Object, toString(s) AS \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\..*\\\\\\\" AND s.hash ^^^&gt; 0\\\"</varname><synph><delim>"</delim></synph>
 					<parmname>org.eclipse.mat.api:query</parmname>
 				</codeph>
 				<msgblock>
@@ -174,13 +182,13 @@ Subtask: Checking class java.lang.String
 				</note>
 			</p>
 		</example>
-		<example platform="linux">
-			<p>Another OQL example for Linux</p>
+		<example platform="Linux">
+			<title>Another OQL example for Linux</title>
 			<p>
 				<codeph>
-					<cmdname>./mat/ParseHeapDump.sh</cmdname>
-					<varname>myheapdump.hprof</varname>
-					"<option>-command=</option><cmdname>oql</cmdname> <varname>\"select s as \\\"a b\\\" from \\\"java.lang.String.*\\\" WHERE toString(s) LIKE \\\".*\\\..*\\\" AND s.hash &gt; 0\"</varname>
+					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<synph><delim>"</delim></synph><option>-command=</option><cmdname>oql</cmdname> <varname>\"select s as \\\"a b\\\" from \\\"java.lang.String.*\\\" WHERE toString(s) LIKE \\\".*\\\..*\\\" AND s.hash &gt; 0\"</varname><synph><delim>"</delim></synph>
 					<parmname>org.eclipse.mat.api:query</parmname>
 				</codeph>
 				<msgblock>
