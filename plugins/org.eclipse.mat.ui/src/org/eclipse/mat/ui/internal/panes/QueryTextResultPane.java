@@ -14,7 +14,6 @@ package org.eclipse.mat.ui.internal.panes;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -196,8 +195,8 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                 DisplayFileResult r = (DisplayFileResult) queryResult.getSubject();
                 if (browser != null)
                 {
-                    // Current Eclipse browser doesn't handle @media prefers-color-scheme
-                    if (darkMode())
+                    // Current Eclipse IE browser doesn't handle @media prefers-color-scheme
+                    if (browser.getBrowserType().equals("ie") && darkMode()) //$NON-NLS-1$
                     {
                         File p = r.getFile().getParentFile();
                         File styles = new File(p, "styles.css"); //$NON-NLS-1$
