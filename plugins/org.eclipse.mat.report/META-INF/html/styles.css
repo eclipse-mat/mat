@@ -16,10 +16,16 @@ body {
 	font-size: 10pt;
 	font-family: verdana, arial, helvetica, sans-serif;
 }
+:root {
+	--dark-color: white;
+	--dark-background: #101010;
+}
 @media screen and (prefers-color-scheme: dark) {
 	body {
 		background: #101010;
+		background: var(--dark-background);
 		color: white;
+		color: var(--dark-color)
 	}
 }
 
@@ -111,6 +117,7 @@ img {
 	.important {
 		background-color: #c27f20;
 		border: 1px dotted white;
+		border: 1px dotted var(--dark-color);
 	}
 }
 
@@ -160,6 +167,7 @@ img {
 @media screen and (prefers-color-scheme: dark) {
 	.evenrow {
 		background-color: #101010;
+		background-color: var(--dark-background);
 	}
 	.oddrow {
 		background-color: #181818;
@@ -177,6 +185,7 @@ img {
 	.result tbody tr.selected td {
 		background-color: #4d90ef;
 		color: #101010;
+		color: var(--dark-background);
 		border-left: 1px solid #8DBAFA;
 		border-bottom: 1px solid #447DCE;
 	}
@@ -188,17 +197,19 @@ img {
 @media screen and (prefers-color-scheme: dark) {
 	.result tbody tr.selected td a {
 		color: #101010;
+		color: var(--dark-background);
 	}
 }
 
 .result tbody tr.selected td a:focus {
-    outline-style: dotted;
-    outline-width: 1px;
-    outline-color: #ffffff
+	outline-style: dotted;
+	outline-width: 1px;
+	outline-color: #ffffff
 }
 @media screen and (prefers-color-scheme: dark) {
 	.result tbody tr.selected td a:focus {
-    	outline-color: #101010;
+		outline-color: #101010;
+		outline-color: var(--dark-background);
 	}
 }
 
