@@ -183,7 +183,7 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, suspects.toArray()));
-                addCommand(spec, "list_objects", suspects); //$NON-NLS-1$
+                addCommand(spec, "show_dominator_tree", suspects); //$NON-NLS-1$
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -220,7 +220,7 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, ids));
-                addCommand(spec, "list_objects", suspects); //$NON-NLS-1$
+                addCommand(spec, "show_dominator_tree", suspects); //$NON-NLS-1$
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -320,7 +320,20 @@ public class TopConsumers2Query implements IQuery
             {
                 suspectObjects.addAll(r.getObjectIds());
             }
-            addCommand(spec, "histogram", suspectObjects); //$NON-NLS-1$
+            addCommand(spec, "show_dominator_tree -groupby BY_CLASS", suspectObjects); //$NON-NLS-1$
+            if (spec.getCommand() == null && objects == null)
+            {
+                StringBuilder sb = new StringBuilder();
+                for (ClassHistogramRecord r : suspects)
+                {
+                    if (sb.length() > 0)
+                        sb.append(',');
+                    sb.append(r.getClassId());
+                }
+                sb.insert(0, "show_dominator_tree -groupby BY_CLASS SELECT OBJECTS o FROM OBJECTS (dominators(-1)) o where classof(o) in (SELECT * FROM OBJECTS "); //$NON-NLS-1$
+                sb.append(')');
+                spec.setCommand(sb.toString());
+            }
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -407,6 +420,28 @@ public class TopConsumers2Query implements IQuery
                     suspectObjects.addAll(r.getObjectIds());
                 }
                 addCommand(spec, "show_dominator_tree -groupby BY_CLASSLOADER", suspectObjects); //$NON-NLS-1$
+                if (spec.getCommand() == null && objects == null)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (ClassLoaderHistogramRecord r : suspects)
+                    {
+                        if (sb.length() > 0)
+                            sb.append(',');
+                        sb.append(r.getClassLoaderId());
+                    }
+                    sb.insert(0, "(SELECT * FROM OBJECTS "); //$NON-NLS-1$
+                    sb.append(')');
+                    String ids = sb.toString();
+                    sb.setLength(0);
+                    sb.append("show_dominator_tree -groupby BY_CLASSLOADER SELECT OBJECTS o FROM OBJECTS (dominators(-1)) o WHERE classof(o).@classLoaderId in "); //$NON-NLS-1$
+                    sb.append(ids);
+                    sb.append(" and o implements org.eclipse.mat.snapshot.model.IClass = false and o implements org.eclipse.mat.snapshot.model.IClassLoader = false"); //$NON-NLS-1$
+                    sb.append(" or o implements org.eclipse.mat.snapshot.model.IClass and $ {snapshot}.getObject(o).@classLoaderId in "); //$NON-NLS-1$
+                    sb.append(ids);
+                    sb.append(" or o implements org.eclipse.mat.snapshot.model.IClassLoader and o in "); //$NON-NLS-1$
+                    sb.append(ids);
+                    spec.setCommand(sb.toString());
+                }
             }
             catch (SnapshotException e)
             {}

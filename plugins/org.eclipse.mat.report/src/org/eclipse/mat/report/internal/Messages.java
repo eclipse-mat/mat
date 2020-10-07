@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,6 +56,7 @@ public final class Messages extends NLS
     public static String HtmlOutputter_Label_AllNObjects;
     public static String HtmlOutputter_Msg_TreeIsLimited;
     public static String PageSnippets_Label_HideUnhide;
+    public static String PageSnippets_Label_UnhideHide;
     public static String PageSnippets_Label_CreatedBy;
     public static String PageSnippets_Label_OpenInMemoryAnalyzer;
     public static String PageSnippets_Label_StartPage;
