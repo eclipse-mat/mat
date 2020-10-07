@@ -17,15 +17,18 @@ function hide(obj, a)
 	{
 		div.display = "block";
 		obj.firstChild.src = imageBase.value + 'opened.gif'
-		if (obj.getAttribute("data-hide") != null)
-			obj.title=obj.getAttribute("data-hide")
 	}
 	else
 	{
 		div.display = "none";
 		obj.firstChild.src = imageBase.value + 'closed.gif'
-		if (obj.getAttribute("data-unhide") != null)
-			obj.title=obj.getAttribute("data-unhide")
+	}
+	title = obj.title;
+	if (title != null)
+	{
+		sep = title.indexOf(" / ")
+		if (sep >= 0)
+			obj.title = title.substring(sep + 3) + title.substring(sep, sep + 3) + title.substring(0, sep);
 	}
 }
 

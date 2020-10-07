@@ -167,8 +167,6 @@ import org.eclipse.mat.util.HTMLUtils;
                 artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(part.getId()) //
                                 .append("'); return false;\" title=\"") //
                                 .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
-                                .append("\" data-hide=\"").append(Messages.PageSnippets_Label_HideUnhide)
-                                .append("\" data-unhide=\"").append(Messages.PageSnippets_Label_UnhideHide)
                                 .append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
                                 .append("\" alt=\"\"></a> ");
@@ -219,8 +217,6 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(query.getId()) //
                             .append("'); return false;\" title=\"") //
                             .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
-                            .append("\" data-hide=\"").append(Messages.PageSnippets_Label_HideUnhide)
-                            .append("\" data-unhide=\"").append(Messages.PageSnippets_Label_UnhideHide)
                             .append("\"><img src=\"") //
                             .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\" alt=\"\"></a> ");
 
