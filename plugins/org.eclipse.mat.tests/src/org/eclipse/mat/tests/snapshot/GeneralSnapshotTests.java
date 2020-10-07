@@ -750,6 +750,21 @@ public class GeneralSnapshotTests
             assertThat("No alt for img in "+f, v, equalTo(null));
 
             /*
+             * Check for alt text for areas.
+             */
+            p = Pattern.compile("<area (?![^>]*alt)[^>]*>");
+            m = p.matcher(s);
+            if (m.find())
+            {
+                v = m.group(0);
+            }
+            else
+            {
+                v = null;
+            }
+            assertThat("No alt for area in "+f, v, equalTo(null));
+
+            /*
              * Rough check for nesting of tags.
              */
             Stack<String> stk = new Stack<String>();

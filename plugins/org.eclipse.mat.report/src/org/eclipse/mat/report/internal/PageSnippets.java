@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - accessiblity improvements
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
@@ -157,7 +158,9 @@ import org.eclipse.mat.util.HTMLUtils;
         else
         {
             String v = String.valueOf(Math.min(order, 5));
-            artefact.append("<h").append(v).append(">");
+            artefact.append("<h").append(v)
+                .append(" name=\"").append(part.getId()).append("\">");
+                //.append(">");
 
             if (isExpandable)
             {
@@ -165,7 +168,9 @@ import org.eclipse.mat.util.HTMLUtils;
 
                 artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(part.getId()) //
                                 .append("'); return false;\" title=\"") //
-                                .append(Messages.PageSnippets_Label_HideUnhide) //
+                                .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
+                                .append("\" data-hide=\"").append(Messages.PageSnippets_Label_HideUnhide)
+                                .append("\" data-unhide=\"").append(Messages.PageSnippets_Label_UnhideHide)
                                 .append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
                                 .append("\" alt=\"\"></a> ");
@@ -175,9 +180,9 @@ import org.eclipse.mat.util.HTMLUtils;
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
                                 .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
-            artefact.append("<a name=\"").append(part.getId()).append("\">");
+            //artefact.append("<a tabindex=\"0\" name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
-            artefact.append("</a>");
+            //artefact.append("</a>");
             addCommandLink(part, artefact);
             artefact.append("</h").append(v).append(">");
         }
@@ -209,13 +214,16 @@ import org.eclipse.mat.util.HTMLUtils;
         }
         else
         {
-            artefact.append("<h5>");
+            //artefact.append("<h5>");
+            artefact.append("<h5 name=\"").append(query.getId()).append("\">");
 
             boolean isExpanded = forceExpansion || !query.params().getBoolean(Params.Html.COLLAPSED, false);
 
             artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(query.getId()) //
                             .append("'); return false;\" title=\"") //
-                            .append(Messages.PageSnippets_Label_HideUnhide) //
+                            .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
+                            .append("\" data-hide=\"").append(Messages.PageSnippets_Label_HideUnhide)
+                            .append("\" data-unhide=\"").append(Messages.PageSnippets_Label_UnhideHide)
                             .append("\"><img src=\"") //
                             .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\" alt=\"\"></a> ");
 
@@ -223,8 +231,9 @@ import org.eclipse.mat.util.HTMLUtils;
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
                                 query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
-            artefact.append("<a name=\"").append(query.getId()).append("\">");
-            artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");
+            //artefact.append("<a name=\"").append(query.getId()).append("\">");
+            artefact.append(HTMLUtils.escapeText(query.spec().getName()));
+            //artefact.append("</a>");
             addCommandLink(query, artefact);
             artefact.append("</h5>");
         }

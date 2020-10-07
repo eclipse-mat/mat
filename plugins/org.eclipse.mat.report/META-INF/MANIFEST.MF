@@ -12,7 +12,7 @@ Export-Package: org.eclipse.mat,
  org.eclipse.mat.query.annotations.descriptors,
  org.eclipse.mat.query.quantize,
  org.eclipse.mat.query.refined,
- org.eclipse.mat.query.registry;x-friends:="org.eclipse.mat.ui,org.eclipse.mat.api,org.eclipse.mat.chart.ui",
+ org.eclipse.mat.query.registry;x-friends:="org.eclipse.mat.ui,org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.chart.ui",
  org.eclipse.mat.query.results,
  org.eclipse.mat.report,
  org.eclipse.mat.util
