@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.birt.chart.computation.LegendItemHints;
 import org.eclipse.birt.chart.device.EmptyUpdateNotifier;
@@ -60,7 +59,6 @@ import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.MessageUtil;
-import org.eclipse.mat.util.Units;
 
 @Renderer(target = "html", result = IResultPie.class)
 public class HtmlPieChartRenderer implements IOutputter
@@ -141,11 +139,18 @@ public class HtmlPieChartRenderer implements IOutputter
                         {
                             LegendItemHints item = (LegendItemHints) source.getSource();
                             Slice slice = pie.getSlices().get(item.getIndex());
-                            String v = Units.Storage.of((long)slice.getValue()).format((long)slice.getValue());
-                            if (v != null)
+                            String descs[] = slice.getDescription().split("<br/>", 2); //$NON-NLS-1$
+                            if (descs.length >= 2)
                             {
-                                // Add some information
-                                tooltip.setText(MessageUtil.format(Messages.HtmlPieChartRenderer_LabelTooltipWithStorage, item.getItemText(), v));
+                                // Extended description - we use the first half from BIRT as it has the slice letter
+                                // Remove HTML tags <p> etc.
+                                String desc = descs[1].replaceAll("<[/a-z]+>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                                /*
+                                 * Should all be escaped by org.eclipse.mat.snapshot.query.PieFactory.PieImpl
+                                 * except for double-quote, but BIRT will escape the values before putting into HTML.
+                                 */
+                                // Add the extra size information to the label to give the hover text (title).
+                                tooltip.setText(MessageUtil.format(Messages.HtmlPieChartRenderer_LabelTooltipWithStorage, item.getItemText(), desc));
                             }
                             else
                             {

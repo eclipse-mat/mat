@@ -605,7 +605,7 @@ public class LeakHunterQuery implements IQuery
             {
                 IObject iObject = bigSuspectInstances.get(i);
                 big[i] = iObject.getObjectId();
-                pie.addSlice(i, iObject.getDisplayName(), iObject.getUsedHeapSize(), iObject.getRetainedHeapSize());
+                pie.addSlice(big[i], iObject.getDisplayName(), iObject.getUsedHeapSize(), iObject.getRetainedHeapSize());
                 totalBig += iObject.getRetainedHeapSize();
                 usedBig += iObject.getUsedHeapSize();
             }
