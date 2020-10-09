@@ -122,7 +122,8 @@ public class TopComponentsReportQuery implements IQuery
     {
         return
         //"select * from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$
-        "select objects b as \"" + name + "\" from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$ //$NON-NLS-2$
+        // Add the component name as a comment
+        "select * /* " + name.replace("*/", "* /") + " */ from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         " where"+ //$NON-NLS-1$
         " b implements org.eclipse.mat.snapshot.model.IClassLoader and b.@objectAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
         " b implements org.eclipse.mat.snapshot.model.IClass and b.@classLoaderAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$

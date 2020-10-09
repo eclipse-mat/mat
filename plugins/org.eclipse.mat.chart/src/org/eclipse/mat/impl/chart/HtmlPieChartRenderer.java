@@ -46,6 +46,8 @@ import org.eclipse.birt.chart.model.data.Action;
 import org.eclipse.birt.chart.model.data.Trigger;
 import org.eclipse.birt.chart.model.data.impl.ActionImpl;
 import org.eclipse.birt.chart.model.data.impl.TriggerImpl;
+import org.eclipse.birt.chart.model.layout.Block;
+import org.eclipse.birt.chart.model.layout.LabelBlock;
 import org.eclipse.birt.chart.model.layout.Legend;
 import org.eclipse.birt.chart.render.ActionRendererAdapter;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
@@ -127,6 +129,13 @@ public class HtmlPieChartRenderer implements IOutputter
 
             Generator gr = Generator.instance();
             GeneratedChartState state = gr.build(render.getDisplayServer(), chart, bo, null, rtc, null);
+            String plotLabel = null;
+            for (Block o : chart.getPlot().getChildren()) {
+                if (o instanceof LabelBlock)
+                {
+                    plotLabel = ((LabelBlock)o).getLabel().getCaption().getValue();
+                }
+            }
             state.getRunTimeContext().setActionRenderer(new ActionRendererAdapter()
             {
 
@@ -200,8 +209,17 @@ public class HtmlPieChartRenderer implements IOutputter
             imageMap = fixupMapAreas(imageMap, resolution);
             String mapName = "chart" + context.getId() + "map"; //$NON-NLS-1$ //$NON-NLS-2$
             writer.append("<map name='").append(mapName).append("'>").append(imageMap).append("</map>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            String altText = MessageUtil.format(Messages.HtmlPieChartRenderer_PieChartSlices, slices);
-            writer.append("<img src=\"").append(imageFile).append("\" width=\"" + width + "\" height=\"" + height + "\" usemap='#").append(mapName).append("' alt=\"").append(altText).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+            String slicesText = MessageUtil.format(Messages.HtmlPieChartRenderer_PieChartSlices, slices);
+            String altText;
+            if (plotLabel != null)
+            {
+                altText =  MessageUtil.format(Messages.HtmlPieChartRenderer_LabelTooltipWithStorage, slicesText, plotLabel);
+            }
+            else
+            {
+                altText = slicesText;
+            }
+            writer.append("<img src=\"").append(imageFile).append("\" width=\"" + width + "\" height=\"" + height + "\" usemap='#").append(mapName).append("' alt=\"").append(altText).append("\" title=\"").append(slicesText).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
         }
         catch (LinkageError e)
         {
