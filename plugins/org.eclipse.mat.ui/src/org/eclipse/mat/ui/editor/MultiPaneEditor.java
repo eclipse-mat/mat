@@ -851,30 +851,94 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         });
 
         // close others
-        menuItem = new MenuItem(menu, SWT.PUSH);
-        menuItem.setText(Messages.MultiPaneEditor_CloseOthers);
-        menuItem.addListener(SWT.Selection, new Listener()
+        if (container.getItemCount() > 1)
         {
-            public void handleEvent(Event e)
+            menuItem = new MenuItem(menu, SWT.PUSH);
+            menuItem.setText(Messages.MultiPaneEditor_CloseOthers);
+            menuItem.addListener(SWT.Selection, new Listener()
             {
-                int index = 0;
-
-                while (index < container.getItemCount())
+                public void handleEvent(Event e)
                 {
+                    int index = 0;
 
-                    CTabItem tabItem = container.getItem(index);
-                    if (tabItem == item)
+                    while (index < container.getItemCount())
                     {
-                        index++;
-                    }
-                    else
-                    {
-                        MultiPaneEditor.this.removePage(index);
+
+                        CTabItem tabItem = container.getItem(index);
+                        if (tabItem == item)
+                        {
+                            index++;
+                        }
+                        else
+                        {
+                            MultiPaneEditor.this.removePage(index);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
+        // close tabs to the left
+        if (itemsToLeftRight(item, true))
+        {
+            menuItem = new MenuItem(menu, SWT.PUSH);
+            menuItem.setText(Messages.MultiPaneEditor_CloseToLeft);
+            menuItem.addListener(SWT.Selection, new Listener()
+            {
+                public void handleEvent(Event e)
+                {
+                    int index = 0;
+
+                    while (index < container.getItemCount())
+                    {
+
+                        CTabItem tabItem = container.getItem(index);
+                        if (tabItem == item)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            MultiPaneEditor.this.removePage(index);
+                        }
+                    }
+                }
+            });
+        }
+
+        // close tabs to the right
+        if (itemsToLeftRight(item, false))
+        {
+            menuItem = new MenuItem(menu, SWT.PUSH);
+            menuItem.setText(Messages.MultiPaneEditor_CloseToRight);
+            menuItem.addListener(SWT.Selection, new Listener()
+            {
+                public void handleEvent(Event e)
+                {
+                    int index = 0;
+                    boolean close = false;
+                    while (index < container.getItemCount())
+                    {
+
+                        CTabItem tabItem = container.getItem(index);
+                        if (tabItem == item)
+                        {
+                            close = true;
+                            ++index;
+                        }
+                        else
+                        {
+                            if (close)
+                                MultiPaneEditor.this.removePage(index);
+                            else
+                                ++index;
+                        }
+                    }
+                }
+            });
+        }
+
+        new MenuItem(menu, SWT.SEPARATOR);
         // close all
         menuItem = new MenuItem(menu, SWT.PUSH);
         menuItem.setText(Messages.MultiPaneEditor_CloseAll);
@@ -901,6 +965,24 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                 display.sleep();
         }
         menu.dispose();
+    }
+
+    private boolean itemsToLeftRight(CTabItem item, boolean left) {
+        int index = 0;
+        while (index < container.getItemCount())
+        {
+
+            CTabItem tabItem = container.getItem(index);
+            if (tabItem == item)
+            {
+                if (left)
+                    return index > 0;
+                else
+                    return index < container.getItemCount() - 1;
+            }
+            ++index;
+        }
+        return index > 0;
     }
 
     public void updateToolbar()

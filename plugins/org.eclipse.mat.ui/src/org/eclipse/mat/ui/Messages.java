@@ -156,6 +156,8 @@ public class Messages extends NLS
     public static String MultiPaneEditor_Close;
     public static String MultiPaneEditor_CloseAll;
     public static String MultiPaneEditor_CloseOthers;
+    public static String MultiPaneEditor_CloseToLeft;
+    public static String MultiPaneEditor_CloseToRight;
     public static String MultiPaneEditor_Failed_to_open;
     public static String MultiPaneEditor_Opening;
     public static String MultiPaneEditor_UnsupportedEditorInput;
