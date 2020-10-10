@@ -64,10 +64,13 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
@@ -340,6 +343,22 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                     return;
 
                 showPopupMenuFor(item);
+            }
+
+        });
+
+        container.addKeyListener(new KeyAdapter()
+        {
+
+            public void keyPressed(KeyEvent event) {
+                if (!(event.keyCode == SWT.F10 && event.stateMask == SWT.MOD2))
+                    return;
+
+                CTabItem item = container.getSelection();
+                if (item == null)
+                    return;
+
+                showPopupMenuFor(item, true);
             }
 
         });
@@ -834,16 +853,52 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     protected void showPopupMenuFor(final CTabItem item)
     {
+        showPopupMenuFor(item, false);
+    }
+
+    /**
+     * Show the tab pop-up menu to allow tabs to be closed, moved, etc.
+     * @param item
+     * @param setLocation Whether to show the menu at the tab, not at the pointer
+     */
+    protected void showPopupMenuFor(final CTabItem item, boolean setLocation)
+    {
         Display display = item.getDisplay();
 
         Menu menu = new Menu(display.getActiveShell(), SWT.POP_UP);
+        buildPopupMenuFor(item, setLocation, menu);
+
+        // show menu
+        menu.setVisible(true);
+        while (!menu.isDisposed() && menu.isVisible())
+        {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        menu.dispose();
+    }
+
+    protected void buildPopupMenuFor(final CTabItem item, boolean setLocation, final Menu menu)
+    {
+        for (MenuItem menuItem : menu.getItems())
+        {
+            // Clean up if asked to rebuild menu
+            menuItem.dispose();
+        }
+        if (setLocation)
+        {
+            Display display = item.getDisplay();
+            Rectangle bounds = item.getBounds();
+            Rectangle p = display.map(item.getParent(), null, bounds);
+            menu.setLocation(p.x, p.y + p.height);
+        }
 
         // close
         MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
         menuItem.setText(Messages.MultiPaneEditor_Close);
-        menuItem.addListener(SWT.Selection, new Listener()
+        menuItem.addSelectionListener(new SelectionAdapter()
         {
-            public void handleEvent(Event e)
+            public void widgetSelected(SelectionEvent e)
             {
                 MultiPaneEditor.this.removePage(container.getSelectionIndex());
                 MultiPaneEditor.this.updateToolbar();
@@ -855,9 +910,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         {
             menuItem = new MenuItem(menu, SWT.PUSH);
             menuItem.setText(Messages.MultiPaneEditor_CloseOthers);
-            menuItem.addListener(SWT.Selection, new Listener()
+            menuItem.addSelectionListener(new SelectionAdapter()
             {
-                public void handleEvent(Event e)
+                public void widgetSelected(SelectionEvent e)
                 {
                     int index = 0;
 
@@ -883,9 +938,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         {
             menuItem = new MenuItem(menu, SWT.PUSH);
             menuItem.setText(Messages.MultiPaneEditor_CloseToLeft);
-            menuItem.addListener(SWT.Selection, new Listener()
+            menuItem.addSelectionListener(new SelectionAdapter()
             {
-                public void handleEvent(Event e)
+                public void widgetSelected(SelectionEvent e)
                 {
                     int index = 0;
 
@@ -911,9 +966,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         {
             menuItem = new MenuItem(menu, SWT.PUSH);
             menuItem.setText(Messages.MultiPaneEditor_CloseToRight);
-            menuItem.addListener(SWT.Selection, new Listener()
+            menuItem.addSelectionListener(new SelectionAdapter()
             {
-                public void handleEvent(Event e)
+                public void widgetSelected(SelectionEvent e)
                 {
                     int index = 0;
                     boolean close = false;
@@ -939,12 +994,78 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         }
 
         new MenuItem(menu, SWT.SEPARATOR);
+        if (itemsToLeftRight(item, true))
+        {
+            menuItem = new MenuItem(menu, SWT.PUSH);
+            menuItem.setText(Messages.MultiPaneEditor_MoveTabLeft);
+            menuItem.addSelectionListener(new SelectionAdapter()
+            {
+                public void widgetSelected(SelectionEvent e)
+                {
+                    int index = 0;
+
+                    while (index < container.getItemCount())
+                    {
+
+                        CTabItem tabItem = container.getItem(index);
+                        if (tabItem == item)
+                        {
+                            if (index > 0)
+                            {
+                                swapTabs(index, index - 1);
+                                buildPopupMenuFor(item, true, menu);
+                                menu.setVisible(true);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            index++;
+                        }
+                    }
+                }
+            });
+        }
+        if (itemsToLeftRight(item, false))
+        {
+            menuItem = new MenuItem(menu, SWT.PUSH);
+            menuItem.setText(Messages.MultiPaneEditor_MoveTabRight);
+            menuItem.addSelectionListener(new SelectionAdapter()
+            {
+                public void widgetSelected(SelectionEvent e)
+                {
+                    int index = 0;
+
+                    while (index < container.getItemCount())
+                    {
+
+                        CTabItem tabItem = container.getItem(index);
+                        if (tabItem == item)
+                        {
+                            if (index < container.getItemCount() - 1)
+                            {
+                                swapTabs(index, index + 1);
+                                buildPopupMenuFor(item, true, menu);
+                                menu.setVisible(true);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            index++;
+                        }
+                    }
+                }
+            });
+        }
+
+        new MenuItem(menu, SWT.SEPARATOR);
         // close all
         menuItem = new MenuItem(menu, SWT.PUSH);
         menuItem.setText(Messages.MultiPaneEditor_CloseAll);
-        menuItem.addListener(SWT.Selection, new Listener()
+        menuItem.addSelectionListener(new SelectionAdapter()
         {
-            public void handleEvent(Event e)
+            public void widgetSelected(SelectionEvent e)
             {
                 int index = 0;
 
@@ -956,15 +1077,6 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                 MultiPaneEditor.this.updateToolbar();
             }
         });
-
-        // show menu
-        menu.setVisible(true);
-        while (!menu.isDisposed() && menu.isVisible())
-        {
-            if (!display.readAndDispatch())
-                display.sleep();
-        }
-        menu.dispose();
     }
 
     private boolean itemsToLeftRight(CTabItem item, boolean left) {
@@ -983,6 +1095,37 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             ++index;
         }
         return index > 0;
+    }
+
+    private void swapTabs(int index, int to)
+    {
+        CTabItem tabItem = container.getItem(to);
+        Control ctrl = tabItem.getControl();
+        Object data = tabItem.getData();
+        int style = tabItem.getStyle();
+        String title = tabItem.getText();
+        String tooltip = tabItem.getToolTipText();
+        Image image = tabItem.getImage();
+        int sel = container.getSelectionIndex();
+        tabItem.setControl(null);
+        tabItem.setData(null);
+        tabItem.setImage(null);
+        tabItem.dispose();
+        CTabItem item = new CTabItem(container, style, index);
+        item.setControl(ctrl);
+        item.setData(data);
+        item.setImage(image);
+        item.setText(title);
+        item.setToolTipText(tooltip);
+        if (sel == to && container.getSelectionIndex() != index)
+        {
+            /*
+             * The target tab was active, but we destroyed and recreated it, 
+             * so make it active again (including toolbar items).
+             */
+            setActivePage(index);
+            pageChange(index);
+        }
     }
 
     public void updateToolbar()
