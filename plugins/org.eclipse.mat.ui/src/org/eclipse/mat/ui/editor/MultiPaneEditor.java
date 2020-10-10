@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -52,6 +54,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
+import org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction;
 import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState;
@@ -95,7 +98,10 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.EditorPart;
@@ -347,21 +353,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         });
 
-        container.addKeyListener(new KeyAdapter()
-        {
-
-            public void keyPressed(KeyEvent event) {
-                if (!(event.keyCode == SWT.F10 && event.stateMask == SWT.MOD2))
-                    return;
-
-                CTabItem item = container.getSelection();
-                if (item == null)
-                    return;
-
-                showPopupMenuFor(item, true);
-            }
-
-        });
+        // For keyboard access to the pop-up menu etc.
+        IContextService contextService = getSite().getService(IContextService.class);
+        contextService.activateContext("org.eclipse.mat.ui.editor"); //$NON-NLS-1$
 
         // create pages
         createContributors();
@@ -865,7 +859,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         Display display = item.getDisplay();
 
-        Menu menu = new Menu(display.getActiveShell(), SWT.POP_UP);
+        Menu menu = new Menu(item.getControl());
         buildPopupMenuFor(item, setLocation, menu);
 
         // show menu
@@ -886,7 +880,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             menuItem.dispose();
         }
         if (setLocation)
-        {
+        {   
             Display display = item.getDisplay();
             Rectangle bounds = item.getBounds();
             Rectangle p = display.map(item.getParent(), null, bounds);
@@ -1125,6 +1119,42 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
              */
             setActivePage(index);
             pageChange(index);
+        }
+    }
+
+    public class TabMenuAction extends Action
+    {
+        @Override
+        public void run()
+        {
+            CTabItem item = container.getSelection();
+            if (item == null)
+                return;
+
+            showPopupMenuFor(item, true);
+        }
+    }
+
+    public static class Handler extends AbstractHandler
+    {
+
+        public Handler()
+        {}
+
+        public Object execute(ExecutionEvent executionEvent)
+        {
+            IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+            IWorkbenchPage page = window.getActivePage();
+            if (page == null)
+                return null;
+
+            IEditorPart activeEditor = page.getActiveEditor();
+            if (!(activeEditor instanceof MultiPaneEditor))
+                return null;
+            MultiPaneEditor mpe = (MultiPaneEditor)activeEditor;
+            mpe.new TabMenuAction().run();
+            return null;
         }
     }
 

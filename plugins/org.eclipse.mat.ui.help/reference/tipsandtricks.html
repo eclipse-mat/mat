@@ -41,12 +41,25 @@
 					<td valign="top" headers="d10431e33" class="stentry">Shortcuts</td>
 
 					<td valign="top" headers="d10431e36" class="stentry">
-						<p class="p">Ctrl-Q - Opens the Query Browser</p>
+						<p class="p"><span class="ph uicontrol">Ctrl-Q</span> - Opens the Query Browser.</p>
 
-						<p class="p">Ctrl-H - Opens the history of executed queries.</p>
+						<p class="p"><span class="ph uicontrol">Ctrl-H</span> - Opens the history of executed queries.</p>
 
-						<p class="p">Alt-I - Opens a popup menu that explains the icons</p>
+						<p class="p"><span class="ph uicontrol">Ctrl-F8</span> - Next tab.</p>
 
+						<p class="p"><span class="ph uicontrol">Ctrl-Shift-F8</span> - Previous tab.</p>
+
+						<p class="p"><span class="ph uicontrol">Shift-F10</span> - Context menu for results of queries.</p>
+
+						<p class="p"><span class="ph uicontrol">Ctrl-F10</span> - Context menu for editor tabs - to close and rearrange.</p>
+
+						<p class="p"><span class="ph uicontrol">Ctrl-Shift-P</span> - Reset perspective.</p>
+
+						<p class="p"><span class="ph uicontrol">Alt-I</span> - Opens a pop-up menu that explains the icons.</p>
+
+						<p class="p"><span class="ph uicontrol">Ctrl-Shift-L</span> - Opens a pop-up menu that explains the keyboard shortcuts.</p>
+
+						
 					</td>
 
 				</tr>
@@ -77,18 +90,18 @@
 						For numeric columns a numeric comparison is used as a filter.
 						Use one of the following:
 						<ul class="ul">
-						<li class="li">Intervals: 1000..10000 1%..10%</li>
+						<li class="li">Intervals: <kbd class="ph userinput">1000..10000</kbd> <kbd class="ph userinput">1%..10%</kbd></li>
 
-						<li class="li">Upper Boundary: &lt;=10000 &lt;1%</li>
+						<li class="li">Upper Boundary: <kbd class="ph userinput">&lt;=10000</kbd> <kbd class="ph userinput">&lt;1%</kbd></li>
 
-						<li class="li">Lower Boundary: &gt;1000 &gt;=5%</li>
+						<li class="li">Lower Boundary: <kbd class="ph userinput">&gt;1000</kbd> <kbd class="ph userinput">&gt;=5%</kbd></li>
 
-						<li class="li">Equality: 1000 5% NaN ∞</li>
+						<li class="li">Equality: <kbd class="ph userinput">1000</kbd> <kbd class="ph userinput">5%</kbd> <kbd class="ph userinput">NaN</kbd> <kbd class="ph userinput">∞</kbd></li>
 
-						<li class="li">Inequality: !=1000 &lt;&gt;5% !=NaN<div class="note restriction"><span class="restrictiontitle">Restriction:</span> Experimental</div>
+						<li class="li">Inequality: <kbd class="ph userinput">!=1000 &lt;&gt;5%</kbd> <kbd class="ph userinput">!=NaN</kbd><div class="note restriction"><span class="restrictiontitle">Restriction:</span> Experimental</div>
 </li>
 
-						<li class="li">Complement of interval: !1000..10000 !1%..10% (all values including NaN except those in the interval [logical negation of range])<div class="note restriction"><span class="restrictiontitle">Restriction:</span> Experimental</div>
+						<li class="li">Complement of interval: <kbd class="ph userinput">!1000..10000</kbd> <kbd class="ph userinput">!1%..10%</kbd> (all values including NaN except those in the interval [logical negation of range])<div class="note restriction"><span class="restrictiontitle">Restriction:</span> Experimental</div>
 </li>
 
 						<li class="li">Complement of interval: U\1000..10000 U\1%..10% (all values excluding NaN except those in the interval [universal set difference from range])<div class="note restriction"><span class="restrictiontitle">Restriction:</span> Experimental</div>
@@ -152,8 +165,8 @@
 					<td valign="top" headers="d10431e36" class="stentry">
 						Notes View recognizes and highlights object addresses. Activating
 						the hyperlink brings up a context menu which contains actions for
-						this particular object. Activate the hyperlink using the control key 
-						and a mouse click (or command + click).
+						this particular object. Activate the hyperlink using the <span class="ph uicontrol">control</span> key 
+						and a mouse click (or <span class="ph uicontrol">command</span> + click).
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/m4d2fff8d.png"/></div><br/>
 					</td>
 
@@ -162,7 +175,7 @@
 					<td valign="top" headers="d10431e33" class="stentry">Undo/redo in Notes View, OQL Pane</td>
 
 					<td valign="top" headers="d10431e36" class="stentry">
-						There is undo/redo using Ctrl-Z / Ctrl-Y in the Notes View and
+						There is undo/redo using <span class="ph uicontrol">Ctrl-Z</span> / <span class="ph uicontrol">Ctrl-Y</span> in the Notes View and
 						the OQL Pane. The navigator pane can also be used to retrieve
 						previous OQL statements.
 					</td>
@@ -172,7 +185,7 @@
 					<td valign="top" headers="d10431e33" class="stentry">Copy To Clipboard</td>
 
 					<td valign="top" headers="d10431e36" class="stentry">
-						Use Ctrl-C to copy the selection to the clipboard. The data will
+						Use <span class="ph uicontrol">Ctrl-C</span> to copy the selection to the clipboard. The data will
 						keep its structure:
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/1af34c1.png"/></div><br/>
 					</td>
@@ -186,10 +199,10 @@
 						manage the history of opened heap dumps:
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/691a2594.png"/></div><br/>
 						<p class="p">
-							<span class="keyword cmdname">Delete Heap Dump</span>
+							<span class="ph uicontrol">Delete Heap Dump</span>&gt;
 							action removes the heap dump from the history, but not from the
 							file system. To find a heap dump in the file system use
-							<span class="keyword cmdname">Explore in File System</span>
+							<span class="ph uicontrol">Explore in File System</span>&gt;
 							context menu action
 						</p>
 
@@ -203,15 +216,21 @@
 						Right click on the Heap Editor tab will open a context menu to
 						manage the tabs. It might be very helpful when many tabs are open.
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/7df38219.png"/></div><br/>
-						Memory Analyzer 1.11 adds options to
+						Memory Analyzer 1.11 has the menu options
 						<ul class="ul">
-							<li class="li">Close Tabs to the Left</li>
+							<li class="li"><span class="ph uicontrol">Close</span></li>
 
-							<li class="li">Close Tabs to the Right</li>
+							<li class="li"><span class="ph uicontrol">Close Others</span></li>
 
-							<li class="li">Move Tab Left</li>
+							<li class="li"><span class="ph uicontrol">Close Tabs to the Left</span></li>
 
-							<li class="li">Move Tab Right</li>
+							<li class="li"><span class="ph uicontrol">Close Tabs to the Right</span></li>
+
+							<li class="li"><span class="ph uicontrol">Move Tab <span class="keyword shortcut">L</span>eft</span></li>
+
+							<li class="li"><span class="ph uicontrol">Move Tab <span class="keyword shortcut">R</span>ight</span></li>
+
+							<li class="li"><span class="ph uicontrol">Close All</span></li>
 
 						</ul>
 
@@ -230,13 +249,13 @@
 
 							to select a tab</li>
 
-							<li class="li">Use <kbd class="ph userinput"><span class="keyword cmdname">shift-F10</span></kbd> to bring up the context menu</li>
+							<li class="li">Use <kbd class="ph userinput"><span class="keyword cmdname">Ctrl-F10</span></kbd> to bring up the context menu</li>
 
 							<li class="li">Use 
 								<ul class="ul">
-									<li class="li"><kbd class="ph userinput"><span class="keyword cmdname">L</span></kbd></li>
+									<li class="li"><span class="ph uicontrol"><span class="keyword shortcut">L</span></span></li>
 
-									<li class="li"><kbd class="ph userinput"><span class="keyword cmdname">R</span></kbd></li>
+									<li class="li"><span class="ph uicontrol"><span class="keyword shortcut">R</span></span></li>
 
 								</ul>
 
@@ -307,7 +326,7 @@
 					<td valign="top" headers="d10431e36" class="stentry">
 						The totals row now represents all the additional entries in a tree or table.
 						If the totals row is selected then the context menu will operate on all the unshown
-						entries in the tree or table. If all the rows are selected, for example using Ctrl-A,
+						entries in the tree or table. If all the rows are selected, for example using <span class="ph uicontrol">Ctrl-A</span>,
 						then the displayed rows are selected and the totals row is selected and then
 						the context menu will operate on all the entries in the tree and table.
 						Filtering operates as normal, and the rows excluded by the filter are not part of
@@ -323,7 +342,7 @@
 						The Object Query Language (OQL) pane has syntax highlighting for OQL
 						keywords. It also offers suggestions for class names for the 
 						<span class="keyword">SELECT</span> <span class="keyword">FROM</span> clause, both simple class names and regular expressions.
-						The class name list is brought up on typing a dot '.'. Ctrl-space
+						The class name list is brought up on typing a dot '.'. <span class="ph uicontrol">Ctrl-space</span>
 						can also be used to bring up the list.
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/oql_completion1.png"/></div><br/>
 						The regular expression list appears on typing a double-quote '"'.
@@ -336,7 +355,7 @@
 						selects that class as the active class for field names.
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/oql_completion3.png" alt="select s from java.util.ArrayList java.util.ArrayList"/></div><br/>
 						Suggestions are then provided in the <span class="keyword">SELECT</span> or
-						<span class="keyword">WHERE</span> clauses on typing '.' or '@' or Ctrl-space.
+						<span class="keyword">WHERE</span> clauses on typing '<kbd class="ph userinput">.</kbd>' or '<kbd class="ph userinput">@</kbd>' or <span class="ph uicontrol">Ctrl-space</span>.
 						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/oql_completion4.png"/></div><br/>
 						Attributes begin with '@' and the autocompletion is filtered based on
 						what has been typed so far.

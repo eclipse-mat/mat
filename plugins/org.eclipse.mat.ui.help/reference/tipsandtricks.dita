@@ -40,9 +40,16 @@
 				<strow>
 					<stentry>Shortcuts</stentry>
 					<stentry>
-						<p>Ctrl-Q - Opens the Query Browser</p>
-						<p>Ctrl-H - Opens the history of executed queries.</p>
-						<p>Alt-I - Opens a popup menu that explains the icons</p>
+						<p><uicontrol>Ctrl-Q</uicontrol> - Opens the Query Browser.</p>
+						<p><uicontrol>Ctrl-H</uicontrol> - Opens the history of executed queries.</p>
+						<p><uicontrol>Ctrl-F8</uicontrol> - Next tab.</p>
+						<p><uicontrol>Ctrl-Shift-F8</uicontrol> - Previous tab.</p>
+						<p><uicontrol>Shift-F10</uicontrol> - Context menu for results of queries.</p>
+						<p><uicontrol>Ctrl-F10</uicontrol> - Context menu for editor tabs - to close and rearrange.</p>
+						<p><uicontrol>Ctrl-Shift-P</uicontrol> - Reset perspective.</p>
+						<p><uicontrol>Alt-I</uicontrol> - Opens a pop-up menu that explains the icons.</p>
+						<p><uicontrol>Ctrl-Shift-L</uicontrol> - Opens a pop-up menu that explains the keyboard shortcuts.</p>
+						
 					</stentry>
 				</strow>
 				<strow>
@@ -73,12 +80,12 @@
 						For numeric columns a numeric comparison is used as a filter.
 						Use one of the following:
 						<ul>
-						<li>Intervals: 1000..10000 1%..10%</li>
-						<li>Upper Boundary: &lt;=10000 &lt;1%</li>
-						<li>Lower Boundary: &gt;1000 &gt;=5%</li>
-						<li>Equality: 1000 5% NaN &#8734;</li>
-						<li>Inequality: !=1000 &lt;&gt;5% !=NaN<note type="restriction">Experimental</note></li>
-						<li>Complement of interval: !1000..10000 !1%..10% (all values including NaN except those in the interval [logical negation of range])<note type="restriction">Experimental</note></li>
+						<li>Intervals: <userinput>1000..10000</userinput> <userinput>1%..10%</userinput></li>
+						<li>Upper Boundary: <userinput>&lt;=10000</userinput> <userinput>&lt;1%</userinput></li>
+						<li>Lower Boundary: <userinput>&gt;1000</userinput> <userinput>&gt;=5%</userinput></li>
+						<li>Equality: <userinput>1000</userinput> <userinput>5%</userinput> <userinput>NaN</userinput> <userinput>&#8734;</userinput></li>
+						<li>Inequality: <userinput>!=1000 &lt;&gt;5%</userinput> <userinput>!=NaN</userinput><note type="restriction">Experimental</note></li>
+						<li>Complement of interval: <userinput>!1000..10000</userinput> <userinput>!1%..10%</userinput> (all values including NaN except those in the interval [logical negation of range])<note type="restriction">Experimental</note></li>
 						<li>Complement of interval: U\1000..10000 U\1%..10% (all values excluding NaN except those in the interval [universal set difference from range])<note type="restriction">Experimental</note></li>
 						</ul>
 						</p>
@@ -121,15 +128,15 @@
 					<stentry>
 						Notes View recognizes and highlights object addresses. Activating
 						the hyperlink brings up a context menu which contains actions for
-						this particular object. Activate the hyperlink using the control key 
-						and a mouse click (or command + click).
+						this particular object. Activate the hyperlink using the <uicontrol>control</uicontrol> key 
+						and a mouse click (or <uicontrol>command</uicontrol> + click).
 						<image href="../mimes/m4d2fff8d.png" align="left" placement="break" />
 					</stentry>
 				</strow>
 				<strow>
 					<stentry>Undo/redo in Notes View, OQL Pane</stentry>
 					<stentry>
-						There is undo/redo using Ctrl-Z / Ctrl-Y in the Notes View and
+						There is undo/redo using <uicontrol>Ctrl-Z</uicontrol> / <uicontrol>Ctrl-Y</uicontrol> in the Notes View and
 						the OQL Pane. The navigator pane can also be used to retrieve
 						previous OQL statements.
 					</stentry>
@@ -137,7 +144,7 @@
 				<strow>
 					<stentry>Copy To Clipboard</stentry>
 					<stentry>
-						Use Ctrl-C to copy the selection to the clipboard. The data will
+						Use <uicontrol>Ctrl-C</uicontrol> to copy the selection to the clipboard. The data will
 						keep its structure:
 						<image href="../mimes/1af34c1.png" align="left" placement="break" />
 					</stentry>
@@ -149,10 +156,10 @@
 						manage the history of opened heap dumps:
 						<image href="../mimes/691a2594.png" align="left" placement="break" />
 						<p>
-							<cmdname>Delete Heap Dump</cmdname>
+							<uicontrol>Delete Heap Dump</uicontrol>>
 							action removes the heap dump from the history, but not from the
 							file system. To find a heap dump in the file system use
-							<cmdname>Explore in File System</cmdname>
+							<uicontrol>Explore in File System</uicontrol>>
 							context menu action
 						</p>
 					</stentry>
@@ -163,12 +170,15 @@
 						Right click on the Heap Editor tab will open a context menu to
 						manage the tabs. It might be very helpful when many tabs are open.
 						<image href="../mimes/7df38219.png" align="left" placement="break" />
-						Memory Analyzer 1.11 adds options to
+						Memory Analyzer 1.11 has the menu options
 						<ul>
-							<li>Close Tabs to the Left</li>
-							<li>Close Tabs to the Right</li>
-							<li>Move Tab Left</li>
-							<li>Move Tab Right</li>
+							<li><uicontrol>Close</uicontrol></li>
+							<li><uicontrol>Close Others</uicontrol></li>
+							<li><uicontrol>Close Tabs to the Left</uicontrol></li>
+							<li><uicontrol>Close Tabs to the Right</uicontrol></li>
+							<li><uicontrol>Move Tab <shortcut>L</shortcut>eft</uicontrol></li>
+							<li><uicontrol>Move Tab <shortcut>R</shortcut>ight</uicontrol></li>
+							<li><uicontrol>Close All</uicontrol></li>
 						</ul>
 						To use keyboard navigation, perform the following:
 						<ol>
@@ -180,11 +190,11 @@
 									<li><userinput><cmdname>right-arrow</cmdname></userinput></li>
 								</ul>
 							to select a tab</li>
-							<li>Use <userinput><cmdname>shift-F10</cmdname></userinput> to bring up the context menu</li>
+							<li>Use <userinput><cmdname>Ctrl-F10</cmdname></userinput> to bring up the context menu</li>
 							<li>Use 
 								<ul>
-									<li><userinput><cmdname>L</cmdname></userinput></li>
-									<li><userinput><cmdname>R</cmdname></userinput></li>
+									<li><uicontrol><shortcut>L</shortcut></uicontrol></li>
+									<li><uicontrol><shortcut>R</shortcut></uicontrol></li>
 								</ul>
 								to move the tab.</li>
 						</ol>
@@ -243,7 +253,7 @@
 					<stentry>
 						The totals row now represents all the additional entries in a tree or table.
 						If the totals row is selected then the context menu will operate on all the unshown
-						entries in the tree or table. If all the rows are selected, for example using Ctrl-A,
+						entries in the tree or table. If all the rows are selected, for example using <uicontrol>Ctrl-A</uicontrol>,
 						then the displayed rows are selected and the totals row is selected and then
 						the context menu will operate on all the entries in the tree and table.
 						Filtering operates as normal, and the rows excluded by the filter are not part of
@@ -257,7 +267,7 @@
 						The Object Query Language (OQL) pane has syntax highlighting for OQL
 						keywords. It also offers suggestions for class names for the 
 						<keyword>SELECT</keyword> <keyword>FROM</keyword> clause, both simple class names and regular expressions.
-						The class name list is brought up on typing a dot '.'. Ctrl-space
+						The class name list is brought up on typing a dot '.'. <uicontrol>Ctrl-space</uicontrol>
 						can also be used to bring up the list.
 						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
 						The regular expression list appears on typing a double-quote '"'.
@@ -274,7 +284,7 @@
 						</alt>
 						</image>
 						Suggestions are then provided in the <keyword>SELECT</keyword> or
-						<keyword>WHERE</keyword> clauses on typing '.' or '@' or Ctrl-space.
+						<keyword>WHERE</keyword> clauses on typing '<userinput>.</userinput>' or '<userinput>@</userinput>' or <uicontrol>Ctrl-space</uicontrol>.
 						<image href="../mimes/oql_completion4.png" align="left" placement="break">
 						</image>
 						Attributes begin with '@' and the autocompletion is filtered based on

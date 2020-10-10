@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?><!--
-    Copyright (c) 2008, 2019 SAP AG and others.
+    Copyright (c) 2008, 2020 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -183,18 +183,22 @@
 
 	<extension point="org.eclipse.ui.commands">
 		<command
+			categoryId="org.eclipse.ui.category.navigate"
 			id="org.eclipse.mat.ui.query.browser.QueryBrowser"
 			name="%command.name.Query_Browser">
 		</command>
 		<command
+			categoryId="org.eclipse.search.ui.category.search"
 			id="org.eclipse.mat.ui.query.browser.QueryHistory"
 			name="%command.name.Query_History">
 		</command>
 		<command
+			categoryId="org.eclipse.ui.category.help"
 			id="org.eclipse.mat.ui.actions.IconAssist"
 			name="%command.name.Icon_Assist">
 		</command>
 		<command
+			categoryId="org.eclipse.search.ui.category.search"
 			id="org.eclipse.mat.ui.actions.executeInspection"
 			name="%command.name.Execute_Inspection">
 			<commandParameter
@@ -204,8 +208,14 @@
 			</commandParameter>
 		</command>
 		<command
+			categoryId="org.eclipse.debug.ui.category.run"
 			id="org.eclipse.mat.ui.acquire.HeapDump"
 			name="%command.name.Acquire">
+		</command>
+		<command
+			categoryId="org.eclipse.ui.category.navigate"
+			id="org.eclipse.mat.ui.editor.tabMenu"
+			name="%command.name.TabMenu">
 		</command>
 	</extension>
 
@@ -230,6 +240,10 @@
 			commandId="org.eclipse.mat.ui.acquire.HeapDump"
 			class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$Handler">
 		</handler>
+		<handler
+			class="org.eclipse.mat.ui.editor.MultiPaneEditor$Handler"
+			commandId="org.eclipse.mat.ui.editor.tabMenu">
+		</handler>
 	</extension>
 
 	<extension point="org.eclipse.ui.bindings">
@@ -253,6 +267,37 @@
 			contextId="org.eclipse.ui.contexts.window"
 			schemeId="org.eclipse.mat.scheme" sequence="Alt+A">
 		</key>
+		<key
+			commandId="org.eclipse.mat.ui.editor.tabMenu"
+			contextId="org.eclipse.mat.ui.editor"
+			schemeId="org.eclipse.mat.scheme" sequence="M1+F10">
+		</key>
+		<key
+			commandId="org.eclipse.ui.window.resetPerspective"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme"
+			sequence="M1+M2+P">
+		</key>
+		<key
+			commandId="org.eclipse.ui.navigate.nextTab"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme"
+			sequence="M1+F8">
+		</key>
+		<key
+			commandId="org.eclipse.ui.navigate.previousTab"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme"
+			sequence="M1+M2+F8">
+		</key>
+	</extension>
+
+	<extension point="org.eclipse.ui.contexts">
+		<context
+			name="%context.name.Editor"
+			id="org.eclipse.mat.ui.editor"
+			parentId="org.eclipse.ui.contexts.window">
+		</context>
 	</extension>
 
 	<extension point="org.eclipse.mat.report.query">
