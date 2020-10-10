@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -51,7 +51,12 @@
 						Just start to type while you are in the heap editor, all the
 						matches will be highlighted. This quick search starts is activated
 						when 3 or more letters are provided.
-						<image href="../mimes/m65d10c7b.png" align="left" placement="break" />
+						<image href="../mimes/m65d10c7b.png" align="left" placement="break">
+							<alt>Histogram pane with user having typed
+								<userinput>jav</userinput> showing all the lines
+								containing <userinput>jav</userinput> highlighted.
+							</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -158,6 +163,32 @@
 						Right click on the Heap Editor tab will open a context menu to
 						manage the tabs. It might be very helpful when many tabs are open.
 						<image href="../mimes/7df38219.png" align="left" placement="break" />
+						Memory Analyzer 1.11 adds options to
+						<ul>
+							<li>Close Tabs to the Left</li>
+							<li>Close Tabs to the Right</li>
+							<li>Move Tab Left</li>
+							<li>Move Tab Right</li>
+						</ul>
+						To use keyboard navigation, perform the following:
+						<ol>
+							<li>Use <userinput><cmdname>tab</cmdname></userinput> key
+						to move to the tab bar</li>
+							<li>Use
+								<ul>
+									<li><userinput><cmdname>left-arrow</cmdname></userinput></li>
+									<li><userinput><cmdname>right-arrow</cmdname></userinput></li>
+								</ul>
+							to select a tab</li>
+							<li>Use <userinput><cmdname>shift-F10</cmdname></userinput> to bring up the context menu</li>
+							<li>Use 
+								<ul>
+									<li><userinput><cmdname>L</cmdname></userinput></li>
+									<li><userinput><cmdname>R</cmdname></userinput></li>
+								</ul>
+								to move the tab.</li>
+						</ol>
+						<image href="../mimes/movetab.png" align="left" placement="break" scale="60" />
 					</stentry>
 				</strow>
 				<strow>
@@ -257,6 +288,16 @@
                         Pressing enter adds the selected text to the command window.
                         <image href="../mimes/oql_completion7.png" align="left" placement="break">
                         </image>
+					</stentry>
+				</strow>
+				<strow id="piechartlinks">
+					<stentry>Links in Pie Chart Image</stentry>
+					<stentry>
+					Memory Analyzer 1.11 adds hot-spots to the pie chart.
+					The legend entries now link to the referenced object.
+					<image href="../mimes/piechartlinks.png" align="left" placement="break" scale="50">
+						<alt>Pie Chart showing links from legend</alt>
+					</image>
 					</stentry>
 				</strow>
 			</simpletable>

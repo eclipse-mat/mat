@@ -45,9 +45,24 @@
 
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
 
+			<div class="p">
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</pre>
 
+			The right hand side of <samp class="ph codeph">IN</samp> can be a Java <span class="keyword apiname">java.util.List</span>, Java <span class="keyword apiname">Object[]</span>
+			array, a Java <span class="keyword apiname">int[]</span> array, or a result table from another
+			<samp class="ph codeph">SELECT</samp>, in which case the item is searched among the entries
+			in the first column.
+			If the right hand side is a Java <span class="keyword apiname">int[]</span> array and the left
+			hand side is an <span class="keyword apiname">IObject</span> then the object ID is searched for
+			in the array.
+			</div>
+
+			<div class="p">
 			<pre class="pre codeblock">SELECT * FROM java.lang.Class c WHERE c IMPLEMENTS org.eclipse.mat.snapshot.model.IClass</pre>
+
+			<samp class="ph codeph">IMPLEMENTS</samp> works when the left hand side is any object or an integer
+			which is considered as an object ID and the actual IObject is used for the test.
+			</div>
 
 		</div>
 
@@ -77,16 +92,28 @@
 
 		<div class="section"><h2 class="title sectiontitle">Literal Expression</h2>
 			
-			<p class="p">Boolean, String, Integer, Long, Character and null literals:</p>
+			<p class="p">Boolean, String, Integer, Long, Character, Float, Double and null literals:</p>
 
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s
          WHERE ( s.count &gt; 1000 ) = true
-         WHERE toString(s) = "monday"
-         WHERE dominators(s).size() = 0
-         WHERE s.@retainedHeapSize &gt; 1024L
-         WHERE s.value != null AND s.value.@valueArray.@length &gt;= 1 AND s.value.@valueArray.get(0) = 'j'
-         WHERE s.@GCRootInfo != null
-            </pre>
+           OR toString(s) = "monday"
+           OR dominators(s).size() = 0
+           OR s.@retainedHeapSize &gt; 1024L
+           OR s.value != null AND s.value.@valueArray.@length &gt;= 1 AND s.value.@valueArray.get(0) = 'j'
+           </pre>
+
+           <pre class="pre codeblock">SELECT * FROM instanceof java.lang.Number s
+         WHERE s.value &gt; -1 
+           OR s.value &gt; -1L
+           OR s.value &gt; 0.1
+           OR s.value &gt; -0.1E-2F
+           OR s.value &gt; 0.1D
+           OR s.value &gt; -0.1E-2D
+           OR s.value &gt; 0.1
+           OR s.value &gt; -0.1E-2F
+           OR s.value &gt; 0.1D
+           OR s.value &gt; -0.1E-2D
+           </pre>
 
 		</div>
 

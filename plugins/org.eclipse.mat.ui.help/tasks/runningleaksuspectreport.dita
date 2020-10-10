@@ -49,6 +49,8 @@
 				rerun the individual
 				queries which make up the report. This can be
 				useful for further analysis.
+				See <xref href="../reference/tipsandtricks.dita#ref_tips__piechartlinks">Pie Chart Links</xref>
+				for links from pie charts.
 			</p>
 			<image href="../mimes/leaksuspects1.png"
 				alt="screen shot of leak suspect details showing links"

@@ -43,8 +43,21 @@
 			</title>
 			<codeblock>SELECT * FROM java.lang.String s WHERE s.count >= 100</codeblock>
 			<codeblock>SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</codeblock>
+			<p>
 			<codeblock>SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</codeblock>
+			The right hand side of <codeph>IN</codeph> can be a Java <apiname>java.util.List</apiname>, Java <apiname>Object[]</apiname>
+			array, a Java <apiname>int[]</apiname> array, or a result table from another
+			<codeph>SELECT</codeph>, in which case the item is searched among the entries
+			in the first column.
+			If the right hand side is a Java <apiname>int[]</apiname> array and the left
+			hand side is an <apiname>IObject</apiname> then the object ID is searched for
+			in the array.
+			</p>
+			<p>
 			<codeblock>SELECT * FROM java.lang.Class c WHERE c IMPLEMENTS org.eclipse.mat.snapshot.model.IClass</codeblock>
+			<codeph>IMPLEMENTS</codeph> works when the left hand side is any object or an integer
+			which is considered as an object ID and the actual IObject is used for the test.
+			</p>
 		</section>
 		<section>
 			<title>=, != (equality operations)</title>
@@ -65,15 +78,26 @@
 		</section>
 		<section>
 			<title>Literal Expression</title>
-			<p>Boolean, String, Integer, Long, Character and null literals:</p>
+			<p>Boolean, String, Integer, Long, Character, Float, Double and null literals:</p>
 			<codeblock>SELECT * FROM java.lang.String s
          WHERE ( s.count > 1000 ) = true
-         WHERE toString(s) = "monday"
-         WHERE dominators(s).size() = 0
-         WHERE s.@retainedHeapSize > 1024L
-         WHERE s.value != null AND s.value.@valueArray.@length >= 1 AND s.value.@valueArray.get(0) = 'j'
-         WHERE s.@GCRootInfo != null
-            </codeblock>
+           OR toString(s) = "monday"
+           OR dominators(s).size() = 0
+           OR s.@retainedHeapSize > 1024L
+           OR s.value != null AND s.value.@valueArray.@length >= 1 AND s.value.@valueArray.get(0) = 'j'
+           </codeblock>
+           <codeblock>SELECT * FROM instanceof java.lang.Number s
+         WHERE s.value > -1 
+           OR s.value > -1L
+           OR s.value > 0.1
+           OR s.value > -0.1E-2F
+           OR s.value > 0.1D
+           OR s.value > -0.1E-2D
+           OR s.value > 0.1
+           OR s.value > -0.1E-2F
+           OR s.value > 0.1D
+           OR s.value > -0.1E-2D
+           </codeblock>
 		</section>
 	</refbody>
 </reference>

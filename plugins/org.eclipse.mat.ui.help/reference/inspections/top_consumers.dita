@@ -43,7 +43,9 @@
 			<title>Result</title>
 			<image href="../../mimes/m3131b4b6.png"></image>
 			<p>See <xref href="../../tasks/listbiggestobjects.dita">List Biggest Objects</xref>
-			for more information.</p>
+			for more information. 
+			See <xref href="../tipsandtricks.dita#ref_tips__piechartlinks">Pie Chart Links</xref>
+			for links from pie charts.</p>
 		</section>
 	</refbody>
 </reference>

@@ -80,7 +80,10 @@
 					<li>Details about the size, the number of classes, the
 						number of objects and the number of different class loaders.</li>
 					<li>The pie chart shows the size of the component relative to
-						the total heap size.</li>
+						the total heap size.
+						See <xref href="../tipsandtricks.dita#ref_tips__piechartlinks">Pie Chart Links</xref>
+						for links from pie charts.
+					</li>
 					<li>
 						The
 						<xref href="top_consumers.dita" scope="local">Top Consumers</xref>
