@@ -47,6 +47,8 @@ import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQLParseException;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
@@ -298,7 +300,17 @@ public class ComponentReportQuery implements IQuery
             String oql0 = objects.getLabel().trim();
             if (oql0.endsWith(";")) //$NON-NLS-1$
                 oql0 = oql0.substring(0, oql0.length() - 1);
-            oqlretained = oql0.substring(0, 6) + " as retained set" + oql0.substring(6); //$NON-NLS-1$
+            String oql = oql0.substring(0, 6) + " as retained set" + oql0.substring(6); //$NON-NLS-1$
+            try
+            {
+                // Check it is valid OQL
+                SnapshotFactory.createQuery(oql);
+                oqlretained = oql;
+            }
+            catch (OQLParseException e)
+            {}
+            catch (SnapshotException e)
+            {}
         }
         return retained;
     }

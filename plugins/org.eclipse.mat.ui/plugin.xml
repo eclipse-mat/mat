@@ -113,13 +113,13 @@
 			<result type="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery$ComparisonResultTable"/>
 			<result type="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery$ComparisonResultTree"/>
 		</pane>
-  <pane
-        class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
-        id="BundlesPane">
-     <result
-           type="org.eclipse.mat.inspections.osgi.BundleRegistryQuery$BundleTreeResult">
-     </result>
-  </pane>
+		<pane
+			class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
+			id="BundlesPane">
+			<result
+				type="org.eclipse.mat.inspections.osgi.BundleRegistryQuery$BundleTreeResult">
+			</result>
+		</pane>
 	</extension>
    
 	<extension point="org.eclipse.mat.ui.editorContributions">
@@ -136,15 +136,19 @@
 			<action
 				class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction"
 				definitionId="org.eclipse.mat.ui.actions.IconAssist"
+				helpContextId="org.eclipse.mat.ui.help.icon_assist"
 				id="org.eclipse.mat.ui.openIconAssist"
-				label="%action.label.Icon_Assist___" menubarPath="help/additions" style="push"
-				tooltip="%action.tooltip.Open_Icon_Assist" />
+				label="%action.label.Icon_Assist___"
+				menubarPath="help/additions"
+				style="push"
+				tooltip="%action.tooltip.Open_Icon_Assist"/>
 		</actionSet>
 		<actionSet label="%actionSet.label.Open_Heap_Dump" visible="false"
 			id="org.eclipse.mat.ui.actionSet.openExternalFile">
 			<action icon="$nl$/icons/open_snapshot.gif"
 				label="%action.label.Open_Heap_DUMP___"
 				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
+				helpContextId="org.eclipse.mat.ui.help.open_heapdump"
 				tooltip="%action.tooltip.Open_Heap_Dump" menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
 				id="org.eclipse.mat.ui.openExternalFile">
@@ -154,12 +158,15 @@
 			id="org.eclipse.mat.ui.actionSet.openAcquireDialog"
 			label="%actionSet.label.Acquire" visible="false">
 			<action
-				id="org.eclipse.mat.ui.openAcquireDialog"
 				class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction"
+				helpContextId="org.eclipse.mat.ui.help.acquire_arguments"
 				icon="$nl$/icons/acquire.gif"
-				label="%action.label.Acquire" menubarPath="file/new.ext" style="push"
+				id="org.eclipse.mat.ui.openAcquireDialog"
+				label="%action.label.Acquire"
+				menubarPath="file/new.ext"
+				style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
-				tooltip="%action.tooltip.Acquire" />
+				tooltip="%action.tooltip.Acquire"/>
 		</actionSet>
 	</extension>
 	
@@ -183,22 +190,28 @@
 
 	<extension point="org.eclipse.ui.commands">
 		<command
-			categoryId="org.eclipse.ui.category.navigate"
+			categoryId="org.eclipse.ui.category.edit"
+			description="%command.description.Query_Browser"
+			helpContextId="org.eclipse.mat.ui.query_browser"
 			id="org.eclipse.mat.ui.query.browser.QueryBrowser"
 			name="%command.name.Query_Browser">
 		</command>
 		<command
-			categoryId="org.eclipse.search.ui.category.search"
+			categoryId="org.eclipse.ui.category.navigate"
+			description="%command.description.Query_History"
+			helpContextId="org.eclipse.mat.ui.query_browser"
 			id="org.eclipse.mat.ui.query.browser.QueryHistory"
 			name="%command.name.Query_History">
 		</command>
 		<command
 			categoryId="org.eclipse.ui.category.help"
+			description="%command.description.Icon_Assist"
+			helpContextId="org.eclipse.mat.ui.help.icon_assist"
 			id="org.eclipse.mat.ui.actions.IconAssist"
 			name="%command.name.Icon_Assist">
 		</command>
 		<command
-			categoryId="org.eclipse.search.ui.category.search"
+			categoryId="org.eclipse.ui.category.edit"
 			id="org.eclipse.mat.ui.actions.executeInspection"
 			name="%command.name.Execute_Inspection">
 			<commandParameter
@@ -208,12 +221,16 @@
 			</commandParameter>
 		</command>
 		<command
-			categoryId="org.eclipse.debug.ui.category.run"
+			categoryId="org.eclipse.ui.category.edit"
+			description="%command.description.Acquire"
+			helpContextId="org.eclipse.mat.ui.help.acquire_arguments"
 			id="org.eclipse.mat.ui.acquire.HeapDump"
 			name="%command.name.Acquire">
 		</command>
 		<command
 			categoryId="org.eclipse.ui.category.navigate"
+			description="%command.description.TabMenu"
+			helpContextId="org.eclipse.mat.ui.tab_menu"
 			id="org.eclipse.mat.ui.editor.tabMenu"
 			name="%command.name.TabMenu">
 		</command>
@@ -222,27 +239,32 @@
 	<extension point="org.eclipse.ui.handlers">
 		<handler
 			class="org.eclipse.mat.ui.internal.browser.QueryBrowserHandler"
-			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser">
+			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser"
+			helpContextId="org.eclipse.mat.ui.query_browser">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.internal.browser.QueryHistoryHandler"
-			commandId="org.eclipse.mat.ui.query.browser.QueryHistory">
+			commandId="org.eclipse.mat.ui.query.browser.QueryHistory"
+			helpContextId="org.eclipse.mat.ui.query_browser">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction$Handler"
-			commandId="org.eclipse.mat.ui.actions.IconAssist">
+			commandId="org.eclipse.mat.ui.actions.IconAssist"
+			helpContextId="org.eclipse.mat.ui.help.icon_assist">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.internal.actions.ExecuteInspectionHandler"
 			commandId="org.eclipse.mat.ui.actions.executeInspection">
 		</handler>
 		<handler
+			class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$Handler"
 			commandId="org.eclipse.mat.ui.acquire.HeapDump"
-			class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$Handler">
+			helpContextId="org.eclipse.mat.ui.help.acquire_arguments">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.editor.MultiPaneEditor$Handler"
-			commandId="org.eclipse.mat.ui.editor.tabMenu">
+			commandId="org.eclipse.mat.ui.editor.tabMenu"
+			helpContextId="org.eclipse.mat.ui.tab_menu">
 		</handler>
 	</extension>
 

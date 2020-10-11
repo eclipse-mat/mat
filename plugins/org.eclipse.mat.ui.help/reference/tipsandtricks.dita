@@ -164,7 +164,7 @@
 						</p>
 					</stentry>
 				</strow>
-				<strow>
+				<strow id="editor_tabs">
 					<stentry>Manage editor tabs</stentry>
 					<stentry>
 						Right click on the Heap Editor tab will open a context menu to

@@ -46,6 +46,7 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.Collections$UnmodifiableList",
     "java.util.Collections$CheckedList",
     "java.util.Collections$CheckedQueue",
+    "java.util.Collections$EmptyList",
 
     "java.util.ImmutableCollections$AbstractImmutableList",
     "java.util.ImmutableCollect0ions$List0",
