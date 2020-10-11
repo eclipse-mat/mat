@@ -44,6 +44,7 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.Collections$SynchronizedMap",
     "java.util.Collections$UnmodifiableMap",
     "java.util.Collections$CheckedMap",
+    "java.util.Collections$EmptyMap",
     "java.util.ResourceBundle",
     "java.awt.RenderingHints",
     "sun.awt.WeakIdentityHashMap",
@@ -56,6 +57,7 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.HashSet",
     "java.util.Collections$SetFromMap",
     "java.util.Properties$EntrySet",
+    "java.util.Collections$EmptySet",
 })
 public class MapCollisionRatioQuery implements IQuery
 {

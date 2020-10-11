@@ -27,6 +27,11 @@
 		<topic label="How to configure the acquire heap dump providers"
 			href="tasks/acquiringheapdump.html" />
 	</context>
+	<context id="open_heapdump">
+		<description>This shows how to open a heap dump and start analysis</description>
+		<topic label="Basic Tutorial"
+			href="gettingstarted/basictutorial.html#task_basictutorial__overview" />
+	</context>
 	<context id="icon_assist">
 		<description>Icon reference</description>
 		<topic label="The meaning of various icons"
@@ -51,5 +56,15 @@
 		<description>Problems displaying reports</description>
 		<topic label="Problems displaying reports"
 			href="tasks/report.html" />
+	</context>
+	<context id="tab_menu">
+		<description>Context Menu for Editor Tabs</description>
+		<topic label="Tips and Tricks"
+			href="reference/tipsandtricks.html#ref_tips__editor_tabs" />
+	</context>
+	<context id="query_browser">
+		<description>Query Browser</description>
+		<topic label="Selecting Queries"
+			href="reference/selectingqueries.html" />
 	</context>
 </contexts>
