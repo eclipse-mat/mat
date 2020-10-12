@@ -35,6 +35,11 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
+								<id>org.eclipse.mat.dtfj.bridge</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
 								<id>org.eclipse.mat.dtfj</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>

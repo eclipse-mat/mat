@@ -376,6 +376,26 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 				</dd>
 
 			
+			
+				<dt class="dt dlterm">
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">OpenJ9 Directories with DTFJ (for Java &lt;= 8 dumps)</span></span>
+				</dt>
+
+				<dd class="dd">
+					When loading a dump produced by Java &lt;= 8, you may use this preference to specify an explicit implementation of DTFJ to use to load the dump. The directories (such as a JDK or JRE installation) will be recursed in search of dtfj.jar and j9ddr.jar.
+				</dd>
+
+			
+			
+				<dt class="dt dlterm">
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Skip IBM DTFJ feature (if installed)</span></span>
+				</dt>
+
+				<dd class="dd">
+					When loading a dump, if you have not specified "OpenJ9 Directories with DTFJ (for Java &lt;= 8 dumps)" and the IBM DTFJ feature is installed, then you may check this preference to skip loading DTFJ from the IBM DTFJ feature and instead delegate to the running JVM's DTFJ. If the IBM DTFJ feature is not installed, it is not necessary to check this option to delegate to the running JVM's DTFJ. This approach may be useful for dumps produced by JVMs that are newer than the DTFJ packaged in the IBM DTFJ feature.
+				</dd>
+
+			
 					
 						<dt class="dt dlterm"><a name="task_configure_mat__hprof_preferences"><!-- --></a>
 							<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">HPROF Parser</span> &gt; <span class="ph uicontrol">Parser Strictness</span></span>

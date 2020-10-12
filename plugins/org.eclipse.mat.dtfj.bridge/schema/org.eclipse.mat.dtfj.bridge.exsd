@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.mat.dtfj.loader">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.mat.dtfj.loader" id="imagefactory" name="DTFJ Image Factory"/>
+      </appInfo>
+      <documentation>
+         The Diagnostic Tooling For Java image factory.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="factory"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="factory">
+      <annotation>
+         <appInfo>
+            <meta.element labelAttribute="label"/>
+         </appInfo>
+         <documentation>
+            Details of how to get hold of and use the ImageFactory for this DTFJ implementation.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="content-types"/>
+         </sequence>
+         <attribute name="label" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A readable description of this DTFJ implementation.
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="action" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the ImageFactory class.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":com.ibm.dtfj.image.ImageFactory"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  An identifier used to refer to this factory.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="content-types">
+      <annotation>
+         <appInfo>
+            <meta.element labelAttribute="name" translatable="true"/>
+         </appInfo>
+         <documentation>
+            A set of one or two files which the Image Factory can make a DTFJ image from.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A name for this pair of files.
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="dump-type" type="string">
+            <annotation>
+               <documentation>
+                  The string is a org.eclipse.core.contenttype.contentTypes content-type ID. It describes the file which is the first or only parameter of ImageFactory.getImage(File f) or ImageFactory.getImage(File f1, File f2). See &lt;a href=&quot;http://www.eclipse.org/eclipse/platform-core/documents/content_types.html&quot;&gt;&apos;A central content type catalog for Eclipse&apos;&lt;/a&gt; for more details.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="meta-type" type="string">
+            <annotation>
+               <documentation>
+                  The string is a org.eclipse.core.contenttype.contentTypes content-type ID. It describes the file which is the second parameter of ImageFactory.getImage(File f1, File f2). See &lt;a href=&quot;http://www.eclipse.org/eclipse/platform-core/documents/content_types.html&quot;&gt;&apos;A central content type catalog for Eclipse&apos;&lt;/a&gt; for more details.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;code&gt;
+&lt;pre&gt;
+String dumpfile, metaFile;
+
+File file1 = new File(file);
+File file2 = new File(metaFile);
+
+FileInputStream is1 = null;
+IContentType ct0;
+try {
+ is1 = new FileInputStream(file1);
+ ct0 = Platform.getContentTypeManager().findContentTypeFor(is1, name);        
+} finally {
+ if (is1 != null) is1.close();
+}
+
+IExtensionPoint point = reg.getExtensionPoint(&quot;org.eclipse.mat.dtfj&quot;,&quot;imagefactory&quot;);
+
+  if (point != null) {
+   for (IExtension ex : point.getExtensions()) {
+    for (IConfigurationElement el: ex.getConfigurationElements()) {
+     if (el.getName().equals(&quot;factory&quot;)) {
+      ImageFactory fact = (ImageFactory)el.createExecutableExtension(&quot;action&quot;);
+      
+      for (IConfigurationElement el2 :el.getChildren()) {
+       if (el2.getName().equals(&quot;content-types&quot;)) {       
+        String extId = el2.getAttribute(&quot;dump-type&quot;);
+        String metaId = el2.getAttribute(&quot;meta-type&quot;);
+                 
+        IContentType cext = Platform.getContentTypeManager().getContentType(extId);
+        IContentType cmeta = Platform.getContentTypeManager().getContentType(metaId);
+        if (ct0.isKindOf(cext) {
+           Image img = fact.getImage(dump);
+        }  
+       }
+      }
+     }
+    }
+   }   
+  }       
+&lt;/pre&gt;
+&lt;/code&gt;
+
+An example of a plug-in using this extension point is as follows:
+&lt;code&gt;
+&lt;pre&gt;
+&lt;plugin&gt;
+   &lt;extension
+         id=&quot;mydtfj1&quot;
+         name=&quot;Sample DTFJ implementation&quot;
+         point=&quot;com.ibm.dtfj.api.api&quot;&gt;
+      &lt;factory
+            id=&quot;Sample DTFJ&quot;
+            action=&quot;com.usercompany.user.MyDTFJImageFactory&quot;
+            label=&quot;Sample DTFJ from text files&quot;&gt;
+         &lt;content-types
+               dump-type=&quot;com.usercompany.file1&quot;
+               meta-type=&quot;com.usercompany.file2&quot;
+               name=&quot;Type 1&quot;&gt;
+         &lt;/content-types&gt;
+      &lt;/factory&gt;
+   &lt;/extension&gt;
+   &lt;extension
+         id=&quot;mydtfj&quot;
+         name=&quot;My company DTFJ types&quot;
+         point=&quot;org.eclipse.core.contenttype.contentTypes&quot;&gt;
+      &lt;content-type
+            base-type=&quot;com.usercompany.base&quot;
+            file-extensions=&quot;abc&quot;
+            id=&quot;com.usercompany.file1&quot;
+            name=&quot;My DTFJ binary&quot;&gt;
+            &lt;describer class=&quot;org.eclipse.core.runtime.content.BinarySignatureDescriber&quot;
+                  plugin=&quot;org.eclipse.core.runtime&quot;&gt;
+               &lt;parameter
+                     name=&quot;signature&quot;
+                     value=&quot;12 34&quot;&gt;
+               &lt;/parameter&gt;
+               &lt;parameter 
+                     name=&quot;required&quot; 
+                     value=&quot;true&quot;&gt;
+               &lt;/parameter&gt;                     
+            &lt;/describer&gt;            
+      &lt;/content-type&gt;         
+      &lt;content-type
+         base-type=&quot;com.usercompany.base.xml&quot;
+         file-extensions=&quot;myxml&quot;
+               id=&quot;com.usercompany.file2&quot;
+               name=&quot;Meta data XML&quot;
+               priority=&quot;high&quot;&gt;
+            &lt;describer 
+                  class=&quot;org.eclipse.core.runtime.content.XMLRootElementContentDescriber&quot;
+                  plugin=&quot;org.eclipse.core.runtime&quot;&gt;
+               &lt;parameter
+                     name=&quot;element&quot;
+                     value=&quot;myfirstelement&quot;&gt;
+               &lt;/parameter&gt;
+            &lt;/describer&gt;
+      &lt;/content-type&gt;
+      &lt;content-type
+               alias-for=&quot;com.ibm.dtfj.base&quot;
+               base-type=&quot;org.eclipse.core.runtime.xml&quot;
+               id=&quot;com.usercompany.base.xml&quot;
+               name=&quot;Base xml&quot;&gt;
+      &lt;/content-type&gt;
+      &lt;content-type
+               alias-for=&quot;com.ibm.dtfj.base&quot;
+               id=&quot;com.usercompany.base.xml&quot;
+               name=&quot;Base dump&quot;&gt;
+         &lt;/content-type&gt;
+  &lt;/extension&gt;                    
+&lt;/plugin&gt;
+&lt;/pre&gt;
+&lt;/code&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         Javadoc for DTFJ is available at &lt;a href =&quot;https://www.eclipse.org/openj9/docs/interface_dtfj/&quot;&gt;https://www.eclipse.org/openj9/docs/interface_dtfj/&lt;/a&gt;.
+
+&lt;p&gt;The action attribute must give the name of a class which implements the &lt;code&gt;com.ibm.dtfj.ImageFactory&lt;/code&gt; interface.
+&lt;p&gt;A useful convention is to make all DTFJ content-types derived from a place holder type (or types) which is an alias-for &lt;code&gt;com.ibm.dtfj.base&lt;/code&gt;. That type is not declared by any implementation, so the content-types will be derived from the whatever the place holder type is itself derived from, for example &lt;code&gt;org.eclipse.core.runtime.xml&lt;/code&gt;. If however an application wants to refer to all DTFJ files then the application can define the &lt;code&gt;com.ibm.dtfj.base&lt;/code&gt; type which will then replace the place holder type (or types) which have an alias-for &lt;code&gt;com.ibm.dtfj.base&lt;/code&gt;. All the DTFJ files will then be be a kind of &lt;code&gt;com.ibm.dtfj.base&lt;/code&gt;.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         https://www.eclipse.org/openj9/docs/interface_dtfj/
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         © Copyright IBM Corporation 2020
+      </documentation>
+   </annotation>
+
+</schema>

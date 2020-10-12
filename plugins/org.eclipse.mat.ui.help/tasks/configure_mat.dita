@@ -334,6 +334,30 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 					By default, when MAT parses IBM system dumps, the size of classes includes some of the amount of native memory in the Java process (but outside of the Java heap) which is related to those classes such as native memory for bytecode and JIT compiled code for the class methods. Check this option to disable this calculation and only report Java heap usage.
 				</dd>
 			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>DTFJ Parser</uicontrol>
+						<uicontrol>OpenJ9 Directories with DTFJ (for Java &lt;= 8 dumps)</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+					When loading a dump produced by Java &lt;= 8, you may use this preference to specify an explicit implementation of DTFJ to use to load the dump. The directories (such as a JDK or JRE installation) will be recursed in search of dtfj.jar and j9ddr.jar.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>DTFJ Parser</uicontrol>
+						<uicontrol>Skip IBM DTFJ feature (if installed)</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+					When loading a dump, if you have not specified "OpenJ9 Directories with DTFJ (for Java &lt;= 8 dumps)" and the IBM DTFJ feature is installed, then you may check this preference to skip loading DTFJ from the IBM DTFJ feature and instead delegate to the running JVM's DTFJ. If the IBM DTFJ feature is not installed, it is not necessary to check this option to delegate to the running JVM's DTFJ. This approach may be useful for dumps produced by JVMs that are newer than the DTFJ packaged in the IBM DTFJ feature.
+				</dd>
+			</dlentry>
 					<dlentry id="hprof_preferences">
 						<dt>
 							<menucascade>

@@ -49,8 +49,8 @@ import org.osgi.framework.BundleException;
 public class InitDTFJ extends Plugin implements IRegistryChangeListener
 {
 
-    private static final String DTFJ_NAMESPACE = "com.ibm.dtfj.api"; //$NON-NLS-1$
-    private static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
+    public static final String DTFJ_NAMESPACE = "org.eclipse.mat.dtfj.bridge"; //$NON-NLS-1$
+    public static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
 
     private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
     private static int updateCount = 0;
@@ -460,7 +460,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         return preferenceStore;
     }
 
-    static InitDTFJ getDefault()
+    public static InitDTFJ getDefault()
     {
         return plugin;
     }
