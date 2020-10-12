@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -271,5 +274,22 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
             }
         }
         return null;
+    }
+
+    public static class Handler extends AbstractHandler
+    {
+
+        public Handler()
+        {}
+
+        public Object execute(ExecutionEvent executionEvent) throws ExecutionException
+        {
+            OpenSampleHeapDumpAction act = new OpenSampleHeapDumpAction();
+            String param1 = executionEvent.getParameter("org.eclipse.mat.ui.actions.openSampleHeapDump.heapDump"); //$NON-NLS-1$
+            String param2 = executionEvent.getParameter("org.eclipse.mat.ui.actions.openSampleHeapDump.command"); //$NON-NLS-1$
+            String param3 = executionEvent.getParameter("org.eclipse.mat.ui.actions.openSampleHeapDump.oqlParms"); //$NON-NLS-1$
+            act.run(new String[] {param1, param2, param3}, null);
+            return null;
+        }
     }
 }

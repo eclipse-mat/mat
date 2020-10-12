@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.mat.ui.snapshot.actions;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -90,6 +92,19 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
                             PlatformUI.getWorkbench().getIntroManager().getIntro(), true);
         }
 
+    }
+
+    public static class Handler extends AbstractHandler
+    {
+
+        public Handler()
+        {}
+
+        public Object execute(ExecutionEvent executionEvent)
+        {
+            new OpenSnapshotAction().run();
+            return null;
+        }
     }
 
     static class FileLabelProvider extends LabelProvider

@@ -212,6 +212,7 @@
 		</command>
 		<command
 			categoryId="org.eclipse.ui.category.edit"
+			description="%command.description.Execute_Inspection"
 			id="org.eclipse.mat.ui.actions.executeInspection"
 			name="%command.name.Execute_Inspection">
 			<commandParameter
@@ -221,16 +222,42 @@
 			</commandParameter>
 		</command>
 		<command
-			categoryId="org.eclipse.ui.category.edit"
+			categoryId="org.eclipse.ui.category.file"
 			description="%command.description.Acquire"
 			helpContextId="org.eclipse.mat.ui.help.acquire_arguments"
 			id="org.eclipse.mat.ui.acquire.HeapDump"
 			name="%command.name.Acquire">
 		</command>
 		<command
+			categoryId="org.eclipse.ui.category.file"
+			description="%command.description.openHeapDump"
+			helpContextId="org.eclipse.mat.ui.help.open_heapdump"
+			id="org.eclipse.mat.ui.actions.openHeapDump"
+			name="%command.name.openHeapDump">
+		</command>
+		<command
+			categoryId="org.eclipse.ui.category.file"
+			description="%command.description.openSampleHeapDump"
+			helpContextId="org.eclipse.mat.ui.help.open_heapdump"
+			id="org.eclipse.mat.ui.actions.openSampleHeapDump"
+			name="%command.name.openSampleHeapDump">
+			<commandParameter
+				id="org.eclipse.mat.ui.actions.openSampleHeapDump.heapDump"
+				name="%commandParameter.name.openSampleHeapDump.heapDump"
+				optional="false"/>
+			<commandParameter
+				id="org.eclipse.mat.ui.actions.openSampleHeapDump.command"
+				name="%commandParameter.name.openSampleHeapDump.command"
+				optional="true"/>
+			<commandParameter
+				id="org.eclipse.mat.ui.actions.openSampleHeapDump.oqlParms"
+				name="%commandParameter.name.openSampleHeapDump.oqlParms"
+				optional="true"/>
+		</command>
+		<command
 			categoryId="org.eclipse.ui.category.navigate"
 			description="%command.description.TabMenu"
-			helpContextId="org.eclipse.mat.ui.tab_menu"
+			helpContextId="org.eclipse.mat.ui.help.tab_menu"
 			id="org.eclipse.mat.ui.editor.tabMenu"
 			name="%command.name.TabMenu">
 		</command>
@@ -240,12 +267,12 @@
 		<handler
 			class="org.eclipse.mat.ui.internal.browser.QueryBrowserHandler"
 			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser"
-			helpContextId="org.eclipse.mat.ui.query_browser">
+			helpContextId="org.eclipse.mat.ui.help.query_browser">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.internal.browser.QueryHistoryHandler"
 			commandId="org.eclipse.mat.ui.query.browser.QueryHistory"
-			helpContextId="org.eclipse.mat.ui.query_browser">
+			helpContextId="org.eclipse.mat.ui.help.query_browser">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction$Handler"
@@ -262,9 +289,19 @@
 			helpContextId="org.eclipse.mat.ui.help.acquire_arguments">
 		</handler>
 		<handler
+			class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction$Handler"
+			commandId="org.eclipse.mat.ui.actions.openHeapDump"
+			helpContextId="org.eclipse.mat.ui.help.open_heapdump">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction$Handler"
+			commandId="org.eclipse.mat.ui.actions.openSampleHeapDump"
+			helpContextId="org.eclipse.mat.ui.help.open_heapdump">
+		</handler>
+		<handler
 			class="org.eclipse.mat.ui.editor.MultiPaneEditor$Handler"
 			commandId="org.eclipse.mat.ui.editor.tabMenu"
-			helpContextId="org.eclipse.mat.ui.tab_menu">
+			helpContextId="org.eclipse.mat.ui.help.tab_menu">
 		</handler>
 	</extension>
 
