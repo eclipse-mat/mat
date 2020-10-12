@@ -12,6 +12,7 @@
 package org.eclipse.mat.ui.snapshot.panes;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,7 +25,10 @@ import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.Compared
 import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.Mode;
 import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.Operation;
 import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.TableComparisonResult;
+import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -265,6 +269,82 @@ public class CompareTablesPane extends QueryResultPane
         manager.add(setopOptionAction);
     }
 
+    /**
+     * Rebuild the tree / table but preserve existing
+     * sort order and filters.
+     * @param queryResult
+     */
+    private void rebuildViewer(final QueryResult queryResult)
+    {
+        int sortIndex = viewer.getResult().getSortColumn();
+        SortDirection direction = viewer.getResult().getSortDirection();
+        Column sortCol;
+        if (sortIndex >= 0)
+        {
+            sortCol = viewer.getResult().getColumns()[sortIndex];
+        }
+        else
+        {
+            sortCol = null;
+        }
+        Filter filters[];
+        Column cols[];
+        boolean hasFilters = viewer.getResult().hasActiveFilter();
+        if (hasFilters)
+        {
+            filters = viewer.getResult().getFilter();
+            cols = viewer.getResult().getColumns();
+        }
+        else
+        {
+            filters = null;
+            cols = null;
+        }
+        deactivateViewer();
+        RefinedResultViewer v = createViewer(queryResult);
+        if (sortCol != null)
+        {
+            // Find the matching sort column
+            for (Column col : v.getResult().getColumns())
+            {
+                if (col.getLabel().equals(sortCol.getLabel())
+                    && Objects.equals(col.getFormatter(), sortCol.getFormatter())
+                    && Objects.equals(col.getComparator(), sortCol.getComparator())
+                   )
+                {
+                    // Set the corresponding sort column
+                    v.getResult().setSortOrder(col, direction);
+                    break;
+                }
+            }
+        }
+        if (hasFilters)
+        {
+            Filter filters2[] = v.getResult().getFilter();
+            Column cols2[] = v.getResult().getColumns();
+            for (int i = 0; i < filters.length; ++i)
+            {
+                if (filters[i].isActive())
+                {
+                    for (int j = 0; j < filters2.length; ++j)
+                    {
+                        // Match on filters and the column
+                        if (filters[i].getLabel().equals(filters2[j].getLabel())
+                            && filters[i].getClass() == filters2[j].getClass()
+                            && cols[i].getLabel().equals(cols2[j].getLabel())
+                            && Objects.equals(cols[i].getFormatter(), cols2[j].getFormatter())
+                           )
+                        {
+                            filters2[j].setCriteria(filters[i].getCriteria());
+                            v.getResult().filterChanged(filters[j]);
+                        }
+                    }
+                }
+            }
+        }
+        activateViewer(v);
+    }
+
     private class DiffOptionAction extends Action
     {
         private DiffOption diffOption;
@@ -322,9 +402,7 @@ public class CompareTablesPane extends QueryResultPane
                         public void run()
                         {
                             CompareTablesPane.this.diffOption = diffOption;
-                            deactivateViewer();
-                            RefinedResultViewer v = createViewer(queryResult);
-                            activateViewer(v);
+                            rebuildViewer(queryResult);
                         }
                     });
                     return Status.OK_STATUS;
@@ -364,9 +442,7 @@ public class CompareTablesPane extends QueryResultPane
                     top.getDisplay().asyncExec(new Runnable() {
                         public void run()
                         {
-                            deactivateViewer();
-                            RefinedResultViewer v = createViewer(queryResult);
-                            activateViewer(v);
+                            rebuildViewer(queryResult);
                         }
                     });
                     return Status.OK_STATUS;
@@ -435,9 +511,7 @@ public class CompareTablesPane extends QueryResultPane
                         public void run()
                         {
                             CompareTablesPane.this.setopOption = setopOption;
-                            deactivateViewer();
-                            RefinedResultViewer v = createViewer(queryResult);
-                            activateViewer(v);
+                            rebuildViewer(queryResult);
                         }
                     });
                     return Status.OK_STATUS;

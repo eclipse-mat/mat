@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -286,7 +287,12 @@ public class ThreadOverviewQuery implements IQuery
                 colMap[i] = i == 0 ? 0 : -1;
                 for (int j = 0; j < objColumns.length; ++j)
                 {
-                    if (columns[i].equals(objColumns[j]))
+                    Column threadCol = columns[i];
+                    Column listCol = objColumns[j];
+                    // Don't worry about matching totals or sort direction.
+                    if (threadCol.getLabel().equals(listCol.getLabel())
+                        && Objects.equals(threadCol.getFormatter(), listCol.getFormatter())
+                        && threadCol.getType().equals(listCol.getType()))
                     {
                         colMap[i] = j;
                         break;
