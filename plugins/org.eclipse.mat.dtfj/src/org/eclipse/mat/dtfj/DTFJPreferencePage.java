@@ -13,7 +13,9 @@ package org.eclipse.mat.dtfj;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PathEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.mat.dtfj.bridge.api.DTFJBridgeConnector;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
@@ -59,6 +61,10 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                                         { Messages.DTFJPreferencePage_AllMethods, PreferenceConstants.ALL_METHODS_AS_CLASSES } },
                         getFieldEditorParent(), true));
         addField(new BooleanFieldEditor(PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, Messages.DTFJPreferencePage_SuppressClassNativeSizes,
+                        getFieldEditorParent()));
+        
+        addField(new PathEditor(DTFJBridgeConnector.DTFJ_PARENT_DIRECTORIES, Messages.DTFJPreferencePage_DTFJLocations, null, getFieldEditorParent()));
+        addField(new BooleanFieldEditor(DTFJBridgeConnector.DTFJ_SKIP_PLUGIN, Messages.DTFJPreferencePage_DTFJSkipPlugin,
                         getFieldEditorParent()));
    }
 

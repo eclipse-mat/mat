@@ -8583,7 +8583,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         Image image;
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        IExtensionPoint point = reg.getExtensionPoint("com.ibm.dtfj.api", "imagefactory"); //$NON-NLS-1$ //$NON-NLS-2$
+        IExtensionPoint point = reg.getExtensionPoint(InitDTFJ.DTFJ_NAMESPACE, InitDTFJ.DTFJ_IMAGEFACTORY);
 
         if (point != null)
         {

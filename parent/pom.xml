@@ -55,6 +55,7 @@
 				<module>../plugins/org.eclipse.mat.api</module>
 				<module>../plugins/org.eclipse.mat.chart</module>
 				<module>../plugins/org.eclipse.mat.chart.ui</module>
+				<module>../plugins/org.eclipse.mat.dtfj.bridge</module>
 				<module>../plugins/org.eclipse.mat.dtfj</module>
 				<module>../plugins/org.eclipse.mat.hprof</module>
 				<module>../plugins/org.eclipse.mat.jdt</module>

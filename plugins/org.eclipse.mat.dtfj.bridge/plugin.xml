@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+/*******************************************************************************
+ * Copyright (c) 2020 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    IBM Corporation - initial API and implementation
+ *******************************************************************************/
+-->
+<plugin>
+    <extension-point id="imagefactory" name="DTFJ Provider" schema="schema/org.eclipse.mat.dtfj.bridge.exsd"/>
+    <extension id="j9" name="OpenJ9 or IBM SDK for Java system dump (.dmp/.dmp.zip) or javacore.txt"
+ 		point="org.eclipse.mat.dtfj.bridge.imagefactory">
+ 		<factory id="DTFJ-J9"
+ 			action="org.eclipse.mat.dtfj.bridge.SystemDumpImageFactory"
+ 			label="OpenJ9 or IBM SDK for Java system dump (.dmp/.dmp.zip)">
+ 			<content-types dump-type="com.ibm.dtfj.j9.zip"
+ 				name="Zip file">
+ 			</content-types>
+ 			<content-types dump-type="com.ibm.dtfj.j9.dmp"
+ 				meta-type="com.ibm.dtfj.j9.xml" name="Unpacked zip">
+ 			</content-types>
+ 		</factory>
+ 		<factory id="DTFJ-Javacore"
+ 			action="org.eclipse.mat.dtfj.bridge.JavacoreImageFactory"
+ 			label="OpenJ9 or IBM SDK for Java javacore.txt">
+ 			<content-types dump-type="com.ibm.dtfj.javacore"
+ 				name="Javadumps">
+ 			</content-types>
+ 		</factory>
+ 	</extension>
+ 	<extension id="j9" name="OpenJ9 or IBM SDK for Java system dump (.dmp) or javacore types"
+ 		point="org.eclipse.core.contenttype.contentTypes">
+ 		<content-type base-type="com.ibm.dtfj.j9.base.text"
+ 			default-charset="UTF-8" file-extensions="txt"
+ 			id="com.ibm.dtfj.javacore" name="IBM Javadump" priority="high">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature"
+ 					value="4E 55 4C 4C 20 20 20 20 20 20 20 20 20 20 20 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D">
+ 				</parameter>
+ 				<parameter name="offset" value="0">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.base"
+ 			file-extensions="zip,dmp.zip" id="com.ibm.dtfj.j9.zip"
+ 			name="IBM SDK for Java (J9) JExtracted system dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="50 46 03 04">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.base"
+ 			file-extensions="dmp," id="com.ibm.dtfj.j9.dmp"
+ 			name="IBM SDK for Java (J9) system dump">
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.base.xml"
+ 			file-extensions="xml" id="com.ibm.dtfj.j9.xml"
+ 			name="IBM SDK for Java (J9) JExtract output XML" priority="high">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber">
+ 				<parameter name="element" value="j9dump">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.aix" name="AIX dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="0F EE DD">
+ 				</parameter>
+ 				<parameter name="offset" value="4">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.elf" name="Linux ELF dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="7f 45 4c 46">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.zos31" name="z/OS 31-bit dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="c4 d9 f1 40">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.zos64" name="z/OS 64-bit dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="c4 d9 f2 40">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.winmdmp" name="Windows Minidump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="4d 44 4d 50">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.j9.dmp"
+ 			id="com.ibm.dtfj.j9.winuserdump" name="Windows Userdump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature"
+ 					value="55 53 45 52 44 55 4D 50">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type alias-for="com.ibm.dtfj.base"
+ 			base-type="org.eclipse.core.runtime.text"
+ 			id="com.ibm.dtfj.j9.base.text" name="Base J9 text file">
+ 		</content-type>
+ 		<content-type alias-for="com.ibm.dtfj.base"
+ 			base-type="org.eclipse.core.runtime.xml"
+ 			id="com.ibm.dtfj.j9.base.xml" name="Base J9 xml">
+ 		</content-type>
+ 		<content-type alias-for="com.ibm.dtfj.base"
+ 			id="com.ibm.dtfj.j9.base" name="Base J9 dump">
+ 		</content-type>
+ 	</extension>
+ 	<extension id="phd"
+ 		name="OpenJ9 or IBM SDK for Java Portable Heap Dump (.phd)"
+ 		point="org.eclipse.mat.dtfj.bridge.imagefactory">
+ 		<factory id="DTFJ-PHD"
+ 			action="org.eclipse.mat.dtfj.bridge.PHDImageFactory"
+ 			label="OpenJ9 or IBM SDK for Java Portable Heap Dump (.phd)">
+ 			<content-types dump-type="com.ibm.dtfj.phd"
+ 				meta-type="com.ibm.dtfj.javacore" name="PHD">
+ 			</content-types>
+ 			<content-types dump-type="com.ibm.dtfj.phd.gz"
+ 				meta-type="com.ibm.dtfj.javacore" name="PHD GZ">
+ 			</content-types>
+ 		</factory>
+ 	</extension>
+ 	<extension id="phd" name="OpenJ9 or IBM SDK for Java Portable Heap Dump (.phd) types"
+ 		point="org.eclipse.core.contenttype.contentTypes">
+ 		<content-type base-type="com.ibm.dtfj.phd.base"
+ 			file-extensions="phd" id="com.ibm.dtfj.phd"
+ 			name="IBM Portable Heap Dump">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature"
+ 					value="00 12 70 6F 72 74 61 62 6C 65 20 68 65 61 70 20 64 75 6D 70">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type base-type="com.ibm.dtfj.phd.base"
+ 			file-extensions="phd.gz,gz" id="com.ibm.dtfj.phd.gz"
+ 			name="IBM Portable Heap Dump (gzipped)">
+ 			<describer
+ 				class="org.eclipse.core.runtime.content.BinarySignatureDescriber"
+ 				plugin="org.eclipse.core.runtime">
+ 				<parameter name="signature" value="1F 8B">
+ 				</parameter>
+ 				<parameter name="required" value="true">
+ 				</parameter>
+ 			</describer>
+ 		</content-type>
+ 		<content-type alias-for="com.ibm.dtfj.base"
+ 			id="com.ibm.dtfj.phd.base" name="Base PHD dump">
+ 		</content-type>
+ 	</extension>
+</plugin>
