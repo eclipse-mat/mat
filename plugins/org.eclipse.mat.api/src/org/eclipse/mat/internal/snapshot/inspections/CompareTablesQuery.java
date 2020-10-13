@@ -78,9 +78,9 @@ import com.ibm.icu.text.NumberFormat;
 @Icon("/META-INF/icons/compare.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
 @Menu({ @Entry(options = "-setop ALL")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key -setop ALL")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key -setop ALL")
 })
 public class CompareTablesQuery implements IQuery
 {
@@ -498,6 +498,36 @@ public class CompareTablesQuery implements IQuery
             this.key = key;
             this.pos = pos;
         }
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((key == null) ? 0 : key.hashCode());
+            result = prime * result + pos;
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            PlaceHolder other = (PlaceHolder) obj;
+            if (key == null)
+            {
+                if (other.key != null)
+                    return false;
+            }
+            else if (!key.equals(other.key))
+                return false;
+            if (pos != other.pos)
+                return false;
+            return true;
+        }
     }
 
     private List<ComparedRow> mergeKeys(ComparedRow parent, IProgressListener listener)
@@ -778,29 +808,33 @@ public class CompareTablesQuery implements IQuery
             return false;
         try
         {
+            // Classes don't match, so different
+            if (!snapshots[table1].getClassOf(objectId1).getName().equals(snapshots[table2].getClassOf(objectId2).getName()))
+                return false;
             long addr1 = snapshots[table1].mapIdToAddress(objectId1);
             long addr2 = snapshots[table2].mapIdToAddress(objectId2);
             // Address match, guess the same?
             if (addr1 == addr2)
                 return true;
-            // Classes don't match, so different
-            if (!snapshots[table1].getClassOf(objectId1).getName().equals(snapshots[table2].getClassOf(objectId2).getName()))
-                return false;
+            // Compare using getClassSpecificName() but this could be done
+            // using the key by specifying the class in the key match
             if (matchType >= 1)
             {
-                // Guess match on retained size, presuming it retains more than itself!
-                if (snapshots[table1].getRetainedHeapSize(objectId1) > snapshots[table1].getHeapSize(1)
-                                && snapshots[table1].getRetainedHeapSize(objectId1) == snapshots[table2]
-                                                .getRetainedHeapSize(objectId2))
-                    return true;
+                String val1 = snapshots[table1].getObject(objectId1).getClassSpecificName();
+                String val2 = snapshots[table2].getObject(objectId2).getClassSpecificName();
+                if (val1 != null)
+                    return val1.equals(val2);
+                else
+                    if (val2 != null)
+                        return false;
+                // No class specific name, so not sure
             }
-            // Don't compare using getClassSpecificName() as this could be done
-            // on the key
             if (matchType >= 2)
             {
-                String val1 = snapshots[table1].getObject(objectId1).getClassSpecificName();
-                String val2 = snapshots[table1].getObject(objectId1).getClassSpecificName();
-                if (val1 != null && val1.equals(val2))
+                // Guess match on retained size, presuming it retains more than itself!
+                if (snapshots[table1].getRetainedHeapSize(objectId1) > snapshots[table1].getHeapSize(objectId1)
+                                && snapshots[table1].getRetainedHeapSize(objectId1) == snapshots[table2]
+                                                .getRetainedHeapSize(objectId2))
                     return true;
             }
             return false;
@@ -878,6 +912,7 @@ public class CompareTablesQuery implements IQuery
      */
     void sortRows(Object rows[])
     {
+        int passes = 3;
         int rn = rows.length;
         int tn = tables.length;
         int n = rn / tn;
@@ -905,7 +940,7 @@ public class CompareTablesQuery implements IQuery
             slot: for (int j = 0; j < n; ++j)
             {
                 // System.out.println("Slot "+i+":"+j);
-                for (int pass = 0; pass < 2; ++pass)
+                for (int pass = 0; pass < passes; ++pass)
                 {
                     // Choose preceding table
                     for (int k = 0; k < i; ++k)
@@ -974,7 +1009,7 @@ public class CompareTablesQuery implements IQuery
             // Matching slot in preceding table
             for (int j = 0; j < n; ++j)
             {
-                for (int pass = 0; pass < 2; ++pass)
+                for (int pass = 0; pass < passes; ++pass)
                 {
                     // Choose preceding table
                     for (int k = 0; k < i; ++k)

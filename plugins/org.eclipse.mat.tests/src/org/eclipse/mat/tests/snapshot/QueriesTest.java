@@ -12,6 +12,7 @@ package org.eclipse.mat.tests.snapshot;
 
 
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -24,7 +25,6 @@ import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -44,6 +46,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
@@ -1441,6 +1444,52 @@ public class QueriesTest
         assertThat("Expect problems section", probs, equalTo(expectedProbs));
         assertThat("Expected dominator tree section", domtree, equalTo(expectedDomTree));
         assertThat("Expected subqueries with commands", subcommands, equalTo(expectedSubCommands));
+    }
+
+    @Test
+    public void testCompareThreads1() throws SnapshotException
+    {
+        SnapshotQuery query1 = SnapshotQuery.parse("thread_overview", snapshot);
+        IResultTree tree1 = (IResultTree)query1.execute(new CheckedProgressListener(collector));
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        SnapshotQuery query2 = SnapshotQuery.parse("thread_overview", snapshot2);
+        IResultTree tree2 = (IResultTree)query2.execute(new CheckedProgressListener(collector));
+        SnapshotQuery query3 = SnapshotQuery.parse("comparetablesquery -mode ABSOLUTE -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key", snapshot2);
+        IStructuredResult r[] = new IStructuredResult[] {tree1, tree2};
+        query3.setArgument("tables", Arrays.asList(r));
+        ISnapshot s[] = new ISnapshot[] {snapshot, snapshot2};
+        query3.setArgument("snapshots", Arrays.asList(s));
+        IResult compres = query3.execute(new CheckedProgressListener(collector));
+        IResultTree tree = (IResultTree)compres;
+        assertThat(tree.getElements().size(), equalTo(Math.max(tree1.getElements().size(), tree2.getElements().size())));
+        int same = 0;
+        for (Object o : tree.getElements())
+        {
+            String s1 = (String)tree.getColumnValue(o, 1);
+            String s2 = (String)tree.getColumnValue(o, 2);
+            if (s1 != null && s1.equals(s2))
+                ++same;
+        }
+        assertThat(same, equalTo(11));
+    }
+
+    @Test
+    public void testCompareHistogram1() throws SnapshotException
+    {
+        SnapshotQuery query1 = SnapshotQuery.parse("histogram", snapshot);
+        IResultTable table1 = (IResultTable)query1.execute(new CheckedProgressListener(collector));
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        SnapshotQuery query2 = SnapshotQuery.parse("histogram", snapshot2);
+        IResultTable table2 = (IResultTable)query2.execute(new CheckedProgressListener(collector));
+        SnapshotQuery query3 = SnapshotQuery.parse("comparetablesquery -mode ABSOLUTE -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key", snapshot2);
+        IStructuredResult r[] = new IStructuredResult[] {table1, table2};
+        query3.setArgument("tables", Arrays.asList(r));
+        ISnapshot s[] = new ISnapshot[] {snapshot, snapshot2};
+        query3.setArgument("snapshots", Arrays.asList(s));
+        IResult compres = query3.execute(new CheckedProgressListener(collector));
+        IResultTable table = (IResultTable)compres;
+        assertThat(table.getRowCount(), greaterThanOrEqualTo(Math.max(table1.getRowCount(), table2.getRowCount())));
+        assertThat(table.getRowCount(), lessThanOrEqualTo(table1.getRowCount() + table2.getRowCount()));
     }
 
     /**
