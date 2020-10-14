@@ -722,15 +722,18 @@ public class QueryContextMenu
                 {
                     // Single object in this line of the selection
                     int o = ico.getObjectId();
-                    for (String cn : cls)
+                    if (o >= 0)
                     {
-                        try
+                        for (String cn : cls)
                         {
-                            if (instanceOf(snapshot, o, cn))
-                                return false;
+                            try
+                            {
+                                if (instanceOf(snapshot, o, cn))
+                                    return false;
+                            }
+                            catch (SnapshotException e)
+                            {}
                         }
-                        catch (SnapshotException e)
-                        {}
                     }
                     ++inspected;
                 }

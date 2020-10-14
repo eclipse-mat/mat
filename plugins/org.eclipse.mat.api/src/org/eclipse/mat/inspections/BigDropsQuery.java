@@ -343,6 +343,8 @@ public class BigDropsQuery implements IQuery, IResultTree
 
     IContextObject getDominator(final Object row)
     {
+        if (((BigDropEntry) row).dominatorId < 0)
+            return null;
         return new IContextObject()
         {
             public int getObjectId()

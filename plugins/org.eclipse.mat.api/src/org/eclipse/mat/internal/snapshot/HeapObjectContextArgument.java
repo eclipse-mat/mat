@@ -81,7 +81,13 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
                         if (ctx instanceof IContextObjectSet)
                             return ((IContextObjectSet) ctx).getObjectIds();
                         else
-                            return new int[] { ctx.getObjectId() };
+                        {
+                            int objectId = ctx.getObjectId();
+                            if (objectId >= 0)
+                                return new int[] { objectId };
+                            else
+                                return new int[0];
+                        }
                     }
 
                     public void remove()
@@ -106,7 +112,11 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
             if (ctx instanceof IContextObjectSet)
                 objIdxs.addAll(((IContextObjectSet) ctx).getObjectIds());
             else
-                objIdxs.add(ctx.getObjectId());
+            {
+                int objectId = ctx.getObjectId();
+                if (objectId >= 0)
+                    objIdxs.add(objectId);
+            }
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();

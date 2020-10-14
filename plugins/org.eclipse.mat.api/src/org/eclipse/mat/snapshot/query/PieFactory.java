@@ -283,14 +283,16 @@ public final class PieFactory
 
             buf.append("<p>").append("<b>").append(HTMLUtils.escapeText(getLabel())).append("</b></p>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
+            buf.append(HTML_BREAK).append("<p>"); //$NON-NLS-1$
             if (label != null)
             {
-                buf.append(HTML_BREAK).append("<p>").append(Messages.PieFactory_Label_ShallowSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
+                buf.append(Messages.PieFactory_Label_ShallowSize).append(" <b>"); //$NON-NLS-1$
                 buf.append(Units.Storage.of(shallowSize).format(shallowSize));
-                buf.append("</b>     ").append(Messages.PieFactory_Label_RetainedSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
-                buf.append(Units.Storage.of(retainedSize).format(retainedSize));
-                buf.append("</b></p>"); //$NON-NLS-1$
+                buf.append("</b>     "); //$NON-NLS-1$
             }
+            buf.append(Messages.PieFactory_Label_RetainedSize).append(" <b>"); //$NON-NLS-1$
+            buf.append(Units.Storage.of(retainedSize).format(retainedSize));
+            buf.append("</b></p>"); //$NON-NLS-1$
 
             return buf.toString();
         }
