@@ -597,7 +597,7 @@ public class CommonNameResolver
                     if (hostname != null)
                     {
                         InetAddress in = InetAddress.getByAddress(hostname, b);
-                        return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$ //$NON-NLS-2$
+                        return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$
                     }
                     else
                     {
@@ -670,7 +670,7 @@ public class CommonNameResolver
                             else
                             {
                                 InetAddress in = InetAddress.getByAddress(hostname, b);
-                                return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$ //$NON-NLS-2$
+                                return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$
                             }
                         }
                         else
@@ -705,9 +705,9 @@ public class CommonNameResolver
             Object host = object.resolveValue("host"); //$NON-NLS-1$
             String hostname = (host instanceof IObject) ? ((IObject) host).getClassSpecificName() : null;
 
-            int slash = addrname.indexOf('/');
-            if (addrname != null && slash >= 0)
+            if (addrname != null && addrname.indexOf('/') >= 0)
             {
+                int slash = addrname.indexOf('/');
                 if (addrname.substring(slash + 1).indexOf(':') >= 0)
                 {
                     // IPv6
