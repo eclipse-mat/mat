@@ -113,6 +113,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$CharArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ByteArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$URLResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$URIResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$AccessibleObjectResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$FieldResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MethodResolver" />
@@ -122,6 +123,14 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$EnumResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ExternalDataResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MemberNameResolver" />
+		<!-- networking -->
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressHolderResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$InetAddressResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$InetAddressHolderResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$InetSocketAddressResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$InetSocketAddressHolderResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$SocketChannelImpl"/>
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
@@ -131,6 +140,7 @@
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RGBResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$PointResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RectangleResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$OSGiFrameworkVersion" />
 		
 		<!-- jetty -->
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>

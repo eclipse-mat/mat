@@ -12,6 +12,9 @@
 package org.eclipse.mat.inspections;
 
 import java.lang.reflect.Modifier;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -189,7 +192,7 @@ public class CommonNameResolver
             return r.toString();
         }
     }
-    
+
     /*
      * Contributed in bug 273915
      */
@@ -229,7 +232,51 @@ public class CommonNameResolver
             return builder.length() > 0 ? builder.toString() : null;
         }
     }
-    
+
+    @Subject("java.net.URI")
+    public static class URIResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            StringBuilder builder = new StringBuilder();
+            IObject string = (IObject) obj.resolveValue("string"); //$NON-NLS-1$
+            if (string != null)
+            {
+                String val = string.getClassSpecificName();
+                if (val != null)
+                    return val;
+            }
+            IObject protocol = (IObject) obj.resolveValue("scheme"); //$NON-NLS-1$
+            if (protocol != null)
+            {
+                builder.append(protocol.getClassSpecificName());
+                builder.append(":"); //$NON-NLS-1$
+            }
+            IObject authority = (IObject) obj.resolveValue("authority"); //$NON-NLS-1$
+            if (authority != null)
+            {
+                builder.append("//"); //$NON-NLS-1$
+                builder.append(authority.getClassSpecificName());
+            }
+            IObject path = (IObject) obj.resolveValue("path"); //$NON-NLS-1$
+            if (path != null)
+                builder.append(path.getClassSpecificName());
+            IObject query = (IObject) obj.resolveValue("query"); //$NON-NLS-1$
+            if (query != null)
+            {
+                builder.append("?"); //$NON-NLS-1$
+                builder.append(query.getClassSpecificName());
+            }
+            IObject ref = (IObject) obj.resolveValue("ref"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                builder.append("#"); //$NON-NLS-1$
+                builder.append(ref.getClassSpecificName());
+            }
+            return builder.length() > 0 ? builder.toString() : null;
+        }
+    }
+
     @Subject("java.lang.reflect.AccessibleObject")
     public static class AccessibleObjectResolver implements IClassSpecificNameResolver
     {
@@ -504,6 +551,285 @@ public class CommonNameResolver
                 return buf.toString();
             }
             return null;
+        }
+    }
+
+    @Subject("java.net.InetAddress")
+    public static class InetAddressResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            Object holder = object.resolveValue("holder"); //$NON-NLS-1$
+            if (holder instanceof IObject)
+                return ((IObject)holder).getClassSpecificName();
+            else
+                return null;
+        }
+    }
+
+    @Subject("java.net.InetAddress$InetAddressHolder")
+    public static class InetAddressHolderResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            Object host = object.resolveValue("hostName"); //$NON-NLS-1$
+            String hostname;
+            if (host instanceof IObject)
+            {
+                hostname = ((IObject)host).getClassSpecificName();
+            }
+            else
+            {
+                hostname = null;
+            }
+            Object address = object.resolveValue("address"); //$NON-NLS-1$
+            if (address instanceof Integer)
+            {
+                int addr = (Integer)address;
+                byte b[] = new byte[] { (byte)(addr >>> 24),
+                                (byte)(addr >>> 16),
+                                (byte)(addr >>> 8),
+                                (byte)(addr >>> 0)};
+                try
+                {
+                    if (hostname != null)
+                    {
+                        InetAddress in = InetAddress.getByAddress(hostname, b);
+                        return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    else
+                    {
+                        InetAddress in = InetAddress.getByAddress(b);
+                        return in.getHostAddress();
+                    }
+                }
+                catch (UnknownHostException e)
+                {
+                }
+            }
+            else if (hostname != null)
+            {
+                return hostname;
+            }
+            return null;
+        }
+    }
+
+
+    @Subject("java.net.Inet6Address")
+    public static class Inet6AddressResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            Object holder = object.resolveValue("holder6"); //$NON-NLS-1$
+            if (holder instanceof IObject)
+                return ((IObject)holder).getClassSpecificName();
+            else
+                return null;
+        }
+    }
+
+    @Subject("java.net.Inet6Address$Inet6AddressHolder")
+    public static class Inet6AddressHolderResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            Object host = object.resolveValue("hostName"); //$NON-NLS-1$
+            String hostname;
+            if (host instanceof IObject)
+            {
+                hostname = ((IObject)host).getClassSpecificName();
+            }
+            else
+            {
+                hostname = null;
+            }
+            Object address = object.resolveValue("ipaddress"); //$NON-NLS-1$
+            if (address instanceof IPrimitiveArray)
+            {
+                IPrimitiveArray p = (IPrimitiveArray)address;
+                Object vals = p.getValueArray();
+                if (vals instanceof byte[])
+                {
+                    byte b[] = (byte[])vals;
+                    try
+                    {
+                        if (hostname != null)
+                        {
+                            Object os = object.resolveValue("scope_id_set"); //$NON-NLS-1$
+                            Object oid = object.resolveValue("scope_id"); //$NON-NLS-1$
+                            if (os instanceof Boolean && (Boolean)os && oid instanceof Integer)
+                            {
+                                InetAddress in = Inet6Address.getByAddress(hostname, b, (Integer)oid);
+                                return in.getHostName()+"/" +in.getHostAddress(); //$NON-NLS-1$
+                            }
+                            else
+                            {
+                                InetAddress in = InetAddress.getByAddress(hostname, b);
+                                return in.getHostName()+"/"+in.getHostAddress(); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                        }
+                        else
+                        {
+                            InetAddress in = InetAddress.getByAddress(b);
+                            return in.getHostAddress();
+                        }
+                    }
+                    catch (UnknownHostException e)
+                    {
+                    }
+                }
+            }
+            else if (hostname != null)
+            {
+                return hostname;
+            }
+            return null;
+        }
+    }
+
+    @Subject("java.net.InetSocketAddress$InetSocketAddressHolder")
+    public static class InetSocketAddressHolderResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            StringBuilder res = new StringBuilder();
+            Object addr = object.resolveValue("addr"); //$NON-NLS-1$
+            String addrname = (addr instanceof IObject) ? ((IObject) addr).getClassSpecificName() : null;
+
+            Object host = object.resolveValue("host"); //$NON-NLS-1$
+            String hostname = (host instanceof IObject) ? ((IObject) host).getClassSpecificName() : null;
+
+            int slash = addrname.indexOf('/');
+            if (addrname != null && slash >= 0)
+            {
+                if (addrname.substring(slash + 1).indexOf(':') >= 0)
+                {
+                    // IPv6
+                    res.append(addrname.substring(0, slash + 1));
+                    res.append('[');
+                    res.append(addrname.substring(slash + 1));
+                    res.append(']');
+                }
+                else
+                {
+                    res.append(addrname);
+                }
+            }
+            else if (hostname != null)
+            {
+                res.append(hostname);
+                if (addrname != null)
+                {
+                    res.append('/');
+                    if (addrname.indexOf(':') >= 0)
+                        res.append('[').append(addrname).append(']');
+                    else
+                        res.append(addrname);
+                }
+            }
+            else if (addrname != null)
+            {
+                if (addrname.indexOf(':') >= 0)
+                    res.append('[').append(addrname).append(']');
+                else
+                    res.append(addrname);
+            }
+            res.append(':');
+            Object port = object.resolveValue("port"); //$NON-NLS-1$
+            if (port instanceof Integer)
+            {
+                res.append(port);
+            }
+            if (res.length() > 1)
+                return res.toString();
+            else
+                return null;
+        }
+    }
+
+    @Subject("java.net.InetSocketAddress")
+    public static class InetSocketAddressResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            Object holder = object.resolveValue("holder"); //$NON-NLS-1$
+            if (holder instanceof IObject)
+            {
+                return ((IObject)holder).getClassSpecificName();
+            }
+            else
+                return null;
+        }
+    }
+    
+    
+    @Subject("sun.nio.ch.SocketChannelImpl")
+    public static class SocketChannelImpl implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject object) throws SnapshotException
+        {
+            StringBuilder sb = new StringBuilder();
+            Object state = object.resolveValue("state"); //$NON-NLS-1$
+            if (state instanceof Integer)
+            {
+                IClass cls = object.getClazz();
+                Object s1 = cls.resolveValue("ST_UNINITIALIZED"); //$NON-NLS-1$
+                Object s2 = cls.resolveValue("ST_UNCONNECTED"); //$NON-NLS-1$
+                Object s3 = cls.resolveValue("ST_PENDING"); //$NON-NLS-1$
+                Object s4 = cls.resolveValue("ST_CONNECTED"); //$NON-NLS-1$
+                Object s5 = cls.resolveValue("ST_KILLPENDING"); //$NON-NLS-1$
+                Object s6 = cls.resolveValue("ST_KILLED"); //$NON-NLS-1$
+                
+                if (state.equals(s1))
+                    sb.append("uninitialized"); //$NON-NLS-1$
+                else if (state.equals(s2))
+                {
+                     sb.append("unconnected"); //$NON-NLS-1$
+                }
+                else if (state.equals(s3))
+                {
+                     sb.append("pending"); //$NON-NLS-1$
+                }
+                else if (state.equals(s4))
+                {
+                     sb.append("connected"); //$NON-NLS-1$
+                }
+                else if (state.equals(s5))
+                {
+                     sb.append("kill pending"); //$NON-NLS-1$
+                }
+                else if (state.equals(s6))
+                {
+                     sb.append("killed"); //$NON-NLS-1$
+                }
+                if (sb.length() > 0)
+                    sb.append(' ');
+            }
+            sb.append("local="); //$NON-NLS-1$
+            Object localAddress = object.resolveValue("localAddress");  //$NON-NLS-1$
+            if (localAddress instanceof IObject)
+            {
+                String v = ((IObject)localAddress).getClassSpecificName();
+                if (v != null)
+                    sb.append(v);
+            }
+            sb.append(" remoteAddress="); //$NON-NLS-1$
+            Object remoteAddress = object.resolveValue("remoteAddress");  //$NON-NLS-1$
+            if (remoteAddress instanceof IObject)
+            {
+                String v = ((IObject)remoteAddress).getClassSpecificName();
+                if (v != null)
+                    sb.append(v);
+            }
+            return sb.toString();
         }
     }
 }

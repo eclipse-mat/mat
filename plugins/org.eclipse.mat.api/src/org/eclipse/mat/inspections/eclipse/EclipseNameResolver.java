@@ -115,4 +115,36 @@ public class EclipseNameResolver
             return MessageUtil.format(Messages.EclipseNameResolver_Rectangle, x, y, width, height);
         }
     }
+
+    @Subject("org.osgi.framework.Version")
+    public static class OSGiFrameworkVersion implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            Object s = obj.resolveValue("versionString"); //$NON-NLS-1$
+            if (s instanceof IObject)
+            {
+                String v = ((IObject)s).getClassSpecificName();
+                if (v != null)
+                    return v;
+            }
+            Object major = obj.resolveValue("major"); //$NON-NLS-1$
+            Object minor = obj.resolveValue("minor"); //$NON-NLS-1$
+            Object micro = obj.resolveValue("micro"); //$NON-NLS-1$
+            if (major instanceof Integer && minor instanceof Integer && micro instanceof Integer)
+            {
+                Object q = obj.resolveValue("qualifier"); //$NON-NLS-1$
+                if (q instanceof IObject)
+                {
+                    String v = ((IObject)q).getClassSpecificName();
+                    if (v != null && v.length() > 0)
+                        return major + "." + minor + "." + micro + "." + v; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                }
+                return major + "." + minor + "." + micro; //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return null;
+        }
+
+    }
 }

@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
@@ -25,7 +26,6 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeThat;
@@ -54,6 +54,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.registry.QueryObjectLink;
@@ -909,6 +910,20 @@ public class GeneralSnapshotTests
                 }
             }
         }
+    }
+
+    @Test
+    public void groupByValue() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("group_by_value \".*\"", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        // Will run name resolvers on every object!
+        IResultTable table = (IResultTable)t;
+        // Every PHD files have some empty char arrays which get resolved.
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-Javacore")));
+        // More than one different line, so some name resolvers are working
+        assertThat(table.getRowCount(), greaterThan(1));
     }
 
     /**
