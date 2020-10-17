@@ -112,12 +112,16 @@ public final class Messages extends NLS
     public static String TotalsRow_Label_Total;
     public static String TotalsRow_Label_TotalVisible;
 
-	public static String ConsoleProgressListener_ERROR;
-	public static String ConsoleProgressListener_INFO;
-	public static String ConsoleProgressListener_UNKNOWN;
-	public static String ConsoleProgressListener_WARNING;
+    public static String ConsoleProgressListener_ERROR;
+    public static String ConsoleProgressListener_INFO;
+    public static String ConsoleProgressListener_UNKNOWN;
+    public static String ConsoleProgressListener_WARNING;
 
-	static
+    public static String ITestResult_Error;
+    public static String ITestResult_Success;
+    public static String ITestResult_Warning;
+
+    static
     {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
