@@ -117,7 +117,13 @@ public final class Messages extends NLS
 	public static String ConsoleProgressListener_UNKNOWN;
 	public static String ConsoleProgressListener_WARNING;
 
-	static
+	public static String ITestResult_Error;
+
+    public static String ITestResult_Success;
+
+    public static String ITestResult_Warning;
+
+    static
     {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
