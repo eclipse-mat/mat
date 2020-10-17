@@ -23,13 +23,19 @@ function hide(obj, a)
 		div.display = "none";
 		obj.firstChild.src = imageBase.value + 'closed.gif'
 	}
-	title = obj.title;
+	obj.title = swapTitle(obj.title)
+	obj.firstChild.alt = swapTitle(obj.firstChild.alt)
+}
+
+function swapTitle(title)
+{
 	if (title != null)
 	{
 		sep = title.indexOf(" / ")
 		if (sep >= 0)
-			obj.title = title.substring(sep + 3) + title.substring(sep, sep + 3) + title.substring(0, sep);
+			title = title.substring(sep + 3) + title.substring(sep, sep + 3) + title.substring(0, sep);
 	}
+	return title
 }
 
 function preparepage()
@@ -160,6 +166,8 @@ function collapsible()
 	var imageBase = document.getElementById('imageBase');
 	closedImage = imageBase.value + 'closed.gif';
 	openedImage = imageBase.value + 'opened.gif';
+	openedImageAlt = imageBase.title;
+	closedImageAlt = swapTitle(openedImageAlt);
 	nochildrenImage = imageBase.value + 'nochildren.gif';
 	
 	var uls = document.getElementsByTagName('ul');
@@ -167,16 +175,16 @@ function collapsible()
 	{
 		if(uls[i].className == 'collapsible_opened')
 		{
-			makeCollapsible(uls[i], 'block', 'collapsibleOpened', openedImage);
+			makeCollapsible(uls[i], 'block', 'collapsibleOpened', openedImage, openedImageAlt);
 		}
 		else if(uls[i].className == 'collapsible_closed')
 		{
-			makeCollapsible(uls[i], 'none', 'collapsibleClosed', closedImage);
+			makeCollapsible(uls[i], 'none', 'collapsibleClosed', closedImage, closedImageAlt);
 		}
 	}
 }
 
-function makeCollapsible(listElement, defaultState, defaultClass, defaultImage)
+function makeCollapsible(listElement, defaultState, defaultClass, defaultImage, defaultImageAlt)
 {
 	listElement.style.listStyle = 'none';
 
@@ -202,12 +210,25 @@ function makeCollapsible(listElement, defaultState, defaultClass, defaultImage)
 			if (list.length == 0)
 			{
 				node.setAttribute('src', nochildrenImage);
+				node.setAttribute('alt', '');
 			}
 			else
 			{
 				node.setAttribute('src', defaultImage);
-				node.setAttribute('class', defaultClass);
-				node.onclick = createToggleFunction(node,list);
+				/* No need to set the image text as set on the a */
+				if (false && defaultImageAlt != null)
+					node.setAttribute('alt', defaultImageAlt);
+				else
+					node.setAttribute('alt', '');
+				var anode = document.createElement('a');
+				anode.href = "#"
+				anode.setAttribute('class', defaultClass);
+				anode.onclick = createToggleFunction(anode,list);
+				/* Set the img alt text and the a title */
+				if (defaultImageAlt != null)
+					anode.title = defaultImageAlt 
+				anode.appendChild(node)
+				node = anode
 			}
 
 			child.insertBefore(node,child.firstChild);
@@ -224,17 +245,20 @@ function createToggleFunction(toggleElement, sublistElements)
 		if (toggleElement.getAttribute('class')=='collapsibleClosed')
 		{
 			toggleElement.setAttribute('class','collapsibleOpened');
-			toggleElement.setAttribute('src',openedImage);
+			toggleElement.firstChild.setAttribute('src',openedImage);
 		}
 		else
 		{
 			toggleElement.setAttribute('class','collapsibleClosed');
-			toggleElement.setAttribute('src',closedImage);
+			toggleElement.firstChild.setAttribute('src',closedImage);
 		}
+		toggleElement.setAttribute('title', swapTitle(toggleElement.getAttribute('title')))
+		toggleElement.firstChild.setAttribute('alt', swapTitle(toggleElement.firstChild.getAttribute('alt')))
 
 		for (var i=0;i<sublistElements.length;i++)
 		{
 			sublistElements[i].style.display = (sublistElements[i].style.display=='block') ? 'none' : 'block';
 		}
+		return false
 	}
 }

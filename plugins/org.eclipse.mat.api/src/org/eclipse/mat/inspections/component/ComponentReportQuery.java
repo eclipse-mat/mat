@@ -40,6 +40,7 @@ import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.TextResult;
+import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
@@ -1005,6 +1006,7 @@ public class ComponentReportQuery implements IQuery
                     List<CompositeResult.Entry>entries = cr1.getResultEntries();
                     if (!(entries.size() == 1 && entries.get(0).getResult() instanceof TextResult))
                     {
+                        overview.setStatus(ITestResult.Status.WARNING);
                         commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                         QuerySpec child1 = new QuerySpec(MessageUtil.format(Messages.ComponentReportQuery_ExampleLeakDetails, cr.getLabel()), cr1);
                         child1.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());

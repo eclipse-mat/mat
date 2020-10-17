@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
+import org.eclipse.mat.report.internal.Messages;
+
 /**
  * The result of a query.
  */
@@ -18,7 +20,21 @@ public interface ITestResult
 {
     public enum Status
     {
-        SUCCESS, WARNING, ERROR;
+        SUCCESS(Messages.ITestResult_Success), WARNING(Messages.ITestResult_Warning), ERROR(Messages.ITestResult_Error);
+
+        private String label;
+        private Status(String label)
+        {
+            this.label = label;
+        }
+
+        /**
+         * Translatable name for the status.
+         */
+        public String toString()
+        {
+            return label;
+        }
 
         /**
          * Compare two statuses, and return the worst.

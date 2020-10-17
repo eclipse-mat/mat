@@ -528,7 +528,7 @@ public class ResultRenderer
             toc.append("<li>");
 
             if (part.getStatus() != null)
-                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
+                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");
 
             HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
             AbstractPart p = part;

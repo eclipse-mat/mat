@@ -46,12 +46,18 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("<title>").append(HTMLUtils.escapeText(title)).append("</title>");
         artefact.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(artefact.getPathToRoot()).append(
                         "styles.css\">");
+        artefact.append("<link rel=\"contents\" href=\"").append(artefact.getPathToRoot()).append(
+                        "toc.html\">");
+        artefact.append("<link rel=\"start\" href=\"").append(artefact.getPathToRoot()).append(
+                        "index.html\">");
+
         artefact.append("<script src=\"").append(artefact.getPathToRoot()).append(
                         "code.js\" type=\"text/javascript\"></script>");
         artefact.append("</head><body onload=\"preparepage();\">");
 
+        // Pass the text used for hide / unhide 
         artefact.append("<input type=\"hidden\" id=\"imageBase\" value=\"").append(artefact.getPathToRoot()).append(
-                        "img/\">");
+                        "img/\" title=\"").append(Messages.PageSnippets_Label_HideUnhide).append("\">");
 
         artefact.append("<div id=\"header\"><ul>");
 
@@ -121,9 +127,12 @@ import org.eclipse.mat.util.HTMLUtils;
             }
 
             artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(part.getCommand())) //
-                            .append("\" title=\"" + Messages.PageSnippets_Label_OpenInMemoryAnalyzer + " ") //
+                            .append("\" title=\"").append(Messages.PageSnippets_Label_OpenInMemoryAnalyzer).append(" ") //
                             .append(cmdString).append("\"><img src=\"") //
-                            .append(artefact.getPathToRoot()).append("img/open.gif\" alt=\"\"></a>");
+                            .append(artefact.getPathToRoot()).append("img/open.gif\" alt=\"")
+                            //.append(Messages.PageSnippets_Label_OpenInMemoryAnalyzer).append(" ") //
+                            //.append(cmdString)
+                            .append("\"></a>");
         }
     }
 
@@ -146,6 +155,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
     private static final String OPENED = "img/opened.gif";
     private static final String CLOSED = "img/closed.gif";
+    private static boolean linkToHeading = true;
 
     public static void heading(HtmlArtefact artefact, AbstractPart part, int order, boolean isExpandable,
                     boolean forceExpansion)
@@ -158,7 +168,10 @@ import org.eclipse.mat.util.HTMLUtils;
         else
         {
             String v = String.valueOf(Math.min(order, 5));
-            artefact.append("<h").append(v).append(">");
+            if (linkToHeading)
+                artefact.append("<h").append(v).append(" id=\"").append(part.getId()).append("\">");
+            else
+                artefact.append("<h").append(v).append(">");
 
             if (isExpandable)
             {
@@ -169,16 +182,20 @@ import org.eclipse.mat.util.HTMLUtils;
                                 .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
                                 .append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
-                                .append("\" alt=\"\"></a> ");
+                                .append("\" alt=\"")
+                                //.append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
+                                .append("\"></a> ");
             }
 
             if (part.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
-                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
+                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");
 
-            artefact.append("<a name=\"").append(part.getId()).append("\">");
+            if (!linkToHeading)
+                artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
-            artefact.append("</a>");
+            if (!linkToHeading)
+                artefact.append("</a>");
             addCommandLink(part, artefact);
             artefact.append("</h").append(v).append(">");
         }
@@ -191,7 +208,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
         if (part instanceof QueryPart && part.getStatus() != null)
             artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
+                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");
 
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
         artefact.append(HTMLUtils.escapeText(part.spec().getName()));
@@ -210,7 +227,10 @@ import org.eclipse.mat.util.HTMLUtils;
         }
         else
         {
-            artefact.append("<h5>");
+            if (linkToHeading)
+                artefact.append("<h5 id=\"").append(query.getId()).append("\">");
+            else
+                artefact.append("<h5>");
 
             boolean isExpanded = forceExpansion || !query.params().getBoolean(Params.Html.COLLAPSED, false);
 
@@ -218,14 +238,20 @@ import org.eclipse.mat.util.HTMLUtils;
                             .append("'); return false;\" title=\"") //
                             .append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
                             .append("\"><img src=\"") //
-                            .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\" alt=\"\"></a> ");
+                            .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED)
+                            .append("\" alt=\"")
+                            //.append(isExpanded ? Messages.PageSnippets_Label_HideUnhide : Messages.PageSnippets_Label_UnhideHide) //
+                            .append("\"></a> ");
 
             if (query.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
+                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(query.getStatus().toString()).append("\"> ");
 
-            artefact.append("<a name=\"").append(query.getId()).append("\">");
-            artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");
+            if (!linkToHeading)
+                artefact.append("<a name=\"").append(query.getId()).append("\">");
+            artefact.append(HTMLUtils.escapeText(query.spec().getName()));
+            if (!linkToHeading)
+                artefact.append("</a>");
             addCommandLink(query, artefact);
             artefact.append("</h5>");
         }
