@@ -343,6 +343,25 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                 category.addChild(new Label(Messages.identifier, info.getProperty("$runtimeId"), bInfo //$NON-NLS-1$
                                 .getProperty("$runtimeId"))); //$NON-NLS-1$
             }
+            Serializable discard_ratio = info.getProperty("discard_ratio"); //$NON-NLS-1$
+            Serializable bDiscard_ratio = bInfo.getProperty("discard_ratio"); //$NON-NLS-1$
+            if (discard_ratio instanceof Integer && (Integer)discard_ratio != 0 ||
+                bDiscard_ratio instanceof Integer && (Integer)bDiscard_ratio != 0)
+            {
+                category.addChild(new Label(org.eclipse.mat.ui.Messages.UIPreferencePage_DiscardPercentage, discard_ratio, bDiscard_ratio));
+
+                Serializable discard_pattern = info.getProperty("discard_pattern"); //$NON-NLS-1$
+                Serializable bDiscard_pattern = bInfo.getProperty("discard_pattern"); //$NON-NLS-1$
+                category.addChild(new Label(org.eclipse.mat.ui.Messages.UIPreferencePage_DiscardPattern, discard_pattern, bDiscard_pattern));
+
+                Serializable discard_offset = info.getProperty("discard_offset"); //$NON-NLS-1$
+                Serializable bDiscard_offset = bInfo.getProperty("discard_offset"); //$NON-NLS-1$
+                category.addChild(new Label(org.eclipse.mat.ui.Messages.UIPreferencePage_DiscardOffset, discard_offset, bDiscard_offset));
+
+                Serializable discard_seed = info.getProperty("discard_seed"); //$NON-NLS-1$
+                Serializable bDiscard_seed = bInfo.getProperty("discard_seed"); //$NON-NLS-1$
+                category.addChild(new Label(org.eclipse.mat.ui.Messages.UIPreferencePage_DiscardSeed, discard_seed, bDiscard_seed));
+            }
 
             category = new Category(Messages.statistic_info);
             elements.add(category);
@@ -365,6 +384,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                 category.addChild(new Label(Messages.unreachable_heap, u[1], bU[1]));
                 category.addChild(new Label(Messages.number_of_unreachable_objects, unreachableObjects, bUnreachableObjects));
             }
+
         }
         else if (getSnapshotPath() != null)
         {

@@ -341,8 +341,14 @@ public class Messages extends NLS
     public static String HeapDumpInfoQuery_Column_Time;
     public static String HeapDumpInfoQuery_Column_UsedHeapDump;
     public static String HeapDumpInfoQuery_DateFormat;
+    public static String HeapDumpInfoQuery_DiscardOffset;
+    public static String HeapDumpInfoQuery_DiscardOffset_format;
+    public static String HeapDumpInfoQuery_DiscardPattern;
+    public static String HeapDumpInfoQuery_DiscardRatio;
+    public static String HeapDumpInfoQuery_DiscardRatio_format;
+    public static String HeapDumpInfoQuery_DiscardSeed;
+    public static String HeapDumpInfoQuery_DiscardSeed_format;
     public static String HeapDumpInfoQuery_FileLengthFormat;
-
     public static String HeapDumpInfoQuery_MultipleSnapshotIdentifier;
     public static String HeapDumpInfoQuery_NumClassesFormat;
     public static String HeapDumpInfoQuery_NumClassLoadersFormat;
