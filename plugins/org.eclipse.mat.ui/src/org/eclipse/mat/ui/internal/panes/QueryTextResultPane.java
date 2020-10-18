@@ -14,6 +14,7 @@ package org.eclipse.mat.ui.internal.panes;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                     getEditorSite().getActionBars().getStatusLineManager().setMessage(event.text);
                 }
             });
-            //initialize(browser.getDisplay(), browser);
+            initialize(browser.getDisplay(), browser);
         }
         catch (SWTError e)
         {
@@ -131,14 +132,41 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             public void open(WindowEvent event)
             {
                 if (!event.required) return;    /* only do it if necessary */
+                String urls = ((Browser)event.widget).getUrl();
+                if (urls != null)
+                {
+                    try
+                    {
+                        // Check the URL is a real one and not a program name
+                        URL url = new URL(urls);
+                        if (org.eclipse.swt.program.Program.launch(url.toString()))
+                        { 
+                            return;
+                        }
+                    }
+                    catch (MalformedURLException e)
+                    {
+                    }
+                }
+                /*
+                 * Works on Windows allowing separate browser windows with mat:// links, 
+                 * but fails in Linux under Docker
+                 */
                 Shell shell = new Shell(display);
+                shell.setImage(QueryTextResultPane.this.getTitleImage());
                 shell.setText(Messages.QueryTextResultPane_BrowserTitle);
                 shell.setLayout(new FillLayout());
                 Browser browser = new Browser(shell, BROWSER_STYLE);
+                browser.addLocationListener(QueryTextResultPane.this);
                 initialize(display, browser);
+                initialize2(display, browser);
                 event.browser = browser;
             }
         });
+    }
+    /* register WindowEvent listeners */
+    void initialize2(final Display display, Browser browser)
+    {
         browser.addVisibilityWindowListener(new VisibilityWindowListener() {
             public void hide(WindowEvent event)
             {
@@ -325,7 +353,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             if (menu != null && !menu.isDisposed())
                 menu.dispose();
 
-            menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
+            menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), (Browser)event.widget);
             menu.setVisible(true);
 
         }
