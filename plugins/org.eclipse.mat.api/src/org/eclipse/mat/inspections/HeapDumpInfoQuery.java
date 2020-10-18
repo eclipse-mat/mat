@@ -32,6 +32,8 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
+import com.ibm.icu.text.NumberFormat;
+
 @Category(Category.HIDDEN)
 @CommandName("heap_dump_overview")
 @Icon("/META-INF/icons/heapdump_details.gif")
@@ -145,6 +147,28 @@ public class HeapDumpInfoQuery implements IQuery
         if (identifier instanceof String)
         {
             entries.add(new TextEntry(Messages.HeapDumpInfoQuery_MultipleSnapshotIdentifier, identifier.toString()));
+        }
+        NumberFormat percentFormatter = NumberFormat.getPercentInstance();
+        percentFormatter.setMaximumFractionDigits(0);
+        Serializable discard_ratio = info.getProperty("discard_ratio"); //$NON-NLS-1$
+        if (discard_ratio instanceof Integer)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_DiscardRatio, MessageUtil.format(Messages.HeapDumpInfoQuery_DiscardRatio_format, percentFormatter.format((Integer)discard_ratio * 0.01))));
+        }
+        Serializable discard_pattern = info.getProperty("discard_pattern"); //$NON-NLS-1$
+        if (discard_pattern instanceof String)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_DiscardPattern, discard_pattern.toString()));
+        }
+        Serializable discard_offset = info.getProperty("discard_offset"); //$NON-NLS-1$
+        if (discard_offset instanceof Integer)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_DiscardOffset, MessageUtil.format(Messages.HeapDumpInfoQuery_DiscardOffset_format, percentFormatter.format((Integer)discard_offset * 0.01))));
+        }
+        Serializable discard_seed = info.getProperty("discard_seed"); //$NON-NLS-1$
+        if (discard_seed instanceof Integer)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_DiscardSeed, MessageUtil.format(Messages.HeapDumpInfoQuery_DiscardSeed_format, discard_seed)));
         }
 
         return new ListResult(TextEntry.class, entries, "propertyName", "propertyValue"); //$NON-NLS-1$ //$NON-NLS-2$
