@@ -53,6 +53,8 @@ import org.eclipse.swt.browser.CloseWindowListener;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.StatusTextEvent;
+import org.eclipse.swt.browser.StatusTextListener;
 import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.graphics.Color;
@@ -91,6 +93,13 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         {
             browser = new Browser(top, BROWSER_STYLE);
             browser.addLocationListener(this);
+            browser.addStatusTextListener(new StatusTextListener() {
+                @Override
+                public void changed(StatusTextEvent event)
+                {
+                    getEditorSite().getActionBars().getStatusLineManager().setMessage(event.text);
+                }
+            });
             //initialize(browser.getDisplay(), browser);
         }
         catch (SWTError e)
