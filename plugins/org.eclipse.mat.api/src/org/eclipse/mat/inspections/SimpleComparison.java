@@ -47,7 +47,7 @@ public class SimpleComparison implements IQuery
     public String options;
 
     @Argument(isMandatory = false)
-    public String defaultoptions = "-mask \"\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key"; //$NON-NLS-1$
+    public String defaultoptions = "-mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key"; //$NON-NLS-1$
 
     public enum Retained {
         APPROXIMATE,

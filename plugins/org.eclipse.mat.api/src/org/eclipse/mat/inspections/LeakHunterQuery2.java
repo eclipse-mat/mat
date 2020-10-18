@@ -48,7 +48,7 @@ public class LeakHunterQuery2 extends LeakHunterQuery
     public String options = "-prefix"; //$NON-NLS-1$
 
     @Argument(isMandatory = false)
-    public Pattern mask = Pattern.compile("\\s@ 0x[0-9a-f]+|^\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"); //$NON-NLS-1$
+    public Pattern mask = Pattern.compile("\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"); //$NON-NLS-1$
 
     @Argument(isMandatory = false, flag = "x")
     public String[] extraReferences = new String[] {
