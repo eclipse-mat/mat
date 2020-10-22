@@ -62,8 +62,10 @@ import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
@@ -251,10 +253,12 @@ public class CompareTablesQuery implements IQuery
         int objId = ctx.getObjectId();
         if (objId == -1)
             return noextra;
-        IObject obj;
+        IObject obj = null;
+        IClass cls;
         try
         {
-            obj = snapshots[table].getObject(objId);
+            // Just resolve the type for now
+            cls = snapshots[table].getClassOf(objId);
         }
         catch (SnapshotException e)
         {
@@ -266,22 +270,24 @@ public class CompareTablesQuery implements IQuery
             String p1[] = s.split(":", 2); //$NON-NLS-1$
             if (p1.length < 1)
                 continue;
-            else if (p1.length < 2)
-            {
-                // Just the class name, so resolve just the object
-                String val = obj.getClassSpecificName();
-                if (val != null)
-                {
-                    if (sb.length() > 0)
-                        sb.append(' ');
-                    sb.append(val);
-                }
-                continue;
-            }
             try
             {
-                if (obj.getClazz().doesExtend(p1[0]))
+                if (cls.doesExtend(p1[0]))
                 {
+                    if (obj == null)
+                        obj = snapshots[table].getObject(objId);
+                    if (p1.length < 2)
+                    {
+                        // Just the class name, so resolve just the object
+                        String val = obj.getClassSpecificName();
+                        if (val != null)
+                        {
+                            if (sb.length() > 0)
+                                sb.append(' ');
+                            sb.append(val);
+                        }
+                        continue;
+                    }
                     for (String field : p1[1].split(",")) //$NON-NLS-1$
                     {
                         Object o;
@@ -348,19 +354,10 @@ public class CompareTablesQuery implements IQuery
         int objId = ctx.getObjectId();
         if (objId == -1)
             return noextra;
-        IObject obj;
-        try
-        {
-            obj = snapshots[table].getObject(objId);
-        }
-        catch (SnapshotException e)
-        {
-            return noextra;
-        }
         StringBuilder sb = new StringBuilder();
         try
         {
-            int immdom = snapshots[table].getImmediateDominatorId(obj.getObjectId());
+            int immdom = snapshots[table].getImmediateDominatorId(objId);
             if (immdom >= 0)
             {
                 if (!snapshots[table].isArray(immdom))
@@ -378,11 +375,12 @@ public class CompareTablesQuery implements IQuery
                 }
                 else
                 {
-                    if (snapshots[table].getClassOf(immdom).getObjectId() == obj.getObjectId())
+                    if (snapshots[table].getClassOf(immdom).getObjectId() == objId)
                         sb.append("<class>"); //$NON-NLS-1$
                     // Big arrays could be expensive to read
                     if (snapshots[table].getHeapSize(immdom) < SMALL_ARRAY_SIZE)
                     {
+                        long objAddress = snapshots[table].mapIdToAddress(objId);
                         IObject immobj = snapshots[table].getObject(immdom);
                         // Don't get named references for object array - expensive
                         if (immobj instanceof IObjectArray)
@@ -400,7 +398,7 @@ public class CompareTablesQuery implements IQuery
                                     long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
                                     for (int j = 0; j < l.length; ++j)
                                     {
-                                        if (l[j] == obj.getObjectAddress())
+                                        if (l[j] == objAddress)
                                         {
                                             if (sb.length() > 0)
                                                 sb.append(", "); //$NON-NLS-1$
@@ -598,6 +596,8 @@ public class CompareTablesQuery implements IQuery
             {
                 treeRows = null;
             }
+            Column c = tables[i].getColumns()[keyColumn - 1];
+            IDecorator id = c.getDecorator();
             Map<Object, Integer>lastcache = new HashMap<Object,Integer>();
             for (int j = 0; j < size; j++)
             {
@@ -616,7 +616,7 @@ public class CompareTablesQuery implements IQuery
                     row = null;
                 }
                 Object key = table.getColumnValue(row, keyColumn-1);
-                key = modifyKey(i, row, key);
+                key = modifyKey(i, id, row, key);
                 Object[] rows = map.get(key);
                 if (rows == null)
                 {
@@ -674,7 +674,30 @@ public class CompareTablesQuery implements IQuery
             {
                 listener.subTask(MessageUtil.format(Messages.CompareTablesQuery_ResolvingDuplicateKey, entry.getKey()));
                 // Duplicated key, so expand to separate rows
-                sortRows(rows);
+                if (!sortRows(rows, listener))
+                {
+                    // Some statistics if it failed to fully sort
+                    int tn = tables.length;
+                    int total = 0;
+                    int maxTableTotal = 0;
+                    int maxTable = 0;
+                    for (int i = 0; i < tn; ++i)
+                    {
+                        int t = 0;
+                        for (int j = i; j < rows.length; j += tn)
+                        {
+                            if (rows[j] != null)
+                                ++t;
+                        }
+                        if (t > maxTableTotal)
+                        {
+                            maxTableTotal = t;
+                            maxTable = i + 1;
+                        }
+                        total += t;
+                    }
+                    listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.CompareTablesQuery_IncompleteSorting, entry.getKey(), maxTableTotal, maxTable, total), null);
+                };
                 // Guess n-squared work
                 listener.worked((int)(totalsize * (long)rows.length * rows.length / sortwork));
             }
@@ -717,7 +740,7 @@ public class CompareTablesQuery implements IQuery
         return result;
     }
 
-    private Object modifyKey(int i, Object row, Object key)
+    private Object modifyKey(int i, IDecorator id, Object row, Object key)
     {
         String extrakey = extraKey(i, row);
         if (extrakey != null)
@@ -736,8 +759,6 @@ public class CompareTablesQuery implements IQuery
         // Fix up decoration
         if (prefix || suffix)
         {
-            Column c = tables[i].getColumns()[keyColumn - 1];
-            IDecorator id = c.getDecorator();
             String pfx;
             if (prefix)
             {
@@ -809,7 +830,9 @@ public class CompareTablesQuery implements IQuery
         try
         {
             // Classes don't match, so different
-            if (!snapshots[table1].getClassOf(objectId1).getName().equals(snapshots[table2].getClassOf(objectId2).getName()))
+            IClass cls1 = snapshots[table1].getClassOf(objectId1);
+            IClass cls2 = snapshots[table2].getClassOf(objectId2);
+            if (!cls1.getName().equals(cls2.getName()))
                 return false;
             long addr1 = snapshots[table1].mapIdToAddress(objectId1);
             long addr2 = snapshots[table2].mapIdToAddress(objectId2);
@@ -818,7 +841,35 @@ public class CompareTablesQuery implements IQuery
                 return true;
             // Compare using getClassSpecificName() but this could be done
             // using the key by specifying the class in the key match
-            if (matchType >= 1)
+            boolean skip = false;
+            if (cls1.isArrayType()) 
+            {
+                if (cls1 instanceof IPrimitiveArray)
+                {
+                    IPrimitiveArray pa = (IPrimitiveArray)cls1;
+                    int type = pa.getType();
+                    switch (type)
+                    {
+                        // Normally no resolver for these types so skip
+                        case IObject.Type.BOOLEAN:
+                        case IObject.Type.SHORT:
+                        case IObject.Type.INT:
+                        case IObject.Type.LONG:
+                        case IObject.Type.FLOAT:
+                        case IObject.Type.DOUBLE:
+                            skip = true;
+                            break;
+                        case IObject.Type.BYTE:
+                        case IObject.Type.CHAR:
+                            break;
+                    }
+                }
+                else if (cls1 instanceof IObjectArray)
+                {
+                    skip = true;
+                }
+            }
+            if (matchType >= 1 && !skip)
             {
                 String val1 = snapshots[table1].getObject(objectId1).getClassSpecificName();
                 String val2 = snapshots[table2].getObject(objectId2).getClassSpecificName();
@@ -835,6 +886,12 @@ public class CompareTablesQuery implements IQuery
                 if (snapshots[table1].getRetainedHeapSize(objectId1) > snapshots[table1].getHeapSize(objectId1)
                                 && snapshots[table1].getRetainedHeapSize(objectId1) == snapshots[table2]
                                                 .getRetainedHeapSize(objectId2))
+                    return true;
+                // Match primitive arrays by size if they are big enough
+                final long MINARRAYMATCHSIZE = 400;
+                if (cls1 instanceof IPrimitiveArray
+                                && snapshots[table1].getHeapSize(objectId1) == snapshots[table2].getHeapSize(objectId2)
+                                && snapshots[table1].getHeapSize(objectId1) >= MINARRAYMATCHSIZE)
                     return true;
             }
             return false;
@@ -909,9 +966,11 @@ public class CompareTablesQuery implements IQuery
      * </pre>
      * Try a second pass to fix up those.
      * @param rows
+     * @return true if sorting completed
      */
-    void sortRows(Object rows[])
+    boolean sortRows(Object rows[], IProgressListener listener)
     {
+        final int MAXWORK = 50000000;
         int passes = 3;
         int rn = rows.length;
         int tn = tables.length;
@@ -921,6 +980,7 @@ public class CompareTablesQuery implements IQuery
         boolean matched[] = new boolean[rows.length];
         //System.out.println("Sorting " + n);
         // Consider each table other than the first
+        int counter = 0;
         for (int i = 1; i < tn; ++i)
         {
             // Distribute this table to matching slots
@@ -939,6 +999,9 @@ public class CompareTablesQuery implements IQuery
             // Matching slot in preceding table
             slot: for (int j = 0; j < n; ++j)
             {
+                // Abbreviate sorting if taking too long
+                if (counter > MAXWORK)
+                    break;
                 // System.out.println("Slot "+i+":"+j);
                 for (int pass = 0; pass < passes; ++pass)
                 {
@@ -953,6 +1016,8 @@ public class CompareTablesQuery implements IQuery
                         // Choose entry from the queue
                         for (int l = q1; l < q2; ++l)
                         {
+                            if (++counter % 10000 == 0 && listener.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
                             Object rowThis = queue[l];
                             if (rowThis == null)
                             {
@@ -1002,6 +1067,9 @@ public class CompareTablesQuery implements IQuery
                 }
             }
         }
+        // Abbreviate sorting if taking too long
+        if (counter > MAXWORK)
+            return false;
         // Try some polishing of the result
         // Consider each table other than the first
         for (int i = 1; i < tn; ++i)
@@ -1009,6 +1077,9 @@ public class CompareTablesQuery implements IQuery
             // Matching slot in preceding table
             for (int j = 0; j < n; ++j)
             {
+                // Abbreviate sorting if taking too long
+                if (counter > MAXWORK)
+                    return false;
                 for (int pass = 0; pass < passes; ++pass)
                 {
                     // Choose preceding table
@@ -1022,6 +1093,8 @@ public class CompareTablesQuery implements IQuery
                             continue;
                         for (int l = 0; l < n; ++l)
                         {
+                            if (++counter % 10000 == 0 && listener.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
                             if (matched[l * tn + i])
                                 continue;
                             Object rowThis = rows[l * tn + i];
@@ -1053,6 +1126,7 @@ public class CompareTablesQuery implements IQuery
                 }
             }
         }
+        return true;
     }
 
     public static class ComparedColumn

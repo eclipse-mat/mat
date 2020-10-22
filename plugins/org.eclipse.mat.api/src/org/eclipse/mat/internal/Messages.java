@@ -100,10 +100,9 @@ public class Messages extends NLS
     public static String Column_ShallowHeap;
 
     public static String CompareTablesQuery_APPROX;
-
     public static String CompareTablesQuery_Comparing;
+    public static String CompareTablesQuery_IncompleteSorting;
     public static String CompareTablesQuery_Initial;
-
     public static String CompareTablesQuery_InitialComparisonForTable;
     public static String CompareTablesQuery_ResolvingDuplicateKey;
     public static String CompareTablesQuery_BuildingResult;
@@ -114,15 +113,12 @@ public class Messages extends NLS
     public static String CompareTablesQuery_DifferenceLast;
     public static String CompareTablesQuery_DifferenceMiddle;
     public static String CompareTablesQuery_DifferenceOf2;
-
     public static String CompareTablesQuery_GE;
     public static String CompareTablesQuery_IntersectionFirst;
     public static String CompareTablesQuery_IntersectionLast;
     public static String CompareTablesQuery_IntersectionMiddle;
     public static String CompareTablesQuery_IntersectionOf2;
-
     public static String CompareTablesQuery_LE;
-
     public static String CompareTablesQuery_MissingKeyColumn;
     public static String CompareTablesQuery_Table;
     public static String CompareTablesQuery_SymmetricDifferenceFirst;
