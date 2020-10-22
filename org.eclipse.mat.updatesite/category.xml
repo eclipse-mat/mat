@@ -19,4 +19,9 @@
          Memory Analyzer features suitable for updating a stand-alone version of Memory Analyzer which is based on Eclipse RCP.
       </description>
    </category-def>
+   <bundle id="org.eclipse.birt.core" version="0.0.0"/>
+   <bundle id="org.eclipse.birt.chart.engine" version="0.0.0"/>
+   <bundle id="org.eclipse.birt.chart.device.extension" version="0.0.0"/>
+   <bundle id="org.eclipse.birt.chart.device.swt" version="0.0.0"/>
+   <bundle id="org.eclipse.birt.chart.engine.extension" version="0.0.0"/>
 </site>
