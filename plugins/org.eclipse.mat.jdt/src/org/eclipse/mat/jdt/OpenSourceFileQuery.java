@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,22 @@ public class OpenSourceFileQuery implements IQuery
         IObject obj = snapshot.getObject(objectId);
 
         String className = obj instanceof IClass ? ((IClass) obj).getName() : obj.getClazz().getName();
-        new OpenSourceFileJob(className, display).schedule();
+        String methodName = null;
+        String signature = null;
+        int i = className.lastIndexOf('.');
+        int par = className.indexOf('(', i);
+        if (i >= 0 && par >= 0)
+        {
+            // Remove the method name from DTFJ methods as classes
+            int sig = className.indexOf(' ');
+            methodName = className.substring(i + 1, par);
+            if (sig >= 0)
+                signature = className.substring(par, sig);
+            else
+                signature = className.substring(par);
+            className = className.substring(0, i);
+        }
+        new OpenSourceFileJob(className, methodName, signature, display).schedule();
         throw new IProgressListener.OperationCanceledException();
     }
 

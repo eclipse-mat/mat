@@ -604,6 +604,11 @@ public class ThreadOverviewQuery implements IQuery
                     }
                     tsfn.threadOverviewNode = ton;
                     tsfn.objectId = frameIds[tsfn.depth];
+                    if (tsfn.objectId == -1)
+                    {
+                        // Add the class from the class name of the stack frame
+                        tsfn.objectId = frameId(frame);
+                    }
                     stackFrameNodes.add(tsfn);
                 }
                 return stackFrameNodes;
@@ -676,6 +681,38 @@ public class ThreadOverviewQuery implements IQuery
                 }
             }
             return frameIds;
+        }
+
+        /**
+         * Return the id of the class associated with this stack frame.
+         * @param frm
+         * @return the id, or -1 if not found
+         */
+        private int frameId(IStackFrame frm)
+        {
+            String fm = frm.getText();
+            if (fm != null)
+            {
+                // Extract the class name from the full method name
+                // at package.name.Classname.method(Arguments) Classname.java(13)
+                fm = fm.replaceFirst("\\s*at\\s+([^(]+)\\.[^.(]+.*", "$1"); //$NON-NLS-1$//$NON-NLS-2$
+                try
+                {
+                    Collection<IClass>clss = snapshot.getClassesByName(fm, false);
+                    // If unambiguous which class
+                    if (clss != null && clss.size() == 1)
+                    {
+                        for (IClass cls : clss)
+                        {
+                            return cls.getObjectId();
+                        }
+                    }
+                }
+                catch (SnapshotException e)
+                {
+                }
+            }
+            return -1;
         }
 
         class NoCompareComparator implements Comparator<Object>

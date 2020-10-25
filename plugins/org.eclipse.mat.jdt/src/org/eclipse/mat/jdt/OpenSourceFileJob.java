@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,10 +20,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.MethodNameMatch;
+import org.eclipse.jdt.core.search.MethodNameMatchRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatch;
@@ -47,18 +51,20 @@ public class OpenSourceFileJob extends Job
 {
     private final String className;
 
-    private String packageName, typeName;
+    private String packageName, typeName, methodName, signature;
 
     private Object[] innerTypes;
 
-    private List<IType> matches;
+    private List<IMember> matches;
 
     private Display display;
 
-    public OpenSourceFileJob(String className, Display display)
+    public OpenSourceFileJob(String className, String methodName, String signature, Display display)
     {
         super(MessageUtil.format(Messages.OpenSourceFileJob_LookingFor, className));
         this.className = className;
+        this.methodName = methodName;
+        this.signature = signature;
         this.setUser(true);
         this.display = display;
     }
@@ -69,7 +75,10 @@ public class OpenSourceFileJob extends Job
         try
         {
             preparePattern();
-            collectMatches(monitor);
+            if (methodName != null)
+                collectMethodMatches(monitor);
+            if (matches.isEmpty())
+                collectMatches(monitor);
             displayResult();
 
             return Status.OK_STATUS;
@@ -118,7 +127,7 @@ public class OpenSourceFileJob extends Job
 
     private void collectMatches(IProgressMonitor monitor) throws JavaModelException
     {
-        matches = new ArrayList<IType>();
+        matches = new ArrayList<IMember>();
 
         new SearchEngine().searchAllTypeNames(packageName != null ? packageName.toCharArray() : null, //
                         SearchPattern.R_FULL_MATCH | SearchPattern.R_CASE_SENSITIVE, //
@@ -136,6 +145,46 @@ public class OpenSourceFileJob extends Job
                                     IType type = match.getType();
                                     type = resolveInnerTypes(type);
                                     matches.add(type);
+                                }
+                                catch (JavaModelException e)
+                                {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+
+                        }, //
+                        IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, //
+                        monitor);
+    }
+
+    private void collectMethodMatches(IProgressMonitor monitor) throws JavaModelException
+    {
+        matches = new ArrayList<IMember>();
+
+        new SearchEngine().searchAllMethodNames(packageName != null ? packageName.toCharArray() : null, //
+                        SearchPattern.R_FULL_MATCH | SearchPattern.R_CASE_SENSITIVE, //
+                        null, //
+                        SearchPattern.R_FULL_MATCH | SearchPattern.R_CASE_SENSITIVE, //
+                        typeName.toCharArray(), //
+                        SearchPattern.R_FULL_MATCH | SearchPattern.R_CASE_SENSITIVE, //
+                        methodName.toCharArray(), //
+                        SearchPattern.R_FULL_MATCH | SearchPattern.R_CASE_SENSITIVE, //
+                        SearchEngine.createWorkspaceScope(), //
+                        new MethodNameMatchRequestor()
+                        {
+                            @Override
+                            public void acceptMethodNameMatch(MethodNameMatch match)
+                            {
+                                try
+                                {
+                                    IMethod m = match.getMethod();
+                                    // Exact match of signature goes to top
+                                    if (m.getSignature().equals(signature))
+                                        matches.add(0, m);
+                                    else
+                                        matches.add(m);
+                                    IType type = m.getDeclaringType();
+                                    type = resolveInnerTypes(type);
                                 }
                                 catch (JavaModelException e)
                                 {
@@ -208,12 +257,12 @@ public class OpenSourceFileJob extends Job
                 }
                 else if (matches.size() == 1)
                 {
-                    IType type = matches.get(0);
-                    openSourceFile(type);
+                    IMember member = matches.get(0);
+                    openSourceFile(member);
                 }
                 else
                 {
-                    IType type = selectType(matches);
+                    IMember type = selectType(matches);
                     if (type != null)
                         openSourceFile(type);
                 }
@@ -221,7 +270,7 @@ public class OpenSourceFileJob extends Job
         });
     }
 
-    private IType selectType(List<IType> matches)
+    private IMember selectType(List<IMember> matches)
     {
         ListDialog dialog = new ListDialog(display.getActiveShell());
 
@@ -234,13 +283,36 @@ public class OpenSourceFileJob extends Job
 
             public String getText(Object element)
             {
-                IType type = (IType) element;
                 StringBuilder buf = new StringBuilder(256);
-                buf.append(type.getElementName());
-                if (type.getPackageFragment() != null)
-                    buf.append(" - ").append(type.getPackageFragment().getElementName()); //$NON-NLS-1$
-                if (type.getJavaProject() != null)
-                    buf.append(" - ").append(type.getJavaProject().getElementName()); //$NON-NLS-1$
+                if (element instanceof IType)
+                {
+                    IType type = (IType) element;
+                    buf.append(type.getElementName());
+                    if (type.getPackageFragment() != null)
+                        buf.append(" - ").append(type.getPackageFragment().getElementName()); //$NON-NLS-1$
+                    if (type.getJavaProject() != null)
+                        buf.append(" - ").append(type.getJavaProject().getElementName()); //$NON-NLS-1$
+                }
+                else if (element instanceof IMethod)
+                {
+                    IMethod m = (IMethod) element;
+                    buf.append(m.getElementName());
+                    try
+                    {
+                        buf.append(m.getSignature());
+                    }
+                    catch (JavaModelException e)
+                    {
+
+                    }
+                    buf.append(" - "); //$NON-NLS-1$
+                    IType type = m.getDeclaringType();
+                    buf.append(type.getElementName());
+                    if (type.getPackageFragment() != null)
+                        buf.append(" - ").append(type.getPackageFragment().getElementName()); //$NON-NLS-1$
+                    if (type.getJavaProject() != null)
+                        buf.append(" - ").append(type.getJavaProject().getElementName()); //$NON-NLS-1$
+                }
                 return buf.toString();
             }
         });
@@ -266,7 +338,7 @@ public class OpenSourceFileJob extends Job
 
         Object[] result = dialog.getResult();
 
-        return result == null ? null : (IType) result[0];
+        return result == null ? null : (IMember) result[0];
     }
 
     private boolean openSourceFile(IJavaElement element)
