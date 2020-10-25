@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,8 @@
 package org.eclipse.mat.hprof;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -30,35 +30,6 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
 
 /* package */abstract class AbstractParser
 {
-    /* package */enum Version
-    {
-        JDK12BETA3("JAVA PROFILE 1.0"), //$NON-NLS-1$
-        JDK12BETA4("JAVA PROFILE 1.0.1"), //$NON-NLS-1$
-        JDK6("JAVA PROFILE 1.0.2");//$NON-NLS-1$
-
-        private String label;
-
-        private Version(String label)
-        {
-            this.label = label;
-        }
-
-        public static final Version byLabel(String label)
-        {
-            for (Version v : Version.values())
-            {
-                if (v.label.equals(label))
-                    return v;
-            }
-            return null;
-        }
-
-        public String getLabel()
-        {
-            return label;
-        }
-    }
-
     interface Constants
     {
         interface Record
@@ -141,40 +112,6 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
 
         throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
-    }
-
-    /*
-     * Used for content describers, don't throw exceptions.
-     */
-    /* protected */static Version readVersion(InputStream in) throws IOException
-    {
-        StringBuilder version = new StringBuilder();
-
-        int bytesRead = 0;
-        while (bytesRead < 20)
-        {
-            byte b = (byte) in.read();
-            bytesRead++;
-
-            if (b != 0)
-            {
-                version.append((char) b);
-            }
-            else
-            {
-                Version answer = Version.byLabel(version.toString());
-                if (answer == null)
-                {
-                    return null;
-                }
-
-                if (answer == Version.JDK12BETA3) // not supported by MAT
-                    return null;
-                return answer;
-            }
-        }
-
-        return null;
     }
 
     protected Object readValue(IPositionInputStream in, ISnapshot snapshot) throws IOException

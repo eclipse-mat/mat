@@ -29,6 +29,7 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.collect.IteratorLong;
+import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
@@ -55,7 +56,7 @@ import org.eclipse.mat.util.MessageUtil;
 public class HprofParserHandlerImpl implements IHprofParserHandler
 {
     // private String prefix;
-    private AbstractParser.Version version;
+    private Version version;
 
     private XSnapshotInfo info = new XSnapshotInfo();
 
@@ -662,7 +663,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         if (IHprofParserHandler.VERSION.equals(name))
         {
-            version = AbstractParser.Version.valueOf(value);
+            version = Version.valueOf(value);
             info.setProperty(HprofHeapObjectReader.VERSION_PROPERTY, version.name());
         }
         else if (IHprofParserHandler.IDENTIFIER_SIZE.equals(name))

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.extension.IRuntimeEnhancer;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IObjectReader;
@@ -44,7 +45,7 @@ public class HprofHeapObjectReader implements IObjectReader
     {
         this.snapshot = snapshot;
 
-        AbstractParser.Version version = AbstractParser.Version.valueOf((String) snapshot.getSnapshotInfo()
+        Version version = Version.valueOf((String) snapshot.getSnapshotInfo()
                         .getProperty(VERSION_PROPERTY));
 
         HprofPreferences.HprofStrictness strictnessPreference = HprofPreferences.getCurrentStrictness();

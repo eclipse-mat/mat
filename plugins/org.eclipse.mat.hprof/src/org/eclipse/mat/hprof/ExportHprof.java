@@ -61,6 +61,8 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.hprof.AbstractParser.Constants;
+import org.eclipse.mat.hprof.describer.HprofContentDescriber;
+import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -363,7 +365,7 @@ public class ExportHprof implements IQuery
         DataOutputStream3 os = new DataOutputStream3(outstream);
         try
         {
-            os.writeBytes(AbstractParser.Version.JDK6.getLabel()+"\0"); //$NON-NLS-1$
+            os.writeBytes(Version.JDK6.getLabel()+"\0"); //$NON-NLS-1$
             idsize = snapshot.getSnapshotInfo().getIdentifierSize();
             os.writeInt(idsize);
             startTime = System.currentTimeMillis();
