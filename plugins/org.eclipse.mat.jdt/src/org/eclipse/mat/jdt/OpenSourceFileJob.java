@@ -77,7 +77,7 @@ public class OpenSourceFileJob extends Job
             preparePattern();
             if (methodName != null)
                 collectMethodMatches(monitor);
-            if (matches.isEmpty())
+            if (matches == null || matches.isEmpty())
                 collectMatches(monitor);
             displayResult();
 
