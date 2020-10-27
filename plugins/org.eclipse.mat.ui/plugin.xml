@@ -310,9 +310,13 @@
 		</handler>
 	</extension>
 
+	<!-- Also define the scheme id here as well as in o.e.mat.ui.rcp 
+		but have it inherit here from the standard Eclipse in case MAT is loaded 
+		into the IDE. -->
 	<extension point="org.eclipse.ui.bindings">
 		<scheme
 			id="org.eclipse.mat.scheme"
+			parentId="org.eclipse.ui.defaultAcceleratorConfiguration"
 			name="%scheme.name.Memory_Analyzer_Default" />
 		<key
 			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser"

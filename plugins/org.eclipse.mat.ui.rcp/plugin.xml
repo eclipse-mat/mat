@@ -106,11 +106,12 @@
       </product>
    </extension>
 
+	<!-- Don't inherit from the default ID as in RCP mode we don't want bindings
+		for build all etc. -->
 	<extension
          point="org.eclipse.ui.bindings">
       <scheme
             id="org.eclipse.mat.scheme"
-            parent="org.eclipse.ui.defaultAcceleratorConfiguration"
             name="%scheme.name.Memory_Analyzer_Default" />
       <key
             commandId="org.eclipse.ui.edit.copy"
