@@ -38,12 +38,12 @@
 					<stentry>Description</stentry>
 				</sthead>
 				<strow>
-					<stentry>Shortcuts</stentry>
+					<stentry>Shortcuts. Use <uicontrol>Command</uicontrol> instead of <uicontrol>Ctrl</uicontrol> on macOS</stentry>
 					<stentry>
 						<p><uicontrol>Ctrl-Q</uicontrol> - Opens the Query Browser.</p>
 						<p><uicontrol>Ctrl-H</uicontrol> - Opens the history of executed queries.</p>
-						<p><uicontrol>Ctrl-F8</uicontrol> - Next tab.</p>
-						<p><uicontrol>Ctrl-Shift-F8</uicontrol> - Previous tab.</p>
+						<p><uicontrol>Ctrl-Page Down</uicontrol> - Next tab.</p>
+						<p><uicontrol>Ctrl-Page Up</uicontrol> - Previous tab.</p>
 						<p><uicontrol>Shift-F10</uicontrol> - Context menu for results of queries.</p>
 						<p><uicontrol>Ctrl-F10</uicontrol> - Context menu for editor tabs - to close and rearrange.</p>
 						<p><uicontrol>Ctrl-Shift-P</uicontrol> - Reset perspective.</p>

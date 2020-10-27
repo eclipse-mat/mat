@@ -110,6 +110,7 @@
          point="org.eclipse.ui.bindings">
       <scheme
             id="org.eclipse.mat.scheme"
+            parent="org.eclipse.ui.defaultAcceleratorConfiguration"
             name="%scheme.name.Memory_Analyzer_Default" />
       <key
             commandId="org.eclipse.ui.edit.copy"
@@ -206,6 +207,18 @@
             contextId="org.eclipse.ui.contexts.dialogAndWindow"
             schemeId="org.eclipse.mat.scheme"
             sequence="M1+M2+L">
+      </key>
+      <key
+            commandId="org.eclipse.ui.window.quickAccess"
+            contextId="org.eclipse.ui.contexts.Window"
+            schemeId="org.eclipse.mat.scheme"
+            sequence="M1+3">
+      </key>
+      <key
+            commandId="org.eclipse.ui.window.showViewMenu"
+            contextId="org.eclipse.ui.contexts.Window"
+            schemeId="org.eclipse.mat.scheme"
+            sequence="M1+F10">
       </key>
    </extension>
    

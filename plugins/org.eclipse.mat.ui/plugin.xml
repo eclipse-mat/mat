@@ -195,6 +195,11 @@
 			helpContextId="org.eclipse.mat.ui.query_browser"
 			id="org.eclipse.mat.ui.query.browser.QueryBrowser"
 			name="%command.name.Query_Browser">
+			<commandParameter
+				id="org.eclipse.mat.ui.query.browser.QueryBrowser.commandName"
+				name="%commandParameter.name.commandName"
+				optional="true">
+			</commandParameter>
 		</command>
 		<command
 			categoryId="org.eclipse.ui.category.navigate"
@@ -306,6 +311,9 @@
 	</extension>
 
 	<extension point="org.eclipse.ui.bindings">
+		<scheme
+			id="org.eclipse.mat.scheme"
+			name="%scheme.name.Memory_Analyzer_Default" />
 		<key
 			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser"
 			contextId="org.eclipse.ui.contexts.window"
@@ -341,13 +349,13 @@
 			commandId="org.eclipse.ui.navigate.nextTab"
 			contextId="org.eclipse.ui.contexts.window"
 			schemeId="org.eclipse.mat.scheme"
-			sequence="M1+F8">
+			sequence="M1+PAGE_DOWN">
 		</key>
 		<key
 			commandId="org.eclipse.ui.navigate.previousTab"
 			contextId="org.eclipse.ui.contexts.window"
 			schemeId="org.eclipse.mat.scheme"
-			sequence="M1+M2+F8">
+			sequence="M1+PAGE_UP">
 		</key>
 	</extension>
 

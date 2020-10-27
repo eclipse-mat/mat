@@ -36,6 +36,10 @@
 			When acquiring a heap dump for this purpose using the Memory Analyzer,
 			do not use the <cmdname>live=true</cmdname> option as that would discard unreachable objects
 			before the heap dump is generated.</p>
+			<p>Another reason for unreachable objects is if Memory Analyzer
+			has been configured to discard objects on parsing to keep the 
+			number of remaining objects small enough for Memory Analyzer to
+			handle. See <xref href="../../tasks/configure_mat.dita#task_configure_mat/discard"></xref> for details.</p>
 		</section>
 		<section>
 			<title>Arguments</title>

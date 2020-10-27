@@ -52,6 +52,11 @@
 			do not use the <span class="keyword cmdname">live=true</span> option as that would discard unreachable objects
 			before the heap dump is generated.</p>
 
+			<p class="p">Another reason for unreachable objects is if Memory Analyzer
+			has been configured to discard objects on parsing to keep the 
+			number of remaining objects small enough for Memory Analyzer to
+			handle. See <a class="xref" href="../../tasks/configure_mat.html#task_configure_mat__discard">Enable discard (experimental)</a> for details.</p>
+
 		</div>
 
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
