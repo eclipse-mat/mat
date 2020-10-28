@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 SAP AG and IBM Corporation
+ * Copyright (c) 2009, 2020 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class LocalJavaProcessesUtils
 		try
 		{
 		    String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
-			p = Runtime.getRuntime().exec(new String[]{jps, "-ml", "-J-Dfile.encoding="+encoding}); //$NON-NLS-1$//$NON-NLS-2$
+			p = Runtime.getRuntime().exec(new String[]{jps, "-m", "-l", "-J-Dfile.encoding="+encoding}); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			error = new StreamCollector(p.getErrorStream(), encoding);
 			error.start();
 			output = new StreamCollector(p.getInputStream(), encoding);
