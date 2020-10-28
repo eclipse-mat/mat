@@ -16,10 +16,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -34,6 +39,11 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.osgi.service.prefs.BackingStoreException;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Enables the creation of dumps from IBM VMs when a non-IBM VM
@@ -48,6 +58,7 @@ public class IBMExecDumpProvider extends BaseProvider
 {
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
+    private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
     private static boolean abort = false;
     private int lastCount = 20;
 
@@ -55,20 +66,27 @@ public class IBMExecDumpProvider extends BaseProvider
     public File javaexecutable;
 
     @Argument(isMandatory = false)
-    public String vmoptions[] = {}; //$NON-NLS-1$
+    public List<File> javaList;
+
+    @Argument(isMandatory = false)
+    public String vmoptions[] = {};
+
+    private DumpType defaultTypeCopy;
 
     public IBMExecDumpProvider()
     {
         // See if an IBM VM or an Oracle VM
         try
         {
-            Class.forName("com.ibm.jvm.Dump");
+            Class.forName("com.ibm.jvm.Dump"); //$NON-NLS-1$
         }
         catch (ClassNotFoundException e)
         {
             // Looks like no System dump is available
             defaultType = DumpType.HPROF;
         }
+        fillJavaList();
+        defaultTypeCopy = defaultType;
     }
 
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
@@ -200,10 +218,18 @@ public class IBMExecDumpProvider extends BaseProvider
 
     private File javaExec(String dir)
     {
+        if (dir != null)
+            return jvmExec(new File(dir), JAVA_EXEC);
+        else
+            return jvmExec(null, JAVA_EXEC);
+    }
+
+    private File javaExec(File dir)
+    {
         return jvmExec(dir, JAVA_EXEC);
     }
 
-    static File jvmExec(String javaDir, String exec)
+    static File jvmExec(File javaDir, String exec)
     {
         File javaExec;
         if (javaDir != null)
@@ -229,6 +255,10 @@ public class IBMExecDumpProvider extends BaseProvider
 
         File javaExec = javaexecutable;
         String javaDir;
+        // Has the list been clear or the dump type changed?
+        if (javaList == null || javaList.isEmpty() || (defaultTypeCopy == DumpType.HPROF) != (defaultType == DumpType.HPROF))
+            fillJavaList();
+        defaultTypeCopy = defaultType;
 
         if (javaExec != null)
         {
@@ -239,7 +269,12 @@ public class IBMExecDumpProvider extends BaseProvider
             javaDir = lastJavaDir();
 
             if (javaDir == null)
-                javaDir = defaultJavaDir();
+            {
+                if (javaList == null || javaList.isEmpty())
+                    fillJavaList();
+                if (javaList.size() >= 1)
+                    javaDir = javaList.get(0).getParent();
+            }
 
             javaExec = javaExec(javaDir);
         }
@@ -253,46 +288,204 @@ public class IBMExecDumpProvider extends BaseProvider
         return ret;
     }
 
+    private void fillJavaList()
+    {
+        List<File> dirs = defaultJavaDirs();
+        javaList = new ArrayList<File>();
+        for (File d : dirs)
+        {
+            File javaExec = javaExec(d);
+            if (javaExec.canExecute())
+            {
+                javaList.add(javaExec);
+            }
+            else
+            {
+                javaExec = jvmExec(d, JAVA_EXEC_WINDOWS);
+                if (javaExec.canExecute())
+                {
+                    javaList.add(javaExec);
+                }
+            }
+        }
+    }
+
     /**
-     * Guess a suitable VM to suggest to the user
+     * Guess suitable VM directories to suggest to the user
      *
      * @return
      */
-    private String defaultJavaDir()
+    private List<File> defaultJavaDirs()
     {
-        String ibmmodules[] = {"dgcollector.dll", "dgcollector.so", "jdmpview.exe", "jdmpview"}; //$NON-NLS-1$ $NON-NLS-2$ $NON-NLS-3$ $NON-NLS-4$
+        List<File> ret = new ArrayList<File>();
+        String ibmmodules[] = {"dgcollector.dll", "dgcollector.so", "jdmpview.exe", "jdmpview"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        String hprofmodules[] = {"jrunscript.exe", "jrunscript", "jjs.exe", "jjs"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        String modules[] = defaultType == DumpType.HPROF ? hprofmodules : ibmmodules;
+        List<File> paths = new ArrayList<File>();
+        IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("org.eclipse.jdt.launching"); //$NON-NLS-1$
+        if (prefs != null)
+        {
+            String s1 = prefs.get("org.eclipse.jdt.launching.PREF_VM_XML", null); //$NON-NLS-1$
+            if (s1 != null)
+            {
+                try
+                {
+                    List<File> paths1 = parseJDTvmSettings(s1);
+                    for (File f : paths1)
+                    {
+                        File f2 = new File(f, "bin"); //$NON-NLS-1$
+                        paths.add(f2);
+                        if (!f2.exists())
+                        {
+                            File f3 = new File(f, "jre"); //$NON-NLS-1$
+                            File f4 = new File(f3, "bin"); //$NON-NLS-1$
+                            paths.add(f4);
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                }
+            }
+        }
         String path = System.getenv("PATH"); //$NON-NLS-1$
         if (path != null)
         {
             for (String p : path.split(File.pathSeparator))
             {
-                File dir = new File(p);
-                File parentDir = dir.getParentFile();
-                // Recent IBM VMs have diagnostics collector and late attach
-                for (String mod : ibmmodules)
+                paths.add(new File(p));
+            }
+        }
+        for (File dir : paths)
+        {
+            File parentDir = dir.getParentFile();
+            // Perhaps we were given the sdk/bin directory, so look for the
+            // sdk/jre/bin
+            File dir2 = new File(parentDir, "jre"); //$NON-NLS-1$
+            dir2 = new File(dir, "bin"); //$NON-NLS-1$
+            // Recent IBM VMs have diagnostics collector and late attach
+            for (String mod : modules)
+            {
+                File dll = new File(dir, mod);
+                if (dll.canRead())
                 {
-                    File dll = new File(dir, mod);
-                    if (dll.canRead())
+                    if (!ret.contains(dir))
                     {
-                        return dir.getPath();
+                        ret.add(dir);
+                        break;
                     }
                 }
-                // Perhaps we were given the sdk/bin directory, so look for the
-                // sdk/jre/bin
-                dir = new File(parentDir, "jre"); //$NON-NLS-1$
-                dir = new File(dir, "bin"); //$NON-NLS-1$
-                for (String mod : ibmmodules)
+                dll = new File(dir2, mod);
+                if (dll.canRead())
                 {
-                    File dll = new File(dir, mod);
-                    if (dll.canRead())
+                    if (!ret.contains(dir2))
                     {
-                        return dir.getPath();
+                        ret.add(dir2);
+                        break;
                     }
                 }
             }
         }
         String home = System.getProperty("java.home"); //$NON-NLS-1$
-        return new File(home, "bin").getPath(); //$NON-NLS-1$
+        File dir = new File(home, "bin"); //$NON-NLS-1$
+        if (!ret.contains(dir))
+            ret.add(dir);
+        return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // XML reading
+    // //////////////////////////////////////////////////////////////
+
+    private static final List<File> parseJDTvmSettings(String input) throws IOException
+    {
+        try
+        {
+            JDTLaunchingSAXHandler handler = new JDTLaunchingSAXHandler();
+            SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+            parserFactory.setNamespaceAware(true);
+            SAXParser parser = parserFactory.newSAXParser();
+            XMLReader saxXmlReader =  parser.getXMLReader();
+            saxXmlReader.setContentHandler(handler);
+            saxXmlReader.setErrorHandler(handler);
+            saxXmlReader.parse(new InputSource(new StringReader(input)));
+            List<File>homes = new ArrayList<File>();
+            for (String home : handler.getJavaHome())
+            {
+                File homedir = new File(home);
+                File dir = new File(homedir, "bin"); //$NON-NLS-1$
+                if (dir.exists())
+                {
+                    File jps1 = new File(dir, "jps"); //$NON-NLS-1$
+                    File jps2 = new File(dir, "jps.exe"); //$NON-NLS-1$
+                    if (jps1.canExecute() || jps2.canExecute())
+                        homes.add(homedir);
+                }
+            }
+            return homes;
+        }
+        catch (SAXException e)
+        {
+            IOException ioe = new IOException();
+            ioe.initCause(e);
+            throw ioe;
+        }
+        catch (ParserConfigurationException e)
+        {
+            IOException ioe = new IOException();
+            ioe.initCause(e);
+            throw ioe;
+        }
+    }
+
+    private static class JDTLaunchingSAXHandler extends DefaultHandler
+    {
+        List<String>javaHomes = new ArrayList<String>();
+        private String defVM;
+        private String type;
+        private JDTLaunchingSAXHandler()
+        {
+        }
+        public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException
+        {
+            if (name.equals("vmSettings")) //$NON-NLS-1$
+            {
+                // Find the default VM
+                String settings = attributes.getValue("defaultVM"); //$NON-NLS-1$
+                if (settings != null)
+                {
+                    String s[] = settings.split(","); //$NON-NLS-1$
+                    if (s.length >= 3)
+                        defVM = s[2];
+                }
+            }
+            else if (name.equals("vmType")) //$NON-NLS-1$
+            {
+                // Used to check of the right type 
+                type = attributes.getValue("id"); //$NON-NLS-1$
+            }
+            else if (name.equals("vm") && "org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType".equals(type)) //$NON-NLS-1$ //$NON-NLS-2$
+            {
+                String id = attributes.getValue("id"); //$NON-NLS-1$
+                String path = attributes.getValue("path"); //$NON-NLS-1$
+                if (path != null)
+                {
+                    if (id != null && id.equals(defVM))
+                    {
+                        // Add the default to the front of the list
+                        javaHomes.add(0, path);
+                    }
+                    else
+                    {
+                        javaHomes.add(path);
+                    }
+                }
+            }
+        }
+
+        public List<String> getJavaHome() {
+            return javaHomes;
+        }
     }
 
     private static final String last_directory_key = IBMExecDumpProvider.class.getName() + ".lastDir"; //$NON-NLS-1$
@@ -330,7 +523,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
-        listener.beginTask(Messages.getString("IBMExecDumpProvider.ListingIBMVMs"), lastCount);
+        listener.beginTask(Messages.getString("IBMExecDumpProvider.ListingIBMVMs"), lastCount); //$NON-NLS-1$
         int count = 0;
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String encodingOpt = "-Dfile.encoding="+encoding; //$NON-NLS-1$
