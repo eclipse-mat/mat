@@ -11,8 +11,6 @@
 package org.eclipse.mat.tests.acquire;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
@@ -43,6 +41,7 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -246,6 +245,7 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
+    @Ignore("OOM error with new CI build")
     @Test
     public void testAcquireDumpUncompressed() throws SnapshotException, IOException
     {
@@ -258,6 +258,7 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
+    @Ignore("OOM error with new CI build")
     @Test
     public void testAcquireDumpCompressed() throws SnapshotException, IOException
     {
