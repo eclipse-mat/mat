@@ -18,6 +18,7 @@
 			<id>build-server</id>
 			<build>
 				<plugins>
+					<!--
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
@@ -42,6 +43,39 @@
 											</fileset>
 										</copy>
 									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					-->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<version>2.0.0</version>
+						<executions>
+							<execution>
+								<id>deploy-prepare</id>
+								<phase>install</phase>
+								<goals>
+									<goal>sshexec</goal>
+								</goals>
+								<configuration>
+									<url>scpexe://${download-remote-publish-path}</url>
+									<commands>
+										<command>rm ${download-publish-path}/*</command>
+									</commands>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy</id>
+								<phase>install</phase>
+								<goals>
+									<goal>upload</goal>
+								</goals>
+								<configuration>
+									<fromDir>target/repository</fromDir>
+									<includes>**</includes>
+									<url>scpexe://${${download-remote-publish-path}</url>
 								</configuration>
 							</execution>
 						</executions>

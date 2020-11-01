@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Copyright (c) 2010, 2011 SAP AG. All rights reserved. This program and the 
+<!-- Copyright (c) 2010, 2020 SAP AG and IBM Corporation. All rights reserved. This program and the 
 	accompanying materials are made available under the terms of the Eclipse 
 	Public License v1.0 which accompanies this distribution, and is available 
 	at http://www.eclipse.org/legal/epl-v10.html Contributors: SAP AG - initial 
@@ -96,6 +96,7 @@
 									</target>
 								</configuration>
 							</execution>
+							<!--
 							<execution>
 								<id>publish</id>
 								<phase>install</phase>
@@ -118,6 +119,7 @@
 									</target>
 								</configuration>
 							</execution>
+							-->
 						</executions>
 					</plugin>
 					<plugin>
@@ -175,6 +177,38 @@
 									<timeoutMillis>600000</timeoutMillis> <!-- 10 min -->
 									<continueOnFail>${macSigner.forceContinue}</continueOnFail>
 									<sign>true</sign>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<version>2.0.0</version>
+						<executions>
+							<execution>
+								<id>publish-prepare</id>
+								<phase>install</phase>
+								<goals>
+									<goal>sshexec</goal>
+								</goals>
+								<configuration>
+									<url>scpexe://${download-remote-publish-rcp-path}</url>
+									<commands>
+										<command>rm ${download-publish-rcp-path}/*</command>
+									</commands>
+								</configuration>
+							</execution>
+							<execution>
+								<id>publish</id>
+								<phase>install</phase>
+								<goals>
+									<goal>upload</goal>
+								</goals>
+								<configuration>
+									<fromDir>target/products</fromDir>
+									<includes>*.zip,*.dmg</includes>
+									<url>scpexe://${${download-remote-publish-rcp-path}</url>
 								</configuration>
 							</execution>
 						</executions>
