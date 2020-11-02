@@ -62,7 +62,7 @@
 								<configuration>
 									<url>scpexe://${download-remote-publish-path}</url>
 									<commands>
-										<command>rm ${download-publish-path}/*</command>
+										<command>rm -rf ${download-publish-path}/*</command>
 									</commands>
 								</configuration>
 							</execution>
@@ -74,8 +74,9 @@
 								</goals>
 								<configuration>
 									<fromDir>target/repository</fromDir>
-									<includes>**</includes>
-									<url>scpexe://${${download-remote-publish-path}</url>
+									<includes>*/**</includes>
+									<url>scpexe://${download-remote-publish-path}</url>
+									<toDir></toDir>
 								</configuration>
 							</execution>
 						</executions>

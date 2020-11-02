@@ -195,7 +195,7 @@
 								<configuration>
 									<url>scpexe://${download-remote-publish-rcp-path}</url>
 									<commands>
-										<command>rm ${download-publish-rcp-path}/*</command>
+										<command>rm -rf ${download-publish-rcp-path}/*</command>
 									</commands>
 								</configuration>
 							</execution>
@@ -208,7 +208,8 @@
 								<configuration>
 									<fromDir>target/products</fromDir>
 									<includes>*.zip,*.dmg</includes>
-									<url>scpexe://${${download-remote-publish-rcp-path}</url>
+									<url>scpexe://${download-remote-publish-rcp-path}</url>
+									<toDir></toDir>
 								</configuration>
 							</execution>
 						</executions>
