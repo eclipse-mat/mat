@@ -270,7 +270,7 @@
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<argLine>-ea -Xmx1024m</argLine>
+						<argLine>-ea -Xmx1280m</argLine>
 						<!-- <testFailureIgnore>true</testFailureIgnore> -->
 						<includes>
 							<include>**/AllTests.class</include>

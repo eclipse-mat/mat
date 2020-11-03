@@ -202,6 +202,7 @@ public class AcquireDumpTest
                         }
                     }
                     collector.checkThat("Dump file", dmp, notNullValue());
+                    System.out.println("Dump "+dmp.getAbsolutePath()+" "+dmp.length());
                     try
                     {
                         ISnapshot answer = SnapshotFactory.openSnapshot(dmp, Collections.<String, String> emptyMap(), l);
@@ -218,6 +219,7 @@ public class AcquireDumpTest
                         finally
                         {
                             SnapshotFactory.dispose(answer);
+                            answer = null;
                         }
                     }
                     finally
@@ -245,7 +247,7 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
-    @Ignore("OOM error with new CI build")
+    //@Ignore("OOM error with new CI build")
     @Test
     public void testAcquireDumpUncompressed() throws SnapshotException, IOException
     {
@@ -258,7 +260,7 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
-    @Ignore("OOM error with new CI build")
+    //@Ignore("OOM error with new CI build")
     @Test
     public void testAcquireDumpCompressed() throws SnapshotException, IOException
     {

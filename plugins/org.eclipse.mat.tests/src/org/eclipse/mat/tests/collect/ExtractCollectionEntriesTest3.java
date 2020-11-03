@@ -117,8 +117,9 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                     }
                     // List collections
                     String dmppath = dmp.getAbsolutePath();
+                    System.out.println("Dump "+dmppath+" "+dmp.length());
                     String dmpname = hdp.getClass().getName()+" "+dmp.getName();
-                    for (Collection c : cdp.getListCollectionTestData())
+                    for (Collection<?> c : cdp.getListCollectionTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 1, c.getClass().getName() };
                         for (Object o[] : parms)
@@ -133,7 +134,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             parms.add(objects);
                     }
                     // Non-List collections
-                    for (Collection c : cdp.getNonListCollectionTestData())
+                    for (Collection<?> c : cdp.getNonListCollectionTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 2, c.getClass().getName() };
                         for (Object o[] : parms)
@@ -148,7 +149,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             parms.add(objects);
                     }
                     // Empty List collections
-                    for (Collection c : cdp.getEmptyListCollectionTestData())
+                    for (Collection<?> c : cdp.getEmptyListCollectionTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 3, c.getClass().getName() };
                         for (Object o[] : parms)
@@ -163,7 +164,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             parms.add(objects);
                     }
                     // Empty Non-List collections
-                    for (Collection c : cdp.getEmptyNonListCollectionTestData())
+                    for (Collection<?> c : cdp.getEmptyNonListCollectionTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 4, c.getClass().getName() };
                         for (Object o[] : parms)
@@ -178,7 +179,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             parms.add(objects);
                     }
                     // Maps
-                    for (Map m : cdp.getMapTestData())
+                    for (Map<?,?> m : cdp.getMapTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 5, m.getClass().getName() };
                         for (Object o[] : parms)
@@ -193,7 +194,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             parms.add(objects);
                     }
                     // Empty Maps
-                    for (Map m : cdp.getEmptyMapTestData())
+                    for (Map<?,?> m : cdp.getEmptyMapTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 6, m.getClass().getName() };
                         for (Object o[] : parms)
@@ -217,11 +218,11 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
         return parms;
     }
 
-    @Ignore("OOM error in new CI build")
+    //@Ignore("OOM error in new CI build")
     @Test
     public void testCollections() throws SnapshotException
     {
-        assumeThat("OOM error in new CI build", classname, not(equalTo("java.util.ArrayList")));
+        //assumeThat("OOM error in new CI build", classname, not(equalTo("java.util.ArrayList")));
         switch (type)
         {
             case 1:
