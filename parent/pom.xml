@@ -197,6 +197,13 @@
 							<generateDownloadStatsProperty>true</generateDownloadStatsProperty>
 						</configuration>
 					</plugin>
+					<!-- Disable the default deploy as we don't deploy Maven artifacts to download.eclipse.org -->
+					<plugin>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
