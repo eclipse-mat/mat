@@ -187,8 +187,8 @@
 						<version>2.0.0</version>
 						<executions>
 							<execution>
-								<id>publish-prepare</id>
-								<phase>install</phase>
+								<id>prepare-publish-rcp</id>
+								<phase>deploy</phase>
 								<goals>
 									<goal>sshexec</goal>
 								</goals>
@@ -200,8 +200,8 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>publish</id>
-								<phase>install</phase>
+								<id>publish-rcp</id>
+								<phase>deploy</phase>
 								<goals>
 									<goal>upload</goal>
 								</goals>

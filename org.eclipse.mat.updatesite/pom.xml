@@ -54,8 +54,8 @@
 						<version>2.0.0</version>
 						<executions>
 							<execution>
-								<id>deploy-prepare</id>
-								<phase>install</phase>
+								<id>prepare-publish</id>
+								<phase>deploy</phase>
 								<goals>
 									<goal>sshexec</goal>
 								</goals>
@@ -67,8 +67,8 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>deploy</id>
-								<phase>install</phase>
+								<id>publish</id>
+								<phase>deploy</phase>
 								<goals>
 									<goal>upload</goal>
 								</goals>
