@@ -77,7 +77,7 @@
 				containing 1,160,000,000 objects, which was opened with Memory Analyzer running
 				with a 64Gbyte heap. 
 				Exceeding the limit can result in an exception such as
-				<systemoutput>OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</systemoutput>.
+				<systemoutput>java.lang.OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</systemoutput>.
 				See <xref format="dita" href="#task_configure_mat/discard">enable discard</xref>
 				for options to work around this limit.</p>
 				
@@ -198,8 +198,11 @@
 					but the unreachable object histogram will show the types of the objects
 					taking most of the heap space, and might give a hint as to the problem.</li>
 					</ol>
+					See <xref format="dita" href="batch.dita#task_batch/discard">
+					batch mode discard options</xref> for controlling discard in batch
+					mode.
 					</p>
-					<note>This feaure is experimental and is subject to change
+					<note>This feature is experimental and is subject to change
 					or removal. Please respond on the 
 					<xref format="html" scope="peer"
 						href="http://www.eclipse.org/forums/index.php/f/186/">

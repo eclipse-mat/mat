@@ -90,14 +90,14 @@
 				<ol type="a" class="ol substeps">
 				<li class="li substep substepexpand">
 				<span class="ph cmd">
-					<kbd class="ph userinput">-keep_unreachable_objects</kbd> means that all
+					<span class="keyword option">-keep_unreachable_objects</span> means that all
 					objects are retained in the snapshot, even if they are not reachable from
 					an ordinary GC root.</span>
 				</li>
 
 				<li class="li substep substepexpand">
 				<span class="ph cmd">
-					<kbd class="ph userinput">-snapshot_identifier=</kbd><var class="keyword varname">identifier</var>
+					<span class="keyword option">-snapshot_identifier=</span><var class="keyword varname">identifier</var>
 					Selects one snapshot when there is the choice of several in the heap dump file.
 					For HPROF files this might be of the form <kbd class="ph userinput">#1</kbd> or
 					<kbd class="ph userinput">#2</kbd>.
@@ -113,18 +113,20 @@
 				</span>
 				</li>
 
-				<li class="li substep substepexpand">
+				<li class="li substep substepexpand" id="task_batch__discard">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
-				<span class="ph cmd"><kbd class="ph userinput">-discard_ratio=</kbd><var class="keyword varname">percentage</var>.
+				<span class="ph cmd"><span class="keyword option">-discard_ratio=</span><var class="keyword varname">percentage</var>.
 					Option to discard a fraction of the objects from huge dumps.
 				</span>
+				<div class="itemgroup info">See <a class="xref" href="configure_mat.html#task_configure_mat__discard">discard configuration</a>
+				for an explanation of these discard options.</div>
 				</li>
 
 				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
-				<span class="ph cmd"><kbd class="ph userinput">-discard_pattern=</kbd><var class="keyword varname">regex</var>.
+				<span class="ph cmd"><span class="keyword option">-discard_pattern=</span><var class="keyword varname">regex</var>.
 					A regular expression matching the class names of objects to be discarded.
 				</span>
 				</li>
@@ -132,7 +134,7 @@
 				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
-				<span class="ph cmd"><kbd class="ph userinput">-discard_offset=</kbd><var class="keyword varname">offset value</var>.
+				<span class="ph cmd"><span class="keyword option">-discard_offset=</span><var class="keyword varname">offset value</var>.
 					Controls which particular objects are discarded.
 				</span>
 				</li>
@@ -140,7 +142,7 @@
 				<li class="li substep substepexpand">
 				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
 
-				<span class="ph cmd"><kbd class="ph userinput">-discard_seed=</kbd><var class="keyword varname">random number generator seed</var>.
+				<span class="ph cmd"><span class="keyword option">-discard_seed=</span><var class="keyword varname">random number generator seed</var>.
 					Controls which particular objects are discarded.
 				</span>
 				</li>
@@ -151,39 +153,39 @@
 						<p class="p">Other parameters controlling output include the following:</p>
 
 						<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-								<th valign="bottom" align="left" id="d17191e336" class="stentry">Argument</th>
+								<th valign="bottom" align="left" id="d17775e343" class="stentry">Argument</th>
 
-								<th valign="bottom" align="left" id="d17191e339" class="stentry">Description</th>
+								<th valign="bottom" align="left" id="d17775e346" class="stentry">Description</th>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d17191e336" class="stentry">-limit</td>
+								<td valign="top" headers="d17775e343" class="stentry"><span class="keyword option">-limit=</span><var class="keyword varname">number of entries</var></td>
 
-								<td valign="top" headers="d17191e339" class="stentry">Controls the number of entries generated in an output table.
+								<td valign="top" headers="d17775e346" class="stentry">Controls the number of entries generated in an output table.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT"><span class="keyword apiname">org.eclipse.mat.report.Params.Rendering.LIMIT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d17191e336" class="stentry">-format</td>
+								<td valign="top" headers="d17775e343" class="stentry"><span class="keyword option">-format=</span><var class="keyword varname">type of output</var></td>
 
-								<td valign="top" headers="d17191e339" class="stentry">Controls the type of the output (HTML or CSV).
+								<td valign="top" headers="d17775e346" class="stentry">Controls the type of the output (HTML or CSV).
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.html#FORMAT"><span class="keyword apiname">org.eclipse.mat.report.Params.FORMAT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d17191e336" class="stentry">-html.show_table_headings</td>
+								<td valign="top" headers="d17775e343" class="stentry"><span class="keyword option">-html.show_table_headings</span></td>
 
-								<td valign="top" headers="d17191e339" class="stentry">Controls whether table headings should be shown for tables.
+								<td valign="top" headers="d17775e346" class="stentry">Controls whether table headings should be shown for tables.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d17191e336" class="stentry">-html.show_totals</td>
+								<td valign="top" headers="d17775e343" class="stentry"><span class="keyword option">-html.show_totals</span></td>
 
-								<td valign="top" headers="d17191e339" class="stentry">Controls whether totals should be shown for tables.
+								<td valign="top" headers="d17775e346" class="stentry">Controls whether totals should be shown for tables.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</span></a>
 								</td>
 

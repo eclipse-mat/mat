@@ -80,7 +80,7 @@
 				containing 1,160,000,000 objects, which was opened with Memory Analyzer running
 				with a 64Gbyte heap. 
 				Exceeding the limit can result in an exception such as
-				<samp class="ph systemoutput">OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</samp>.
+				<samp class="ph systemoutput">java.lang.OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</samp>.
 				See <a class="xref" href="#task_configure_mat__discard">enable discard</a>
 				for options to work around this limit.</p>
 
@@ -221,9 +221,12 @@
 
 					</ol>
 
+					See <a class="xref" href="batch.html#task_batch__discard">
+					batch mode discard options</a> for controlling discard in batch
+					mode.
 					</div>
 
-					<div class="note note"><span class="notetitle">Note:</span> This feaure is experimental and is subject to change
+					<div class="note note"><span class="notetitle">Note:</span> This feature is experimental and is subject to change
 					or removal. Please respond on the 
 					<a class="xref" href="http://www.eclipse.org/forums/index.php/f/186/">
 					Memory Analyzer forum</a> if you try it and
