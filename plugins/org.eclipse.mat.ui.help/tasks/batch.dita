@@ -77,13 +77,13 @@
 				<substeps>
 				<substep>
 				<cmd>
-					<userinput>-keep_unreachable_objects</userinput> means that all
+					<option>-keep_unreachable_objects</option> means that all
 					objects are retained in the snapshot, even if they are not reachable from
 					an ordinary GC root.</cmd>
 				</substep>
 				<substep>
 				<cmd>
-					<userinput>-snapshot_identifier=</userinput><varname>identifier</varname>
+					<option>-snapshot_identifier=</option><varname>identifier</varname>
 					Selects one snapshot when there is the choice of several in the heap dump file.
 					For HPROF files this might be of the form <userinput>#1</userinput> or
 					<userinput>#2</userinput>.
@@ -98,27 +98,29 @@
 					option.
 				</cmd>
 				</substep>
-				<substep>
+				<substep id="discard">
 				<note>Experimental</note>
-				<cmd><userinput>-discard_ratio=</userinput><varname>percentage</varname>.
+				<cmd><option>-discard_ratio=</option><varname>percentage</varname>.
 					Option to discard a fraction of the objects from huge dumps.
 				</cmd>
+				<info>See <xref format="dita" href="configure_mat.dita#task_configure_mat/discard">discard configuration</xref>
+				for an explanation of these discard options.</info>
 				</substep>
 				<substep>
 				<note>Experimental</note>
-				<cmd><userinput>-discard_pattern=</userinput><varname>regex</varname>.
+				<cmd><option>-discard_pattern=</option><varname>regex</varname>.
 					A regular expression matching the class names of objects to be discarded.
 				</cmd>
 				</substep>
 				<substep>
 				<note>Experimental</note>
-				<cmd><userinput>-discard_offset=</userinput><varname>offset value</varname>.
+				<cmd><option>-discard_offset=</option><varname>offset value</varname>.
 					Controls which particular objects are discarded.
 				</cmd>
 				</substep>
 				<substep>
 				<note>Experimental</note>
-				<cmd><userinput>-discard_seed=</userinput><varname>random number generator seed</varname>.
+				<cmd><option>-discard_seed=</option><varname>random number generator seed</varname>.
 					Controls which particular objects are discarded.
 				</cmd>
 				</substep>
@@ -132,25 +134,25 @@
 								<stentry>Description</stentry>
 							</sthead>
 							<strow>
-								<stentry>-limit</stentry>
+								<stentry><option>-limit=</option><varname>number of entries</varname></stentry>
 								<stentry>Controls the number of entries generated in an output table.
 								See <xref href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT" format="html"><apiname>org.eclipse.mat.report.Params.Rendering.LIMIT</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
-								<stentry>-format</stentry>
+								<stentry><option>-format=</option><varname>type of output</varname></stentry>
 								<stentry>Controls the type of the output (HTML or CSV).
 								See <xref href="../doc/org/eclipse/mat/report/Params.html#FORMAT" format="html"><apiname>org.eclipse.mat.report.Params.FORMAT</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
-								<stentry>-html.show_table_headings</stentry>
+								<stentry><option>-html.show_table_headings</option></stentry>
 								<stentry>Controls whether table headings should be shown for tables.
 								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER" format="html"><apiname>org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</apiname></xref>
 								</stentry>
 							</strow>
 							<strow>
-								<stentry>-html.show_totals</stentry>
+								<stentry><option>-html.show_totals</option></stentry>
 								<stentry>Controls whether totals should be shown for tables.
 								See <xref href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS" format="html"><apiname>org.eclipse.mat.report.Params.Html.SHOW_TOTALS</apiname></xref>
 								</stentry>
