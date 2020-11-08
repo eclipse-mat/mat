@@ -22,12 +22,12 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -2647,6 +2647,20 @@ public class OQLTest
         assertThat(item, instanceOf(List.class));
         List<?> al = (List<?>)item;
         assertThat(al.size(), equalTo(5));
+    }
+
+    /**
+     * Test method calls allowed with null argument
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallNulls1() throws SnapshotException
+    {
+        Object result = execute("SELECT toString(s).equals(null) FROM OBJECTS 1 s");
+        assertThat(result, instanceOf(IResultTable.class));
+        IResultTable table = (IResultTable) result;
+        Object row = table.getRow(0);
+        assertThat(table.getColumnValue(row, 0), equalTo((Object)false));
     }
 
     // //////////////////////////////////////////////////////////////

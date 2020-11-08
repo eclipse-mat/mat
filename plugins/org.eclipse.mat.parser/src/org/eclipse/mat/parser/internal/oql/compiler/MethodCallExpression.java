@@ -259,7 +259,7 @@ class MethodCallExpression extends Expression
                 for (int j = 0; j < parameterCount; ++j)
                 {
                     Class<?>pt = parameterTypes[j];
-                    if (!pt.isAssignableFrom(argumentTypes1[j]))
+                    if (argumentTypes1[j] != null && !pt.isAssignableFrom(argumentTypes1[j]))
                         continue nextMethod;
                 }
                 Method m1 = subjectClass.getMethod(name, argumentTypes1);
