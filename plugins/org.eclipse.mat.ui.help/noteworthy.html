@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
 <meta name="DC.Title" content="New and Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.10 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.10 release."/>
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.11 release."/>
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.11 release."/>
 <meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
@@ -24,21 +24,39 @@
 	
 	
 	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.10 release.
+		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.11 release.
 	</p>
 
 		<div class="section"><h2 class="title sectiontitle">Enhancements and fixes</h2>
 			
 			<ul class="ul">
-			<li class="li">The parsing of HPROF dumps is now multi-threaded which should improve the speed at
-			which dumps are parsed on multi-cored machines.</li>
+			<li class="li">The snapshot comparison queries have been enhanced to properly
+			compare trees as well as tables.
+			Also, a leak suspect report can be run on two snapshots to show possible memory leaks
+			using the difference between the two snapshots of the memory usage of objects and components.</li>
 
-			<li class="li">The HPROF parser has been enhanced to let it directly read HPROF dumps compressed with Gzip or in the gzip file format.</li>
+			<li class="li">Memory Analyzer now has a configuration option to allow an attempt to analyse
+			huge heap dumps, bigger than Memory Analyzer could handle in previous version. It does this
+			by optionally discarding some objects from the heap dump while building the snapshot, with
+			the hope that the important objects have not been discarded.</li>
 
-			<li class="li">Object Query Language programming has been improved.</li>
+			<li class="li">Stand-alone Eclipse Memory Analyzer is now based on Eclipse 2020-03 which
+			may give a slightly improved user interface compared to previous versions.
+			As a consequence, stand-alone Eclipse Memory Analyzer is only available for
+			the following platforms.
+				<ul class="ul">
+					<li class="li">Windows (x86_64)</li>
 
-			<li class="li">The Leak Suspects report has been improved for the case where the leak suspect includes
-			multiple suspect objects.</li>
+					<li class="li">Mac OS X (Mac/Cocoa x86_64)</li>
+
+					<li class="li">Linux (x86_64/GTK+)</li>
+
+					<li class="li">Linux (PPC64LE/GTK+)</li>
+
+				</ul>
+
+			The macOS build is now signed and notarized.
+			</li>
 
 			</ul>
 
@@ -47,68 +65,106 @@
 		<div class="section"><h2 class="title sectiontitle">Fix details</h2>
 			
 			<ul class="ul">
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305154" target="_blank">305154</a>
+					Extend the programming model for MAT Queries - enable programming
+					of queries doing comparison</li>
 
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=324970" target="_blank">324970</a>
+					Provide a mechanism to continue manual analysis from MAT's
+					automatic reports</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=277422" target="_blank">277422</a> Nice if heap parsing was multi-threaded</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=330074" target="_blank">330074</a>
+					null returns from SnapshotImpl methods</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=297052" target="_blank">297052</a> HTML tree reports are not expanded for leak suspects</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=347648" target="_blank">347648</a>
+					Retained size column is not compared</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=438844" target="_blank">438844</a> Add ability to load a zipped hprof</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=558593" target="_blank">558593</a>
+					Failing to write a report ZIP causes the report query to fail</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=442315" target="_blank">442315</a> Java_version error when using Java Collections tools on HashMaps</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561460" target="_blank">561460</a>
+					More comparison queries</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=536920" target="_blank">536920</a> Provide extra links for top components report</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561776" target="_blank">561776</a>
+					Improve handling of FINALIZABLE and UNFINALIZED</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551820" target="_blank">551820</a> Update version to 1.10.0</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561976" target="_blank">561976</a>
+					Improve duplicate classes query</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552879" target="_blank">552879</a> OQL enhancements for sub-selects, maps, context providers, DISTINCT</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=562926" target="_blank">562926</a>
+					Use simultaneous release repo for Hamcrest</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552917" target="_blank">552917</a> org.eclipse.mat.ibmdumps project classpath issue</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=562972" target="_blank">562972</a>
+					Tests more queries and improve collection queries</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=553312" target="_blank">553312</a> infinite loop in the export hprof feature from "ParseHeapDump.bat" on multi-segment dumps</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=563960" target="_blank">563960</a>
+					Requested length of new long exceeds limit of 2,147,483,639</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559247" target="_blank">559247</a> OQL method call improvements</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=565502" target="_blank">565502</a>
+					Poor performance with bad hashing on HashMapIntObject</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559273" target="_blank">559273</a> Java 11 collection class updates</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566282" target="_blank">566282</a>
+					Cannot install on latest MacOS version Catalina 10.15</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559538" target="_blank">559538</a> p2 repo configuration for mirrors and download statistics</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566673" target="_blank">566673</a>
+					java.lang.ArrayIndexOutOfBoundsException in
+					GarbageCleaner.java</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559905" target="_blank">559905</a> Code tidy up</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566917" target="_blank">566917</a>
+					Occasional poor performance with GZip HPROF</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560295" target="_blank">560295</a> ArrayIndexOutOfBoundsException in ObjectMarker.markMultiThreaded</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567048" target="_blank">567048</a>
+					Add detailed progress to group by value query</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560384" target="_blank">560384</a> Eclipse.OSGi Bundle explorer extension point problems</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567070" target="_blank">567070</a>
+					Optimize progress monitor calculation</li>
 
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567256" target="_blank">567256</a>
+					Improve help and minor updates</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551214" target="_blank">551214</a> Add documentation about post-processed J9 JVM finalizer roots</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567433" target="_blank">567433</a>
+					Update MAT version to 1.11.0</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552670" target="_blank">552670</a> Add documentation for display of bytes in KB, MB, GB or Smart formats</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567564" target="_blank">567564</a>
+					Single query report</li>
 
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567917" target="_blank">567917</a>
+					Add some more network object name resolvers</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=324967" target="_blank">324967</a> Hide queries which are not relevant</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=568217" target="_blank">568217</a>
+					Better links for stack frame for thread overview</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=417467" target="_blank">417467</a> Reports fail to display after report generation completes</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305152" target="_blank">305152</a>
+					Improvements to the displayed comparison results</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=445180" target="_blank">445180</a> reports fail without information</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=346513" target="_blank">346513</a>
+					TextResult link with target=_blank doesn't work</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=545754" target="_blank">545754</a> OQL syntax highlighting sometimes doesn't highlight keywords</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=537252" target="_blank">537252</a>
+					Cheatsheet fixes</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=548441" target="_blank">548441</a> Overview background doesn't match Eclipse</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560704" target="_blank">560704</a>
+					Class cast exception opening Path To GC Roots query</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551552" target="_blank">551552</a> Exception running query with no editor open</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=563793" target="_blank">563793</a>
+					Feature request: Add lock information to Thread Overview and Stacks
+					query</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=551971" target="_blank">551971</a> Reports not rendered in MAT</li>
+				
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=565962" target="_blank">565962</a>
+					Show the thread and stack frame holding the leaked objects</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=552621" target="_blank">552621</a> Batch processing improvements</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567414" target="_blank">567414</a>
+					Build standalone MAT packages with a newer Eclipse release</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559255" target="_blank">559255</a> MAT Calcite results can't be added to the compare basket</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567533" target="_blank">567533</a>
+					Reports have a white background with dark theme</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559284" target="_blank">559284</a> Hovering over overview pie slice throws an exception</li>
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567758" target="_blank">567758</a>
+					Add Close to the left and right option to tabs</li>
 
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=559873" target="_blank">559873</a> OutOfMemoryError when selecting large totals row</li>
-
-			<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560005" target="_blank">560005</a> NullPointerException in PatternFilter</li>
-
+				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=568352" target="_blank">568352</a>
+					Better JDT integration</li>
 
 			</ul>
 
@@ -117,8 +173,8 @@
 
 		<div class="section"><h2 class="title sectiontitle">Security fixes</h2>
 			
-			Memory Analyzer 1.10 includes the security fixes first included in Memory Analyzer 1.9.2.
-			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.10.0 (or 1.9.2) or subsequent versions.
+			Memory Analyzer 1.11 includes the security fixes first included in Memory Analyzer 1.9.2.
+			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.11.0 (or 1.10.0 or 1.9.2) or subsequent versions.
 			<dl class="dl">
 				
 					<dt class="dt dlterm"><a class="xref" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17634" target="_blank">CVE-2019-17634</a></dt>
@@ -164,11 +220,11 @@
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.9</h2>
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.10</h2>
 			
 			<p class="p">
-				The New and Noteworthy document for version 1.9 is available 
-				<a class="xref" href="http://www.eclipse.org/mat/1.9.0/noteworthy.html">here</a>.
+				The New and Noteworthy document for version 1.10 is available 
+				<a class="xref" href="http://www.eclipse.org/mat/1.10.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
