@@ -63,7 +63,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
         long estimatedLength = CompressedRandomAccessFile.estimatedLength(file);
-        int pass1Work = (int) (estimatedLength / 1000);
+        int pass1Work = (int) (CompressedRandomAccessFile.estimateWork(file) / 1000);
 
         SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }),

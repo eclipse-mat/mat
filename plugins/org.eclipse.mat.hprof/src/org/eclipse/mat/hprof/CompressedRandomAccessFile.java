@@ -156,6 +156,28 @@ class CompressedRandomAccessFile extends RandomAccessFile
         }
     }
     /**
+     * Estimates the work to do when reading the file. For compressed files it is
+     * not easy to do this based on the original size, since it is not generally
+     * known. Instead for these we use the physical size and the physical read
+     * position (at least for the chunked gzipped files).
+     *
+     * @param f The file
+     * @return The work to  do.
+     * @throws IOException On error.
+     */
+    public static long estimateWork(File f) throws IOException
+    {
+        try (RandomAccessFile ra = new RandomAccessFile(f, "r")) //$NON-NLS-1$
+        {
+            if (ChunkedGZIPRandomAccessFile.isChunkedGZIPFile(ra))
+            {
+                return f.length();
+            }
+
+            return estimatedLength(ra);
+        }
+    }
+    /**
      * Estimate the length of the uncompressed version of the Gzipped file.
      * Gzip only has the least significant 32-bits of the size.
      * Estimate the size as 5.0 times the compressed size, but with the
@@ -166,6 +188,13 @@ class CompressedRandomAccessFile extends RandomAccessFile
      */
     static long estimatedLength(RandomAccessFile ra) throws IOException
     {
+        if (ChunkedGZIPRandomAccessFile.isChunkedGZIPFile(ra))
+        {
+            // Don't try to estimate the length if the file contains more than one
+            // gzip "member", since it will never be right.
+            return Long.MAX_VALUE;
+        }
+
         long filel = ra.length();
         long pos = ra.getFilePointer();
         try

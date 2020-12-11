@@ -28,6 +28,9 @@ public class JmapVmInfo extends VmInfo
     @Argument
     public boolean compress;
 
+    // No @Argument, since currently only used in tests.
+    public boolean chunked;
+
 	public JmapVmInfo(int pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
 	{
 		super(pid, description, heapDumpEnabled, proposedFileName, heapDumpProvider);
