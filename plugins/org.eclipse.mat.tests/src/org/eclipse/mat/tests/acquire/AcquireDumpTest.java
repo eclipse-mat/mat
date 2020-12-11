@@ -119,7 +119,7 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
-    public void test3(boolean compress) throws SnapshotException, IOException
+    public void test3(boolean compress, boolean chunked) throws SnapshotException, IOException
     {
         Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
         File tmpdir = TestSnapshots.createGeneratedName("acquire", null);
@@ -155,6 +155,7 @@ public class AcquireDumpTest
                     try
                     {
                         vm.getClass().getField("compress").set(vm, compress);
+                        vm.getClass().getField("chunked").set(vm, chunked);
                     }
                     catch (NoSuchFieldException e1)
                     {
@@ -238,7 +239,7 @@ public class AcquireDumpTest
                             collector.checkThat("Snapshot", answer, notNullValue());
                             found++;
                             // Currently zipped hprof is very slow (>1 hour)
-                            if (!compress)
+                            if (!compress || chunked)
                             {
                                 checkEclipseBundleQuery(answer);
                             }
@@ -278,7 +279,7 @@ public class AcquireDumpTest
     @Test
     public void testAcquireDumpUncompressed() throws SnapshotException, IOException
     {
-        test3(false);
+        test3(false, false);
     }
 
     /**
@@ -291,7 +292,20 @@ public class AcquireDumpTest
     @Test
     public void testAcquireDumpCompressed() throws SnapshotException, IOException
     {
-        test3(true);
+        test3(true, false);
+    }
+
+    /**
+     * Actually generate a dump and parse it
+     *
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    //@Ignore("OOM error with new CI build")
+    @Test
+    public void testAcquireDumpCompressedChunked() throws SnapshotException, IOException
+    {
+        test3(true, true);
     }
 
     /**

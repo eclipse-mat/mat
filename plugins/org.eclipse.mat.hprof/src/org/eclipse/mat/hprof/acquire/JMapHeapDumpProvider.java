@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.hprof.ChunkedGZIPRandomAccessFile;
 import org.eclipse.mat.hprof.Messages;
 import org.eclipse.mat.hprof.acquire.LocalJavaProcessesUtils.StreamCollector;
 import org.eclipse.mat.query.annotations.Argument;
@@ -182,7 +183,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		{
 		    try
 		    {
-		        preferredLocation = compressFile(preferredLocation, listener);
+		        preferredLocation = compressFile(preferredLocation, jmapProcessInfo.chunked, listener);
 		    }
 		    catch (IOException e)
 		    {
@@ -195,27 +196,35 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		return preferredLocation;
 	}
 
-    File compressFile(File dump, IProgressListener listener) throws IOException
+    File compressFile(File dump, boolean chunked, IProgressListener listener) throws IOException
     {
         listener.subTask(Messages.JMapHeapDumpProvider_CompressingDump);
         File dumpout = File.createTempFile(dump.getName(),  null, dump.getParentFile());
-        int bufsize = 64 * 1024;
-        try (FileInputStream in = new FileInputStream(dump);
-             InputStream inb = new BufferedInputStream(in, bufsize);
-             FileOutputStream out = new FileOutputStream(dumpout);
-             GZIPOutputStream outb = new GZIPOutputStream(out, bufsize))
+
+        if (chunked)
         {
-            byte b[] = new byte[bufsize];
-            for (;;)
+            ChunkedGZIPRandomAccessFile.compressFileChunked(dump, dumpout);
+        }
+        else
+        {
+            int bufsize = 64 * 1024;
+            try (FileInputStream in = new FileInputStream(dump);
+                 InputStream inb = new BufferedInputStream(in, bufsize);
+                 FileOutputStream out = new FileOutputStream(dumpout);
+                 GZIPOutputStream outb = new GZIPOutputStream(out, bufsize))
             {
-                if (listener.isCanceled()) 
-                    return null;
-                int r = in.read(b);
-                if (r <= 0)
-                    break;
-                outb.write(b, 0, r);
+                byte b[] = new byte[bufsize];
+                for (;;)
+                {
+                    if (listener.isCanceled())
+                        return null;
+                    int r = in.read(b);
+                    if (r <= 0)
+                        break;
+                    outb.write(b, 0, r);
+                }
+                outb.flush();
             }
-            outb.flush();
         }
         if (dump.delete())
         {
