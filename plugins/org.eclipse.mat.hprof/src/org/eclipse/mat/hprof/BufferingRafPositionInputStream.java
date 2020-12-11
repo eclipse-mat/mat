@@ -32,8 +32,17 @@ public class BufferingRafPositionInputStream implements IPositionInputStream, Cl
         boolean gzip = CompressedRandomAccessFile.isGZIP(raf1);
         if (gzip)
         {
+            ChunkedGZIPRandomAccessFile cgraf = ChunkedGZIPRandomAccessFile.get(raf1, file);
             raf1.close();
-            raf = new CompressedRandomAccessFile(file, false, estlen);
+
+            if (cgraf != null)
+            {
+                raf = cgraf;
+            }
+            else
+            {
+                raf = new CompressedRandomAccessFile(file, false, estlen);
+            }
         }
         else
         {
@@ -162,6 +171,16 @@ public class BufferingRafPositionInputStream implements IPositionInputStream, Cl
         return channelPosition - (bufferLength - bufferPosition);
     }
 
+    // Used to get the progress for the first pass.
+    public long workPosition()
+    {
+        if (raf instanceof ChunkedGZIPRandomAccessFile)
+        {
+            return ((ChunkedGZIPRandomAccessFile) raf).getLastPhysicalReadPosition();
+        }
+
+        return position();
+    }
     // //////////////////////////////////////////////////////////////
     // DataInput implementations
     // //////////////////////////////////////////////////////////////

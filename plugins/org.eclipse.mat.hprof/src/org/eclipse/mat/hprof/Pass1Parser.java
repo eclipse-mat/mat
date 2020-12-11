@@ -67,7 +67,7 @@ public class Pass1Parser extends AbstractParser
     private long streamLength;
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
-    private IPositionInputStream in;
+    private BufferingRafPositionInputStream in;
 
     public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -115,7 +115,7 @@ public class Pass1Parser extends AbstractParser
             {
                 if (monitor.isProbablyCanceled())
                     throw new IProgressListener.OperationCanceledException();
-                monitor.totalWorkDone(curPos / 1000);
+                monitor.totalWorkDone(in.workPosition() / 1000);
 
                 /*
                  * Use this instead of
@@ -517,9 +517,22 @@ public class Pass1Parser extends AbstractParser
         {
             if (s > 1)
             {
-                long l = in.skipBytes(s - 1);
-                if (l < (s-1))
-                    throw new EOFException();
+                // Since skipBytes returns only an int, we might have to call
+                // it more than once.
+                long left = s - 1;
+
+                while (left > 0)
+                {
+                    long toSkip = Math.min((long) Integer.MAX_VALUE, left);
+                    int skipped = in.skipBytes(toSkip);
+
+                    if (skipped < toSkip)
+                    {
+                        throw new EOFException();
+                    }
+
+                    left -= skipped;
+                }
             }
             in.readByte();
         }

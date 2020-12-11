@@ -50,14 +50,23 @@ public class HprofRandomAccessParser extends AbstractParser
         boolean gzip = CompressedRandomAccessFile.isGZIP(raf);
         if (gzip)
         {
+            ChunkedGZIPRandomAccessFile cgraf = ChunkedGZIPRandomAccessFile.get(raf, file);
             raf.close();
-            long requested = len / 10;
-            long maxFree = CompressedRandomAccessFile.checkMemSpace(requested);
-            // If we are very memory constrained use a file cache
-            if (requested > maxFree && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
-                raf = new FileCacheCompressedRandomAccessFile(file);
+
+            if (cgraf != null)
+            {
+                raf = cgraf;
+            }
             else
-                raf = new CompressedRandomAccessFile(file, true, len);
+            {
+                long requested = len / 10;
+                long maxFree = CompressedRandomAccessFile.checkMemSpace(requested);
+                // If we are very memory constrained use a file cache
+                if (requested > maxFree && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
+                    raf = new FileCacheCompressedRandomAccessFile(file);
+                else
+                    raf = new CompressedRandomAccessFile(file, true, len);
+            }
         }
         this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(raf, 512));
         this.version = version;
