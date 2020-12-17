@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25908577_e36f02a7",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/ChunkedGZIPRandomAccessFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2020-12-17T11:04:45Z",
+      "side": 1,
+      "message": "alf -\u003e Ralf",
+      "revId": "3562058cd973ab4f0fe908abbf5f2760b69d68b4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
