@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c17c2e27_2670cb65",
+        "filename": "plugins/org.eclipse.mat.hprof/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-01-13T13:14:12Z",
+      "side": 1,
+      "message": "Strictly speaking the require bundle doesn\u0027t need to be updated because hprof only\nrequires o.e.m.parser 1.10 for a new API.\nWe don\u0027t usually operate with bundles mixed from releases though.",
+      "revId": "01e0ce572d816bbc7f7173f4c1a08c51c8f3c0c5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d83e3990_fb1ba50d",
+        "filename": "plugins/org.eclipse.mat.tests/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-01-13T13:14:12Z",
+      "side": 1,
+      "message": "Strictly speaking we don\u0027t need to update the require bundle version for o.e.m.ui - I think the\nversion was originally 1.2 to test bug 372575 OQL autocompletion.\nCommit fa925482b318770632a0e0487817ba9a03d4a753",
+      "revId": "01e0ce572d816bbc7f7173f4c1a08c51c8f3c0c5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
