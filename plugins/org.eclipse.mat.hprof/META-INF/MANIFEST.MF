@@ -18,8 +18,8 @@ Bundle-Activator: org.eclipse.mat.hprof.HprofPlugin
 Bundle-ActivationPolicy: lazy;exclude:="org.eclipse.mat.hprof.describer"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Localization: plugin
-Bundle-Copyright: Copyright (c) 2008, 2020 SAP AG and IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2008, 2021 SAP AG and IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
- are made available under the terms of the Eclipse Public License v1.0 
+ are made available under the terms of the Eclipse Public License 2.0 
  which accompanies this distribution, and is available at 
- http://www.eclipse.org/legal/epl-v10.html
+ https://www.eclipse.org/legal/epl-2.0/
