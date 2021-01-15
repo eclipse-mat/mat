@@ -9,8 +9,8 @@
 <meta name="abstract" content=""/>
 <meta name="description" content=""/>
 <meta name="DC.Relation" scheme="URI" content="querymatrix.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_queryarguments"/>
 <meta name="DC.Language" content="en-us"/>
@@ -103,157 +103,157 @@
 				<strong class="ph b">}</strong>, <strong class="ph b">)</strong>, <strong class="ph b">?</strong>, <strong class="ph b">*</strong> and <strong class="ph b">+</strong>.</p>
 
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-					<th valign="bottom" align="left" id="d7329e150" class="stentry" width="50%">
+					<th valign="bottom" align="left" id="d9905e150" class="stentry" width="50%">
 						Pattern Syntax
 					</th>
 
-					<th valign="bottom" align="left" id="d7329e153" class="stentry" width="50%">Details</th>
+					<th valign="bottom" align="left" id="d9905e153" class="stentry" width="50%">Details</th>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						a, b, or c (simple class)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[^abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						Any character except a, b, or c (negation)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">outbounds( object )</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">outbound referrer</td>
+					<td valign="top" headers="d9905e153" class="stentry">outbound referrer</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[a-zA-Z]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">a through z, or A through Z, inclusive (range)</td>
+					<td valign="top" headers="d9905e153" class="stentry">a through z, or A through Z, inclusive (range)</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[a-d[m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">a through d, or m through p: [a-dm-p] (union)</td>
+					<td valign="top" headers="d9905e153" class="stentry">a through d, or m through p: [a-dm-p] (union)</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[a-z&amp;&amp;[def]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						d, e, or f (intersection)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[a-z&amp;&amp;[^bc]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						a through z, except for b and c: [ad-z] (subtraction)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">[a-z&amp;&amp;[^m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						a through z, and not m through p: [a-lq-z] (subtraction)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\d</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						A digit: [0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\D</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						A non-digit: [^0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\s</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						A whitespace character: [ \t\n\x0B\f\r]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\S</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						 A non-whitespace character: [^\s]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\w</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						 A word character: [a-zA-Z_0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d7329e150" class="stentry">
+					<td valign="top" headers="d9905e150" class="stentry">
 						<pre class="pre codeblock">\W</pre>
 
 					</td>
 
-					<td valign="top" headers="d7329e153" class="stentry">
+					<td valign="top" headers="d9905e153" class="stentry">
 						 A non-word character: [^\w]
 					</td>
 
