@@ -1,4 +1,16 @@
-<section name="Regression Tests" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!--
+    Copyright (c) 2008, 2021 SAP AG and others
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        SAP AG - initial implementation
+ -->
+ <section name="Regression Tests" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://www.eclipse.org/mat/report.xsd"
 	xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd ../../../org.eclipse.mat.report/schema/report.xsd">
 	<query name="info">
