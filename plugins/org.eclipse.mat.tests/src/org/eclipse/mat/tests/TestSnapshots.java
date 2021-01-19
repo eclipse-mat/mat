@@ -110,6 +110,28 @@ public class TestSnapshots
     }
 
     /**
+     * This snapshot can be disposed as it won't be used again.
+     * The dump file itself is not deleted, but will be tidied up
+     * at the end.
+     * @param name
+     * @return true if successfully disposed.
+     */
+    public static boolean freeSnapshot(String name)
+    {
+        ISnapshot answer = snapshots.get(name);
+        if (answer != null)
+        {
+            answer.dispose();
+            snapshots.remove(name);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
      * Get a snapshot from a dump
      * 
      * @param name

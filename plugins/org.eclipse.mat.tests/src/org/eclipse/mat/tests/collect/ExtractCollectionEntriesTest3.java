@@ -210,6 +210,8 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                         if (objects != null)
                             parms.add(objects);
                     }
+                    Object[] objects = new Object[] { dmppath, dmpname, 7, null};
+                    parms.add(objects);
                     // To ensure it isn't garbage collected early
                     System.out.println(cdp);
                 }
@@ -250,6 +252,13 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
             case 6:
                 assumeThat(type, equalTo(6));
                 testCollections6(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+            case 7:
+                assumeThat(type, equalTo(7));
+                if (TestSnapshots.freeSnapshot(snapfile))
+                {
+                    System.out.println("Unable to dispose of snapshot " + snapfile);
+                }
                 break;
         }
     }
