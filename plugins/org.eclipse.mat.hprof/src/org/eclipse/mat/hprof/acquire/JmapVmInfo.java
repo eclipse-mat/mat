@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 SAP AG.
+ * Copyright (c) 2009, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,9 @@ public class JmapVmInfo extends VmInfo
 
     @Argument
     public boolean compress;
+
+    @Argument
+    public boolean live;
 
 	public JmapVmInfo(int pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
 	{

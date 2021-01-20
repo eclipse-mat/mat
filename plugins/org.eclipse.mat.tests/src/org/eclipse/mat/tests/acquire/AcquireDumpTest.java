@@ -176,6 +176,31 @@ public class AcquireDumpTest
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+                    // If we can, try doing a GC before the dump to keep the size down
+                    try
+                    {
+                        vm.getClass().getField("live").set(vm, compress);
+                    }
+                    catch (NoSuchFieldException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    catch (SecurityException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     File f = new File(vm.getProposedFileName());
                     System.out.println("Proposed name "+f+" "+hdp);
                     String fname = f.getName();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,9 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
     @Argument(isMandatory = false)
     public boolean defaultCompress;
 
+    @Argument(isMandatory = false)
+    public boolean defaultLive;
+
     public JMapHeapDumpProvider()
     {
         // initialize JDK from previously saved data
@@ -103,7 +106,13 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 
 	public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
 	{
-		JmapVmInfo jmapProcessInfo = (JmapVmInfo) info;
+	    JmapVmInfo jmapProcessInfo;
+	    if (info instanceof JmapVmInfo)
+	        jmapProcessInfo = (JmapVmInfo) info;
+	    else
+	    {
+	        jmapProcessInfo = new JmapVmInfo(info.getPid(), info.getDescription(), info.isHeapDumpEnabled(), info.getProposedFileName(), info.getHeapDumpProvider());
+	    }
 		listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
 
 		// just use jmap by default ...
@@ -118,7 +127,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		// build the line to execute as a String[] because quotes in the name cause
 		// problems on Linux - See bug 313636
 		String[] execLine = new String[] { jmap, // jmap command
-				"-dump:format=b,file=" + preferredLocation.getAbsolutePath(), //$NON-NLS-1$ 
+				"-dump:" + (jmapProcessInfo.live ? "live," : "") + "format=b,file=" + preferredLocation.getAbsolutePath(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 				String.valueOf(info.getPid()) // pid
 		};
 		
@@ -262,6 +271,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 				vmInfo.setHeapDumpProvider(this);
 				vmInfo.jdkHome = jmapJdkHome;
 				vmInfo.compress = defaultCompress;
+				vmInfo.live = defaultLive;
 				result.add(vmInfo);
 			}
 		}
