@@ -288,7 +288,7 @@
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<argLine>-ea -Xmx1536m</argLine>
+						<argLine>-ea -Xmx512m</argLine>
 						<!-- <testFailureIgnore>true</testFailureIgnore> -->
 						<includes>
 							<include>**/AllTests.class</include>
