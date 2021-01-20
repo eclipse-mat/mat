@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2020 IBM Corporation.
+ * Copyright (c) 2010,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -81,6 +81,7 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.AfterParam;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
@@ -154,6 +155,31 @@ public class GeneralSnapshotTests
         stackInfo = s;
     }
 
+    @AfterParam
+    public static void cleanUp(String snapshotname, Stacks s)
+    {
+        String snapshotname2;
+        if (snapshotname.equals("allMethods")) {
+            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#all";
+        }
+        else if (snapshotname.equals("runningMethods")) {
+            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#running";
+        }
+        else if (snapshotname.equals("framesOnly")) {
+            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#frames";
+        }
+        else if (snapshotname.equals("noMethods")) {
+            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#none";
+        } else {
+            return;
+        }
+        // These snapshots are just used for this test, so free them now
+        if (!TestSnapshots.freeSnapshot(snapshotname2))
+        {
+            System.out.println("Unable to dispose of snapshot "+snapshotname2);
+        }
+    }
+
     /**
      * Create a snapshot with the methods as classes option
      */
@@ -166,7 +192,8 @@ public class GeneralSnapshotTests
         preferences.put(key, includeMethods);
         try {
             // Tag the snapshot name so we don't end up with the wrong version
-            ISnapshot ret = TestSnapshots.getSnapshot(snapshotname+";#"+includeMethods, false);
+            String snapshotname2 = snapshotname+";#"+includeMethods;
+            ISnapshot ret = TestSnapshots.getSnapshot(snapshotname2, false);
             return ret;
         } finally {
             if (prev != null)

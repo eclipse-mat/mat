@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 IBM Corporation.
+ * Copyright (c) 2015, 2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -205,9 +205,17 @@ public class AcquireDumpTest
                     }
                     collector.checkThat("Dump file", dmp, notNullValue());
                     System.out.println("Dump "+dmp.getAbsolutePath()+" "+dmp.length());
+                    Runtime rt = Runtime.getRuntime();
+                    System.out.println("Max memory="+rt.maxMemory());
+                    System.out.println("Total memory="+rt.totalMemory());
+                    System.out.println("Free memory="+rt.freeMemory());
                     try
                     {
                         ISnapshot answer = SnapshotFactory.openSnapshot(dmp, Collections.<String, String> emptyMap(), l);
+                        System.out.println("Snapshot path="+answer.getSnapshotInfo().getPath());
+                        System.out.println("Max memory="+rt.maxMemory());
+                        System.out.println("Total memory="+rt.totalMemory());
+                        System.out.println("Free memory="+rt.freeMemory());
                         try
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
