@@ -255,7 +255,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                 break;
             case 7:
                 assumeThat(type, equalTo(7));
-                if (TestSnapshots.freeSnapshot(snapfile))
+                if (!TestSnapshots.freeSnapshot(snapfile))
                 {
                     System.out.println("Unable to dispose of snapshot " + snapfile);
                 }
