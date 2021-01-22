@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -152,9 +152,8 @@ public class Pass2Parser extends AbstractParser
 
     private void readDumpSegments(long length) throws SnapshotException, IOException
     {
-        Stream<HeapObject> heapObjects = StreamSupport.stream(
-                        new HeapObjectParser(length), parallel);
-        try
+        try (Stream<HeapObject> heapObjects = StreamSupport.stream(
+                        new HeapObjectParser(length), parallel);)
         {
             heapObjects.forEach(t -> {
                 try
