@@ -158,47 +158,39 @@ public class AcquireDumpTest
                     }
                     catch (NoSuchFieldException e1)
                     {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                     catch (SecurityException e1)
                     {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                     catch (IllegalArgumentException e)
                     {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     catch (IllegalAccessException e)
                     {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     // If we can, try doing a GC before the dump to keep the size down
                     try
                     {
-                        vm.getClass().getField("live").set(vm, compress);
+                        vm.getClass().getField("live").set(vm, true);
                     }
                     catch (NoSuchFieldException e1)
                     {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                     catch (SecurityException e1)
                     {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                     catch (IllegalArgumentException e)
                     {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     catch (IllegalAccessException e)
                     {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     File f = new File(vm.getProposedFileName());
@@ -207,7 +199,7 @@ public class AcquireDumpTest
                     int ldot = fname.endsWith(".gz") ? 
                                     fname.lastIndexOf('.', fname.length() - 4)
                                   : fname.lastIndexOf('.');
-                    String fname2 = "acquire_dump_" + (found+1) + fname.substring(ldot);
+                    String fname2 = "acquire_dump_" + (num) + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
                     File dmp;
