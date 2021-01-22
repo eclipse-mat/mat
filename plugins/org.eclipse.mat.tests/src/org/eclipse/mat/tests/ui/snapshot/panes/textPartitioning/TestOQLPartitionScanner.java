@@ -228,7 +228,7 @@ public class TestOQLPartitionScanner
         while (sc.nextToken() != Token.EOF)
         {
             String token = doc.get().substring(sc.getTokenOffset(), sc.getTokenOffset() + sc.getTokenLength());
-            System.out.println(token);
+            //System.out.println(token);
             if (token.equals("set"))
                 ++sets;
         }

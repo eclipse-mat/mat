@@ -74,6 +74,9 @@ public class TestUnreachableObjects
         ISnapshot unreachables = TestSnapshots.getSnapshot(snapshotName, options, true);
         ISnapshot classic = TestSnapshots.getSnapshot(snapshotName, true);
         compare(unreachables, classic);
+        // Tidy up these pristine snapshots early
+        unreachables.dispose();
+        classic.dispose();
     }
 
     private void compareDiscard(String snapshotName) throws SnapshotException
@@ -91,6 +94,9 @@ public class TestUnreachableObjects
         options2.put("discard_seed", "2");
         ISnapshot classic = TestSnapshots.getSnapshot(snapshotName, options2, true);
         compare(unreachables, classic);
+        // Tidy up these pristine snapshots early
+        unreachables.dispose();
+        classic.dispose();
     }
 
     private void compare(ISnapshot unreachables, ISnapshot classic) throws SnapshotException
