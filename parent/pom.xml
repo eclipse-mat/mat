@@ -288,9 +288,9 @@
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<!--  <argLine>-ea -Xmx1024m</argLine>-->
-						<!--  debugging OOM -->
-						<argLine>-ea -Xmx1024m -Djava.io.tmpdir=. -XX:+HeapDumpOnOutOfMemoryError</argLine>
+						<argLine>-ea -Xmx1024m</argLine>
+						<!--  debugging OOM on CI - make the temp files appear in the workspace -->
+						<!--  <argLine>-ea -Xmx1024m -Djava.io.tmpdir=. -XX:+HeapDumpOnOutOfMemoryError</argLine>-->
 						<!-- <testFailureIgnore>true</testFailureIgnore> -->
 						<includes>
 							<include>**/AllTests.class</include>

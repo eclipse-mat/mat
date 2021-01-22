@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 IBM Corporation
+ * Copyright (c) 2015, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                     String fname = f.getName();
                     int ldot = fname.lastIndexOf('.');
                     // Give the dumps different names so they are not overwritten or fail with the same name
-                    String fname2 = "acquire_dump_" + found + fname.substring(ldot);
+                    String fname2 = "acquire_collection_dump_" + found + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
                     CreateCollectionDump cdp = new CreateCollectionDump();
