@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2010,2018 IBM Corporation and SAP AG.
+    Copyright (c) 2010,2021 IBM Corporation and SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -46,7 +46,7 @@
         	<!-- Change to the Java version with which we build MAT -->
             <link href="https://docs.oracle.com/javase/8/docs/api/" />
             <!-- Change to the version with which we build standalone MAT -->
-            <link href="https://help.eclipse.org/photon/topic/org.eclipse.platform.doc.isv/reference/api/" />
+            <link href="https://help.eclipse.org/2020-03/topic/org.eclipse.platform.doc.isv/reference/api/" />
             <link href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/" />
             <link href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.dtfj/" />
             <packageset dir="../org.eclipse.mat.report/src" defaultexcludes="yes">
