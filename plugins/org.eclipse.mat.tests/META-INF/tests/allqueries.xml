@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2018,2020 IBM Corporation.
+    Copyright (c) 2018,2021 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@
 		<command>show_dominator_tree -groupby BY_CLASS java.lang.String</command>
 	</query>
 	<query name="org.eclipse.mat.internal.snapshot.inspections.ShowInDominatorQuery">
-		<command>show_dominator_tree -groupby B_CLASSLOADER java.lang.String</command>
+		<command>show_dominator_tree -groupby BY_CLASSLOADER java.lang.String</command>
 	</query>
 	<query name="org.eclipse.mat.internal.snapshot.inspections.ShowInDominatorQuery">
 		<command>show_dominator_tree -groupby BY_PACKAGE java.lang.String</command>
@@ -106,7 +106,7 @@
 		<command>top_consumers_html</command>
 	</query>
 	<query name="org.eclipse.mat.inspections.FindStringsQuery">
-		<command>find_strings -pattern .*abc.* -objects java.lang.String</command>
+		<command>find_strings -pattern .*abc.* java.lang.String</command>
 	</query>
 	<query name="org.eclipse.mat.inspections.SystemPropertiesQuery">
 		<command>system_properties</command>
