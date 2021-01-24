@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@
 	<shortdesc />
 	<prolog>
 		<copyright>
-			<copyryear year=""></copyryear>
+			<copyryear year="2008"></copyryear>
+			<copyryear year="2021"></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -147,7 +148,7 @@
 				common Java methods on the underlying Java objects used by Memory Analyzer to represent
 				objects in the heap dump.
 			</p>
-			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
+			<simpletable relcolwidth="2* 2* 2* 3*" id="method_prop">
 				<strow>
 					<stentry>${snapshot}</stentry>
 					<stentry><xref href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary" format="html">ISnapshot</xref></stentry>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2019,2020 IBM Corporation.
+    Copyright (c) 2019,2021 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -16,9 +16,10 @@
 	<title>Batch mode</title>
 	<prolog>
 		<copyright>
-			<copyryear year=""></copyryear>
+			<copyryear year="2019"></copyryear>
+			<copyryear year="2021"></copyryear>
 			<copyrholder>
-				Copyright (c) 2019,2020 IBM Corporation.
+				Copyright (c) 2019,2021 IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -51,7 +52,7 @@
 						<li>Class Histogram</li>
 					</ul></choice>
 					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname>
-					See <xref type="task" href="../reference/inspections/component_report.dita">Component report</xref> for more details
+					See <xref type="reference" href="../reference/inspections/component_report.dita">Component report</xref> for more details
 					of the report run on each of the top components by memory usage.</choice>
 					<choice>To compare two heap dumps use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
 					<choice>To compare two heap dumps for memory leaks with a leak suspects report use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
@@ -68,7 +69,7 @@
 					See <xref type="task" href="exportdump.dita">export heap dump</xref> for more details.
 					</choice>
 					<choice>To run a single query on a heap dump and produce an HTML report use <codeph><filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <filepath><varname>myheapdump.hprof</varname></filepath> <option>-command=</option><varname>histogram</varname> <parmname>org.eclipse.mat.api:query</parmname></codeph>
-					See <xref type="task" href="../reference/inspections/query_report.dita">Query Report</xref> for more details.</choice>
+					See <xref type="reference" href="../reference/inspections/query_report.dita">Query Report</xref> for more details.</choice>
 				</choices>
 			</step>
 			<step>
