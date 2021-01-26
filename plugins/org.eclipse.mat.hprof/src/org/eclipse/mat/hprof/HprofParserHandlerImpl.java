@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -543,21 +543,41 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public IOne2LongIndex fillIn(IPreliminaryIndex index, IProgressListener listener) throws IOException
     {
-        // ensure all classes loaded by the system class loaders are marked as
-        // GCRoots
-        //
-        // For some dumps produced with jmap 1.5_xx this is not the case, and
-        // it may happen that the super classes of some classes are missing
-        // Array classes, e.g. java.lang.String[][] are not explicitly
-        // marked. They are also not marked as "system class" in the non-jmap
-        // heap dumps
-        ClassImpl[] allClasses = classesByAddress.getAllValues(new ClassImpl[0]);
-        for (ClassImpl clazz : allClasses)
+        /*
+         * System classes should be marked appropriately in the HPROF file.
+         * lambda classes should not be marked as system GC roots.
+         */
+        boolean foundSystemClasses = false;
+        for (Iterator<List<XGCRootInfo>>it = gcRoots.values(); it.hasNext() && !foundSystemClasses; )
         {
-            if (clazz.getClassLoaderAddress() == 0 && !clazz.isArrayType()
-                            && !gcRoots.containsKey(clazz.getObjectAddress()))
+            for (XGCRootInfo x : it.next())
             {
-                addGCRoot(clazz.getObjectAddress(), 0, GCRootInfo.Type.SYSTEM_CLASS);
+                if (x.getType() == GCRootInfo.Type.SYSTEM_CLASS)
+                {
+                    foundSystemClasses = true;
+                    break;
+                }
+            }
+        }
+        if (!foundSystemClasses)
+        {
+            // Probably not needed anymore.
+            // ensure all classes loaded by the system class loaders are marked as
+            // GCRoots
+            //
+            // For some dumps produced with jmap 1.5_xx this is not the case, and
+            // it may happen that the super classes of some classes are missing
+            // Array classes, e.g. java.lang.String[][] are not explicitly
+            // marked. They are also not marked as "system class" in the non-jmap
+            // heap dumps
+            ClassImpl[] allClasses = classesByAddress.getAllValues(new ClassImpl[0]);
+            for (ClassImpl clazz : allClasses)
+            {
+                if (clazz.getClassLoaderAddress() == 0 && !clazz.isArrayType()
+                                && !gcRoots.containsKey(clazz.getObjectAddress()))
+                {
+                    addGCRoot(clazz.getObjectAddress(), 0, GCRootInfo.Type.SYSTEM_CLASS);
+                }
             }
         }
 

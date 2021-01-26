@@ -1011,9 +1011,14 @@ public class GeneralSnapshotTests
                         }
                     }
                 }
+                /*
+                 * The HPROF parser used to mark all the non-array system classes.
+                 * Change the 0 to 1 to go back to this behaviour.
+                 */
+                int extraHPROFroots = 0 * (bootcls - systemclsroot);
                 // Parsing new HPROF will make all classes loaded by boot loader as GC roots, so adjust the expected total
                 // Only seems to apply for IBM 1.4.2 SDFF dumps with 'double', 'long' classes not as system class roots
-                assertEquals("GC Roots", oldInfo.getNumberOfGCRoots() + (bootcls - systemclsroot), newInfo.getNumberOfGCRoots());
+                assertEquals("GC Roots", oldInfo.getNumberOfGCRoots() + extraHPROFroots, newInfo.getNumberOfGCRoots());
                 if (redact)
                 {
                     // Check redaction

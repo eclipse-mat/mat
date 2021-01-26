@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 IBM Corporation.
+ * Copyright (c) 2011, 2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1375,7 +1375,7 @@ public class QueriesTest
     {
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false); // Do not dispose this as shared
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 22);
+        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 25);
     }
 
     /**
