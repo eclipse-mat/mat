@@ -23,10 +23,12 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.internal.AbstractPart;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.PartsFactory;
 import org.eclipse.mat.report.internal.ResultRenderer;
 import org.eclipse.mat.util.FileUtils;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class TestSuite
 {
@@ -130,6 +132,19 @@ public class TestSuite
         renderer.beginSuite(this, part);
         part = part.execute(queryContext, renderer, listener);
         renderer.endSuite(part);
+
+        if (output != null && output.exists() && Boolean.parseBoolean(spec.getParams().getOrDefault("unzip", "false")))
+        {
+            try
+            {
+                FileUtils.unzipFile(output);
+            }
+            catch (IOException ioe)
+            {
+                System.err.println(
+                                MessageUtil.format(Messages.TestSuite_FailedToUnzipReport, ioe.getLocalizedMessage()));
+            }
+        }
 
         return part.getStatus();
     }

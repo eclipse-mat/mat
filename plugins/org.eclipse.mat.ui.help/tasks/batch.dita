@@ -144,7 +144,7 @@
 							</strow>
 							<strow>
 								<stentry><option>-format=</option><varname>type of output</varname></stentry>
-								<stentry>Controls the type of the output (HTML or CSV).
+								<stentry>Controls the type of the output (HTML, CSV, or TXT).
 								See <xref href="../doc/org/eclipse/mat/report/Params.html#FORMAT" format="html"><apiname>org.eclipse.mat.report.Params.FORMAT</apiname></xref>
 								</stentry>
 							</strow>

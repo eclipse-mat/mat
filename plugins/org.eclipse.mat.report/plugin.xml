@@ -20,6 +20,7 @@
 	<extension point="org.eclipse.mat.report.renderer">
 		<renderer impl="org.eclipse.mat.report.internal.CSVOutputter" />
 		<renderer impl="org.eclipse.mat.report.internal.HtmlOutputter" />
+		<renderer impl="org.eclipse.mat.report.internal.TextOutputter" />
 	</extension>
 	
 	<extension point="org.eclipse.mat.report.query">

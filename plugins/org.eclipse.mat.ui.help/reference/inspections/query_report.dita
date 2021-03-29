@@ -12,7 +12,7 @@
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_query_report" xml:lang="en-us">
 	<title>Query Report</title>
-	<shortdesc>Run a single query to produce a HTML report in batch mode.
+	<shortdesc>Run a single query to produce a report in batch mode.
 	</shortdesc>
 	<prolog>
 		<copyright>
@@ -31,6 +31,7 @@
 					<vrmlist><vrm version="1" release="11" modification="0"/></vrmlist>
 					<platform>Windows</platform>
 					<platform>Linux</platform>
+					<platform>macOS</platform>
 				</prodinfo>
  			</metadata>
 	</prolog>
@@ -66,7 +67,7 @@
 		</section>
 		<section id="result">
 			<title>Result</title>
-			<p>An HTML report holding the result of the query.</p>
+			<p>A report holding the result of the query (by default, in HTML).</p>
 		</section>
 		<example platform="Windows">
 			<title>Simple example of a histogram for Windows</title>
@@ -79,13 +80,39 @@
 				</codeph>
 			</p>
 		</example>
-		<example platform="Linux">
-			<title>Simple example of a histogram for Linux</title>
+		<example platform="Linux macOS">
+			<title>Simple example of a histogram for Linux or macOS</title>
 			<p>
 				<codeph>
 					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
 					<varname>myheapdump.hprof</varname> 
 					<option>-command=</option><cmdname>histogram</cmdname>
+					<parmname>org.eclipse.mat.api:query</parmname> 
+				</codeph>
+			</p>
+		</example>
+		<example platform="Windows">
+			<title>Simple example of a histogram in text format and unzipped (*_Query\pages\Query_Command2.txt) for Windows</title>
+			<p>
+				<codeph>
+					<filepath><cmdname>.\mat\ParseHeapDump.bat</cmdname></filepath>
+					<filepath>myheapdump.hprof</filepath>
+					<option>-command=</option><cmdname>histogram</cmdname>
+					<option>-format=</option><cmdname>txt</cmdname>
+					<option>-unzip</option>
+					<parmname>org.eclipse.mat.api:query</parmname> 
+				</codeph>
+			</p>
+		</example>
+		<example platform="Linux macOS">
+			<title>Simple example of a histogram in text format and unzipped (*_Query/pages/Query_Command2.txt) for Linux or macOS</title>
+			<p>
+				<codeph>
+					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
+					<varname>myheapdump.hprof</varname> 
+					<option>-command=</option><cmdname>histogram</cmdname>
+					<option>-format=</option><cmdname>txt</cmdname>
+					<option>-unzip</option>
 					<parmname>org.eclipse.mat.api:query</parmname> 
 				</codeph>
 			</p>
@@ -107,8 +134,8 @@
 				treats it as a single item.</note>
 			</p>
 		</example>
-		<example platform="Linux">
-			<title>Simple OQL example for Linux</title>
+		<example platform="Linux macOS">
+			<title>Simple OQL example for Linux or macOS</title>
 			<p>
 				<codeph>
 					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
@@ -187,8 +214,8 @@ Subtask: Checking class java.lang.String
 				</note>
 			</p>
 		</example>
-		<example platform="Linux">
-			<title>Another OQL example for Linux</title>
+		<example platform="Linux macOS">
+			<title>Another OQL example for Linux or macOS</title>
 			<p>
 				<codeph>
 					<filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>
