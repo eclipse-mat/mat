@@ -16,10 +16,8 @@ package org.eclipse.mat.ui.util;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.eclipse.mat.query.refined.Filter;
+import org.eclipse.mat.report.internal.TextEmitter;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -33,29 +31,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-public abstract class Copy
+public abstract class Copy extends TextEmitter
 {
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-    private static final String COLUMN_SEPARATOR = "|"; //$NON-NLS-1$
     protected Control control;
     protected Item[] selection;
-    private Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
-    private int order[];
-    private int align[];
-    
-	/**
-	 * Append content to be copied. Implementations should put the content to
-	 * their own storage - buffer, file, etc...
-	 * 
-	 * @param string
-	 */
-	protected abstract void append(String string);
-
-	/**
-	 * The method is called at the end of the copy procedure. It can be used by
-	 * implementations to flush content, move to clipboard, etc...
-	 */
-	protected abstract void done();
 
     public static void copyToClipboard(Control control)
     {
@@ -94,10 +73,42 @@ public abstract class Copy
         this.selection = selection != null && selection.length > 0 ? selection : null;
     }
 
-    protected void doCopy()
+    @Override
+    protected boolean shouldAddNextLine(Object item)
     {
-        int numberOfColumns = getColumnCount();
+        return item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item);
+    }
 
+    @Override
+    protected String getItemValue(Object item, int columnIndex)
+    {
+        String value = "";//$NON-NLS-1$
+        if (item instanceof TableItem)
+        {
+            value = ((TableItem) item).getText(columnIndex);
+        }
+        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
+        {
+            value = ((TreeItem) item).getText(columnIndex);
+        }
+        return value;
+    }
+
+    @Override
+    protected boolean shouldSuppressLineBreak(Object item)
+    {
+        if (item instanceof TableItem)
+        {}
+        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
+        {}
+        else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
+        { return true; }
+        return false;
+    }
+
+    @Override
+    protected Object[] getItems()
+    {
         Object[] items;
         if (selection != null)
             items = selection;
@@ -106,180 +117,63 @@ public abstract class Copy
         else
             // if (copyData.control instanceof Tree)
             items = ((Tree) control).getItems();
+        return items;
+    }
 
-        Item[] columns = getColumns(control);
-
-        if (numberOfColumns == 0)
+    @Override
+    protected void findColumnOrderAndAlignment(Object[] columns)
+    {
+        // Find the alignment and order of the columns
+        align = new int[columns.length];
+        if (control instanceof Table)
         {
-            copySimpleStructure(items);
+            Table table = (Table) control;
+            order = table.getColumnOrder();
+            for (int i = 0; i < columns.length; ++i)
+            {
+                align[i] = table.getColumn(i).getAlignment();
+            }
         }
         else
         {
-            // Find the alignment and order of the columns
-            align = new int[columns.length];
-            if (control instanceof Table)
+            Tree tree = (Tree) control;
+            order = tree.getColumnOrder();
+            for (int i = 0; i < columns.length; ++i)
             {
-                Table table = (Table) control;
-                order = table.getColumnOrder();
-                for (int i = 0; i < columns.length; ++i)
-                {
-                    align[i] = table.getColumn(i).getAlignment();
-                }
+                align[i] = tree.getColumn(i).getAlignment();
             }
-            else
-            {
-                Tree tree = (Tree) control;
-                order = tree.getColumnOrder();
-                for (int i = 0; i < columns.length; ++i)
-                {
-                    align[i] = tree.getColumn(i).getAlignment();
-                }
-            }
-
-            // find the length of columns by running through all the
-            // entries and finding the longest one
-            for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
-            {
-                getColumnLength(items, columns, columnIndex);
-            }
-
-            // add column names to the result buffer
-            for (int i = 0; i < numberOfColumns; i++)
-            {
-                int col = order[i];
-                if (i != 0)
-                    append(COLUMN_SEPARATOR);
-                append(align(columns[col].getText(), align[col], columnLengths.get(col), i + 1 == numberOfColumns));
-            }
-            append(LINE_SEPARATOR);
-            
-            String dashedLine = getDashedLine(numberOfColumns);
-            append(dashedLine + LINE_SEPARATOR);
-
-            for (Object item : items)
-            {
-                boolean addLineBreak = true;
-                for (int i = 0; i < numberOfColumns; i++)
-                {
-                    int columnIndex = order[i];
-                    String value = "";//$NON-NLS-1$
-                    if (item instanceof TableItem)
-                    {
-                        value = ((TableItem) item).getText(columnIndex);
-                    }
-                    else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-                    {
-                        value = ((TreeItem) item).getText(columnIndex);
-                    }
-                    else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
-                    {
-                        addLineBreak = false;
-                        break;
-                    }
-                    for (String filterName : Filter.FILTER_TYPES)
-                    {
-                        if (value.equals(filterName))
-                            value = "";//$NON-NLS-1$
-                    }
-
-                    if (i != 0)
-                        append(COLUMN_SEPARATOR);
-                    append(align(value, align[columnIndex], columnLengths.get(columnIndex), i + 1 == numberOfColumns));
-
-                }
-                if (addLineBreak)
-                    append(LINE_SEPARATOR);
-                if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
-                {
-                    addNextLineToClipboard(new StringBuilder(), (TreeItem) item, numberOfColumns,
-                                    columnLengths.get(order[0]));
-                }
-            }
-
-            columnLengths.clear();
-            append(dashedLine + LINE_SEPARATOR);
         }
-        done();
-
     }
 
-    private void copySimpleStructure(Object[] items)
+    @Override
+    protected String getDisplayableColumnValueInSimpleStructure(Object item)
     {
-        for (Object item : items)
+        String value = "";//$NON-NLS-1$
+        if (item instanceof TableItem)
         {
-            boolean addLineBreak = true;
-
-            String value = "";//$NON-NLS-1$
-            if (item instanceof TableItem)
-            {
-                value = ((TableItem) item).getText();
-            }
-            else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-            {
-                value = ((TreeItem) item).getText();
-            }
-            else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
-            {
-                addLineBreak = false;
-                continue;
-            }
-
-            append(value);
-            if (addLineBreak)
-                append(LINE_SEPARATOR);
-
-            if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
-            {
-                addNextLineToClipboard(new StringBuilder(), (TreeItem) item, 0, ((TreeItem) item)
-                                .getText().length());
-            }
+            value = ((TableItem) item).getText();
         }
+        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
+        {
+            value = ((TreeItem) item).getText();
+        }
+        return value;
     }
 
-    private void addNextLineToClipboard(StringBuilder level, TreeItem item,
-                    int numberOfColumns, int length)
+    @Override
+    protected boolean isAlignmentRight(int alignment)
     {
-
-        TreeItem[] children = item.getItems();
-        for (int j = 0; j < children.length; j++)
-        {
-            level = getLevel(level, children.length, j);
-            if (selection == null || !skip(children[j]))
-            {
-                if (numberOfColumns < 1)
-                {
-                    // no append of empty spaces needed
-                    append(level.toString());
-                    append(children[j].getText());
-                }
-                else
-                {
-                    int col = order[0];
-                    // add the first column with the tree branches prefix
-                    append(level.toString());
-                    append(align(children[j].getText(col), align[col], length - level.length(), numberOfColumns == 1));
-                    // add the rest of the columns
-                    for (int i = 1; i < numberOfColumns; i++)
-                    {
-                        col = order[i];
-                        append(COLUMN_SEPARATOR);
-                        append(align(children[j].getText(col), align[col], columnLengths.get(col), i + 1 == numberOfColumns));
-                    }
-                }
-                append(LINE_SEPARATOR);
-
-                if (children[j].getExpanded())
-                {
-                    addNextLineToClipboard(level, children[j], numberOfColumns, length);
-                }
-
-                if (level.length() >= 3)
-                    level.delete(level.length() - 3, level.length());
-            }
-        }
+        return alignment == SWT.RIGHT;
     }
 
-    private Item[] getColumns(Control control)
+    @Override
+    protected boolean isAlignmentCenter(int alignment)
+    {
+        return alignment == SWT.CENTER;
+    }
+
+    @Override
+    protected Object[] getColumns()
     {
         if (control instanceof Table)
             return ((Table) control).getColumns();
@@ -288,94 +182,35 @@ public abstract class Copy
             return ((Tree) control).getColumns();
     }
 
-    private int getColumnCount()
+    @Override
+    protected String getColumnName(Object column)
     {
-        if (control instanceof Table)
-            return ((Table) control).getColumnCount();
-        else if (control instanceof Tree)
-            return ((Tree) control).getColumnCount();
-        else
-            return 0;
+        return ((Item) column).getText();
     }
 
-    /**
-     * Align a string in a field.
-     * Right aligned fields have a space either side of the longest entry
-     * @param s the data
-     * @param alignment SWT.LEFT, SWT.RIGHT
-     * @param length the size of the field
-     * @param last whether this is the last field in a line, so trailing spaces can be omitted
-     * @return
-     */
-    private static String align(String s, int alignment, int length, boolean last)
+    @Override
+    protected String getDisplayableRowValue(Object item)
     {
-        StringBuilder buf = new StringBuilder(length);
-        if (s == null)
-        {
-            s = ""; //$NON-NLS-1$
-            if (last)
-                return s;
-        }
-        if (s.length() > length)
-        {
-            // For right align, we can fit a slightly bigger string
-            if (alignment == SWT.RIGHT && s.length() == length + 1)
-                s = s + ' ';
-            return s;
-        }
-
-        int blanks = length - s.length();
-        int left;
-        int right;
-        if (alignment == SWT.RIGHT)
-        {
-            // For right align have a space either side for readability
-            left = blanks + 1;
-            right = 1;
-        }
-        else if (alignment == SWT.CENTER)
-        {
-            left = blanks / 2;
-            right = blanks - left;
-        }
-        else
-        {
-            left = 0;
-            right = blanks;
-        }
-        for (int i = 0; i < left; i++)
-            buf.append(' ');
-        buf.append(s);
-        if (!last)
-        {
-            for (int i = 0; i < right; i++)
-                buf.append(' ');
-        }
-        return buf.toString();
+        return ((TreeItem) item).getText();
     }
 
-    private String getDashedLine(int numberOfColumns)
+    @Override
+    protected String getDisplayableColumnValue(Object item, int index)
     {
-    	StringBuilder dashes = new StringBuilder();
-        int dashesLength = 0;
-        for (int i = 0; i < numberOfColumns; i++)
-        {
-            int col = order[i];
-            // column separator
-            if (i != 0)
-                dashesLength += COLUMN_SEPARATOR.length();
-            dashesLength = dashesLength + align(null, align[col], columnLengths.get(col), false).length();
-        }
-
-        // length of all the columns included empty spaces
-        for (int i = 0; i < dashesLength; i++)
-            dashes.append('-');
-        return dashes.toString();
+        return ((TreeItem) item).getText(index);
     }
 
-    private int getColumnLength(Object[] items, Item[] columns, int columnNumber)
+    @Override
+    protected boolean isExpanded(Object item)
+    {
+        return ((TreeItem) item).getExpanded();
+    }
+
+    @Override
+    protected int getColumnLength(Object[] items, Object[] objColumns, int columnNumber)
     {
         int lengthToCompare = 0;
+        Item[] columns = (Item[]) objColumns;
         String header = columns[columnNumber].getText();
         int length = header != null ? header.length() : 0;
 
@@ -402,10 +237,13 @@ public abstract class Copy
                 length = lengthToCompare;
         }
 
-        if (!columnLengths.containsKey(columnNumber)
-                        || (columnLengths.containsKey(columnNumber) && columnLengths.get(columnNumber) < length))
-            columnLengths.put(columnNumber, length);
         return length;
+    }
+
+    @Override
+    protected Object[] getChildren(Object item)
+    {
+        return ((TreeItem) item).getItems();
     }
 
     private int getOtherColumnLength(TreeItem item, int length, int columnNumber)
@@ -483,80 +321,61 @@ public abstract class Copy
         return true;
     }
 
-    private StringBuilder getLevel(StringBuilder level, int length, int counter)
+    @Override
+    protected boolean shouldProcessChild(Object child)
     {
-        int k = level.indexOf("'-"); //$NON-NLS-1$
-        if (k != -1)
-        {
-            level.replace(k, k + 2, "  "); //$NON-NLS-1$
-        }
-        else
-        {
-            k = level.indexOf("|-"); //$NON-NLS-1$
-            if (k != -1)
-            {
-                level.replace(k + 1, k + 2, " "); //$NON-NLS-1$
-            }
-        }
-        if (counter == length - 1)
-        {
-            level.append('\'');
-        }
-        else
-        {
-            level.append('|');
-        }
-        level.append("- "); //$NON-NLS-1$
-        return level;
+        return selection == null || !skip((TreeItem) child);
     }
-    
+
     private static class ExportToFile extends Copy
     {
-    	private PrintWriter writer;
-    	
-    	public ExportToFile(Control control, Item[] selection, PrintWriter writer)
-		{
-    		super(control, selection);
-    		this.writer = writer;
-		}
-    	
-    	@Override
-    	protected void append(String string)
-    	{
-    		writer.write(string);
-    	}
-    	
-    	@Override
-    	protected void done()
-    	{
-    		// flush the writer at the end
-    		writer.flush();
-    	}
+        private PrintWriter writer;
+
+        public ExportToFile(Control control, Item[] selection, PrintWriter writer)
+        {
+            super(control, selection);
+            this.writer = writer;
+        }
+
+        @Override
+        protected void append(String string)
+        {
+            writer.write(string);
+        }
+
+        @Override
+        protected void done()
+        {
+            // flush the writer at the end
+            writer.flush();
+        }
     }
-    
+
     private static class CopyToClipboard extends Copy
     {
-    	private StringBuilder buffer = new StringBuilder(); // a buffer to keep the content for the clipboard
-    	
-    	private CopyToClipboard(Control control, Item[] selection)
-		{
-    		super(control, selection);
-		}
-    	
-    	@Override
-    	protected void append(String string)
-    	{
-    		// just append everything to a buffer in memory
-    		buffer.append(string);
-    	}
-    	
-		@Override
-		protected void done()
-		{
-			// done -> just copy the buffer to the clipboard
-			copyToClipboard(buffer.toString(), control.getDisplay());
-		}
-	}
+        private StringBuilder buffer = new StringBuilder(); // a buffer to keep
+                                                            // the content for
+                                                            // the clipboard
+
+        private CopyToClipboard(Control control, Item[] selection)
+        {
+            super(control, selection);
+        }
+
+        @Override
+        protected void append(String string)
+        {
+            // just append everything to a buffer in memory
+            buffer.append(string);
+        }
+
+        @Override
+        protected void done()
+        {
+            // done -> just copy the buffer to the clipboard
+            copyToClipboard(buffer.toString(), control.getDisplay());
+        }
+    }
 
     public static void copyToClipboard(String text, Display display)
     {

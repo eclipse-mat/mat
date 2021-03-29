@@ -36,8 +36,9 @@ public interface Params
 
     /**
      * The format parameter determines the renderer to be used. By default, the
-     * "html" is used, but one could use "csv" to create a comma separated file
-     * from the data. Matches {@link Renderer#target()} of an {@link IOutputter}.
+     * "html" format is used, but one could use "csv" to create a comma separated
+     * file or "txt" to create a text file. Matches {@link Renderer#target()} of
+     * an {@link IOutputter}.
      */
     String FORMAT = "format";
 

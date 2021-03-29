@@ -46,8 +46,8 @@ public class ImportReportAction extends Action
 
     public ImportReportAction(MultiPaneEditor editor, File reportZipFile)
     {
-        super(Messages.ImportReportAction_OpenReport, MemoryAnalyserPlugin
-                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.IMPORT_REPORT));
+        super(Messages.ImportReportAction_OpenReport,
+                        MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.IMPORT_REPORT));
 
         this.editor = editor;
         this.reportZipFile = reportZipFile;
@@ -109,74 +109,10 @@ public class ImportReportAction extends Action
 
     public static IResult unzipAndOpen(File reportZipFile) throws IOException
     {
-        ZipFile zipFile = null;
-        try
-        {
-            File targetDir = FileUtils.createTempDirectory("report", null);//$NON-NLS-1$
 
-            zipFile = new ZipFile(reportZipFile);
-
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements())
-            {
-                ZipEntry entry = entries.nextElement();
-                File file = new File(targetDir, entry.getName());
-
-                if (entry.isDirectory())
-                {
-                    file.mkdirs();
-                }
-                else
-                {
-                    file.getParentFile().mkdirs();
-
-                    FileOutputStream fout = null;
-                    BufferedOutputStream out = null;
-                    try
-                    {
-                        fout = new FileOutputStream(file);
-                        out = new BufferedOutputStream(fout);
-                        FileUtils.copy(zipFile.getInputStream(entry), out);
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            if (out != null)
-                                out.close();
-                        }
-                        catch (IOException ignore)
-                        {
-                            // $JL-EXC$
-                        }
-
-                        try
-                        {
-                            if (fout != null)
-                                fout.close();
-                        }
-                        catch (IOException ignore)
-                        {
-                            // $JL-EXC$
-                        }
-                    }
-                }
-            }
-
-            return new DisplayFileResult(new File(targetDir, "index.html"));//$NON-NLS-1$
-        }
-        finally
-        {
-            try
-            {
-                if (zipFile != null)
-                    zipFile.close();
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
-        }
+        File targetDir = FileUtils.createTempDirectory("report", null);//$NON-NLS-1$
+        FileUtils.unzipFile(reportZipFile, targetDir);
+        return new DisplayFileResult(new File(targetDir, "index.html"));//$NON-NLS-1$
     }
 
     private void prepareFilterSelection(FileDialog dialog)
