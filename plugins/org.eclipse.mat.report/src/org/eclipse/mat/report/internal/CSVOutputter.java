@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,8 @@ package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.text.Format;
 import java.util.List;
 
-import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
@@ -29,11 +27,10 @@ import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
 
-import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.DecimalFormatSymbols;
 
 @Renderer(target = "csv", result = { IResultTree.class, IResultTable.class })
-public class CSVOutputter implements IOutputter
+public class CSVOutputter extends OutputterBase implements IOutputter
 {
     private static final char SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ';' : ',';
 
@@ -149,32 +146,5 @@ public class CSVOutputter implements IOutputter
         {
             writer.append(data);
         }
-    }
-
-    private String getStringValue(Object columnValue, Filter.ValueConverter converter)
-    {
-        if (columnValue == null)
-            return ""; //$NON-NLS-1$
-
-        // check first the format: the converter can change the type to double!
-        Format fmt = null;
-        if (columnValue instanceof Long || columnValue instanceof Integer)
-            fmt = new DecimalFormat("0"); //$NON-NLS-1$
-        else if (columnValue instanceof Bytes)
-        {
-            // Extract actual value for formating
-            columnValue = ((Bytes)columnValue).getValue();
-            fmt = new DecimalFormat("0"); //$NON-NLS-1$
-        }
-        else if (columnValue instanceof Double || columnValue instanceof Float)
-            fmt = new DecimalFormat("0.#####"); //$NON-NLS-1$
-
-        if (converter != null)
-            columnValue = converter.convert(((Number) columnValue).doubleValue());
-
-        if (fmt != null)
-            return fmt.format(columnValue);
-        else
-            return columnValue.toString();
     }
 }

@@ -618,6 +618,30 @@ public class GeneralSnapshotTests
     }
 
     @Test
+    public void testBug572227() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params command=histogram unzip=true format=txt", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        checkHTMLResult(t);
+
+        // See if the zip exists
+        String prefix = snapshot.getSnapshotInfo().getPrefix();
+        // Remove dot
+        prefix = prefix.substring(0, prefix.length() - 1);
+        File zipf = new File(prefix + "_Query.zip");
+        assertThat(zipf.toString(), zipf.length(), greaterThan(100L));
+        
+        // See if the unzip worked
+        File unzipf = new File(prefix + "_Query");
+        assertThat("Expected unzipped directory", unzipf.exists());
+        
+        // See if the text file is there and has contents
+        File unzipedFile = new File(unzipf, "pages/Query_Command2.txt");
+        assertThat(unzipedFile.toString(), unzipedFile.length(), greaterThan(100L));
+    }
+
+    @Test
     public void testTopComponentsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);

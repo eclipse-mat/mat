@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -122,6 +122,10 @@ public final class Messages extends NLS
     public static String ITestResult_Error;
     public static String ITestResult_Success;
     public static String ITestResult_Warning;
+    
+    public static String TestSuite_FailedToUnzipReport;
+    public static String FileUtils_FailedToMakeDirectory;
+    public static String FileUtils_ZipSlip;
 
     static
     {
