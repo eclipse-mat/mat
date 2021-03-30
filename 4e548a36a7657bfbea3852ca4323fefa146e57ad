@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cee82dbd_c7371144",
+        "filename": "plugins/org.eclipse.mat.report/plugin.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update the copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e88b3e7_c32981de",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/Params.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26fb5de2_f95b4bef",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/TestSuite.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e1e5a63_4969bd6f",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/TestSuite.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "I think this would be better done as a ReportPlugin.log() or Logger.getLogger().log()\nas this could be called from the GUI and an err.println would be lost.\nI don\u0027t know the difference between the two log commands - both are used elsewhere.\nThe log message should then appear in the error log, but should also appear on the command\nline in batch mode.",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f5774dc_f4ea87a3",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/CSVOutputter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update the copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2141bc0_1df1627e",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/Messages.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update the copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ebe7dd2_230112bd",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/TextEmitter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "The comment here should say it is a value passed to isAlignmentLeft/isAlignmentCenter/isAlignmentRight rather than SWT.LEFT etc.",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf40bab0_3ea205d6",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/TextOutputter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "What happens is the result is an IResultTree but not a RefinedTree or IResultTable and not a RefinedTable?\nPerhaps in normal report use that isn\u0027t possible but as an extension someone could\nget the renderers and call them.\nCSVOutputter has the same issue so it is not a new problem.",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "031359ae_100f20d9",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/messages.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update the copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f34821b_459d62a9",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/util/FileUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24933cbc_7c4145ee",
+        "filename": "plugins/org.eclipse.mat.ui.help/reference/inspections/query_report.dita",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac2f6a0_f8ffa903",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/actions/ImportReportAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37234f26_38b2a4ea",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/util/Copy.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-03-30T09:49:24Z",
+      "side": 1,
+      "message": "Update copyright date?",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
