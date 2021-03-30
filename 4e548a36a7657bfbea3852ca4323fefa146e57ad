@@ -138,6 +138,24 @@
     },
     {
       "key": {
+        "uuid": "782bd72d_460d2c6f",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/TextOutputter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2021-03-30T15:07:31Z",
+      "side": 1,
+      "message": "\u003e What happens is the result is an IResultTree but not a RefinedTree or IResultTable and not a RefinedTable?\n\u003e Perhaps in normal report use that isn\u0027t possible but as an extension someone could\n\u003e get the renderers and call them.\n\u003e CSVOutputter has the same issue so it is not a new problem.\n\nI noticed this originally as well but the issue is that IResultTree and IResultTable do not inherit from ISelectionProvider and its isExpanded method is needed as part of TextEmitter processing.",
+      "parentUuid": "cf40bab0_3ea205d6",
+      "revId": "4e548a36a7657bfbea3852ca4323fefa146e57ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "031359ae_100f20d9",
         "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/report/internal/messages.properties",
         "patchSetId": 1
