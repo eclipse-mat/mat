@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,10 +23,13 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.internal.AbstractPart;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.PartsFactory;
+import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.report.internal.ResultRenderer;
 import org.eclipse.mat.util.FileUtils;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class TestSuite
 {
@@ -130,6 +133,19 @@ public class TestSuite
         renderer.beginSuite(this, part);
         part = part.execute(queryContext, renderer, listener);
         renderer.endSuite(part);
+
+        if (output != null && output.exists() && Boolean.parseBoolean(spec.getParams().getOrDefault("unzip", "false")))
+        {
+            try
+            {
+                FileUtils.unzipFile(output);
+            }
+            catch (IOException ioe)
+            {
+                ReportPlugin.log(ioe,
+                                MessageUtil.format(Messages.TestSuite_FailedToUnzipReport, ioe.getLocalizedMessage()));
+            }
+        }
 
         return part.getStatus();
     }

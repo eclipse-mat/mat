@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,8 +36,9 @@ public interface Params
 
     /**
      * The format parameter determines the renderer to be used. By default, the
-     * "html" is used, but one could use "csv" to create a comma separated file
-     * from the data. Matches {@link Renderer#target()} of an {@link IOutputter}.
+     * "html" format is used, but one could use "csv" to create a comma separated
+     * file or "txt" to create a text file. Matches {@link Renderer#target()} of
+     * an {@link IOutputter}.
      */
     String FORMAT = "format";
 
