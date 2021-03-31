@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -238,6 +238,28 @@ public class ThreadOverviewQuery implements IQuery
     
     private static class ThreadStackFrameNode
     {
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + depth;
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            ThreadStackFrameNode other = (ThreadStackFrameNode) obj;
+            if (depth != other.depth)
+                return false;
+            return true;
+        }
         private ThreadOverviewNode threadOverviewNode;
         private IStackFrame stackFrame;
         private int depth;
