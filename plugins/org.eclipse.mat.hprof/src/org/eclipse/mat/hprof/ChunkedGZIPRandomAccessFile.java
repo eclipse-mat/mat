@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 SAP SE.
+ * Copyright (c) 2020,2021 SAP SE and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *    SAP SE (Ralf Schmelter) - Initial implementation
+ *    Andrew Johnson - minor fixes
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,12 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -370,7 +374,19 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             if ((header & 4) != 0)
             {
                 // Skip extra flags.
-                raf.skipBytes(raf.read() + (raf.read() << 256));
+                int ch1 = raf.read();
+                int ch2 = raf.read();
+                if ((ch1 | ch2) < 0)
+                    throw new EOFException();
+                int extraLen = ch1 + (ch2 << 8);
+                while (extraLen > 0)
+                {
+                    int skipped = raf.skipBytes(extraLen);
+                    // If we skip 0, don't bother retrying, just presume an error
+                    if (skipped <= 0)
+                        throw new EOFException();
+                    extraLen -= skipped;
+                }
             }
 
             // Skip name
@@ -442,9 +458,10 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             long oldestTime = Long.MAX_VALUE;
             File oldestFile = null;
 
-            for (File f: cachedOffsets.keySet())
+            for (Entry<File, StoredOffsetMapping> e: cachedOffsets.entrySet())
             {
-                long entryTime = cachedOffsets.get(f).getCreationDate();
+                File f = e.getKey();
+                long entryTime = e.getValue().getCreationDate();
 
                 if (entryTime < oldestTime)
                 {
@@ -1052,8 +1069,12 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     }
 
     // Compares chunks by file offset.
-    private static class FileOffsetComparator implements Comparator<Buffer>
+    private static class FileOffsetComparator implements Comparator<Buffer>, Serializable
     {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
 
         @Override
         public int compare(Buffer x, Buffer y)
@@ -1063,8 +1084,12 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     }
 
     // Compares chunks by offset.
-    private static class OffsetComparator implements Comparator<Buffer>
+    private static class OffsetComparator implements Comparator<Buffer>, Serializable
     {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
 
         @Override
         public int compare(Buffer x, Buffer y)
