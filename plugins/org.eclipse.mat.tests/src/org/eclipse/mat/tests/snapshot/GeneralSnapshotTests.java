@@ -25,7 +25,9 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -41,10 +43,12 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -714,9 +718,11 @@ public class GeneralSnapshotTests
         FileInputStream fis = new FileInputStream(f);
         try 
         {
-            if (!f.getName().endsWith(".html"))
+            if (!f.getName().endsWith(".html") 
+                            && !f.getName().endsWith(".csv")
+                            && !f.getName().endsWith(".txt"))
             {
-                // Not HTML
+                // Not HTML or CSV or text
                 return;
             }
             String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -734,6 +740,17 @@ public class GeneralSnapshotTests
             char cbuf[] = new char[(int)f.length()];
             int l = ir.read(cbuf);
             String s = new String(cbuf, 0, l);
+            // An empty result with a filename ending .csv might be forced into HTML type
+            if (f.getName().endsWith(".csv") && !s.startsWith("<!DOCTYPE HTML PUBLIC"))
+            {
+                checkCSV(f, s);
+                return;
+            }
+            if (f.getName().endsWith(".txt"))
+            {
+                checkTXT(f, s);
+                return;
+            }
 
             /*
              *  All these checks are approximate and would be confused
@@ -741,9 +758,9 @@ public class GeneralSnapshotTests
              */
 
             // Some basic checks
-            assertThat("Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
-            assertThat("Possible double escaping <", s, not(containsString("&amp;lt;")));
-            assertThat("Possible double escaping &", s, not(containsString("&amp;amp;")));
+            assertThat(f + " Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
+            assertThat(f + " Possible double escaping <", s, not(containsString("&amp;lt;")));
+            assertThat(f + " Possible double escaping &", s, not(containsString("&amp;amp;")));
 
             /*
              * Rough test for bad tag - might indicate unescaped '<'.
@@ -945,6 +962,153 @@ public class GeneralSnapshotTests
         {
             fis.close();
         }
+    }
+
+    /**
+     * Check a text file generated from a table or tree.
+     */
+    private void checkTXT(File f, String s)
+    {
+        String lines[] = s.split("\r?\n");
+        if (lines.length >= 2 && lines[1].matches("-+"))
+        {
+            // Check the last row is dashes
+            assertThat(f.getPath(), lines[lines.length - 1], equalTo(lines[1]));
+            // Check that no row is longer than the dashes
+            int maxlen = lines[1].length();
+            for (int i = 0; i < lines.length; ++i)
+            {
+                assertThat(f+" "+(i+1)+":"+lines[i], lines[i].length(), lessThanOrEqualTo(maxlen));
+            }
+            // Check the divisions on each line match the header
+            for (int i = 2; i < lines.length - 1; ++i)
+            {
+                // Sometimes the text has a line feed, splitting the file
+                String line = "";
+             l: for (int p = i; p >= 2; --p)
+                {
+                    line = lines[p] + "\n "+ line;
+                    for (int j = lines[0].indexOf('|'); j >= 0; j = lines[0].indexOf('|', j +1))
+                    {
+                        // Try to fix up split lines
+                        if (line.length() < maxlen && (line.length() < j || line.charAt(j) != '|'))
+                            continue l;
+                    }
+                    break;
+                }
+                for (int j = lines[0].indexOf('|'); j >= 0; j = lines[0].indexOf('|', j +1))
+                {
+                    assertThat(f+" "+(i+1)+":"+(j+1)+" "+line, line.length(), greaterThan(j));
+                    assertThat(f+" "+(i+1)+":"+(j+1)+" "+line, line.charAt(j), equalTo('|'));
+                }
+            }
+            if (lines.length > 2)
+            {
+                // check the first row is not blank (empty filter row?)
+                assertFalse(lines[2].matches("[ |]+"));
+            }
+        }
+    }
+
+    /**
+     * Check a CSV (comma separated value) file.
+     */
+    private void checkCSV(File f, String s)
+    {
+        List<List<String>>all = split(f, s);
+        for (List<String> l : all)
+        {
+            assertThat(l.size(), equalTo(all.get(0).size()));
+        }
+    }
+
+    /**
+     * Split a CSV file into lines and fields
+     * @param f
+     * @param s
+     * @return a list of lists of fields
+     */
+    public List<List<String>>split(File f, String s) {
+        List<List<String>>res1 = new ArrayList<List<String>>();
+        List<String>res = new ArrayList<String>();
+        boolean inquote = false;
+        boolean prevquote = false;
+        boolean prevcr = false;
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray())
+        {
+            if (inquote)
+            {
+                if (c == '"')
+                {
+                    prevquote = true;
+                    inquote = false;
+                }
+                else
+                {
+                    sb.append(c);
+                    prevquote = false;
+                }
+            } else {
+                switch (c) {
+                    case '"':
+                        assertFalse(f+" "+s, prevcr);
+                        if (prevquote) {
+                            sb.append(c);
+                            inquote = true;
+                            prevquote = false;
+                        } else {
+                            inquote = true;
+                            prevquote = false;
+                        }
+                        break;
+                    case ',':
+                        assertFalse(f+" "+s, prevcr);
+                        res.add(sb.toString());
+                        sb.setLength(0);
+                        break;
+                    case '\r':
+                        assertFalse(f+" "+s, prevcr);
+                        prevcr = true;
+                        break;
+                    case '\n':
+                        assertFalse(f+" "+s, inquote);
+                        res.add(sb.toString());
+                        sb.setLength(0);
+                        res1.add(res);
+                        res = new ArrayList<String>();
+                        break;
+                    default:
+                        assertFalse(f+" "+s, prevcr);
+                        sb.append(c);
+                        break;
+                }
+            }
+        }
+        if (sb.length() > 0)
+            assertThat(f.toString(), sb.toString(), equalTo(""));
+        assertThat(f+" "+res,res.size(), equalTo(0));
+        return res1;
+    }
+
+    @Test
+    public void testAllQueriesReportText() throws SnapshotException, IOException
+    {
+        IProgressListener checkListener = new CheckedProgressListener(collector);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all -params format=txt", snapshot);
+        IResult t = query.execute(checkListener);
+        assertNotNull(t);
+        checkHTMLResult(t);
+    }
+
+    @Test
+    public void testAllQueriesReportCSV() throws SnapshotException, IOException
+    {
+        IProgressListener checkListener = new CheckedProgressListener(collector);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all -params format=csv", snapshot);
+        IResult t = query.execute(checkListener);
+        assertNotNull(t);
+        checkHTMLResult(t);
     }
 
     @Test

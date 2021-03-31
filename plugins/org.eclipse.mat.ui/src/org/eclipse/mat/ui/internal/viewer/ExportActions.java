@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - export of text using renderer
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.viewer;
 
@@ -17,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -49,6 +51,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -84,56 +88,7 @@ import org.eclipse.swt.widgets.TreeItem;
             final int limit = (controlItem != null && controlItem.getTotals() != null) ? controlItem.getTotals()
                             .getVisibleItems() : 25;
 
-            // extract expanded items
-
-            // problem:
-            // because the result tree can create objects on every #getChilden()
-            // call, objects in the hash map will not match and the expansion
-            // state of nested objects will not be acknowledged
-
-            // the requirement to implement #equals and #hashCode seems too
-            // heavy (and might not help, because one and the same object might
-            // show up multiple times in the tree, but the decision has too be
-            // made structurally)
-            if (control instanceof Tree)
-            {
-                Tree tree = (Tree) control;
-
-                LinkedList<TreeItem> stack = new LinkedList<TreeItem>();
-
-                TreeItem[] items = tree.getItems();
-                for (TreeItem treeItem : items)
-                    stack.add(treeItem);
-
-                final Set<Object> expanded = new HashSet<Object>();
-                while (!stack.isEmpty())
-                {
-                    TreeItem item = stack.removeFirst();
-                    if (item.getExpanded())
-                    {
-                        Object data = item.getData();
-                        if (data != null)
-                            expanded.add(data);
-
-                        items = item.getItems();
-                        for (TreeItem treeItem : items)
-                            stack.add(treeItem);
-                    }
-                }
-
-                result.setSelectionProvider(new ISelectionProvider()
-                {
-                    public boolean isExpanded(Object row)
-                    {
-                        return expanded.contains(row);
-                    }
-
-                    public boolean isSelected(Object row)
-                    {
-                        return false;
-                    }
-                });
-            }
+            expandedTree(control, result);
 
             new Job(Messages.ExportActions_ExportHTML)
             {
@@ -161,6 +116,90 @@ import org.eclipse.swt.widgets.TreeItem;
                 }
 
             }.schedule();
+        }
+    }
+
+    private static void expandedTree(Control control, RefinedStructuredResult result)
+    {
+        // extract expanded items
+
+        // problem:
+        // because the result tree can create objects on every #getChilden()
+        // call, objects in the hash map will not match and the expansion
+        // state of nested objects will not be acknowledged
+
+        // the requirement to implement #equals and #hashCode seems too
+        // heavy (and might not help, because one and the same object might
+        // show up multiple times in the tree, but the decision has too be
+        // made structurally)
+        if (control instanceof Tree)
+        {
+            Tree tree = (Tree) control;
+
+            LinkedList<TreeItem> stack = new LinkedList<TreeItem>();
+            Set<TreeItem> selects = new HashSet<TreeItem>(Arrays.asList(tree.getSelection()));
+            TreeItem[] items = tree.getItems();
+            for (TreeItem treeItem : items)
+                stack.add(treeItem);
+
+            final Set<Object> expanded = new HashSet<Object>();
+            final Set<Object> selected = new HashSet<Object>();
+            while (!stack.isEmpty())
+            {
+                TreeItem item = stack.removeFirst();
+                if (selects.contains(item))
+                {
+                    Object data = item.getData();
+                    if (data != null)
+                        selected.add(data);
+                }
+                if (item.getExpanded())
+                {
+                    Object data = item.getData();
+                    if (data != null)
+                        expanded.add(data);
+
+                    items = item.getItems();
+                    for (TreeItem treeItem : items)
+                        stack.add(treeItem);
+                }
+            }
+
+            result.setSelectionProvider(new ISelectionProvider()
+            {
+                public boolean isExpanded(Object row)
+                {
+                    return expanded.contains(row);
+                }
+
+                public boolean isSelected(Object row)
+                {
+                    return selected.contains(row);
+                }
+            });
+        }
+        else if (control instanceof Table)
+        {
+            Table table = (Table)control;
+            final Set<Object> selected = new HashSet<Object>();
+            for (TableItem item : table.getSelection())
+            {
+                Object data = item.getData();
+                if (data != null)
+                    selected.add(data);
+            }
+            result.setSelectionProvider(new ISelectionProvider()
+            {
+                public boolean isExpanded(Object row)
+                {
+                    return false;
+                }
+
+                public boolean isSelected(Object row)
+                {
+                    return selected.contains(row);
+                }
+            });
         }
     }
 
@@ -227,25 +266,69 @@ import org.eclipse.swt.widgets.TreeItem;
     /* package */static class TxtExport extends Action
     {
         private Control control;
+        private IResult result;
+        private IQueryContext queryContext;
 
-        public TxtExport(Control control)
+        public TxtExport(Control control, IResult result, IQueryContext queryContext)
         {
             super(Messages.ExportActions_ExportToTxt, MemoryAnalyserPlugin
                             .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_TXT));
             this.control = control;
+            this.result = result;
+            this.queryContext = queryContext;
         }
 
         @Override
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { Messages.ExportActions_PlainText }, //
-                            new String[] { "*.txt" });//$NON-NLS-1$
-            String fileName = dialog.open();
+                            new String[] { Messages.ExportActions_PlainText, Messages.ExportActions_PlainText2 }, //
+                            new String[] { "*.txt", "*.txt" });//$NON-NLS-1$ //$NON-NLS-2$
+            final String fileName = dialog.open();
             if (fileName == null)
                 return;
 
-            Copy.exportToTxtFile(control, fileName);
+            // Old version of export
+            if (dialog.dlg.getFilterIndex() < 1) {
+                Copy.exportToTxtFile(control, fileName);
+                return;
+            }
+
+            if (result instanceof RefinedStructuredResult)
+                expandedTree(control, (RefinedStructuredResult)result);
+
+            new Job(Messages.ExportActions_ExportTXT)
+            {
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor)
+                {
+                    PrintWriter writer = null;
+
+                    try
+                    {
+                        IOutputter outputter = RendererRegistry.instance().match("txt", result.getClass());//$NON-NLS-1$
+                        writer = new PrintWriter(new FileWriter(fileName));
+                        outputter.process(new ContextImpl(queryContext, //
+                                        new File(fileName).getParentFile()), result, writer);
+                        writer.flush();
+                        writer.close();
+                    }
+                    catch (IOException e)
+                    {
+                        return ErrorHelper.createErrorStatus(e);
+                    }
+                    finally
+                    {
+                        if (writer != null)
+                            writer.close();
+                    }
+
+                    return Status.OK_STATUS;
+                }
+
+            }.schedule();
+
         }
     }
 
