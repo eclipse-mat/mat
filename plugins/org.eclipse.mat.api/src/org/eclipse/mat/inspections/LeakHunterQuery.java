@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1090,14 +1090,26 @@ public class LeakHunterQuery implements IQuery
                          */
                         public boolean isExpanded(Object row)
                         {
+                            // Any thread should be expanded
                             if (rt.getElements().contains(row))
                                 return true;
                             for (Object r2 : rt.getChildren(row))
                             {
-                                // if row is a stack frame row
+                                // If row has a child which is a local
                                 IContextObject co = rt.getContext(r2);
                                 if (co != null && locals.contains(co.getObjectId()))
-                                { return true; }
+                                {
+                                    /*
+                                     * It needs to be a stack frame row though to
+                                     * be expanded.
+                                     */
+                                    for (Object r3 : rt.getElements())
+                                    {
+                                        // Relies on ThreadOverviewQuery.ThreadStackFrameNode equals()
+                                        if (rt.getChildren(r3).contains(row))
+                                            return true;
+                                    }
+                                }
                             }
                             return false;
                         }
@@ -1116,7 +1128,7 @@ public class LeakHunterQuery implements IQuery
                             if (sel.isExpanded(row))
                                 limit = Math.max(limit, rt.getChildren(row).size());
                         }
-                        threadResult.set(Params.Rendering.LIMIT, String.valueOf(limit));
+                        threadResult.set(Params.Rendering.LIMIT, String.valueOf(limit*10));
                     }
                     threadResult.setCommand(
                                     "thread_overview 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
