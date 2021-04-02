@@ -98,7 +98,7 @@
 											<arg value="--silent"/>
 											<arg value="--show-error"/>
 											<arg value="--fail"/>
-											<arg value="http://172.30.206.146:8282/macosx-signing-service/1.3.0-SNAPSHOT"/>
+											<arg value="http://build.eclipse.org:31338/macsign"/>
    										</exec>
 									</target>
 								</configuration>
