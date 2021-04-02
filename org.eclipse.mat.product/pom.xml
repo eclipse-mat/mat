@@ -98,7 +98,7 @@
 											<arg value="--silent"/>
 											<arg value="--show-error"/>
 											<arg value="--fail"/>
-											<arg value="http://build.eclipse.org:31338/macsign"/>
+											<arg value="http://build.eclipse.org:31338/macsign.php"/>
    										</exec>
 									</target>
 								</configuration>
