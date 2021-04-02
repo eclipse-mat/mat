@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.RandomAccess;
 
 import org.eclipse.mat.SnapshotException;
@@ -343,6 +344,25 @@ public final class ObjectListResult
 
     private static class Node
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(objectId);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Node other = (Node) obj;
+            return objectId == other.objectId;
+        }
+
         /** A string guaranteed not to be equal by identity to any other String */
         public static final String NOT_A_GC_ROOT = new String("$ not a gc root $"); //$NON-NLS-1$
         private static final Bytes UNSET = new Bytes(-1);
@@ -363,6 +383,28 @@ public final class ObjectListResult
 
     private static class LinkedNode extends Node
     {
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(parent);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            LinkedNode other = (LinkedNode) obj;
+            return Objects.equals(parent, other.parent);
+        }
+
         Node parent;
         String attribute;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import org.eclipse.mat.SnapshotException;
@@ -181,6 +182,25 @@ public class DominatorQuery implements IQuery
 
     private static class Node
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(label, objectId);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Node other = (Node) obj;
+            return Objects.equals(label, other.label) && objectId == other.objectId;
+        }
+
         int objectId;
 
         String label;

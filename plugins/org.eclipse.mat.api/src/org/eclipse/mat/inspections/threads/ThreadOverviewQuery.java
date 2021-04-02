@@ -269,6 +269,36 @@ public class ThreadOverviewQuery implements IQuery
     
     private static class ThreadStackFrameLocalNode
     {
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + objectId;
+            result = prime * result + ((threadStackFrameNode == null) ? 0 : threadStackFrameNode.hashCode());
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            ThreadStackFrameLocalNode other = (ThreadStackFrameLocalNode) obj;
+            if (objectId != other.objectId)
+                return false;
+            if (threadStackFrameNode == null)
+            {
+                if (other.threadStackFrameNode != null)
+                    return false;
+            }
+            else if (!threadStackFrameNode.equals(other.threadStackFrameNode))
+                return false;
+            return true;
+        }
         private ThreadStackFrameNode threadStackFrameNode;
         private int objectId;
     }

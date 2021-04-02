@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -178,6 +179,25 @@ public class ClassLoaderExplorerQuery implements IQuery
 
     private static class Node
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(classLoaderId, parent);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Node other = (Node) obj;
+            return classLoaderId == other.classLoaderId && Objects.equals(parent, other.parent);
+        }
+
         Node parent;
         int classLoaderId;
         String name;
@@ -195,6 +215,25 @@ public class ClassLoaderExplorerQuery implements IQuery
     /* separate class needed for different context menus */
     private static class Parent
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(node);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Parent other = (Parent) obj;
+            return Objects.equals(node, other.node);
+        }
+
         Node node;
 
         public Parent(Node node)

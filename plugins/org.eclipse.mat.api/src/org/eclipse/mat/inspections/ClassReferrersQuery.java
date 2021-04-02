@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,12 +9,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - node equality
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -279,6 +281,25 @@ public class ClassReferrersQuery implements IQuery
 
     private static class ClassNode
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(classId, parent);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            ClassNode other = (ClassNode) obj;
+            return classId == other.classId && Objects.equals(parent, other.parent);
+        }
+
         int classId;
         ArrayInt objects = new ArrayInt();
         int type = Type.NEW;
