@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -242,10 +242,19 @@ public class HtmlOutputter implements IOutputter
                     }
                     else
                     {
-                        if (columns[i].isNumeric())
-                            artefact.append("<td align=\"right\">");
-                        else
-                            artefact.append("<td>");
+                        switch (columns[i].getAlign())
+                        {
+                            case RIGHT:
+                                artefact.append("<td align=\"right\">");
+                                break;
+                            case CENTER:
+                                artefact.append("<td align=\"center\">");
+                                break;
+                            case LEFT:
+                            default:
+                                artefact.append("<td>");
+                                break;
+                        }
                         artefact.append(totalsRow.getLabel(i)).append("</td>");
                     }
                 }
@@ -395,10 +404,19 @@ public class HtmlOutputter implements IOutputter
         {
             if (context.isColumnVisible(columnIndex))
             {
-                if (columns[columnIndex].isNumeric())
-                    artefact.append("<td align=\"right\">");
-                else
-                    artefact.append("<td>");
+                switch (columns[columnIndex].getAlign())
+                {
+                    case RIGHT:
+                        artefact.append("<td align=\"center\">");
+                        break;
+                    case CENTER:
+                        artefact.append("<td align=\"center\">");
+                        break;
+                    case LEFT:
+                    default:
+                        artefact.append("<td>");
+                        break;
+                }
 
                 renderColumnValue(context, artefact, structured, columns, row, columnIndex);
                 artefact.append("</td>");

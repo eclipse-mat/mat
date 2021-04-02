@@ -104,7 +104,7 @@ public abstract class TextEmitter
             }
 
             // add column names to the result buffer
-            for (int i = 0; i < numberOfColumns; i++)
+            for (int i = 0; i < order.length; i++)
             {
                 int col = order[i];
                 if (i != 0)
@@ -120,7 +120,7 @@ public abstract class TextEmitter
             for (Object item : items)
             {
                 boolean addLineBreak = true;
-                for (int i = 0; i < numberOfColumns; i++)
+                for (int i = 0; i < order.length; i++)
                 {
                     int columnIndex = order[i];
                     if (shouldSuppressLineBreak(item))
@@ -207,7 +207,7 @@ public abstract class TextEmitter
                         append(align(getDisplayableColumnValue(children[j], col), align[col], length - level.length(),
                                         numberOfColumns == 1));
                         // add the rest of the columns
-                        for (int i = 1; i < numberOfColumns; i++)
+                        for (int i = 1; i < order.length; i++)
                         {
                             col = order[i];
                             append(COLUMN_SEPARATOR);
@@ -324,7 +324,7 @@ public abstract class TextEmitter
     {
         StringBuilder dashes = new StringBuilder();
         int dashesLength = 0;
-        for (int i = 0; i < numberOfColumns; i++)
+        for (int i = 0; i < order.length; i++)
         {
             int col = order[i];
             // column separator

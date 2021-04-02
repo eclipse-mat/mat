@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2010, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -94,10 +94,12 @@ public class Messages extends NLS
     public static String ExportActions_Export;
     public static String ExportActions_ExportCSV;
     public static String ExportActions_ExportHTML;
+    public static String ExportActions_ExportTXT;
     public static String ExportActions_ExportToCSV;
     public static String ExportActions_ExportToHTML;
     public static String ExportActions_ExportToTxt;
     public static String ExportActions_PlainText;
+    public static String ExportActions_PlainText2;
     public static String ExportActions_ZippedWebPage;
     public static String FieldsContentProvider_Displayed;
     public static String FileOpenDialogEditor_ChooseFile;

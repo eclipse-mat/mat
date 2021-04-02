@@ -22,8 +22,6 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.Filter;
-import org.eclipse.mat.query.refined.RefinedTable;
-import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
 
@@ -42,8 +40,8 @@ public class CSVOutputter extends OutputterBase implements IOutputter
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
         // add column names to first row
-        Column[] columns = (result instanceof RefinedTable) ? ((RefinedTable) result).getColumns()
-                        : ((RefinedTree) result).getColumns();
+        Column[] columns = (result instanceof IResultTable) ? ((IResultTable) result).getColumns()
+                        : ((IResultTree) result).getColumns();
         Filter.ValueConverter[] filter = new Filter.ValueConverter[columns.length];
 
         for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
@@ -61,9 +59,9 @@ public class CSVOutputter extends OutputterBase implements IOutputter
         writer.append("\n"); //$NON-NLS-1$
 
         // add data records
-        if (result instanceof RefinedTable)
+        if (result instanceof IResultTable)
         {
-            RefinedTable table = ((RefinedTable) result);
+            IResultTable table = ((IResultTable) result);
             int limit = context.hasLimit() ? Math.min(table.getRowCount(), context.getLimit()) : table.getRowCount();
 
             for (int row = 0; row < limit; row++)
@@ -82,10 +80,10 @@ public class CSVOutputter extends OutputterBase implements IOutputter
                 writer.append("\n"); //$NON-NLS-1$
             }
         }
-        else if (result instanceof RefinedTree)
+        else if (result instanceof IResultTree)
         {
             // export only first level of the RefinedTree
-            RefinedTree tree = (RefinedTree) result;
+            IResultTree tree = (IResultTree) result;
             List<?> elements = tree.getElements();
             int limit = context.hasLimit() ? Math.min(elements.size(), context.getLimit()) : elements.size();
 

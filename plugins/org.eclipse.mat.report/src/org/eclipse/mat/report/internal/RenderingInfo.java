@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - bug fixes for different renderers
  *******************************************************************************/
 
 package org.eclipse.mat.report.internal;
@@ -19,7 +20,9 @@ import java.net.URL;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
+import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
+import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.Spec;
 
 /* package */class RenderingInfo implements IOutputter.Context
@@ -89,7 +92,21 @@ import org.eclipse.mat.report.Spec;
 
         if (filename == null)
         {
-            filename = ResultRenderer.DIR_PAGES + '/' + child.getId() + ".html"; //$NON-NLS-1$
+            /*
+             * Guess the format that might be used.
+             * For example,  "stacktrace with involved local variables"
+             * in leak suspects TextResult as HTML with a default
+             * mode of csv.
+             * The file name is decided here, but the true format is
+             * decided later.
+             */
+            String format = child.params().get(Params.FORMAT, "html"); //$NON-NLS-1$
+            IOutputter outputter = RendererRegistry.instance().match(format, result.getClass());
+            if (outputter == null && result instanceof QuerySpec)
+                outputter = RendererRegistry.instance().match(format, ((QuerySpec)result).getResult().getClass());
+            if (outputter == null)
+                format = "html"; //$NON-NLS-1$
+            filename = ResultRenderer.DIR_PAGES + '/' + child.getId() + "." + format; //$NON-NLS-1$
             dataFile.setSuggestedFile(filename);
         }
 
