@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -791,6 +791,24 @@ public class QueryContextMenu
         copySelectionAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
         copySelectionAction.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
         menu.add(copySelectionAction);
+        Action copySelectionAction2 = new Action()
+        {
+            @Override
+            public String getText()
+            {
+                return Messages.QueryContextMenu_Selection;
+            }
+
+            @Override
+            public void run()
+            {
+                Copy.copyToClipboard2(control);
+            }
+
+        };
+        copySelectionAction2.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
+        copySelectionAction2.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
+        menu.add(copySelectionAction2);
     }
 
     /**

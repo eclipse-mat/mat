@@ -109,6 +109,8 @@ public final class Messages extends NLS
     public static String ResultRenderer_Label_TableOfContents;
     public static String RunRegisterdReport_Error_UnknownReport;
     public static String SpecFactory_Error_MissingTemplate;
+    public static String TextOutputter_PieChart;
+    public static String TextOutputter_Slice;
     public static String TextResult_Label_Links;
     public static String TotalsRow_Label_Filtered;
     public static String TotalsRow_Label_Total;

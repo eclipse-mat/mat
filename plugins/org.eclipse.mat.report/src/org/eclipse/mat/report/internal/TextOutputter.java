@@ -21,6 +21,8 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.Alignment;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultPie;
+import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
@@ -30,9 +32,10 @@ import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
-@Renderer(target = "txt", result = { IResultTree.class, IResultTable.class, TextResult.class })
+@Renderer(target = "txt", result = { IResultTree.class, IResultTable.class, TextResult.class, IResultPie.class })
 public class TextOutputter extends OutputterBase implements IOutputter
 {
     @Override
@@ -46,7 +49,11 @@ public class TextOutputter extends OutputterBase implements IOutputter
     {
         if (result instanceof TextResult)
         {
-            writer.append(((TextResult) result).getText());
+            TextResult tr = (TextResult) result;
+            String s = tr.getText();
+            if (tr.isHtml())
+                s = toTextFromHTML(s);
+            writer.append(s);
             writer.append(LINE_SEPARATOR);
         }
         else if (result instanceof IResultTable)
@@ -57,6 +64,39 @@ public class TextOutputter extends OutputterBase implements IOutputter
         {
             new RefinedTreeTextEmitter(context, result, writer).doCopy();
         }
+        else if (result instanceof IResultPie)
+        {
+            IResultPie pie = (IResultPie)result;
+            writer.append(MessageUtil.format(Messages.TextOutputter_PieChart, pie.getSlices().size()));
+            writer.append(LINE_SEPARATOR);
+            writer.append(LINE_SEPARATOR);
+            int sl = 1;
+            for (Slice s : pie.getSlices())
+            {
+                writer.append(MessageUtil.format(Messages.TextOutputter_Slice, sl, s.getValue(), toTextFromHTML(s.getDescription())));
+                writer.append(LINE_SEPARATOR);
+                writer.append(LINE_SEPARATOR);
+                ++sl;
+            }
+        }
+    }
+
+    private String toTextFromHTML(String s)
+    {
+        {
+            // quick and dirty replacement, enough for leak suspects
+            s = s.replaceAll("<b>", "").replace("</b>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            s = s.replaceAll("<br>", LINE_SEPARATOR); //$NON-NLS-1$
+            s = s.replaceAll("<br/>", LINE_SEPARATOR); //$NON-NLS-1$
+            s = s.replaceAll("<p>", LINE_SEPARATOR).replaceAll("</p>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            s = s.replaceAll("<a [^>]+>", "").replaceAll("</a>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            s = s.replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+            s = s.replaceAll("&apos;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+            s = s.replaceAll("&lt;", "<"); //$NON-NLS-1$ //$NON-NLS-2$
+            s = s.replaceAll("&gt;", ">"); //$NON-NLS-1$ //$NON-NLS-2$
+            s = s.replaceAll("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return s;
     }
 
     private static abstract class StructuredResultTextEmitter extends TextEmitter
