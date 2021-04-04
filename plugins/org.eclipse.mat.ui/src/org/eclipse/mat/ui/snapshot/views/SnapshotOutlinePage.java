@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -32,12 +33,14 @@ import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -266,7 +269,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
     @Override
     public void createControl(Composite parent)
     {
-        treeViewer = new TreeViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        treeViewer = new TreeViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
 
         createColumns();
 
@@ -277,6 +280,17 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
         treeViewer.setContentProvider(new OutlineContentProvider());
         treeViewer.setLabelProvider(new OutlineLabelProvider());
+
+        Action copyAction = new Action()
+        {
+            @Override
+            public void run()
+            {
+                Copy.copyToClipboard(treeViewer.getTree());
+            }
+        };
+        getSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+        getSite().getActionBars().updateActionBars();
 
         updateSnapshotInput();
     }

@@ -46,10 +46,20 @@ public abstract class TextEmitter
 
     protected abstract Object[] getColumns();
 
+    /**
+     * Whether to add this children of this item as the second level of the tree.
+     * @param item
+     * @return
+     */
     protected abstract boolean shouldAddNextLine(Object item);
 
     protected abstract String getItemValue(Object item, int columnIndex);
 
+    /**
+     * Whether to not display this item as a first level of a tree.
+     * @param item
+     * @return true if it is skipped for printing
+     */
     protected abstract boolean shouldSuppressLineBreak(Object item);
 
     protected abstract void findColumnOrderAndAlignment(Object[] columns);
@@ -58,6 +68,12 @@ public abstract class TextEmitter
 
     protected abstract int getColumnLength(Object[] items, Object[] objColumns, int columnNumber);
 
+    /**
+     * Whether to process a child of a tree (display it and possibly
+     * examine its children.)
+     * @param child
+     * @return
+     */
     protected abstract boolean shouldProcessChild(Object child);
 
     protected abstract String getDisplayableRowValue(Object item);
