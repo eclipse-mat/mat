@@ -99,7 +99,6 @@ public class Messages extends NLS
     public static String ExportActions_ExportToHTML;
     public static String ExportActions_ExportToTxt;
     public static String ExportActions_PlainText;
-    public static String ExportActions_PlainText2;
     public static String ExportActions_ZippedWebPage;
     public static String FieldsContentProvider_Displayed;
     public static String FileOpenDialogEditor_ChooseFile;

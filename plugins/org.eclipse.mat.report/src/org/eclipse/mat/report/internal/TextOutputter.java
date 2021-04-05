@@ -428,6 +428,13 @@ public class TextOutputter extends OutputterBase implements IOutputter
         }
 
         @Override
+        protected String getDisplayableRowValue(Object item)
+        {
+            // Special work-around case for trees with no columns, e.g. navigation history returned by Copy
+            return tree.getColumnValue(item, -1).toString();
+        }
+
+        @Override
         protected String getItemValue(Object item, int columnIndex)
         {
             if (item instanceof Filter[])

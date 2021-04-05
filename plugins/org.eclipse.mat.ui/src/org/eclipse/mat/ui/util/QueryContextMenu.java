@@ -791,24 +791,6 @@ public class QueryContextMenu
         copySelectionAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
         copySelectionAction.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
         menu.add(copySelectionAction);
-        Action copySelectionAction2 = new Action()
-        {
-            @Override
-            public String getText()
-            {
-                return Messages.QueryContextMenu_Selection;
-            }
-
-            @Override
-            public void run()
-            {
-                Copy.copyToClipboard2(control);
-            }
-
-        };
-        copySelectionAction2.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
-        copySelectionAction2.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
-        menu.add(copySelectionAction2);
     }
 
     /**

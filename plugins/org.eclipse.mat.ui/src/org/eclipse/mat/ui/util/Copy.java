@@ -14,15 +14,15 @@
 package org.eclipse.mat.ui.util;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.Alignment;
@@ -35,9 +35,7 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.RendererRegistry;
-import org.eclipse.mat.report.internal.TextEmitter;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -52,7 +50,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
-public abstract class Copy extends TextEmitter
+public abstract class Copy
 {
     protected Control control;
     protected Item[] selection;
@@ -65,23 +63,11 @@ public abstract class Copy extends TextEmitter
         new CopyToClipboard(control, selection).doCopy();
     }
 
-    public static void exportToTxtFile(Control control, String fileName)
+    public static void copyToClipboard(String text, Display display)
     {
-        PrintWriter writer = null;
-        try
-        {
-            writer = new PrintWriter(new FileWriter(fileName));
-            new ExportToFile(control, null, writer).doCopy();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(Messages.Copy_ErrorInExport, e);
-        }
-        finally
-        {
-            if (writer != null)
-                writer.close();
-        }
+        Clipboard clipboard = new Clipboard(display);
+        clipboard.setContents(new Object[] { text.toString() }, new Transfer[] { TextTransfer.getInstance() });
+        clipboard.dispose();
     }
 
     // //////////////////////////////////////////////////////////////
@@ -94,344 +80,11 @@ public abstract class Copy extends TextEmitter
         this.selection = selection != null && selection.length > 0 ? selection : null;
     }
 
-    @Override
-    protected boolean shouldAddNextLine(Object item)
-    {
-        return item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item);
-    }
-
-    @Override
-    protected String getItemValue(Object item, int columnIndex)
-    {
-        String value = "";//$NON-NLS-1$
-        if (item instanceof TableItem)
-        {
-            value = ((TableItem) item).getText(columnIndex);
-        }
-        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-        {
-            value = ((TreeItem) item).getText(columnIndex);
-        }
-        return value;
-    }
-
-    @Override
-    protected boolean shouldSuppressLineBreak(Object item)
-    {
-        if (item instanceof TableItem)
-        {}
-        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-        {}
-        else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
-        { return true; }
-        return false;
-    }
-
-    @Override
-    protected Object[] getItems()
-    {
-        Object[] items;
-        if (selection != null)
-            items = selection;
-        else if (control instanceof Table)
-            items = ((Table) control).getItems();
-        else
-            // if (copyData.control instanceof Tree)
-            items = ((Tree) control).getItems();
-        return items;
-    }
-
-    @Override
-    protected void findColumnOrderAndAlignment(Object[] columns)
-    {
-        // Find the alignment and order of the columns
-        align = new int[columns.length];
-        if (control instanceof Table)
-        {
-            Table table = (Table) control;
-            order = table.getColumnOrder();
-            for (int i = 0; i < columns.length; ++i)
-            {
-                align[i] = table.getColumn(i).getAlignment();
-            }
-        }
-        else
-        {
-            Tree tree = (Tree) control;
-            order = tree.getColumnOrder();
-            for (int i = 0; i < columns.length; ++i)
-            {
-                align[i] = tree.getColumn(i).getAlignment();
-            }
-        }
-    }
-
-    @Override
-    protected String getDisplayableColumnValueInSimpleStructure(Object item)
-    {
-        String value = "";//$NON-NLS-1$
-        if (item instanceof TableItem)
-        {
-            value = ((TableItem) item).getText();
-        }
-        else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-        {
-            value = ((TreeItem) item).getText();
-        }
-        return value;
-    }
-
-    @Override
-    protected boolean isAlignmentRight(int alignment)
-    {
-        return alignment == SWT.RIGHT;
-    }
-
-    @Override
-    protected boolean isAlignmentCenter(int alignment)
-    {
-        return alignment == SWT.CENTER;
-    }
-
-    @Override
-    protected Object[] getColumns()
-    {
-        if (control instanceof Table)
-            return ((Table) control).getColumns();
-        else
-            // Tree
-            return ((Tree) control).getColumns();
-    }
-
-    @Override
-    protected String getColumnName(Object column)
-    {
-        return ((Item) column).getText();
-    }
-
-    @Override
-    protected String getDisplayableRowValue(Object item)
-    {
-        return ((TreeItem) item).getText();
-    }
-
-    @Override
-    protected String getDisplayableColumnValue(Object item, int index)
-    {
-        return ((TreeItem) item).getText(index);
-    }
-
-    @Override
-    protected boolean isExpanded(Object item)
-    {
-        return ((TreeItem) item).getExpanded();
-    }
-
-    @Override
-    protected int getColumnLength(Object[] items, Object[] objColumns, int columnNumber)
-    {
-        int lengthToCompare = 0;
-        Item[] columns = (Item[]) objColumns;
-        String header = columns[columnNumber].getText();
-        int length = header != null ? header.length() : 0;
-
-        for (int i = 0; i < items.length; i++)
-        {
-            if (items[i] instanceof TableItem)
-                lengthToCompare = ((TableItem) items[i]).getText(columnNumber).length();
-
-            else
-                lengthToCompare = ((TreeItem) items[i]).getText(columnNumber).length();
-
-            if (lengthToCompare > length)
-                length = lengthToCompare;
-
-            if (items[i] instanceof TreeItem && ((TreeItem) items[i]).getExpanded())
-            {
-                if (columnNumber == order[0])
-                    lengthToCompare = compare((TreeItem) items[i], length, columnNumber, new StringBuilder());
-                else
-                    lengthToCompare = getOtherColumnLength((TreeItem) items[i], length, columnNumber);
-
-            }
-            if (lengthToCompare > length)
-                length = lengthToCompare;
-        }
-
-        return length;
-    }
-
-    @Override
-    protected Object[] getChildren(Object item)
-    {
-        return ((TreeItem) item).getItems();
-    }
-
-    private int getOtherColumnLength(TreeItem item, int length, int columnNumber)
-    {
-        int lengthToCompare = 0;
-        TreeItem[] children = item.getItems();
-        for (int i = 0; i < children.length; i++)
-        {
-            if (selection != null && skip(children[i]))
-                continue;
-            String columnText = children[i].getText(columnNumber);
-            if (columnText != null)
-                lengthToCompare = columnText.length();
-            if (lengthToCompare > length)
-                length = lengthToCompare;
-
-            if (children[i].getExpanded())
-            {
-                lengthToCompare = getOtherColumnLength(children[i], length, columnNumber);
-                if (lengthToCompare > length)
-                    length = lengthToCompare;
-            }
-
-        }
-        return length;
-    }
-
-    private int compare(TreeItem item, int length, int columnNumber, StringBuilder level)
-    {
-        int lengthToCompare = 0;
-        TreeItem[] children = item.getItems();
-        for (int i = 0; i < children.length; i++)
-        {
-            if (selection != null && skip(children[i]))
-                continue;
-            level = getLevel(level, children.length, i);
-            lengthToCompare = children[i].getText(columnNumber).length() + level.length();
-            if (lengthToCompare > length)
-                length = lengthToCompare;
-
-            if (children[i].getExpanded())
-            {
-                lengthToCompare = compare(children[i], length, columnNumber, level);
-                if (lengthToCompare > length)
-                    length = lengthToCompare;
-            }
-            if (level.length() >= 3)
-                level.delete(level.length() - 3, level.length());
-
-        }
-        return length;
-    }
-
-    /**
-     * Whether to print.
-     * If the parent of this item is in the selection, return false.
-     * @param item
-     * @return
-     */
-    private boolean toPrint(TreeItem item)
-    {
-        if (selection == null)
-            return true;
-        TreeItem[] selection = (TreeItem[]) this.selection;
-        for (TreeItem treeItem : selection)
-        {
-            if (treeItem.equals(item.getParentItem()))
-                return false;
-        }
-        return true;
-    }
-
-    /**
-     * See if item in the selection.
-     * @param item 
-     * @return true if not in the selection.
-     */
-    private boolean skip(TreeItem item)
-    {
-        TreeItem[] selection = (TreeItem[]) this.selection;
-        for (TreeItem treeItem : selection)
-        {
-            if (treeItem.equals(item))
-                return false;
-        }
-        return true;
-    }
-
-    @Override
-    protected boolean shouldProcessChild(Object child)
-    {
-        return selection == null || !skip((TreeItem) child);
-    }
-
-    private static class ExportToFile extends Copy
-    {
-        private PrintWriter writer;
-
-        public ExportToFile(Control control, Item[] selection, PrintWriter writer)
-        {
-            super(control, selection);
-            this.writer = writer;
-        }
-
-        @Override
-        protected void append(String string)
-        {
-            writer.write(string);
-        }
-
-        @Override
-        protected void done()
-        {
-            // flush the writer at the end
-            writer.flush();
-        }
-    }
-
     private static class CopyToClipboard extends Copy
     {
-        private StringBuilder buffer = new StringBuilder(); // a buffer to keep
-                                                            // the content for
-                                                            // the clipboard
-
         private CopyToClipboard(Control control, Item[] selection)
         {
             super(control, selection);
-        }
-
-        @Override
-        protected void append(String string)
-        {
-            // just append everything to a buffer in memory
-            buffer.append(string);
-        }
-
-        @Override
-        protected void done()
-        {
-            // done -> just copy the buffer to the clipboard
-            copyToClipboard(buffer.toString(), control.getDisplay());
-        }
-    }
-
-    public static void copyToClipboard(String text, Display display)
-    {
-        Clipboard clipboard = new Clipboard(display);
-        clipboard.setContents(new Object[] { text.toString() }, new Transfer[] { TextTransfer.getInstance() });
-        clipboard.dispose();
-    }
-
-    public static void copyToClipboard2(Control control)
-    {
-        Item[] selection = (control instanceof Table) ? ((Table) control).getSelection() //
-                        : ((Tree) control).getSelection();
-
-        new CopyToClipboard2(control, selection).doCopy();
-    }
-
-    private static class CopyToClipboard2
-    {
-        protected Control control;
-        protected Item[] selection;
-        private CopyToClipboard2(Control control, Item[] selection)
-        {
-            this.control = control;
-            this.selection = selection;
         }
         private void doCopy()
         {
@@ -452,184 +105,195 @@ public abstract class Copy extends TextEmitter
                 return;
             }
         }
-
-        private IResultTable convert(Table ct)
-        {
-            IResultTable t = new IResultTable() {
-
-                @Override
-                public Column[] getColumns()
-                {
-                    TableColumn tcs[] = ct.getColumns();
-                    int order[] = ct.getColumnOrder();
-                    Column c[] = new Column[order.length];
-                    for (int i = 0; i < order.length; ++i)
-                    {
-                        int col = order[i];
-                        TableColumn tc = tcs[col];
-                        c[i] = new Column(tc.getText());
-                        switch (tc.getAlignment()) {
-                            case SWT.RIGHT:
-                                c[i].aligning(Alignment.RIGHT);
-                                break;
-                            case SWT.CENTER:
-                                c[i].aligning(Alignment.CENTER);
-                                break;
-                            case SWT.LEFT:
-                                c[i].aligning(Alignment.LEFT);
-                                break;
-                        }
-                    }
-                    return c;
-                }
-
-                @Override
-                public Object getColumnValue(Object row, int columnIndex)
-                {
-                    return ((TableItem)row).getText(ct.getColumnOrder()[columnIndex]);
-                }
-
-                @Override
-                public IContextObject getContext(Object row)
-                {
-                    return null;
-                }
-
-                @Override
-                public ResultMetaData getResultMetaData()
-                {
-                    return null;
-                }
-
-                @Override
-                public int getRowCount()
-                {
-                    return selection.length;
-                }
-
-                @Override
-                public Object getRow(int rowId)
-                {
-                    return selection[rowId];
-                }
-
-            };
-            return t;
-        }
-
-        interface IRTS extends IResultTree, ISelectionProvider {};
-        private IResultTree convert(Tree ct)
-        {
-            final HashSet<Item> selset = new HashSet<Item>(Arrays.asList(selection));
-            IResultTree t = new IRTS() {
-
-                @Override
-                public Column[] getColumns()
-                {
-                    TreeColumn tcs[] = ct.getColumns();
-                    int order[] = ct.getColumnOrder();
-                    Column c[] = new Column[tcs.length];
-                    for (int i = 0; i < order.length; ++i)
-                    {
-                        int col = order[i];
-                        TreeColumn tc = tcs[col];
-                        c[i] = new Column(tc.getText());
-                        switch (tc.getAlignment()) {
-                            case SWT.RIGHT:
-                                c[i].aligning(Alignment.RIGHT);
-                                break;
-                            case SWT.CENTER:
-                                c[i].aligning(Alignment.CENTER);
-                                break;
-                            case SWT.LEFT:
-                                c[i].aligning(Alignment.LEFT);
-                                break;
-
-                        }
-                    }
-                    return c;
-                }
-
-                @Override
-                public Object getColumnValue(Object row, int columnIndex)
-                {
-                    return ((TreeItem)row).getText(ct.getColumnOrder()[columnIndex]);
-                }
-
-                @Override
-                public IContextObject getContext(Object row)
-                {
-                    return null;
-                }
-
-                @Override
-                public ResultMetaData getResultMetaData()
-                {
-                    return null;
-                }
-
-                @Override
-                public List<?> getElements()
-                {
-                    ArrayList<TreeItem>ret = new ArrayList<TreeItem>();
-                    for (TreeItem ti : ct.getItems())
-                    {
-                        if (selset.contains(ti))
-                            ret.add(ti);
-                    }
-                    /*
-                     * Add the remaining selection items which do not
-                     * have a parent in the selection - these would be missed
-                     * as the parent would not be printed or expanded.
-                     */
-                    for (Item i : selection)
-                    {
-                        if (i instanceof TreeItem)
-                        {
-                            TreeItem ti = (TreeItem)i;
-                            TreeItem pi = ti.getParentItem();
-                            if (pi != null && !selset.contains(pi))
-                                ret.add(ti);
-                        }
-                    }
-                    return ret;
-                }
-
-                @Override
-                public boolean hasChildren(Object element)
-                {
-                    int ret = ((TreeItem)element).getItemCount();
-                    return ret > 0;
-                }
-
-                @Override
-                public List<?> getChildren(Object parent)
-                {
-                    ArrayList<TreeItem>ret = new ArrayList<TreeItem>();
-                    for (TreeItem ti : ((TreeItem)parent).getItems())
-                    {
-                        if (selset.contains(ti))
-                            ret.add(ti);
-                    }
-                    return ret;
-                }
-
-                @Override
-                public boolean isSelected(Object row)
-                {
-                    return selset.contains(row);
-                }
-
-                @Override
-                public boolean isExpanded(Object row)
-                {
-                    return ((TreeItem)row).getExpanded();
-                }
-
-            };
-            return t;
-        }
     }
+
+    protected IResultTable convert(Table ct)
+    {
+        IResultTable t = new IResultTable() {
+
+            @Override
+            public Column[] getColumns()
+            {
+                TableColumn tcs[] = ct.getColumns();
+                int order[] = ct.getColumnOrder();
+                Column c[] = new Column[order.length];
+                for (int i = 0; i < order.length; ++i)
+                {
+                    int col = order[i];
+                    TableColumn tc = tcs[col];
+                    c[i] = new Column(tc.getText());
+                    switch (tc.getAlignment()) {
+                        case SWT.RIGHT:
+                            c[i].aligning(Alignment.RIGHT);
+                            break;
+                        case SWT.CENTER:
+                            c[i].aligning(Alignment.CENTER);
+                            break;
+                        case SWT.LEFT:
+                            c[i].aligning(Alignment.LEFT);
+                            break;
+                    }
+                }
+                return c;
+            }
+
+            @Override
+            public Object getColumnValue(Object row, int columnIndex)
+            {
+                return ((TableItem)row).getText(ct.getColumnOrder()[columnIndex]);
+            }
+
+            @Override
+            public IContextObject getContext(Object row)
+            {
+                return null;
+            }
+
+            @Override
+            public ResultMetaData getResultMetaData()
+            {
+                return null;
+            }
+
+            @Override
+            public int getRowCount()
+            {
+                if (selection != null)
+                    return selection.length;
+                else
+                    return ct.getItemCount();
+            }
+
+            @Override
+            public Object getRow(int rowId)
+            {
+                if (selection != null)
+                    return selection[rowId];
+                else
+                    return ct.getItems()[rowId];
+            }
+
+        };
+        return t;
+    }
+
+    interface IRTS extends IResultTree, ISelectionProvider {};
+    protected IResultTree convert(Tree ct)
+    {
+        final Set<Item> selset = selection != null ? new HashSet<Item>(Arrays.asList(selection)) : Collections.<Item>emptySet();
+        IResultTree t = new IRTS() {
+
+            @Override
+            public Column[] getColumns()
+            {
+                TreeColumn tcs[] = ct.getColumns();
+                int order[] = ct.getColumnOrder();
+                Column c[] = new Column[tcs.length];
+                for (int i = 0; i < order.length; ++i)
+                {
+                    int col = order[i];
+                    TreeColumn tc = tcs[col];
+                    c[i] = new Column(tc.getText());
+                    switch (tc.getAlignment()) {
+                        case SWT.RIGHT:
+                            c[i].aligning(Alignment.RIGHT);
+                            break;
+                        case SWT.CENTER:
+                            c[i].aligning(Alignment.CENTER);
+                            break;
+                        case SWT.LEFT:
+                            c[i].aligning(Alignment.LEFT);
+                            break;
+
+                    }
+                }
+                return c;
+            }
+
+            @Override
+            public Object getColumnValue(Object row, int columnIndex)
+            {
+                TreeItem treeitem = (TreeItem)row;
+                int[] order = ct.getColumnOrder();
+                // Special case for navigator view or other tree without columns
+                if (order.length == 0 || columnIndex == -1)
+                    return treeitem.getText();
+                return treeitem.getText(order[columnIndex]);
+            }
+
+            @Override
+            public IContextObject getContext(Object row)
+            {
+                return null;
+            }
+
+            @Override
+            public ResultMetaData getResultMetaData()
+            {
+                return null;
+            }
+
+            @Override
+            public List<?> getElements()
+            {
+                if (selection == null)
+                    return Arrays.asList(ct.getItems());
+                ArrayList<TreeItem>ret = new ArrayList<TreeItem>();
+                /*
+                 * Add the selection items which do not
+                 * have a parent in the selection - these would be missed
+                 * as the parent would not be printed or expanded.
+                 */
+                for (Item i : selection)
+                {
+                    if (i instanceof TreeItem)
+                    {
+                        TreeItem ti = (TreeItem)i;
+                        TreeItem pi = ti.getParentItem();
+                        if (!selset.contains(pi))
+                            ret.add(ti);
+                    }
+                }
+                return ret;
+            }
+
+            @Override
+            public boolean hasChildren(Object element)
+            {
+                int ret = ((TreeItem)element).getItemCount();
+                return ret > 0;
+            }
+
+            @Override
+            public List<?> getChildren(Object parent)
+            {
+                if (selection == null)
+                    return Arrays.asList(((TreeItem)parent).getItems());
+                ArrayList<TreeItem>ret = new ArrayList<TreeItem>();
+                for (TreeItem ti : ((TreeItem)parent).getItems())
+                {
+                    if (selset.contains(ti))
+                        ret.add(ti);
+                }
+                return ret;
+            }
+
+            @Override
+            public boolean isSelected(Object row)
+            {
+                return selset.contains(row);
+            }
+
+            @Override
+            public boolean isExpanded(Object row)
+            {
+                return ((TreeItem)row).getExpanded();
+            }
+
+        };
+        return t;
+    }
+
     private static class ContextImpl implements IOutputter.Context
     {
         private File outputDir;

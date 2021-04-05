@@ -42,7 +42,6 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.ControlItem;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.Key;
-import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.MessageUtil;
@@ -88,7 +87,7 @@ import org.eclipse.swt.widgets.TreeItem;
             final int limit = (controlItem != null && controlItem.getTotals() != null) ? controlItem.getTotals()
                             .getVisibleItems() : 25;
 
-            expandedTree(control, result);
+            selectedExpanded(control, result);
 
             new Job(Messages.ExportActions_ExportHTML)
             {
@@ -119,7 +118,7 @@ import org.eclipse.swt.widgets.TreeItem;
         }
     }
 
-    private static void expandedTree(Control control, RefinedStructuredResult result)
+    private static void selectedExpanded(Control control, RefinedStructuredResult result)
     {
         // extract expanded items
 
@@ -282,20 +281,14 @@ import org.eclipse.swt.widgets.TreeItem;
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { Messages.ExportActions_PlainText, Messages.ExportActions_PlainText2 }, //
-                            new String[] { "*.txt", "*.txt" });//$NON-NLS-1$ //$NON-NLS-2$
+                            new String[] { Messages.ExportActions_PlainText }, //
+                            new String[] { "*.txt"});//$NON-NLS-1$ //$NON-NLS-2$
             final String fileName = dialog.open();
             if (fileName == null)
                 return;
 
-            // Old version of export
-            if (dialog.dlg.getFilterIndex() < 1) {
-                Copy.exportToTxtFile(control, fileName);
-                return;
-            }
-
             if (result instanceof RefinedStructuredResult)
-                expandedTree(control, (RefinedStructuredResult)result);
+                selectedExpanded(control, (RefinedStructuredResult)result);
 
             new Job(Messages.ExportActions_ExportTXT)
             {
