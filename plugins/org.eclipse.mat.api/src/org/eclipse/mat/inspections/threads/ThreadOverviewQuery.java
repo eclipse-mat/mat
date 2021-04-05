@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -29,6 +30,7 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -57,6 +59,7 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("thread_overview")
 @Icon("/META-INF/icons/threads.gif")
@@ -265,6 +268,8 @@ public class ThreadOverviewQuery implements IQuery
         private int depth;
         private boolean firstNonNativeFrame;
         private int objectId;
+        private boolean extraColumnsCalculated;
+        private Bytes maxLocalRetainedHeapSize;
     }
     
     private static class ThreadStackFrameLocalNode
@@ -418,13 +423,25 @@ public class ThreadOverviewQuery implements IQuery
             } else {
                 if (row instanceof ThreadStackFrameNode)
                 {
-                    switch (columnIndex)
+                    ThreadStackFrameNode info = (ThreadStackFrameNode) row;
+                    Column column = columns[columnIndex];
+                    try
                     {
-                        case 0:
-                            IStackFrame frame = ((ThreadStackFrameNode) row).stackFrame;
+                        if (ThreadInfoImpl.COL_INSTANCE.equals(column))
+                        {
+                            IStackFrame frame = info.stackFrame;
                             return frame.getText();
-                        default:
-                            break;
+                        }
+                        else if (ThreadInfoImpl.COL_MAXLOCALRETAINED.equals(column))
+                        {
+                            calculateStackFrameNodeColumnsIfNeeded(info);
+                            return info.maxLocalRetainedHeapSize;
+                        }
+                    }
+                    catch (SnapshotException se)
+                    {
+                        Logger.getLogger(getClass().getCanonicalName()).warning(MessageUtil.format(
+                                        Messages.ThreadOverviewQuery_StackFrameLocalIssue, se.getLocalizedMessage()));
                     }
                 }
                 else
@@ -440,6 +457,35 @@ public class ThreadOverviewQuery implements IQuery
                     }
                 }
                 return null;
+            }
+        }
+
+        private void calculateStackFrameNodeColumnsIfNeeded(ThreadStackFrameNode info) throws SnapshotException
+        {
+            if (!info.extraColumnsCalculated)
+            {
+                try
+                {
+                    @SuppressWarnings("unchecked")
+                    List<ThreadStackFrameLocalNode> locals = (List<ThreadStackFrameLocalNode>) getChildren(info);
+                    if (locals != null && locals.size() > 0)
+                    {
+                        long maxLocalRetainedHeapSize = 0, localRetainedHeapSize;
+                        for (ThreadStackFrameLocalNode local : locals)
+                        {
+                            localRetainedHeapSize = snapshot.getRetainedHeapSize(local.objectId);
+                            if (localRetainedHeapSize > maxLocalRetainedHeapSize)
+                            {
+                                maxLocalRetainedHeapSize = localRetainedHeapSize;
+                            }
+                        }
+                        info.maxLocalRetainedHeapSize = new Bytes(maxLocalRetainedHeapSize);
+                    }
+                }
+                finally
+                {
+                    info.extraColumnsCalculated = true;
+                }
             }
         }
 

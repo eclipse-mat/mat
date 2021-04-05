@@ -595,6 +595,7 @@ public class Messages extends NLS
     public static String ThreadInfoImpl_Column_ContextClassLoader;
     public static String ThreadInfoImpl_Column_IsDaemon;
     public static String ThreadInfoImpl_Column_Instance;
+    public static String ThreadInfoImpl_Column_MaxLocalRetainedHeap;
     public static String ThreadInfoImpl_Column_Name;
 
     public static String ThreadInfoQuery_Requests;
@@ -604,6 +605,7 @@ public class Messages extends NLS
     public static String ThreadInfoQuery_ThreadStack;
 
     public static String ThreadOverviewQuery_SearchingThreads;
+    public static String ThreadOverviewQuery_StackFrameLocalIssue;
     public static String ThreadOverviewQuery_ThreadDetails;
 
     public static String ThreadStackQuery_Column_ObjectStackFrame;
