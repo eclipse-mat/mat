@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - image disposal
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
@@ -20,6 +21,7 @@ import org.eclipse.jface.action.ExternalActionManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
@@ -143,7 +145,7 @@ public final class PopupMenu
                 {
                     ImageDescriptor id = action.getImageDescriptor();
                     if (id != null)
-                        menuItem.setImage(id.createImage());
+                        menuItem.setImage(MemoryAnalyserPlugin.getDefault().getImage(id));
                 }
 
                 menuItem.setData(action);
@@ -177,7 +179,7 @@ public final class PopupMenu
                         menuItem.setText(popup.name + '\t' + acceleratorText);
 
                     if (imageDescriptor != null)
-                        menuItem.setImage(imageDescriptor.createImage());
+                        menuItem.setImage(MemoryAnalyserPlugin.getDefault().getImage(imageDescriptor));
                     menuItem.setMenu(subMenu);
                 }
             }

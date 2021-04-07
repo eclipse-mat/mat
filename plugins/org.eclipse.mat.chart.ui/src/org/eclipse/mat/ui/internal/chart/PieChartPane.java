@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -387,9 +387,13 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     @Override
     public void dispose()
     {
-        super.dispose();
         if (menu != null && !menu.isDisposed())
             menu.dispose();
+        if (label != null && !label.isDisposed())
+            label.dispose();
+        if (canvas != null && !canvas.isDisposed())
+            canvas.dispose();
+        super.dispose();
     }
 
 }
