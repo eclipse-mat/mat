@@ -392,6 +392,14 @@
 					<stentry>Export to .html</stentry>
 				</strow>
 				<strow>
+					<stentry>
+						<image href="../mimes/i-export_txt.png">
+							<alt>Export to TXT icon</alt>
+						</image>
+					</stentry>
+					<stentry>Export to .txt</stentry>
+				</strow>
+				<strow>
 					<stentry></stentry>
 					<stentry>
 						<b>Views</b>
