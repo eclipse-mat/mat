@@ -283,6 +283,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
                 indexBuilder.clean(purgedMapping, listener);
 
+                purgedMapping = null;
+
                 SnapshotImpl snapshot = builder.create(parser, listener);
                 boolean done = false;
                 try
