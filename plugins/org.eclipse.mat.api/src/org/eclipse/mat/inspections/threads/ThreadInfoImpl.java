@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -45,13 +45,14 @@ import org.eclipse.mat.util.IProgressListener;
     // column meta-data
     // //////////////////////////////////////////////////////////////
 
-    private static final Column COL_CLASSNAME = new Column(Messages.Column_ClassName);
-    private static final Column COL_NAME = new Column(Messages.ThreadInfoImpl_Column_Name);
-    private static final Column COL_INSTANCE = new Column(Messages.ThreadStackQuery_Column_ObjectStackFrame);
-    private static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, Bytes.class);
-    private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, Bytes.class);
-    private static final Column COL_CONTEXTCL = new Column(Messages.ThreadInfoImpl_Column_ContextClassLoader);
-    private static final Column COL_ISDAEMON = new Column(Messages.ThreadInfoImpl_Column_IsDaemon, Boolean.class);
+    public static final Column COL_CLASSNAME = new Column(Messages.Column_ClassName);
+    public static final Column COL_NAME = new Column(Messages.ThreadInfoImpl_Column_Name);
+    public static final Column COL_INSTANCE = new Column(Messages.ThreadStackQuery_Column_ObjectStackFrame);
+    public static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, Bytes.class);
+    public static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, Bytes.class);
+    public static final Column COL_CONTEXTCL = new Column(Messages.ThreadInfoImpl_Column_ContextClassLoader);
+    public static final Column COL_ISDAEMON = new Column(Messages.ThreadInfoImpl_Column_IsDaemon, Boolean.class);
+    public static final Column COL_MAXLOCALRETAINED = new Column(Messages.ThreadInfoImpl_Column_MaxLocalRetainedHeap, Bytes.class).noTotals();
 
     private static final List<Column> defaultColumns = Arrays.asList(new Column[] {
                     //COL_CLASSNAME, //
@@ -59,6 +60,7 @@ import org.eclipse.mat.util.IProgressListener;
                     COL_NAME, //
                     COL_SHALLOW, //
                     COL_RETAINED, //
+                    COL_MAXLOCALRETAINED, //
                     COL_CONTEXTCL,
                     COL_ISDAEMON});
 
@@ -187,13 +189,7 @@ import org.eclipse.mat.util.IProgressListener;
 
     /* package */List<Column> getUsedColumns()
     {
-        List<Column> answer = new ArrayList<Column>();
-        // Return copy of columns so independent and columns don't permanently retain decorators
-        for (Column col : defaultColumns)
-        {
-            Column col2 = new Column(col.getLabel(), col.getType());
-            answer.add(col2);
-        }
+        List<Column> answer = getDefaultColumnsCopy();
         for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
         {
             Column[] cols = resolver.getColumns();
@@ -211,13 +207,7 @@ import org.eclipse.mat.util.IProgressListener;
 
     /* package */static List<Column> getUsedColumns(List<ThreadInfoImpl> threads)
     {
-        List<Column> answer = new ArrayList<Column>();
-        // Return copy of columns so independent and columns don't permanently retain decorators
-        for (Column col : defaultColumns)
-        {
-            Column col2 = new Column(col.getLabel(), col.getType());
-            answer.add(col2);
-        }
+        List<Column> answer = getDefaultColumnsCopy();
         for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
         {
             Column[] cols = resolver.getColumns();
@@ -236,6 +226,25 @@ import org.eclipse.mat.util.IProgressListener;
                 }
         }
 
+        return answer;
+    }
+
+    private static List<Column> getDefaultColumnsCopy()
+    {
+        List<Column> answer = new ArrayList<Column>();
+        // Return copy of columns so independent and columns don't permanently
+        // retain decorators
+        for (Column col : defaultColumns)
+        {
+            // Copy everything that's used in Column.equals
+            Column col2 = new Column(col.getLabel(), col.getType(), col.getAlign(), col.getSortDirection(),
+                            col.getFormatter(), col.getComparator());
+            if (!col.getCalculateTotals())
+            {
+                col2.noTotals();
+            }
+            answer.add(col2);
+        }
         return answer;
     }
 
@@ -370,6 +379,8 @@ import org.eclipse.mat.util.IProgressListener;
             return getContextClassLoader();
         else if (COL_ISDAEMON.equals(column))
             return isDaemon();
+        else if (COL_MAXLOCALRETAINED.equals(column))
+            return null;
         else
             return properties.get(column);
     }
