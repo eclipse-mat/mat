@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +38,8 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 
+import org.eclipse.mat.util.FileUtils;
+
 /**
  * This class can be used to get random access to chunked gzipped hprof files like the
  * openjdk can create them. As described in https://tools.ietf.org/html/rfc1952, a gzip
@@ -50,6 +53,8 @@ import java.util.zip.Inflater;
  */
 public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
 {
+    static final String HPROF_BLOCKSIZE = "HPROF BLOCKSIZE="; //$NON-NLS-1$
+
     // A comparator which compares chunks by their file offset.
     private static FileOffsetComparator fileOffsetComp = new FileOffsetComparator();
 
@@ -407,7 +412,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
 
             // Check if the block size is included in the comment.
             String comment = bos.toString("UTF-8"); //$NON-NLS-1$
-            String expectedPrefix = "HPROF BLOCKSIZE="; //$NON-NLS-1$
+            String expectedPrefix = HPROF_BLOCKSIZE;
 
             if (comment.startsWith(expectedPrefix))
             {
@@ -509,6 +514,108 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         cachedOffsets.remove(file.getAbsoluteFile());
     }
 
+    static class ChunkedGZIPOutputStream extends FilterOutputStream
+    {
+        Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
+        CRC32 crc = new CRC32();
+        boolean finished = false;
+        int chunkSize = 1024 * 1024;
+        String comment = HPROF_BLOCKSIZE + chunkSize;
+        boolean writtenComment = false;
+        boolean writeHeader = true;
+        byte[] defaultHeader = new byte[] {
+           (byte) 0x1f, (byte) 0x8b, (byte) 8, 0, 0, 0, 0, 0, 0, 0
+        };
+        int left;
+        DeflaterOutputStream dos;
+
+        public ChunkedGZIPOutputStream(OutputStream os)
+        {
+            super(os);
+        }
+        @Override
+        public void write(int b) throws IOException
+        {
+            if (writeHeader)
+            {
+                header();
+            }
+            dos.write(b);
+            if (--left <= 0)
+            {
+                flush();
+            }
+        }
+        @Override
+        public void write(byte b[], int offset, int len) throws IOException
+        {
+            while (len > 0)
+            {
+                if (writeHeader)
+                    header();
+                int len1 = Math.min(len, left);
+                dos.write(b, offset, len1);
+                offset += len1;
+                len -= len1;
+                left -= len1;
+                if (left <= 0)
+                    flush();
+            }
+        }
+        private void header() throws IOException
+        {
+            def.reset();
+            crc.reset();
+
+            // GZipOutputStream does not supports adding a comment, so we have to create
+            // the gzip format by hand.
+            if (writtenComment)
+            {
+                out.write(defaultHeader);
+            }
+            else
+            {
+                out.write(defaultHeader, 0, 3);
+                out.write(16); // We have a comment.
+                out.write(defaultHeader, 4, 6);
+                out.write(comment.getBytes(StandardCharsets.US_ASCII));
+                out.write(0); // Zero terminate comment
+                writtenComment = true;
+            }
+            dos = new DeflaterOutputStream(out, def, 65536);
+            left = chunkSize;
+            writeHeader = false;
+        }
+        @Override
+        public void flush() throws IOException
+        {
+            if (!writeHeader)
+            {
+                dos.finish();
+                int crcVal = (int) crc.getValue();
+                writeInt(crcVal, out);
+                writeInt(chunkSize - left, out);
+                writeHeader = true;
+            }
+            super.flush();
+        }
+        @Override
+        public void close() throws IOException
+        {
+            try
+            {
+                flush();
+                def.finish();
+                dos.close();
+                def.end();
+            }
+            finally 
+            {
+                super.close();
+            }
+        }
+    }
+
     /**
      * Compressed a file to a chunked gzipped file.
      *
@@ -518,11 +625,27 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      */
     public static void compressFileChunked(File toCompress, File compressed) throws IOException
     {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(toCompress), 64 * 1024);
+             OutputStream os = new ChunkedGZIPOutputStream(new BufferedOutputStream(new FileOutputStream(compressed), 64 * 1024)))
+        {
+            FileUtils.copy(is, os);
+        }
+    }
+
+    /**
+     * Compressed a file to a chunked gzipped file.
+     *
+     * @param toCompress The file to gzip.
+     * @param compressed The gzipped file.
+     * @throws IOException On error.
+     */
+    public static void compressFileChunked2(File toCompress, File compressed) throws IOException
+    {
         Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
         CRC32 crc = new CRC32();
         boolean finished = false;
         int chunkSize = 1024 * 1024;
-        String comment = "HPROF BLOCKSIZE=" + chunkSize; //$NON-NLS-1$
+        String comment = HPROF_BLOCKSIZE + chunkSize;
         boolean writtenComment = false;
         byte[] readBuf = new byte[chunkSize];
         byte[] defaultHeader = new byte[] {

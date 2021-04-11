@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +34,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.mat.SnapshotException;
@@ -94,6 +97,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
          */
         IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
         IContentType javaheapdump = contentTypeManager.getContentType("org.eclipse.mat.JavaHeapDump"); //$NON-NLS-1$
+        List<IContentType>listtypes = new ArrayList<IContentType>();
         if (javaheapdump != null)
         {
             String n1 = name;
@@ -101,6 +105,13 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             try (FileInputStream fis = new FileInputStream(file))
             {
                 types = contentTypeManager.findContentTypesFor(fis, file.getPath());
+                if (types.length == 0)
+                {
+                    try (FileInputStream fis2 = new FileInputStream(file))
+                    {
+                        types = contentTypeManager.findContentTypesFor(fis2, null);
+                    }
+                }
             }
             catch (IOException e)
             {
@@ -111,6 +122,28 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             {
                 if (tp.isKindOf(javaheapdump))
                 {
+                    // See if this content description is based on the file contents
+                    IContentDescription cd1, cd2;
+                    try (FileInputStream fis = new FileInputStream(file))
+                    {
+                        // Succeeds if based on context
+                        cd1 = tp.getDescriptionFor(fis, IContentDescription.ALL);
+                    }
+                    catch (IOException e)
+                    {
+                        cd1 = null;
+                    }
+                    try (InputStream sr = new ByteArrayInputStream(new byte[10]))
+                    {
+                        // Succeeds if generic type without content checking
+                        cd2 = tp.getDescriptionFor(sr, IContentDescription.ALL);
+                    }
+                    catch (IOException e)
+                    {
+                        cd2 = null;
+                    }
+                    if (cd1 != null && cd2 == null)
+                        listtypes.add(tp);
                     for (String ext: tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
                     {
                         // Does extension itself contains a dot, and matches this file ?
@@ -166,7 +199,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         if (answer == null)
         {
             deleteIndexFiles(file, prefix, listener);
-            answer = parse(file, prefix, args, listener);
+            answer = parse(file, prefix, args, listtypes, listener);
         }
 
         entry = new SnapshotEntry(1, answer);
@@ -224,13 +257,36 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     // Internal implementations
     // //////////////////////////////////////////////////////////////
 
-    private final ISnapshot parse(File file, String prefix, Map<String, String> args, IProgressListener listener) throws SnapshotException
+    private final ISnapshot parse(File file, String prefix, Map<String, String> args, List<IContentType>listtypes, IProgressListener listener) throws SnapshotException
     {
         ParserRegistry registry = ParserPlugin.getDefault().getParserRegistry();
 
         List<ParserRegistry.Parser> parsers = registry.matchParser(file.getName());
         if (parsers.isEmpty())
             parsers.addAll(registry.delegates()); // try all...
+        else
+        {
+            // Add some extra parsers by content type
+            for (IContentType type : listtypes)
+            {
+                // Parsers don't match for equality
+                List<ParserRegistry.Parser> parsers2 = registry.matchParser(type);
+                for (ParserRegistry.Parser p2 : parsers2)
+                {
+                    boolean found = false;
+                    for (ParserRegistry.Parser p3 : parsers)
+                    {
+                        if (p3.getId().equals(p2.getId()))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        parsers.add(p2);
+                }
+            }
+        }
 
         List<IOException> errors = new ArrayList<IOException>();
 

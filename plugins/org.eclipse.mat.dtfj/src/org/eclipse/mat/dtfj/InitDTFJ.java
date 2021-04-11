@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2018 IBM Corporation.
+ * Copyright (c) 2009,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -281,25 +281,21 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     {
         // Find a predefined DTFJ Adapter Plugin extension - use this to set
         // the provider for the new plugin
-        IExtension es = reg.getExtension("org.eclipse.ui.startup", "org.eclipse.mat.dtfj.dtfj"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        // Second go at finding an extension for this bundle - the first
-        // might fail if there is no UI.
-        if (es == null)
+        IExtensionPoint extensionPoint = reg.getExtensionPoint("org.eclipse.mat.parser.parser"); //$NON-NLS-1$
+        if (extensionPoint != null)
         {
-            es = reg.getExtension("org.eclipse.core.contenttype.contentTypes", "com.ibm.dtfj.base"); //$NON-NLS-1$ //$NON-NLS-2$
+            for (IExtension es1 : extensionPoint.getExtensions())
+            {
+                if ("dynamic-dtfj".equals(es1.getSimpleIdentifier())) //$NON-NLS-1$
+                {
+                    return es1.getContributor();
+                }
+            }
         }
 
-        IContributor cont;
-        if (es != null)
-        {
-            cont = es.getContributor();
-        }
-        else
-        {
-            cont = ContributorFactoryOSGi.createContributor(getBundle());
-        }
+        IContributor cont = ContributorFactoryOSGi.createContributor(InitDTFJ.getDefault().getBundle());
         return cont;
+
     }
 
     /**
@@ -327,19 +323,27 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                 String name = el.getAttribute("label"); //$NON-NLS-1$
 
                 String exts = null;
-
+                String contentTypes = null;
                 for (IConfigurationElement el2 : el.getChildren())
                 {
                     String ref = el2.getAttribute("dump-type"); //$NON-NLS-1$
                     if (ref != null && done.add(ref))
                     {
                         exts = addExtension(exts, genParser(ref, contentPoint));
+                        if (contentTypes == null)
+                            contentTypes = ref;
+                        else
+                            contentTypes = contentTypes + "," + ref; //$NON-NLS-1$
                     }
 
                     ref = el2.getAttribute("meta-type"); //$NON-NLS-1$
                     if (ref != null && done.add(ref))
                     {
                         exts = addExtension(exts, genParser(ref, contentPoint));
+                        if (contentTypes == null)
+                            contentTypes = ref;
+                        else
+                            contentTypes = contentTypes + "," + ref; //$NON-NLS-1$
                     }
                 }
 
@@ -347,6 +351,8 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                 vals.put("id", id); //$NON-NLS-1$
                 vals.put("name", name); //$NON-NLS-1$
                 vals.put("fileExtension", exts); //$NON-NLS-1$
+                if (contentTypes != null)
+                    vals.put("contentTypeBinding", contentTypes); //$NON-NLS-1$
                 String fullid = cont.getName() + "." + id; //$NON-NLS-1$
                 allexts.put(fullid, vals);
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018,2019 IBM Corporation
+ * Copyright (c) 2018,2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -84,7 +84,7 @@ class HprofDumpProvider extends IBMDumpProvider
 
     File compressFile(File preferredDump, File dump, IProgressListener listener) throws IOException
     {
-        File dumpout = preferredDump.equals(dump) ? 
+        File dumpout = preferredDump.getCanonicalFile().equals(dump.getCanonicalFile()) ? 
                        File.createTempFile(dump.getName(),  null, dump.getParentFile())
                      : preferredDump;
         listener.subTask(Messages.getString("IBMDumpProvider.CompressingDump")); //$NON-NLS-1$
@@ -119,9 +119,9 @@ class HprofDumpProvider extends IBMDumpProvider
         }
         if (dump.delete())
         {
-            if (!dumpout.equals(preferredDump) && !dumpout.renameTo(preferredDump))
+            if (!dumpout.getCanonicalFile().equals(preferredDump.getCanonicalFile()) && !dumpout.renameTo(preferredDump))
             {
-                throw new IOException(dump.getPath());
+                throw new IOException(preferredDump.getPath());
             }
         }
         else

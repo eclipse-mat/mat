@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -143,7 +143,7 @@ public class AcquireDialog extends WizardPage
         });
 
         final int descWidth = 250;
-        final int pidWidth = 50;
+        final int pidWidth = 70;
         final int provWidth = 200;
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);

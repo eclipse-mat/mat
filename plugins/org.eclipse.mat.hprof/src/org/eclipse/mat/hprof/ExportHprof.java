@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2020 IBM Corporation
+ * Copyright (c) 2018, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -116,6 +116,9 @@ public class ExportHprof implements IQuery
 
     @Argument(isMandatory = false)
     public boolean compress;
+
+    @Argument(isMandatory = false)
+    public boolean chunked;
 
     public enum RedactType
     {
@@ -363,7 +366,10 @@ public class ExportHprof implements IQuery
         long startTime;
         OutputStream outstream = new BufferedOutputStream(new FileOutputStream(output), 1024 * 64);
         if (compress)
-            outstream = new GZIPOutputStream(outstream);
+            if (chunked)
+                outstream = new ChunkedGZIPRandomAccessFile.ChunkedGZIPOutputStream(outstream);
+            else
+                outstream = new GZIPOutputStream(outstream);
         DataOutputStream3 os = new DataOutputStream3(outstream);
         try
         {

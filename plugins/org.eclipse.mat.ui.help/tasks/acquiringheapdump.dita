@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -34,8 +34,8 @@
 			<!-- ***************************************************************
 			* HPROF dumps
 			****************************************************************** -->
-		    <p><b>HPROF Binary Heap Dumps</b></p>
-		    <p><i>Get Heap Dump on an OutOfMemoryError</i></p>
+			<p><b>HPROF Binary Heap Dumps</b></p>
+			<p><i>Get Heap Dump on an OutOfMemoryError</i></p>
 			<p> One can get a HPROF binary heap dump on an OutOfMemoryError for Sun JVM
 				(1.4.2_12 or higher and 1.5.0_07 or higher), Oracle JVMs,
 				OpenJDK JVMs,
@@ -155,8 +155,8 @@
 			</p>
 			
 			<p>Acquiring the heap dump is VM specific. Memory Analyzer comes with 
-			several so called heap dump providers - for Oracle and Sun based VMs 
-			(needs a Oracle or Sun JDK
+			several so called heap dump providers - for OpenJDK, Oracle and Sun based VMs 
+			(needs a OpenJDK, Oracle or Sun JDK
 			with jmap) and for IBM VMs (needs an IBM JDK or JRE). 
 			Also extension points 
 			are provided for adopters to plug-in their own heap dump providers.
@@ -240,19 +240,24 @@
 	<p>
 		<dl>
 			<dlentry>
-				<dt id="1">HPROF jmp dump provider</dt>
+				<dt id="1">HPROF jmap dump provider</dt>
 				<dd>
 					This provider uses the
 					<cmdname>jps</cmdname>
-					command supplied with an Oracle or OpenJDK based JDK to list the
+					command supplied with an OpenJDK or Oracle based JDK to list the
 					running JVMs on the system. The provider then uses the
 					<cmdname>jmap</cmdname>
 					command to get the chosen
-					JVM to generate an HPROF dump. This
+					JVM to generate an HPROF dump.
+					As an alternative the provider can use the <cmdname>jcmd</cmdname>
+					to both list running JVMs and to generate dumps.
+					This
 					provider requires a JDK (Java
 					development kit), not a JRE
 					(Java
-					runtime environment) for those two commands. IBM JDKs do not
+					runtime environment) for those commands. 
+					
+					IBM JDKs do not
 					have
 					the
 					<cmdname>jps</cmdname>
@@ -285,7 +290,7 @@
 					in
 					<codeph>tools.jar</codeph>
 					and not as part of JREs. Therefore if Memory Analyzer is run with
-					an Oracle JRE
+					an OpenJDK or Oracle JRE
 					then this dump provider will not be available.
 					The
 					<apiname>com.sun.tools.attach</apiname>
@@ -310,8 +315,8 @@
 			<dlentry id="3">
 				<dt>Attach API with helper JVM</dt>
 				<dd>
-					If Memory Analyzer is run with an Oracle JRE then this dump
-					provider can be used with an Oracle JDK by providing a path
+					If Memory Analyzer is run with an OpenJDK or Oracle JRE then this dump
+					provider can be used with an OpenJDK or Oracle JDK by providing a path
 					to a
 					<cmdname>java</cmdname>
 					executable. The dump provider will load the
@@ -320,7 +325,7 @@
 					so that the
 					<apiname>com.sun.tools.attach</apiname>
 					API
-					is acessible. This provider can also be used to list JVMs
+					is accessible. This provider can also be used to list JVMs
 					of a
 					different type from the JVM used to run Memory Analyzer.
 					For example
@@ -329,7 +334,13 @@
 					an IBM
 					JVM
 					<cmdname>java</cmdname>
-					command even when Memory Analyzer is run with an Oracle JVM.
+					command even when Memory Analyzer is run with an OpenJDK or Oracle JVM.
+					<p>
+					If a path to a
+					<cmdname>jcmd</cmdname>
+					executable is provided then this command will be used to
+					generate a list of running JVMs and to generate the dumps.
+					</p>
 				</dd>
 			</dlentry>
 		</dl>
@@ -430,6 +441,17 @@
 					longer.
 					</p>
 				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>chunked</dt>
+				<dd>OpenJDK 15 and later can generate compressed HPROF files by
+				using the <cmdname>jcmd &lt;pid&gt; GC.heap_dump -gz=1</cmdname>
+				which compresses the HPROF file using gzip, but in chunks so
+				that random access to the file is quicker. Memory Analyzer version 1.12
+				and later can read this format, and with this option and
+				<option>compress</option> the HPROF dump provider
+				generates HPROF files compressed in chunks, for faster read access
+				than normal gzip compressed files.</dd>
 			</dlentry>
 			<dlentry>
 				<dt>live</dt>
@@ -566,19 +588,20 @@
 					<colspec colname="COLSPEC6" colwidth="4*" />
 					<colspec colname="COLSPEC7" colwidth="2*" />
 					<colspec colname="COLSPEC8" colwidth="2*" />
-					<colspec colname="COLSPEC9" colwidth="4*" />
+					<colspec colname="COLSPEC9" colwidth="2*" />
 					<colspec colname="COLSPEC10" colwidth="4*" />
+					<colspec colname="COLSPEC11" colwidth="4*" />
 					<thead>
 						<row>
 							<entry colname="COLSPEC1" valign="top">Vendor</entry>
 							<entry colname="COLSPEC2" valign="top">Release</entry>
 							<entry namest="COLSPEC3" nameend="COLSPEC5" valign="top">VM
 								Parameter</entry>
-							<entry namest="COLSPEC6" nameend="COLSPEC7" valign="top">Sun
+							<entry namest="COLSPEC6" nameend="COLSPEC8" valign="top">JVM
 								Tools</entry>
-							<entry colname="COLSPEC8" valign="top">SAP Tool</entry>
-							<entry colname="COLSPEC9" valign="top">Attach</entry>
-							<entry colname="COLSPEC10" valign="top">MAT</entry>
+							<entry colname="COLSPEC9" valign="top">SAP Tool</entry>
+							<entry colname="COLSPEC10" valign="top">Attach</entry>
+							<entry colname="COLSPEC11" valign="top">MAT</entry>
 						</row>
 					</thead>
 					<tbody>
@@ -589,6 +612,7 @@
 							<entry colname="COLSPEC4">On Ctrl+Break</entry>
 							<entry>Agent</entry>
 							<entry>JMap</entry>
+							<entry>JCmd</entry>
 							<entry>JConsole</entry>
 							<entry>JVMMon</entry>
 							<entry>API</entry>
@@ -600,9 +624,10 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
-							<entry />
-							<entry />
-							<entry />
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
 							<entry />
 							<entry>No</entry>
 						</row>
@@ -612,8 +637,9 @@
 							<entry>Yes (Since 1.5.0_15)</entry>
 							<entry>Yes</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
-							<entry />
-							<entry />
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
 							<entry>com.sun.tools.attach</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
 						</row>
@@ -623,15 +649,42 @@
 							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>Oracle, OpenJDK, HP</entry>
+							<entry>1.7.0</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry></entry>
 							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry morerows="1">Oracle, OpenJDK, HP</entry>
-							<entry>1.7.0</entry>
+							<entry morerows="2">Oracle, OpenJDK, HP, Amazon Corretto</entry>
+							<entry>1.8.0</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry></entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>11</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
@@ -641,8 +694,9 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry>1.8.0</entry>
+							<entry>15</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
@@ -658,7 +712,8 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
-							<entry />
+							<entry>No</entry>
+							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry></entry>
 							<entry />
@@ -668,6 +723,7 @@
 							<entry>1.4.2 SR12</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
@@ -683,6 +739,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>No</entry>
 							<entry>com.ibm.tools.attach</entry>
 							<entry>No</entry>
 						</row>
@@ -690,6 +747,7 @@
 							<entry>1.6.0 SR2</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
@@ -705,6 +763,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>No</entry>
 							<entry>com.ibm.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
@@ -716,6 +775,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>No</entry>
 							<entry>com.ibm.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
@@ -723,6 +783,7 @@
 							<entry>1.8.0</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
@@ -737,17 +798,31 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>Yes (PHD only?)</entry>
 							<entry>No</entry>
 							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry>OpenJ9</entry>
+							<entry morerows="1">OpenJ9</entry>
 							<entry>1.8.0</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes (PHD only)</entry>
 							<entry>No</entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>11</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
 							<entry>Yes (PHD only)</entry>
 							<entry>No</entry>
 							<entry>com.sun.tools.attach</entry>

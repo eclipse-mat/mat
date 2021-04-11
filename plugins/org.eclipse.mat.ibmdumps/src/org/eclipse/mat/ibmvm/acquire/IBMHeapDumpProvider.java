@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2019 IBM Corporation
+ * Copyright (c) 2010,2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -113,13 +113,11 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
 
         File result = mergeFileNames(preferredDump, dumps.get(0));
 
-        
         if (compress && !result.getName().endsWith(".gz")) //$NON-NLS-1$
         {
             result = new File(result.getPath()+".gz"); //$NON-NLS-1$
         }
-            
-        
+
         // See if dump names look as expected
         for (File dump : dumps)
         {
@@ -135,12 +133,16 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
         final boolean zip = result.getName().endsWith(".gz"); //$NON-NLS-1$
         if (zip)
         {
+            File dump = dumps.get(0);
+            File dumpout = result.getCanonicalFile().equals(dump.getCanonicalFile()) ? 
+                            File.createTempFile(dump.getName(),  null, dump.getParentFile())
+                          : result;
             listener.subTask(Messages.getString("IBMDumpProvider.CompressingDump")); //$NON-NLS-1$
             int bufsize = 64 * 1024;
-            InputStream is = new BufferedInputStream(new FileInputStream(dumps.get(0)), bufsize);
+            InputStream is = new BufferedInputStream(new FileInputStream(dump), bufsize);
             try
             {
-                OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
+                OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(dumpout)));
                 try
                 {
                     byte buffer[] = new byte[bufsize];
@@ -168,6 +170,23 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
             finally
             {
                 is.close();
+            }
+            // No need to keep the uncompressed dump
+            if (dump.delete())
+            {
+                if (!dumpout.getCanonicalFile().equals(result.getCanonicalFile()) && !dumpout.renameTo(result))
+                {
+                    throw new IOException(result.getPath());
+                }
+            }
+            else
+            {
+                if (!dumpout.delete())
+                {
+                    throw new IOException(dumpout.getPath());
+                }
+                // Return uncompressed
+                result = dump;
             }
         }
         int renamed = 0;
@@ -203,11 +222,6 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
                 // Failed to rename anything, so give up now
                 return super.jextract(preferredDump, compress, dumps, udir, javahome, listener);
             }
-        }
-        if (zip)
-        {
-            // No need to keep the uncompressed dump
-            dumps.get(0).delete();
         }
         return result;
     }

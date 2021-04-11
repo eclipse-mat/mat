@@ -27,14 +27,14 @@ public class JmapVmInfo extends VmInfo
 	@Argument(isMandatory = false, advice = Advice.DIRECTORY)
 	public File jdkHome;
 
-    @Argument
+	@Argument(isMandatory = false)
     public boolean compress;
 
-    @Argument
-    public boolean live;
-
-    // No @Argument, since currently only used in tests.
+    @Argument(isMandatory = false)
     public boolean chunked;
+
+	@Argument(isMandatory = false)
+    public boolean live;
 
 	public JmapVmInfo(int pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
 	{

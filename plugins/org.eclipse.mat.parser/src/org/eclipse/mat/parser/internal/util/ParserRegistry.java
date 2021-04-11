@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - content types
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.util;
 
@@ -26,6 +27,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.ParserPlugin;
@@ -42,6 +44,8 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
     private static final String DYNAMIC = "dynamic";//$NON-NLS-1$
     public static final String INDEX_BUILDER = "indexBuilder";//$NON-NLS-1$
     public static final String OBJECT_READER = "objectReader";//$NON-NLS-1$
+    public static final String CONTENT_TYPE_BINDING = "contentTypeBinding";//$NON-NLS-1$
+    public static final String CONTENT_TYPE_ID = "contentTypeId";//$NON-NLS-1$
 
     public class Parser
     {
@@ -49,6 +53,16 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         private IConfigurationElement configElement;
         private SnapshotFormat snapshotFormat;
         private Pattern[] pattern;
+        private String[] contentTypes;
+
+        private Parser(IConfigurationElement configElement, String id, SnapshotFormat snapshotFormat, Pattern[] pattern, String contentTypes[])
+        {
+            this.id = id;
+            this.configElement = configElement;
+            this.snapshotFormat = snapshotFormat;
+            this.pattern = pattern;
+            this.contentTypes = contentTypes;
+        }
 
         private Parser(IConfigurationElement configElement, String id, SnapshotFormat snapshotFormat, Pattern[] pattern)
         {
@@ -56,6 +70,12 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             this.configElement = configElement;
             this.snapshotFormat = snapshotFormat;
             this.pattern = pattern;
+            IConfigurationElement bindings[] = configElement.getChildren(CONTENT_TYPE_BINDING);
+            contentTypes = new String[bindings.length];
+            for (int i = 0; i < bindings.length; ++i)
+            {
+                contentTypes[i] = bindings[i].getAttribute(CONTENT_TYPE_ID);
+            }
         }
 
         private Parser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
@@ -175,7 +195,27 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         }
         return answer;
     }
-    
+
+    public List<Parser> matchParser(IContentType contentType)
+    {
+        List<Parser> answer = new ArrayList<Parser>();
+        for (Parser p : delegates())
+        {
+            loop:for (IContentType tp = contentType; tp != null; tp = tp.getBaseType())
+            {
+                for (String type : p.contentTypes)
+                {
+                    if (tp.getId().equals(type))
+                    {
+                        answer.add(p);
+                        break loop;
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
     @Override
     public Collection<Parser> delegates()
     {
@@ -210,7 +250,16 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
                                     patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");//$NON-NLS-1$//$NON-NLS-2$
 
                                 SnapshotFormat snapshotFormat = new SnapshotFormat(name, extensions);
-                                res2.add(new Parser(p.configElement, id, snapshotFormat, patterns));
+                                String contentType = m.get(CONTENT_TYPE_BINDING);
+                                if (contentType != null)
+                                {
+                                    String[] contentTypes = SimpleStringTokenizer.split(contentType, ',');
+                                    res2.add(new Parser(p.configElement, id, snapshotFormat, patterns, contentTypes));
+                                }
+                                else
+                                {
+                                    res2.add(new Parser(p.configElement, id, snapshotFormat, patterns));
+                                }
                             }
                             catch (PatternSyntaxException e)
                             {

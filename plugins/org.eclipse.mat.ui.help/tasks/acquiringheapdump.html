@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
 <meta name="DC.Title" content="Acquiring Heap Dumps"/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="task_acquiringheapdump"/>
 <meta name="DC.Language" content="en-us"/>
@@ -25,9 +25,9 @@
 		<div class="section context">
 		
 			
-		    <p class="p"><strong class="ph b">HPROF Binary Heap Dumps</strong></p>
+			<p class="p"><strong class="ph b">HPROF Binary Heap Dumps</strong></p>
 
-		    <p class="p"><em class="ph i">Get Heap Dump on an OutOfMemoryError</em></p>
+			<p class="p"><em class="ph i">Get Heap Dump on an OutOfMemoryError</em></p>
 
 			<p class="p"> One can get a HPROF binary heap dump on an OutOfMemoryError for Sun JVM
 				(1.4.2_12 or higher and 1.5.0_07 or higher), Oracle JVMs,
@@ -175,8 +175,8 @@
 
 			
 			<p class="p">Acquiring the heap dump is VM specific. Memory Analyzer comes with 
-			several so called heap dump providers - for Oracle and Sun based VMs 
-			(needs a Oracle or Sun JDK
+			several so called heap dump providers - for OpenJDK, Oracle and Sun based VMs 
+			(needs a OpenJDK, Oracle or Sun JDK
 			with jmap) and for IBM VMs (needs an IBM JDK or JRE). 
 			Also extension points 
 			are provided for adopters to plug-in their own heap dump providers.
@@ -253,20 +253,25 @@
 	<div class="p">
 		<dl class="dl">
 			
-				<dt class="dt dlterm" id="task_acquiringheapdump__1">HPROF jmp dump provider</dt>
+				<dt class="dt dlterm" id="task_acquiringheapdump__1">HPROF jmap dump provider</dt>
 
 				<dd class="dd">
 					This provider uses the
 					<span class="keyword cmdname">jps</span>
-					command supplied with an Oracle or OpenJDK based JDK to list the
+					command supplied with an OpenJDK or Oracle based JDK to list the
 					running JVMs on the system. The provider then uses the
 					<span class="keyword cmdname">jmap</span>
 					command to get the chosen
-					JVM to generate an HPROF dump. This
+					JVM to generate an HPROF dump.
+					As an alternative the provider can use the <span class="keyword cmdname">jcmd</span>
+					to both list running JVMs and to generate dumps.
+					This
 					provider requires a JDK (Java
 					development kit), not a JRE
 					(Java
-					runtime environment) for those two commands. IBM JDKs do not
+					runtime environment) for those commands. 
+					
+					IBM JDKs do not
 					have
 					the
 					<span class="keyword cmdname">jps</span>
@@ -299,7 +304,7 @@
 					in
 					<samp class="ph codeph">tools.jar</samp>
 					and not as part of JREs. Therefore if Memory Analyzer is run with
-					an Oracle JRE
+					an OpenJDK or Oracle JRE
 					then this dump provider will not be available.
 					The
 					<span class="keyword apiname">com.sun.tools.attach</span>
@@ -326,8 +331,8 @@
 				<dt class="dt dlterm"><a name="task_acquiringheapdump__3"><!-- --></a>Attach API with helper JVM</dt>
 
 				<dd class="dd">
-					If Memory Analyzer is run with an Oracle JRE then this dump
-					provider can be used with an Oracle JDK by providing a path
+					If Memory Analyzer is run with an OpenJDK or Oracle JRE then this dump
+					provider can be used with an OpenJDK or Oracle JDK by providing a path
 					to a
 					<span class="keyword cmdname">java</span>
 					executable. The dump provider will load the
@@ -336,7 +341,7 @@
 					so that the
 					<span class="keyword apiname">com.sun.tools.attach</span>
 					API
-					is acessible. This provider can also be used to list JVMs
+					is accessible. This provider can also be used to list JVMs
 					of a
 					different type from the JVM used to run Memory Analyzer.
 					For example
@@ -345,7 +350,14 @@
 					an IBM
 					JVM
 					<span class="keyword cmdname">java</span>
-					command even when Memory Analyzer is run with an Oracle JVM.
+					command even when Memory Analyzer is run with an OpenJDK or Oracle JVM.
+					<p class="p">
+					If a path to a
+					<span class="keyword cmdname">jcmd</span>
+					executable is provided then this command will be used to
+					generate a list of running JVMs and to generate the dumps.
+					</p>
+
 				</dd>
 
 			
@@ -464,6 +476,19 @@
 					</p>
 
 				</dd>
+
+			
+			
+				<dt class="dt dlterm">chunked</dt>
+
+				<dd class="dd">OpenJDK 15 and later can generate compressed HPROF files by
+				using the <span class="keyword cmdname">jcmd &lt;pid&gt; GC.heap_dump -gz=1</span>
+				which compresses the HPROF file using gzip, but in chunks so
+				that random access to the file is quicker. Memory Analyzer version 1.12
+				and later can read this format, and with this option and
+				<span class="keyword option">compress</span> the HPROF dump provider
+				generates HPROF files compressed in chunks, for faster read access
+				than normal gzip compressed files.</dd>
 
 			
 			
@@ -619,23 +644,24 @@
 					
 					
 					
+					
 					<thead class="thead" align="left">
 						<tr class="row">
-							<th class="entry" valign="top" width="6.25%" id="d11477e584">Vendor</th>
+							<th class="entry" valign="top" width="5.88235294117647%" id="d11625e611">Vendor</th>
 
-							<th class="entry" valign="top" width="12.5%" id="d11477e587">Release</th>
+							<th class="entry" valign="top" width="11.76470588235294%" id="d11625e614">Release</th>
 
-							<th class="entry" colspan="3" valign="top" id="d11477e590">VM
+							<th class="entry" colspan="3" valign="top" id="d11625e617">VM
 								Parameter</th>
 
-							<th class="entry" colspan="2" valign="top" id="d11477e593">Sun
+							<th class="entry" colspan="3" valign="top" id="d11625e620">JVM
 								Tools</th>
 
-							<th class="entry" valign="top" width="6.25%" id="d11477e596">SAP Tool</th>
+							<th class="entry" valign="top" width="5.88235294117647%" id="d11625e623">SAP Tool</th>
 
-							<th class="entry" valign="top" width="12.5%" id="d11477e600">Attach</th>
+							<th class="entry" valign="top" width="11.76470588235294%" id="d11625e627">Attach</th>
 
-							<th class="entry" valign="top" width="12.5%" id="d11477e603">MAT</th>
+							<th class="entry" valign="top" width="11.76470588235294%" id="d11625e630">MAT</th>
 
 						</tr>
 
@@ -643,329 +669,430 @@
 
 					<tbody class="tbody">
 						<tr class="row">
-							<td class="entry" valign="top" width="6.25%" headers="d11477e584 "> </td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e611 "> </td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 "> </td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 "> </td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">On out of memory</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">On out of memory</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">On Ctrl+Break</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">On Ctrl+Break</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Agent</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Agent</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">JMap</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">JMap</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">JConsole</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">JCmd</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">JVMMon</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">JConsole</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">API</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">JVMMon</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">acquire heap dump</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">API</td>
 
-						</tr>
-
-						<tr class="row">
-							<td class="entry" rowspan="3" valign="top" width="6.25%" headers="d11477e584 ">Sun, HP</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.4.2_12</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 "> </td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 "> </td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 "> </td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 "> </td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">acquire heap dump</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.5.0_07</td>
+							<td class="entry" rowspan="3" valign="top" width="5.88235294117647%" headers="d11625e611 ">Sun, HP</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.4.2_12</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes (Since 1.5.0_15)</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">Yes (Only Solaris and Linux)</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 "> </td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 "> </td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes (Only Solaris and Linux)</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
 
-						</tr>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 "> </td>
 
-						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.6.0_00</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 "> </td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">No</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" rowspan="2" valign="top" width="6.25%" headers="d11477e584 ">Oracle, OpenJDK, HP</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.5.0_07</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.7.0</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes (Since 1.5.0_15)</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes (Only Solaris and Linux)</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 "> </td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
-
-						</tr>
-
-						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.8.0</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 "> </td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes (Only Solaris and Linux)</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="6.25%" headers="d11477e584 ">SAP</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.6.0_00</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">Any 1.5.0</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">Yes (Only Solaris and Linux)</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 "> </td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 "> </td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 "> </td>
-
-						</tr>
-
-						<tr class="row">
-							<td class="entry" rowspan="7" valign="top" width="6.25%" headers="d11477e584 ">IBM</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.4.2 SR12</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 "> </td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.5.0 SR8a</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e611 ">Oracle, OpenJDK, HP</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.7.0</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.ibm.tools.attach</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 "> </td>
 
-						</tr>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.6.0 SR2</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.ibm.tools.attach</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.6.0 SR6</td>
+							<td class="entry" rowspan="3" valign="top" width="5.88235294117647%" headers="d11625e611 ">Oracle, OpenJDK, HP, Amazon Corretto</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.8.0</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.ibm.tools.attach</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 "> </td>
 
-						</tr>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.7.0</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.ibm.tools.attach</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.8.0</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">11</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.ibm.tools.attach</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 "> </td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-						</tr>
-
-						<tr class="row">
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.8.0 SR5</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">No</td>
-
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
-
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
 
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top" width="6.25%" headers="d11477e584 ">OpenJ9</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">15</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e587 ">1.8.0</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e590 ">Yes</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e590 ">No</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e593 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e593 ">Yes (PHD only)</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
 
-							<td class="entry" valign="top" width="6.25%" headers="d11477e596 ">No</td>
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 "> </td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e600 ">com.sun.tools.attach</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
 
-							<td class="entry" valign="top" width="12.5%" headers="d11477e603 ">Yes</td>
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e611 ">SAP</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">Any 1.5.0</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes (Only Solaris and Linux)</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 "> </td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 "> </td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" rowspan="7" valign="top" width="5.88235294117647%" headers="d11625e611 ">IBM</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.4.2 SR12</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 "> </td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">No</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.5.0 SR8a</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.ibm.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">No</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.6.0 SR2</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.ibm.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">No</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.6.0 SR6</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.ibm.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.7.0</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.ibm.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.8.0</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.ibm.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.8.0 SR5</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">No</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes (PHD only?)</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" rowspan="2" valign="top" width="5.88235294117647%" headers="d11625e611 ">OpenJ9</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">1.8.0</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes (PHD only)</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
+
+						</tr>
+
+						<tr class="row">
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e614 ">11</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e617 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e617 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e620 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e620 ">Yes (PHD only)</td>
+
+							<td class="entry" valign="top" width="5.88235294117647%" headers="d11625e623 ">No</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e627 ">com.sun.tools.attach</td>
+
+							<td class="entry" valign="top" width="11.76470588235294%" headers="d11625e630 ">Yes</td>
 
 						</tr>
 

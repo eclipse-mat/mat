@@ -63,8 +63,8 @@ public class AcquireDumpTest
     HeapDumpProviderDescriptor hdpd;
     int num;
     int nall;
-    static int count;
-    static int found;
+    private static int count;
+    private static int found;
     public AcquireDumpTest(HeapDumpProviderDescriptor hdpd, String name, int id, int n)
     {
         this.hdpd = hdpd;
@@ -121,7 +121,6 @@ public class AcquireDumpTest
      */
     public void test3(boolean compress, boolean chunked) throws SnapshotException, IOException
     {
-        Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
         File tmpdir = TestSnapshots.createGeneratedName("acquire", null);
         HeapDumpProviderDescriptor hd = hdpd;
         do {
@@ -145,7 +144,7 @@ public class AcquireDumpTest
                 continue;
             for (VmInfo vm : ls)
             {
-                ++count;
+                incCount();
                 String desc = vm.getDescription();
                 collector.checkThat("VM description", desc, notNullValue());
                 if (desc.contains("org.eclipse.mat.tests"))
@@ -237,7 +236,7 @@ public class AcquireDumpTest
                         try
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
-                            found++;
+                            incFound();
                             // Currently zipped hprof is very slow (>1 hour)
                             if (!compress || chunked)
                             {
@@ -264,8 +263,8 @@ public class AcquireDumpTest
         // See if any of the tests with any provider actually loads a dump
         if (num == nall)
         {
-            collector.checkThat("Available VMs", count, greaterThan(0));
-            collector.checkThat("Available dumps from VMs", found, greaterThan(0));
+            collector.checkThat("Available VMs", getCount(), greaterThan(0));
+            collector.checkThat("Available dumps from VMs", getFound(), greaterThan(0));
         }
     }
 
@@ -384,5 +383,25 @@ public class AcquireDumpTest
             //System.out.println("Found "+o7+" "+errMsg);
         }
         assertTrue(errMsg+" "+toFind, foundItem);
+    }
+
+    static int getCount()
+    {
+        return count;
+    }
+
+    static void incCount()
+    {
+        ++count;
+    }
+
+    static int getFound()
+    {
+        return found;
+    }
+
+    static void incFound()
+    {
+        ++found;
     }
 }

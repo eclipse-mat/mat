@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 IBM Corporation
+ * Copyright (c) 2010, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
+    private static final String JCMD = "jcmd"; //$NON-NLS-1$
     private static boolean abort = false;
     private int lastCount = 20;
 
@@ -102,24 +103,59 @@ public class IBMExecDumpProvider extends BaseProvider
         String vm = info2.getPidName();
         try
         {
-            String jar = getExecJar().getAbsolutePath();
             final String execPath = info2.javaexecutable.getPath();
             List<String> args = new ArrayList<String>(9);
             args.add(execPath);
-            args.add(encodingOpt);
-            if (info2.vmoptions != null)
+            if (info2.javaexecutable.getName().startsWith(JCMD))
             {
-                args.addAll(Arrays.asList(info2.vmoptions));
+                args.add("-J" + encodingOpt); //$NON-NLS-1$
+                if (info2.vmoptions != null)
+                {
+                    for (String arg : info2.vmoptions)
+                    {
+                        args.add("-J" + arg); //$NON-NLS-1$
+                    }
+                }
+                args.add(vm);
+                switch (info2.type)
+                {
+                    case HEAP:
+                        args.add("Dump.heap"); //$NON-NLS-1$
+                        break;
+                    case HPROF:
+                        args.add("GC.heap_dump"); //$NON-NLS-1$
+                        if (!info2.live)
+                            args.add("-all"); //$NON-NLS-1$
+                        break;
+                    case JAVA:
+                        args.add("Dump.java"); //$NON-NLS-1$
+                        break;
+                    case SYSTEM:
+                        args.add("Dump.system"); //$NON-NLS-1$
+                        break;
+                    default:
+                        break;
+                }
+                args.add(preferredLocation.getAbsolutePath());
             }
-            args.add("-jar"); //$NON-NLS-1$
-            args.add(jar);
-            args.add(info2.type.toString());
-            args.add(vm);
-            args.add(Boolean.toString(info2.live));
-            args.add(Boolean.toString(info2.compress));
-            args.add(preferredLocation.getAbsolutePath());
-            if (info2.dumpdir != null)
-                args.add(info2.dumpdir.getAbsolutePath());
+            else
+            {
+                args.add(encodingOpt);
+                if (info2.vmoptions != null)
+                {
+                    args.addAll(Arrays.asList(info2.vmoptions));
+                }
+                args.add("-jar"); //$NON-NLS-1$
+                String jar = getExecJar().getAbsolutePath();
+                args.add(jar);
+                args.add(info2.type.toString());
+                args.add(vm);
+                args.add(Boolean.toString(info2.live));
+                args.add(Boolean.toString(info2.compress));
+                args.add(preferredLocation.getAbsolutePath());
+                if (info2.dumpdir != null)
+                    args.add(info2.dumpdir.getAbsolutePath());
+            }
             pb.command(args);
             p = pb.start();
             StringBuffer err = new StringBuffer();
@@ -181,13 +217,57 @@ public class IBMExecDumpProvider extends BaseProvider
                             info.setHeapDumpEnabled(false);
                         }
                         throw new IOException(MessageUtil.format(Messages
-                                    .getString("IBMExecDumpProvider.ReturnCode"), execPath, rc, err.toString())); //$NON-NLS-1$
+                                    .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err.toString())); //$NON-NLS-1$
                     }
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     String filename = ss[0];
+                    if (info2.javaexecutable.getName().startsWith(JCMD))
+                    {
+                        // OpenJDK
+                        if (filename.matches("^[0-9]+:$")) //$NON-NLS-1$
+                        {
+                            filename = preferredLocation.getAbsolutePath();
+                        }
+                        else
+                        {
+                            // From J9 jcmd.exe
+                            filename = filename.replaceFirst("^Dump written to ", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
                     listener.done();
-                    final File file = new File(filename);
-                    if (!file.canRead()) { throw new FileNotFoundException(filename); }
+                    File file = new File(filename);
+                    if (!file.canRead())
+                    {
+                        // Does it looks like an error message?
+                        if (err.length() > 0 || ss.length > 1)
+                        {
+                            throw new IOException(MessageUtil.format(Messages
+                                            .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err.toString() +"\n" + in.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        else
+                        {
+                            throw new FileNotFoundException(filename);
+                        }
+                    }
+                    if (info2.javaexecutable.getName().startsWith(JCMD))
+                    {
+                        IBMDumpProvider help1 = new IBMDumpProvider();
+                        IBMDumpProvider helper = help1.getDumpProvider(info2);
+                        List<File>dumps = Collections.singletonList(file);
+                        File javahome = javaexecutable.getParentFile();
+                        if (javahome != null)
+                            javahome = javahome.getParentFile();
+                        try
+                        {
+                            file = helper.jextract(preferredLocation, info2.compress, dumps, file.getParentFile(), javahome, listener);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
+                            throw new SnapshotException(Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
+                        }
+                        return file;
+                    }
                     return file;
                 }
                 finally
@@ -534,18 +614,34 @@ public class IBMExecDumpProvider extends BaseProvider
         final String execPath = javaExec.getPath();
         try
         {
-            String jar = getExecJar().getAbsolutePath();
             List<String> args = new ArrayList<String>(4);
             args.add(execPath);
-            args.add(encodingOpt);
-            if (vmoptions != null)
+            boolean useJcmd = javaExec.getName().startsWith(JCMD);
+            if (useJcmd)
             {
-                args.addAll(Arrays.asList(vmoptions));
+                args.add("-J" + encodingOpt); //$NON-NLS-1$
+                if (vmoptions != null)
+                {
+                    for (String arg : vmoptions)
+                    {
+                        args.add("-J" + arg); //$NON-NLS-1$
+                    }
+                }
+                args.add("-l"); //$NON-NLS-1$
             }
-            args.add("-jar"); //$NON-NLS-1$
-            args.add(jar);
-            // Verbose listing?
-            args.add(Boolean.toString(listAttach));
+            else
+            {
+                args.add(encodingOpt);
+                if (vmoptions != null)
+                {
+                    args.addAll(Arrays.asList(vmoptions));
+                }
+                args.add("-jar"); //$NON-NLS-1$
+                String jar = getExecJar().getAbsolutePath();
+                args.add(jar);
+                // Verbose listing?
+                args.add(Boolean.toString(listAttach));
+            }
             pb.command(args);
             p = pb.start();
             StringBuffer err = new StringBuffer();
@@ -562,6 +658,11 @@ public class IBMExecDumpProvider extends BaseProvider
                         while (os.ready())
                         {
                             in.append((char) os.read());
+                            if (useJcmd)
+                            {
+                                listener.worked(1);
+                                ++count;
+                            }
                         }
                         while (es.ready())
                         {
@@ -606,7 +707,7 @@ public class IBMExecDumpProvider extends BaseProvider
                         if (s2.length >= 5)
                         {
                             // Exclude the helper process
-                            if (!s2[5].contains(getExecJar().getName()))
+                            if (execJar == null || !s2[5].contains(execJar.getName()))
                             {
                                 boolean enableDump = Boolean.parseBoolean(s2[1]);
                                 IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[5], enableDump, null, this);
@@ -631,6 +732,22 @@ public class IBMExecDumpProvider extends BaseProvider
                                     // Only set the name if the automatic naming is not applied
                                     ifo.setProposedFileName(s2[3]);
                                 }
+                                ar.add(ifo);
+                            }
+                        }
+                        else
+                        {
+                            // JCmd output
+                            // pid more process details
+                            s2 = s.split(" ", 2); //$NON-NLS-1$
+                            if (s2.length == 2 && s2[0].matches("[0-9]+")) //$NON-NLS-1$
+                            {
+                                boolean enableDump = !s2[1].contains(execPath);
+                                if (s2[1].contains("JCmd -l")) //$NON-NLS-1$
+                                    enableDump = false;
+                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[1], enableDump, null, this);
+                                ifo.javaexecutable = javaExec;
+                                ifo.vmoptions = vmoptions;
                                 ar.add(ifo);
                             }
                         }

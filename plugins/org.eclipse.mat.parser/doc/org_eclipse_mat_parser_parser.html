@@ -19,13 +19,19 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
 <p></p>
 <p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.parser">parser</a>)&gt;</p>
 <p class="code SchemaDtd">&lt;!ATTLIST extension</p>
-<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #REQUIRED</p>&gt;</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #REQUIRED&gt;</p>
 <p></p>
 <ul class="ConfigMarkupAttlistDesc">
 </ul>
-<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.parser">parser</a> EMPTY&gt;</p>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.parser">parser</a> (<a href="#e.contentTypeBinding">contentTypeBinding</a>*)&gt;</p>
 <p class="code SchemaDtd">&lt;!ATTLIST parser</p>
-<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">fileExtension&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">indexBuilder&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">objectReader&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">dynamic&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED</p>&gt;</p>
+<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">fileExtension&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">indexBuilder&nbsp;&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">objectReader&nbsp;&nbsp;CDATA #REQUIRED</p>
+<p class="code SchemaDtdAttlist">dynamic&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
 <p></p>
 <ul class="ConfigMarkupAttlistDesc">
 <li><b>name</b> - Name of the heap dump format. For example, shown in the file selection dialog.</li>
@@ -33,6 +39,16 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
 <li><b>indexBuilder</b> - implementor of <a href="org/eclipse/mat/parser/IIndexBuilder.html"><samp>org.eclipse.mat.snapshot.adapter.IIndexBuilder</samp></a> which creates the index files, i.e. the structural information of the heap dump like the reference graph</li>
 <li><b>objectReader</b> - implementor of <a href="org/eclipse/mat/parser/IObjectReader.html"><samp>org.eclipse.mat.parser.IObjectReader</samp></a> to read the object details from the heap dump file</li>
 <li><b>dynamic</b> - This is a class which extends java.util.Map and returns a set of extensions and descriptions, together with ids which replace the attributes "id", "name", "fileExtension" in the dynamic parser.</li>
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.contentTypeBinding">contentTypeBinding</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST contentTypeBinding</p>
+<p class="code SchemaDtdAttlist">contentTypeId&nbsp;IDREF #REQUIRED&gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+Advertises that the containing parser understands the given content type and is suitable for parsing files of that type.</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>contentTypeId</b> - The content type identifier. This is an ID defined by the 'org.eclipse.core.contenttype.contentTypes' extension point.</li>
 </ul>
 <br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>Following is an example of a parser declaration: 
 <p>
@@ -81,7 +97,7 @@ The subparsers share the indexBuilder and objectReader.
 
 <br>
 <p class="note SchemaCopyright">
-Copyright (c) 2008,2011 SAP AG and IBM Corporation.<br>
+Copyright (c) 2008,2021 SAP AG and IBM Corporation.<br>
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License 2.0 which 
 accompanies this distribution, and is available at 

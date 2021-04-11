@@ -51,6 +51,9 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
 
    <element name="parser">
       <complexType>
+         <sequence>
+            <element ref="contentTypeBinding" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
@@ -101,6 +104,29 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
       </complexType>
    </element>
 
+   <element name="contentTypeBinding">
+      <annotation>
+         <appInfo>
+            <meta.element labelAttribute="contentTypeId"/>
+         </appInfo>
+         <documentation>
+            Advertises that the containing parser understands the given content type and is suitable for parsing files of that type.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="contentTypeId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The content type identifier. This is an ID defined by the &apos;org.eclipse.core.contenttype.contentTypes&apos; extension point.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.core.contenttype.contentTypes/content-type/@id"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <annotation>
       <appInfo>
          <meta.section type="since"/>
@@ -136,29 +162,6 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
 
    <annotation>
       <appInfo>
-         <meta.section type="implementation"/>
-      </appInfo>
-      <documentation>
-         The Memory Analyzer supplies an implementation for HPROF and IBM DTFJ format dumps. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in and &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt; plug-in.
- A DTFJ implementation is available from IBM DeveloperWorks.
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
-         <meta.section type="copyright"/>
-      </appInfo>
-      <documentation>
-         Copyright (c) 2008,2011 SAP AG and IBM Corporation.&lt;br&gt;
-All rights reserved. This program and the accompanying materials are made 
-available under the terms of the Eclipse Public License 2.0 which 
-accompanies this distribution, and is available at 
-&lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0/&quot;&gt;https://www.eclipse.org/legal/epl-2.0/&lt;/a&gt;
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
@@ -183,6 +186,29 @@ Map&lt;String, Map&lt;String, String&gt;&gt;
   
 The subparsers share the indexBuilder and objectReader.
 &lt;p&gt;This is used for example by the DTFJ parser which has to find out at run time which DTFJ implementations are available and to create an MAT parser definition for each one.&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         The Memory Analyzer supplies an implementation for HPROF and IBM DTFJ format dumps. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in and &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt; plug-in.
+ A DTFJ implementation is available from IBM DeveloperWorks.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008,2021 SAP AG and IBM Corporation.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License 2.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0/&quot;&gt;https://www.eclipse.org/legal/epl-2.0/&lt;/a&gt;
       </documentation>
    </annotation>
 

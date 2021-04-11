@@ -1146,10 +1146,13 @@ public class GeneralSnapshotTests
     /**
      * Test exporting as HPROF
      * @param compress whether to compress the generated HPROF file
+     * @param chunked gzip in chunks for faster seeks
+     * @param redact whether to remove certain parts of the snapshot
+     * @param segsize
      * @throws SnapshotException
      * @throws IOException
      */
-    public void exportHPROF(boolean compress, boolean redact, long segsize) throws SnapshotException, IOException
+    public void exportHPROF(boolean compress, boolean chunked, boolean redact, long segsize) throws SnapshotException, IOException
     {
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
@@ -1164,6 +1167,7 @@ public class GeneralSnapshotTests
         try {
             SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath() +
                             (compress ? " -compress" : "") +
+                            (chunked ? " -chunked" : "") +
                             (mapping != null ? " -redact NAMES -map "+mapping.getPath() : "") +
                             (segsize > 0 ? " -segsize "+segsize : ""), snapshot);
             IResult t = query.execute(new CheckedProgressListener(collector));
@@ -1312,7 +1316,7 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROF() throws SnapshotException, IOException
     {
-        exportHPROF(false, false, 0);
+        exportHPROF(false, false, false, 0);
     }
 
     /**
@@ -1323,7 +1327,7 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROFredact() throws SnapshotException, IOException
     {
-        exportHPROF(false, true, 0);
+        exportHPROF(false, false, true, 0);
     }
 
     /**
@@ -1334,7 +1338,18 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROFCompress() throws SnapshotException, IOException
     {
-        exportHPROF(true, false, 0);
+        exportHPROF(true, false, false, 0);
+    }
+
+    /**
+     * Test exporting as compressed, chunked HPROF
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROFCompressChunked() throws SnapshotException, IOException
+    {
+        exportHPROF(true, true, false, 0);
     }
 
     /**
@@ -1347,7 +1362,7 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROFSegments() throws SnapshotException, IOException
     {
-        exportHPROF(false, false, 1000000);
+        exportHPROF(false, false, false, 1000000);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 IBM Corporation
+ * Copyright (c) 2010, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -189,6 +189,12 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
                             .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
             }
+
+            // Tidy up
+            if (!result.getCanonicalFile().equals(dump.getCanonicalPath()))
+            {
+                dump.delete();
+            }
         }
         else
         {
@@ -203,12 +209,6 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                 // Failed, use original dump
             }
             result = dump;
-        }
-
-        // Tidy up
-        if (zip)
-        {
-            dump.delete();
         }
 
         listener.done();
