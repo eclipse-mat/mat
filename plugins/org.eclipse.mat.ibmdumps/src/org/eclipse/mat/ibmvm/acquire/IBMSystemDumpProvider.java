@@ -191,7 +191,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             }
 
             // Tidy up
-            if (!result.getCanonicalFile().equals(dump.getCanonicalPath()))
+            if (!result.getCanonicalFile().equals(dump.getCanonicalFile()))
             {
                 dump.delete();
             }

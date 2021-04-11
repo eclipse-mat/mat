@@ -518,7 +518,6 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     {
         Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
         CRC32 crc = new CRC32();
-        boolean finished = false;
         int chunkSize = 1024 * 1024;
         String comment = HPROF_BLOCKSIZE + chunkSize;
         boolean writtenComment = false;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019,2020 IBM Corporation.
+ * Copyright (c) 2019,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public class HprofGZIPContentDescriber implements IContentDescriber
 
     public QualifiedName[] getSupportedOptions()
     {
-        return QUALIFIED_NAMES;
+        return QUALIFIED_NAMES.clone();
     }
 
 }

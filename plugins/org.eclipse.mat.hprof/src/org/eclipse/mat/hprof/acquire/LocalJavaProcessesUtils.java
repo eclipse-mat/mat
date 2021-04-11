@@ -53,7 +53,7 @@ public class LocalJavaProcessesUtils
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String cmds[] = cmd.startsWith("jcmd") ?  //$NON-NLS-1$
                         new String[]{jps, "-l", "-J-Dfile.encoding="+encoding} //$NON-NLS-1$//$NON-NLS-2$
-        : new String[]{jps, "-l", "-J-Dfile.encoding="+encoding}; //$NON-NLS-1$//$NON-NLS-2$
+        : new String[]{jps, "-m", "-l", "-J-Dfile.encoding="+encoding}; //$NON-NLS-1$//$NON-NLS-2$
                         listener.subTask(jps);
                         StreamCollector error = null;
                         StreamCollector output = null;
@@ -131,7 +131,6 @@ public class LocalJavaProcessesUtils
         StringBuilder buf;
         String encoding;
         IProgressListener listener;
-        int count;
 
         StreamCollector(InputStream is)
         {
