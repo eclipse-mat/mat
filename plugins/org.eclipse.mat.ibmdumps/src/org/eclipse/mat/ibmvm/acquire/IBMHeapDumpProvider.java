@@ -137,8 +137,9 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
             File dumpout = result.getCanonicalFile().equals(dump.getCanonicalFile()) ? 
                             File.createTempFile(dump.getName(),  null, dump.getParentFile())
                           : result;
-            listener.subTask(Messages.getString("IBMDumpProvider.CompressingDump")); //$NON-NLS-1$
             int bufsize = 64 * 1024;
+            int work = (int)(dump.length() / bufsize);
+            listener.beginTask(Messages.getString("IBMDumpProvider.CompressingDump"), work); //$NON-NLS-1$
             InputStream is = new BufferedInputStream(new FileInputStream(dump), bufsize);
             try
             {
@@ -156,6 +157,7 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
                             os.write(buffer, 0, r);
                         else
                             break;
+                        listener.worked(1);
                     }
                 }
                 finally
@@ -165,6 +167,7 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
             }
             catch (IOException e)
             {
+                listener.done();
                 return super.jextract(preferredDump, compress, dumps, udir, javahome, listener);
             }
             finally
@@ -223,6 +226,7 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
                 return super.jextract(preferredDump, compress, dumps, udir, javahome, listener);
             }
         }
+        listener.done();
         return result;
     }
 }

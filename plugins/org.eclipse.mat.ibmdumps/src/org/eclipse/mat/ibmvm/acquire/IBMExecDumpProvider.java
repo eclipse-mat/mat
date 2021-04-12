@@ -94,6 +94,8 @@ public class IBMExecDumpProvider extends BaseProvider
 
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
+        if (!(info instanceof IBMExecVmInfo))
+            throw new IllegalArgumentException(info.toString());
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String encodingOpt = "-Dfile.encoding="+encoding; //$NON-NLS-1$
@@ -748,6 +750,9 @@ public class IBMExecDumpProvider extends BaseProvider
                                 IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[1], enableDump, null, this);
                                 ifo.javaexecutable = javaExec;
                                 ifo.vmoptions = vmoptions;
+                                ifo.type = defaultType;
+                                ifo.live = defaultLive;
+                                ifo.compress = defaultCompress;
                                 ar.add(ifo);
                             }
                         }

@@ -83,23 +83,34 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         File result;
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
-        preferredDump = mergeFileNames(preferredDump, dump);
+        result = mergeFileNames(preferredDump, dump);
         
-        if (compress && !preferredDump.getName().endsWith(".zip")) //$NON-NLS-1$
+        if (compress && !result.getName().endsWith(".zip")) //$NON-NLS-1$
         {
-            preferredDump = new File(preferredDump.getPath()+".zip"); //$NON-NLS-1$;
+            result = new File(result.getPath()+".zip"); //$NON-NLS-1$;
         }
 
         int work = 1000;
         listener.beginTask(MessageFormat.format(Messages.getString("IBMSystemDumpProvider.FormattingDump"), //$NON-NLS-1$
-                           dump, preferredDump), work); 
+                           dump, result), work); 
 
 
-        final boolean zip = preferredDump.getName().endsWith(".zip"); //$NON-NLS-1$
+        final boolean zip = result.getName().endsWith(".zip"); //$NON-NLS-1$
 
         // Only need to run jextract to zip a dump - DTFJ can now read dumps directly
         if (zip)
         {
+            String dumpname = dump.getName();
+            if (dumpname.endsWith(".zip")) //$NON-NLS-1$
+            {
+                // JExtract might get confused by a dump ending in zip
+                File newname = new File(dump.getParentFile(), dumpname.substring(0, dumpname.length() - 4));
+                if (dump.renameTo(newname))
+                    dump = newname;
+            }
+            File dumpout = result.getCanonicalFile().equals(dump.getCanonicalFile()) ? 
+                            File.createTempFile(dump.getName(),  null, dump.getParentFile())
+                          : result;
             long dumpLen = dump.length();
             ProcessBuilder pb = new ProcessBuilder();
             File jextract;
@@ -112,8 +123,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             {
                 jextract = new File("jextract"); //$NON-NLS-1$
             }
-            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), preferredDump.getAbsolutePath());
-            result = preferredDump;
+            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), dumpout.getAbsolutePath());
 
             pb.redirectErrorStream(true);
             pb.directory(udir);
@@ -142,7 +152,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                         errorBuf.append((char) t);
                     }
                     listener.subTask("\n" + errorBuf.toString()); //$NON-NLS-1$
-                    long newlen = result.length();
+                    long newlen = dumpout.length();
                     long step;
                     if (newlen < f1 * estimatedZipLen / f2)
                     {
@@ -186,14 +196,27 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                             .getString("IBMSystemDumpProvider.ReturnCode"), jextract.getAbsolutePath(), exitCode, errorBuf.toString())); //$NON-NLS-1$
             }
 
-            if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
+            if (!dumpout.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
                             .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
             }
 
             // Tidy up
-            if (!result.getCanonicalFile().equals(dump.getCanonicalFile()))
+            // No need to keep the uncompressed dump
+            if (dump.delete())
             {
-                dump.delete();
+                if (!dumpout.getCanonicalFile().equals(result.getCanonicalFile()) && !dumpout.renameTo(result))
+                {
+                    throw new IOException(result.getPath());
+                }
+            }
+            else
+            {
+                if (!dumpout.delete())
+                {
+                    throw new IOException(dumpout.getPath());
+                }
+                // Return uncompressed
+                result = dump;
             }
         }
         else

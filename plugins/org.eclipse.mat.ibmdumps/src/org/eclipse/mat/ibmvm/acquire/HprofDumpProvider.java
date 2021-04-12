@@ -87,8 +87,9 @@ class HprofDumpProvider extends IBMDumpProvider
         File dumpout = preferredDump.getCanonicalFile().equals(dump.getCanonicalFile()) ? 
                        File.createTempFile(dump.getName(),  null, dump.getParentFile())
                      : preferredDump;
-        listener.subTask(Messages.getString("IBMDumpProvider.CompressingDump")); //$NON-NLS-1$
         int bufsize = 64 * 1024;
+        int work = (int)(dumpout.length() / bufsize);
+        listener.beginTask(Messages.getString("IBMDumpProvider.CompressingDump"), work); //$NON-NLS-1$
         InputStream is = new BufferedInputStream(new FileInputStream(dump), bufsize);
         try
         {
@@ -106,6 +107,7 @@ class HprofDumpProvider extends IBMDumpProvider
                         os.write(buffer, 0, r);
                     else
                         break;
+                    listener.worked(1);
                 }
             }
             finally
@@ -133,6 +135,7 @@ class HprofDumpProvider extends IBMDumpProvider
             // Return uncompressed
             preferredDump = dump;
         }
+        listener.done();
         return preferredDump;
     }
 }

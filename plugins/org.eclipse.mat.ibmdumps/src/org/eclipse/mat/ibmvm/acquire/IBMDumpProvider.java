@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 IBM Corporation
+ * Copyright (c) 2010, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -157,7 +157,6 @@ public class IBMDumpProvider extends BaseProvider
 
     static class VirtualMachineDescriptor
     {
-        String name;
         String id;
         String displayName;
         /** A wrapper version of the provider */
@@ -934,7 +933,7 @@ public class IBMDumpProvider extends BaseProvider
      */
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
-        IBMVmInfo vminfo = (IBMVmInfo)info;
+        IBMVmInfo vminfo = info instanceof IBMVmInfo ? (IBMVmInfo)info : new IBMVmInfo(String.valueOf(info.getPid()), info.getDescription(), info.isHeapDumpEnabled(), info.getProposedFileName(), this);
         IBMDumpProvider helper = getDumpProvider(vminfo);
         // Delegate to the appropriate helper
         if (helper != this) return helper.acquireDump(info, preferredLocation, listener);
