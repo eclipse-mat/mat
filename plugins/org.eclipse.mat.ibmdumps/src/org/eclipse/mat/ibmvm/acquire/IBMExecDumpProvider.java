@@ -62,6 +62,8 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
     private static final String JCMD = "jcmd"; //$NON-NLS-1$
+    private static final String ibmmodules[] = {"jdmpview", "jdmpview.exe", "jextract", "jextract.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe", "jli.dll", "libjli.so"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
     private static boolean abort = false;
     private int lastCount = 20;
 
@@ -75,6 +77,7 @@ public class IBMExecDumpProvider extends BaseProvider
     public String vmoptions[] = {};
 
     private DumpType defaultTypeCopy;
+    public File javaexecutableCopy;
 
     public IBMExecDumpProvider()
     {
@@ -361,6 +364,40 @@ public class IBMExecDumpProvider extends BaseProvider
             }
 
             javaExec = javaExec(javaDir);
+            if (!javaExec.canExecute())
+            {
+                File javaExec2 = jvmExec(new File(javaDir), JAVA_EXEC_WINDOWS);
+                if (javaExec2.canExecute())
+                    javaExec = javaExec2;
+            }
+        }
+        // See if the JVM has changed, so the default type could change
+        if (javaExec != null && javaExec.canExecute() && !javaExec.equals(javaexecutableCopy))
+        {
+            if (defaultType == DumpType.HPROF)
+            {
+                for (String mod : ibmmodules)
+                {
+                    File modf = new File(javaExec.getParentFile(), mod);
+                    if (modf.canExecute())
+                    {
+                        defaultType = DumpType.SYSTEM;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (String mod : hprofmodules)
+                {
+                    File modf = new File(javaExec.getParentFile(), mod);
+                    if (modf.canExecute())
+                    {
+                        defaultType = DumpType.HPROF;
+                        break;
+                    }
+                }
+            }
         }
 
         ret = execGetVMs(javaExec, listener);
@@ -368,6 +405,7 @@ public class IBMExecDumpProvider extends BaseProvider
         {
             setJavaDir(javaDir);
             this.javaexecutable = javaExec;
+            javaexecutableCopy = javaExec;
         }
         return ret;
     }
@@ -402,8 +440,6 @@ public class IBMExecDumpProvider extends BaseProvider
     private List<File> defaultJavaDirs()
     {
         List<File> ret = new ArrayList<File>();
-        String ibmmodules[] = {"dgcollector.dll", "dgcollector.so", "jdmpview.exe", "jdmpview"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        String hprofmodules[] = {"jrunscript.exe", "jrunscript", "jjs.exe", "jjs"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         String modules[] = defaultType == DumpType.HPROF ? hprofmodules : ibmmodules;
         List<File> paths = new ArrayList<File>();
         IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("org.eclipse.jdt.launching"); //$NON-NLS-1$
@@ -451,7 +487,7 @@ public class IBMExecDumpProvider extends BaseProvider
             for (String mod : modules)
             {
                 File dll = new File(dir, mod);
-                if (dll.canRead())
+                if (dll.canExecute())
                 {
                     if (!ret.contains(dir))
                     {
@@ -460,7 +496,7 @@ public class IBMExecDumpProvider extends BaseProvider
                     }
                 }
                 dll = new File(dir2, mod);
-                if (dll.canRead())
+                if (dll.canExecute())
                 {
                     if (!ret.contains(dir2))
                     {
