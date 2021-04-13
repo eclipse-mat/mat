@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - file validation
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
@@ -135,7 +136,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
     {
         String path = combo.getText().trim();
 
-        if (path.length() > 0 && !new File(path).exists())
+        if (path.length() > 0 && (!new File(path).canRead() || new File(path).isDirectory()))
         {
             fireErrorEvent(MessageUtil.format(Messages.SnapshotSelectionEditor_FileDoesNotExist, path), this);
         }

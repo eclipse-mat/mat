@@ -63,7 +63,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
     private static final String JCMD = "jcmd"; //$NON-NLS-1$
     private static final String ibmmodules[] = {"jdmpview", "jdmpview.exe", "jextract", "jextract.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-    private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe", "jli.dll", "libjli.so"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+    private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
     private static boolean abort = false;
     private int lastCount = 20;
 

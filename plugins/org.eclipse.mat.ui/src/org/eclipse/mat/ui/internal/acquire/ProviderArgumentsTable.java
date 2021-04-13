@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -529,11 +530,21 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                         {
                             l.add(Array.get(defaultValue, ii));
                         }
+                        Object old = ad.getDefaultValue();
                         ad.setDefaultValue(Collections.unmodifiableList(l));
+                        // Has the default value changed, if so then
+                        // perhaps the user should also reselect.
+                        if (!Objects.deepEquals(old, defaultValue))
+                            newArgumentsSet.setArgumentValue(ad, null);
                     }
                     else
                     {
+                        Object old = ad.getDefaultValue();
                         ad.setDefaultValue(defaultValue);
+                        // Has the default value changed, if so then
+                        // perhaps the user should also reselect.
+                        if (!Objects.deepEquals(old, defaultValue))
+                            newArgumentsSet.setArgumentValue(ad, null);
                     }
                 }
                 catch (IllegalAccessException e)

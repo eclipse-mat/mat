@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - check box for booleans
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
@@ -17,6 +18,7 @@ import java.io.File;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.ui.internal.query.arguments.CheckBoxEditor.Type;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -27,7 +29,8 @@ public class TableEditorFactory
     {
         if (descriptor.isBoolean())
         {
-            return new BooleanComboEditor(parent, context, descriptor, item);
+            //return new BooleanComboEditor(parent, context, descriptor, item);
+            return new CheckBoxEditor(parent, context, descriptor, item, Type.GENERAL);
         }
         else if (ISnapshot.class.isAssignableFrom(descriptor.getType()))
         {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - input validation
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
@@ -21,6 +22,7 @@ import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -160,7 +162,10 @@ public class FileOpenDialogEditor extends ArgumentEditor
                     String parent;
                     if (text.getText() != null && text.getText().length() > 0 &&
                         (parent = new File(text.getText()).getParent()) != null)
+                    {
                         dialog.setFilterPath(parent);
+                        dialog.setFileName(new File(text.getText()).getName());
+                    }
                     else if (lastDirectory != null && lastDirectory.length() > 0)
                         dialog.setFilterPath(lastDirectory);
                     else
@@ -198,13 +203,44 @@ public class FileOpenDialogEditor extends ArgumentEditor
                 value = context.convertToValue(descriptor.getType(), descriptor.getAdvice(), t);
             }
 
-            fireValueChangedEvent(value, this);
+            if (checkValue())
+                fireValueChangedEvent(value, this);
         }
         catch (SnapshotException e)
         {
             // $JL-EXC$
             fireErrorEvent(e.getMessage(), this);
         }
+    }
+
+    private boolean checkValue()
+    {
+        if (value != null)
+        {
+            File f = new File(value.toString());
+            if (descriptor.getAdvice() == Advice.DIRECTORY)
+            {
+                if (!f.isDirectory())
+                {
+                    fireErrorEvent(MessageUtil.format(Messages.FileOpenDialogEditor_NotADirectory, f), this);
+                    return false;
+                }
+            }
+            else if (descriptor.getAdvice() == Advice.SAVE)
+            {
+                if (f.exists() && (!f.canWrite() || f.isDirectory()))
+                {
+                    fireErrorEvent(MessageUtil.format(Messages.FileOpenDialogEditor_CannotWrite, f), this);
+                    return false;
+                }
+            }
+            else if (!f.canRead() || f.isDirectory())
+            {
+                fireErrorEvent(MessageUtil.format(Messages.FileOpenDialogEditor_FileNotFound, f), this);
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

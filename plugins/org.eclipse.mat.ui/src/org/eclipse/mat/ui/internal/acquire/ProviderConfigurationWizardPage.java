@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -436,13 +436,18 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         // a work around: calling onFocus ensures a correct update of the error
         // message. Without this call it doesn't update the message correct.
         onFocus(null);
+        getContainer().updateButtons();
     }
 
     public void onFocus(String message)
     {
         if (getErrorMessage() != null) setMessage(getErrorMessage(), IMessageProvider.ERROR);
         else if (message != null) setMessage(message, IMessageProvider.INFORMATION);
-        else setMessage(table.getProviderDescriptor().getName());
+        else {
+            IAnnotatedObjectDescriptor providerDescriptor = table.getProviderDescriptor();
+            if (providerDescriptor != null) setMessage(providerDescriptor.getName());
+            else setMessage(null);
+        }
         // Causes recursion from getNextPage();
         //getContainer().updateButtons();
     }
@@ -475,6 +480,12 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     }
 
     @Override
+    public boolean isPageComplete()
+    {
+        return getErrorMessage() == null;
+    }
+
+    @Override
     public void performHelp()
     {
         AnnotatedObjectArgumentsSet currentSet = table.getArgumentSet();
@@ -496,7 +507,16 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
     {
         if (argumentSet == null)
+        {
+            /* 
+             * Hack to force redo of possibly modified provider
+             * after getting VM list.
+             */
+            AnnotatedObjectArgumentsSet prev = table.getArgumentSet();
+            table.providerSelected(null);
+            table.providerSelected(prev);
             return;
+        }
         IAnnotatedObjectDescriptor newProviderDescriptor = argumentSet.getDescriptor();
         if (newProviderDescriptor instanceof VmInfoDescriptor)
         {

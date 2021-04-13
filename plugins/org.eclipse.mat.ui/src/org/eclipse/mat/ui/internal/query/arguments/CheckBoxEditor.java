@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - general version for boolean fields
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
@@ -42,7 +43,8 @@ public class CheckBoxEditor extends ArgumentEditor
         INTEPRET_AS_CLASSLOADER(Messages.CheckBoxEditor_includeLoadedObjects,
                         Messages.CheckBoxEditor_includeLoadedObjectsAdditional), //
         RETAINED(Messages.CheckBoxEditor_asRetainedSet, Messages.CheckBoxEditor_asRetainedSetAdditional), //
-        VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional);
+        VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional),
+        GENERAL("", null); //$NON-NLS-1$
 
         private String label;
         private String helpText;
@@ -86,7 +88,7 @@ public class CheckBoxEditor extends ArgumentEditor
 
             public void focusGained(FocusEvent e)
             {
-                fireFocusEvent(type.getHelpText());
+                fireFocusEvent(type == Type.GENERAL ? descriptor.getHelp() : type.getHelpText());
             }
 
             public void focusLost(FocusEvent e)

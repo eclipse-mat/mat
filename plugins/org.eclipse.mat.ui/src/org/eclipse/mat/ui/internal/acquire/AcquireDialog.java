@@ -502,8 +502,8 @@ public class AcquireDialog extends WizardPage
 
     void refresh() {
         localVMsTable.deselectAll();
-        selectionChanged();
         refreshTable();
+        selectionChanged();
     }
 
     void resort() {
