@@ -140,12 +140,6 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         return table != null && table.getArgumentSet() != null && table.getArgumentSet().isExecutable() && getErrorMessage() == null;
     }
 
-    @Override
-    public boolean canFlipToNextPage()
-    {
-        return isPageComplete();
-    }
-
     public void relocateHelp(final boolean create)
     {
         final AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
