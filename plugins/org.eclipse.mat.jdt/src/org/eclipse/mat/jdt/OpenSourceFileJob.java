@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -186,7 +186,7 @@ public class OpenSourceFileJob extends Job
                                     else
                                         matches.add(m);
                                     IType type = m.getDeclaringType();
-                                    type = resolveInnerTypes(type);
+                                    resolveInnerTypes(type);
                                 }
                                 catch (JavaModelException e)
                                 {

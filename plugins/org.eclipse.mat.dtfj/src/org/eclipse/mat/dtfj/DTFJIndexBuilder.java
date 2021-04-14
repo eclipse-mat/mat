@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2020 IBM Corporation.
+ * Copyright (c) 2009,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1967,10 +1967,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (getExtraInfo)
         {
             // fix the types of all the frames
-            for (long addr : allFrames.keySet())
+            for (Map.Entry<Long, Long>e : allFrames.entrySet())
             {
+                long addr = e.getKey();
                 int objId = indexToAddress.reverse(addr);
-                long frameTypeAddr = getExtraInfo3 ? stackFrameAddr : allFrames.get(addr);
+                long frameTypeAddr = getExtraInfo3 ? stackFrameAddr : e.getValue();
                 int clsId = indexToAddress.reverse(frameTypeAddr);
                 objectToClass.set(objId, clsId);
             }
@@ -6638,9 +6639,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private long isFinalizable(JavaClass c, IProgressListener listener)
     {
-        long ca = 0;
-        String cn = getClassName(c, listener);
-        ca = getClassAddress(c, listener);
+        getClassName(c, listener);
+        long ca = getClassAddress(c, listener);
+        // Don't report finalize() of java.lang.Object, so need a superclass
         while (getSuperclass(c, listener) != null)
         {
             String cn1 = getClassName(c, listener);

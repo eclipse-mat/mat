@@ -101,7 +101,6 @@ public class Messages extends NLS
     public static String ExportActions_PlainText;
     public static String ExportActions_ZippedWebPage;
     public static String FieldsContentProvider_Displayed;
-    public static String FileOpenDialogEditor_CannotWrite;
     public static String FileOpenDialogEditor_ChooseFile;
     public static String FileOpenDialogEditor_FileNotFound;
     public static String FileOpenDialogEditor_NotADirectory;
@@ -383,14 +382,17 @@ public class Messages extends NLS
     public static String AcquireSnapshotAction_AcquireDialogName;
 	public static String AcquireSnapshotAction_Confirmation;
 	public static String AcquireSnapshotAction_DirectoryDoesntExist;
+	public static String AcquireSnapshotAction_Error;
 	public static String AcquireSnapshotAction_FailedToCreateProvider;
 	public static String AcquireSnapshotAction_FileAlreadyExists;
 	public static String AcquireSnapshotAction_IllegalTypeErrorMessage;
 	public static String AcquireSnapshotAction_MissingParameterErrorMessage;
 	public static String AcquireSnapshotAction_NoProviderError;
 	public static String AcquireSnapshotAction_UnableToCreateDirectory;
+    public static String AcquireSnapshotAction_UnableToDeleteFile;
 	public static String AcquireSnapshotAction_UnableToOpenEditor;
 	public static String AcquireSnapshotAction_UnexpectedException;
+    public static String AcquireSnapshotAction_Warning;
 
 
 

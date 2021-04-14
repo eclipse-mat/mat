@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -329,12 +329,6 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (response != IDialogConstants.OK_ID)
                     return;
 
-                for (SnapshotHistoryService.Entry entry : toDelete)
-                {
-                    File path = new File(entry.getFilePath());
-                    SnapshotHistoryService.getInstance().removePath(new Path(path.getAbsolutePath()));
-                }
-
                 if (deleteSnapshotDialog.getDeleteInFileSystem())
                 {
                     List<File> problems = new ArrayList<File>();
@@ -366,6 +360,12 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                             problems.add(path);
                         }
                         deleteIndexes(index, problems);
+                        if (!path.exists())
+                        {
+                            // Only remove the entry if we managed to delete it.
+                            // Otherwise, the user can retry later, or remove just the entry.
+                            SnapshotHistoryService.getInstance().removePath(new Path(path.getAbsolutePath()));
+                        }
                         if (!index.exists())
                         {
                             // Perhaps the history was for an index file, or the index file also listed in the history
@@ -375,6 +375,14 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     if (!problems.isEmpty())
                     {
                         showProblems(problems);
+                    }
+                }
+                else
+                {
+                    for (SnapshotHistoryService.Entry entry : toDelete)
+                    {
+                        File path = new File(entry.getFilePath());
+                        SnapshotHistoryService.getInstance().removePath(new Path(path.getAbsolutePath()));
                     }
                 }
             }
@@ -685,12 +693,15 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
         });
 
-        for (String indexFile : indexFiles)
+        if (indexFiles != null)
         {
-            File f = new File(directory, indexFile);
-            if (f.exists())
-                if (!f.delete() && problems != null)
-                    problems.add(f);
+            for (String indexFile : indexFiles)
+            {
+                File f = new File(directory, indexFile);
+                if (f.exists())
+                    if (!f.delete() && problems != null)
+                        problems.add(f);
+            }
         }
     }
 

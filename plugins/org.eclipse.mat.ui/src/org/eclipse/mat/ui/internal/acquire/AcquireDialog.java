@@ -307,7 +307,6 @@ public class AcquireDialog extends WizardPage
                         int i = name.lastIndexOf('.');
                         if (i >= 0)
                         {
-                            dialog.getFilterExtensions();
                             dialog.setFilterExtensions(new String[] { "*" + name.substring(i), "*" }); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }

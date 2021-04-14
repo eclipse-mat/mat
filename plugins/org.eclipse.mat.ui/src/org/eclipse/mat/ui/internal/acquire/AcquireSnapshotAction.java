@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2009, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
@@ -197,21 +198,29 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
             {
                 if (MessageDialog.openConfirm(getShell(), Messages.AcquireSnapshotAction_Confirmation, Messages.AcquireSnapshotAction_FileAlreadyExists))
                 {
-                    destFile.delete();
+                    if (!destFile.delete())
+                    {
+                        if (ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.AcquireSnapshotAction_Warning, null, ErrorHelper.createErrorStatus(Messages.AcquireSnapshotAction_UnableToDeleteFile)) != Dialog.OK)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 else
                 {
                     return false;
                 }
             }
-            else if (destFile.getParentFile() != null && !destFile.getParentFile().exists())
+            else if (destFile.getParentFile() != null && !destFile.getParentFile().isDirectory())
             {
                 if (MessageDialog.openConfirm(getShell(), Messages.AcquireSnapshotAction_Confirmation, Messages.AcquireSnapshotAction_DirectoryDoesntExist))
                 {
                     if (!destFile.getParentFile().mkdirs())
                     {
-                        ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null, ErrorHelper.createErrorStatus(Messages.AcquireSnapshotAction_UnableToCreateDirectory)); //$NON-NLS-1$
-                        destFile = null;
+                        if (ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.AcquireSnapshotAction_Warning, null, ErrorHelper.createErrorStatus(Messages.AcquireSnapshotAction_UnableToCreateDirectory)) != Dialog.OK)
+                        {
+                            return false;
+                        }
                     }
                 }
                 else
@@ -241,7 +250,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
     private void showError(String msg)
     {
-        ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null, ErrorHelper.createErrorStatus(msg)); //$NON-NLS-1$
+        ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.AcquireSnapshotAction_Error, null, ErrorHelper.createErrorStatus(msg));
     }
 
     public void dispose()
@@ -432,7 +441,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
             // report error if any occurred
             if (!status.isOK() && status != Status.CANCEL_STATUS)
-                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null, status); //$NON-NLS-1$
+                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.AcquireSnapshotAction_Error, null, status);
 
             return status;
         }

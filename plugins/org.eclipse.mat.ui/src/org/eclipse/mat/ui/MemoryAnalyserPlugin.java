@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -545,22 +545,25 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     { // precondition: iconDir is a directory.
         File[] fileList = iconDir.listFiles(); // Should not be null, may be
                                                // empty.
-        for (File file : fileList) // Iterate over directory contents.
+        if (fileList != null)
         {
-            if (!file.isHidden())
-            { // Exclude hidden files eg .svn directories
-                if (file.isDirectory())
-                { // Directory, so recurse into child directory.
-                    generateIconProps(file, iconMap);
-                }
-                else
-                { // File, so add key/value pair to Map.
-                    String[] iconPath = parseIconPath(file);
-                    String key = buildIconKey(iconPath);
-                    String label = buildIconLabel(iconPath);
-                    iconMap.put(key, label); // Duplicate key will overwrite
-                }
-            } // if()
+            for (File file : fileList) // Iterate over directory contents.
+            {
+                if (!file.isHidden())
+                { // Exclude hidden files eg .svn directories
+                    if (file.isDirectory())
+                    { // Directory, so recurse into child directory.
+                        generateIconProps(file, iconMap);
+                    }
+                    else
+                    { // File, so add key/value pair to Map.
+                        String[] iconPath = parseIconPath(file);
+                        String key = buildIconKey(iconPath);
+                        String label = buildIconLabel(iconPath);
+                        iconMap.put(key, label); // Duplicate key will overwrite
+                    }
+                } // if()
+            }
         }
     }
 

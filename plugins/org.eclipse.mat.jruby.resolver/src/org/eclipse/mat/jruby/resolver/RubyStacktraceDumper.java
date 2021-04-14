@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2010, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -192,7 +192,7 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         			IObject thread = findIncomingThreadRef(model, tctxt);
         			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
         			if (thread != null) {
-        				final String threadName = new String(thread.getClassSpecificName());
+        				final String threadName = thread.getClassSpecificName();
         				javaThreadNameForRubyThread.put(tctxt, threadName);
         			}
         		}
@@ -221,7 +221,7 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
 
         			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
         			if (thread != null && rubyThread != null) {
-        				final String threadName = new String(thread.getClassSpecificName() != null ? thread.getClassSpecificName() : thread.getTechnicalName());
+        				final String threadName = thread.getClassSpecificName() != null ? thread.getClassSpecificName() : thread.getTechnicalName();
         				javaThreadNameForRubyThread.put(rubyThread, threadName);
         			}
         		}

@@ -688,7 +688,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             pos = p.position();
         }
         if (verbose && n > 0 && bestgap < 64)
-            System.out.println("n="+n+" avg="+((float)gaptotal/n)+" rms="+Math.sqrt(gapstotal/n)+" smallest="+bestgap+" pos="+best.pos); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+            System.out.println("n="+n+" avg="+((float)gaptotal/n)+" rms="+Math.sqrt((double)gapstotal/n)+" smallest="+bestgap+" pos="+best.pos); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
     /**
