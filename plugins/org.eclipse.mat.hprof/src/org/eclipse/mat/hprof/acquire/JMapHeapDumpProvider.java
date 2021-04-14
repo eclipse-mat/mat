@@ -75,7 +75,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
     public boolean defaultChunked;
 
     @Argument(isMandatory = false)
-    public boolean defaultLive;
+    public boolean defaultLive = true;
 
     public JMapHeapDumpProvider()
     {
@@ -287,6 +287,8 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
             guessJDKFromJDT();
             guessJDK();
             guessJDKFromPath();
+            if (jdkHome == null && jdkList != null && !jdkList.isEmpty())
+                jdkHome = jdkList.get(0);
         }
         if (jdkHome != null && jdkHome.exists())
         {

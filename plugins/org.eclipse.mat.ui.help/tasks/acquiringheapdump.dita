@@ -43,7 +43,7 @@
 				higher) and SAP JVM (since 1.5.0) by setting the following JVM
 				parameter:</p>
 			<p>
-				<codeblock>-XX:+HeapDumpOnOutOfMemoryError</codeblock>
+				<userinput><option>-XX:+HeapDumpOnOutOfMemoryError</option></userinput>
 			</p>
 			<p>The heap dump is written to the work directory.</p>
 			
@@ -51,19 +51,22 @@
 			<p> To get heap dump on demand one can add the following parameter to the JVM
 				and press CTRL + BREAK in the preferred moment:</p>
 			<p>
-				<codeblock>-XX:+HeapDumpOnCtrlBreak</codeblock>
+				<userinput><option>-XX:+HeapDumpOnCtrlBreak</option></userinput>
 			</p>
 			<p><i>HPROF agent</i></p>
 			<p>To use the HPROF agent to generate a dump on the end of execution, or on SIGQUIT signal use the following
 			JVM parameter:</p>
 			<p>
-				<codeblock>-agentlib:hprof=heap=dump,format=b</codeblock>
+				<userinput><option>-agentlib:hprof=heap=dump,format=b</option></userinput>
 			</p>
 			<p> Alternatively, other tools can be used to acquire a heap dump:
 			</p>
 			<ul>
 				<li>
-					<cmdname>jmap -dump:format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</cmdname>
+					<userinput><cmdname>jmap</cmdname> <option>-dump:format=b,file=</option><varname>&lt;filename.hprof&gt;</varname> <varname>&lt;pid&gt;</varname></userinput>
+				</li>
+				<li>
+					<userinput><cmdname>jcmd</cmdname> <varname>&lt;pid&gt;</varname> <option>GC.heap_dump</option> <varname>&lt;filename.hprof&gt;</varname></userinput>
 				</li>
 				<li>JConsole (see sample usage in <xref href="../gettingstarted/basictutorial.dita">Basic Tutorial</xref>)</li>
 				<li>Memory Analyzer (see bottom of page)</li>
@@ -96,10 +99,65 @@
 			</p>
 			
 			<p>
-			For a comparison of dump types, see <xref format="html" scope="external" href="http://www.ibm.com/developerworks/library/j-memoryanalyzer/#table1">Debugging from dumps</xref>. 
+			For a comparison of dump types, see <xref format="html" scope="external" href="https://web.archive.org/web/20201112012110/http://www.ibm.com/developerworks/java/library/j-memoryanalyzer/index.html#table1">Debugging from dumps</xref>. 
 			System dumps are simply operating system core dumps; therefore, they are a superset of portable heap dumps.
 			System dumps are far superior than PHDs, particularly for more accurate GC roots, thread-based analysis, and unlike PHDs, 
 			system dumps contain memory contents like HPROFs.
+			<simpletable>
+				<sthead>
+					<stentry>Dump Format</stentry>
+					<stentry>Approximate size on disk</stentry>
+					<stentry>Objects, classes, and classloaders</stentry>
+					<stentry>Thread details</stentry>
+					<stentry>Field names</stentry>
+					<stentry>Field and array references</stentry>
+					<stentry>Primitive field contents</stentry>
+					<stentry>Primitive array contents</stentry>
+					<stentry>Accurate garbage-collection roots</stentry>
+					<stentry>Native memory and threads</stentry>
+					<stentry>Compression</stentry>
+				</sthead>
+				<strow>
+					<stentry>HPROF</stentry>
+					<stentry>Java heap size</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>N</stentry>
+					<stentry>with Gzip to around 40 percent of original size</stentry>
+				</strow>
+				<strow>
+					<stentry>IBM system dumps</stentry>
+					<stentry>Java heap size + 30 percent</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>Y</stentry>
+					<stentry>with Zip or jextract to around 20 percent of original size</stentry>
+				</strow>
+				<strow>
+					<stentry>IBM PHD</stentry>
+					<stentry>20 percent of Java heap size</stentry>
+					<stentry>Y</stentry>
+					<stentry>with Javacore<fn>By loading in both a javacore.txt file (IBM thread dump file) and a heapdump.phd file that were generated at the same time, Memory Analyzer makes thread details available in the IBM PHD format dump.</fn></stentry>
+					<stentry>N</stentry>
+					<stentry>Y</stentry>
+					<stentry>N</stentry>
+					<stentry>N</stentry>
+					<stentry>N</stentry>
+					<stentry>N</stentry>
+					<stentry>with Gzip to around 20 percent of original size</stentry>
+				</strow>
+			</simpletable>
+			Both the HPROF and IBM system dump formats can be compressed well, usually to around 20 percent of their original size, using operating-system tools. 
 			</p>
 			
 			<p>
@@ -114,8 +172,8 @@
 			The only significant downsides to system dumps over PHDs is that they are much larger, they usually take longer to produce,
 			they may be useless if they are manually taken in the middle of an exclusive event that manipulates the underlying Java heap
 			such as a garbage collection, and they sometimes require operating system configuration (
-			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/linux_setup.html">Linux</xref>,
-			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.80.doc/diag/problem_determination/aix_setup_full_core.html">AIX</xref>) 
+			<xref format="html" scope="external" href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=determination-setting-up-checking-your-linux-environment">Linux</xref>,
+			<xref format="html" scope="external" href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=aix-enabling-full-core-files">AIX</xref>) 
 			to ensure non-truncation.
 			</p>
 			
@@ -124,17 +182,17 @@
 			javacore, and Snap file on the first occurrence for that process (although often the core dump is suppressed by the default 0
 			core ulimit on operating systems such as Linux). For the next three occurrences, it produces only a PHD, javacore, and Snap.
 			If you only plan to use system dumps, and you've configured your operating system correctly as per the links above (particularly 
-			core and file ulimits), then you may disable PHD generation with -Xdump:heap:none. For versions of IBM Java older than 6.0.1, 
+			core and file ulimits), then you may disable PHD generation with <option>-Xdump:heap:none</option>. For versions of IBM Java older than 6.0.1, 
 			you may switch from PHDs to system dumps using
-			<codeblock>-Xdump:system:events=systhrow,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk -Xdump:heap:none</codeblock>
+			<userinput><option>-Xdump:system:events=systhrow,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk</option> <option>-Xdump:heap:none</option></userinput>
 			</p>
 
 			<p>
 			In addition to an OutOfMemoryError, system dumps may be produced using operating system tools (e.g. gcore in gdb for Linux, 
 			gencore for AIX, Task Manager for Windows, SVCDUMP for z/OS, etc.), using the 
-			<xref format="html" scope="external" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.jvm.ras/index.html">IBM Java APIs</xref>, 
-			using the various options of <xref format="html" scope="external" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_agents.html">-Xdump</xref>, 
-			using <xref format="html" scope="external" href="https://www.ibm.com/developerworks/community/groups/service/html/communityview?communityUuid=7d3dc078-131f-404c-8b4d-68b3b9ddd07a">Java Surgery</xref>,
+			<xref format="html" scope="external" href="https://www.ibm.com/docs/api/v1/content/SSYKE2_8.0.0/openj9/api/jdk8/platform/jvm/com/ibm/jvm/Dump.html">IBM and OpenJ9 Java APIs</xref>, 
+			using the various options of <xref format="html" scope="external" href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=options-xdump">-Xdump</xref>, 
+			using <xref format="html" scope="external" href="https://www.ibm.com/support/pages/ibm-runtime-diagnostic-code-injection-java-platform-java-surgery">Java Surgery</xref>,
 			and more.
 			</p>
 
@@ -278,8 +336,8 @@
 					</xref>
 					or
 					<xref format="html" scope="external"
-						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/attachapi.html">
-						<apiname>com.ibm.tools.attach</apiname>
+						href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=documentation-java-attach-api">
+						<apiname>com.sun.tools.attach</apiname> or <apiname>com.ibm.tools.attach</apiname>
 					</xref>
 					APIs to list the JVMs and then to attach to the chosen JVM to
 					generate a
@@ -288,7 +346,7 @@
 					JREs, but is only
 					supplied as part of Oracle or OpenJDK JDKs
 					in
-					<codeph>tools.jar</codeph>
+					<filepath>tools.jar</filepath>
 					and not as part of JREs. Therefore if Memory Analyzer is run with
 					an OpenJDK or Oracle JRE
 					then this dump provider will not be available.
@@ -305,7 +363,7 @@
 					is available,
 					and
 					loads
-					<codeph>tools.jar</codeph>
+					<filepath>tools.jar</filepath>
 					if required.
 					The Attach API with Java 9 or later does not permit a Java process
 					to connect to itself, so MemoryAnalyzer cannot generate a dump of 
@@ -320,7 +378,7 @@
 					to a
 					<cmdname>java</cmdname>
 					executable. The dump provider will load the
-					<codeph>tools.jar</codeph>
+					<filepath>tools.jar</filepath>
 					if required.
 					so that the
 					<apiname>com.sun.tools.attach</apiname>
@@ -418,8 +476,8 @@
 					<p>
 					System dumps can be processed using
 					<xref format="html" scope="external"
-						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_viewer_dtfjview/jextract.html">
-						<cmdname>jextract</cmdname>
+						href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=tools-dump-extractor">
+							<cmdname>jextract</cmdname>
 					</xref>
 					which compressed the dump and
 					also adds extra system information so
@@ -445,7 +503,8 @@
 			<dlentry>
 				<dt>chunked</dt>
 				<dd>OpenJDK 15 and later can generate compressed HPROF files by
-				using the <cmdname>jcmd &lt;pid&gt; GC.heap_dump -gz=1</cmdname>
+				using the <option>-gz=1</option> in the command
+				<userinput><cmdname>jcmd</cmdname> <varname>&lt;pid&gt;</varname> <option>GC.heap_dump</option> <option>-gz=1</option> <varname>&lt;filename.hprof&gt;</varname></userinput>
 				which compresses the HPROF file using gzip, but in chunks so
 				that random access to the file is quicker. Memory Analyzer version 1.12
 				and later can read this format, and with this option and
@@ -503,7 +562,7 @@
 					caused to be generated, and
 					looks in the
 					target JVM
-					<codeph>user.dir</codeph>
+					<parmname>user.dir</parmname>
 					for the dump files. If this is not the right place then Memory
 					Analyzer will not find the
 					generated dump, so the user would have to
@@ -521,17 +580,17 @@
 					and date is inserted into the name using
 					substitution variable 0,
 					for example
-					<codeph>{0,date,yyyyMMdd.HHmmss}</codeph>
+					<userinput>{0,date,yyyyMMdd.HHmmss}</userinput>
 					.
 					The process identifier is inserted using substitution variable 1,
 					for
 					example
-					<codeph>{1,number,0}</codeph>
+					<userinput>{1,number,0}</userinput>
 					.
 					The instance number, used to make the dump file unique, is
 					inserted
 					using substitution variable 2, for example
-					<codeph>{2,number,0000}</codeph>
+					<userinput>{2,number,0000}</userinput>
 					. The extra 0000 is a standard MessageFormat modifier giving the
 					minimum
 					number of digits to use.

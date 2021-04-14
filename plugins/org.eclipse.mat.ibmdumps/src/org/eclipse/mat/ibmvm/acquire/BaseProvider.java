@@ -40,7 +40,7 @@ public abstract class BaseProvider implements IHeapDumpProvider
     public DumpType defaultType = DumpType.SYSTEM;
 
     @Argument(isMandatory = false)
-    public boolean defaultLive = false;
+    public boolean defaultLive = true;
 
     @Argument(isMandatory = false)
     public boolean defaultCompress = false;
