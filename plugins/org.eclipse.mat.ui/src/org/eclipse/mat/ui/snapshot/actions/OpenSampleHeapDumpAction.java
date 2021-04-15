@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -195,15 +195,22 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
         IPath pluginPath = MemoryAnalyserPlugin.getDefault().getStateLocation();
         File targetDir = pluginPath.append(localPath).toFile();
         File extractedFile = new File(targetDir, fileName);
-        if (extractedFile.exists())
-            return extractedFile.getAbsolutePath();
-
-        targetDir.mkdirs();
-
-        Bundle bundle = Platform.getBundle(pluginId);
-        URL url = bundle.getResource(path);
         try
         {
+            if (!extractedFile.getCanonicalPath().startsWith(pluginPath.toFile().getCanonicalPath() + File.separator))
+            {
+                throw new IllegalArgumentException(snapshotPath);
+            }
+            if (extractedFile.exists())
+                return extractedFile.getAbsolutePath();
+
+            if (!targetDir.mkdirs() && !targetDir.isDirectory())
+            {
+                throw new FileNotFoundException(targetDir.getPath());
+            }
+
+            Bundle bundle = Platform.getBundle(pluginId);
+            URL url = bundle.getResource(path);
             if (url == null) throw new FileNotFoundException(path);
             InputStream in = url.openStream();
             try

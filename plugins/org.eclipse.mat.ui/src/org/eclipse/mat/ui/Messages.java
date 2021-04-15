@@ -206,6 +206,7 @@ public class Messages extends NLS
     public static String OpenSampleHeapDumpAction_NoEditorToOpen;
     public static String OpenSnapshot_AllFiles;
     public static String OpenSnapshot_AllKnownFormats;
+    public static String OpenSnapshot_BadName;
     public static String OpenSnapshot_FileAlreadyExists;
     public static String OpenSnapshot_FileMustHaveExtension;
     public static String OpenSnapshot_FileNotFound;

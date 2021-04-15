@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 IBM Corporation
+ * Copyright (c) 2014, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,6 @@ public class CreateCollectionDump
     {
         // Extend the collections
         List<Collection>l0 = new ArrayList<Collection>();
-        List<Map>l1 = new ArrayList<Map>();
         for (Map m : mapTestData.maps)
         {
             Collection c = m.values();
@@ -696,6 +695,15 @@ public class CreateCollectionDump
         }
     }
 
+    private static class ExamplePrinterStateReason extends PrinterStateReason
+    {
+        protected ExamplePrinterStateReason(int value)
+        {
+            super(value);
+        }
+
+    }
+
     /**
      * Maps which do have COUNT entries
      */
@@ -935,9 +943,7 @@ public class CreateCollectionDump
                                     // javax.print.attribute.standard.PrinterStateReasons
                                     for (int i = 1; i <= COUNT; ++i)
                                     {
-                                        PrinterStateReason r = new PrinterStateReason(i)
-                                        {
-                                        };
+                                        PrinterStateReason r = new ExamplePrinterStateReason(i);
                                         cl.put(r, Severity.REPORT);
                                     }
                                 }

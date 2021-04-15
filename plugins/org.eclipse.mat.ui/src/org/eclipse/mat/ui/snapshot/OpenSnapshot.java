@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
 package org.eclipse.mat.ui.snapshot;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -187,6 +188,7 @@ public class OpenSnapshot
     private static String askForRename(final String path, final String filename, final String extension)
     {
         final Pattern validFileName = Pattern.compile(".*\\.((?i)" + extension + ")");//$NON-NLS-1$//$NON-NLS-2$
+        final String bad[] = new String[1];
         IInputValidator inputValidator = new IInputValidator()
         {
 
@@ -199,38 +201,77 @@ public class OpenSnapshot
                 if (f.exists())
                     return MessageUtil.format(Messages.OpenSnapshot_FileAlreadyExists, f.getAbsolutePath());
 
+                try
+                {
+                    File newCanonical = f.getCanonicalFile();
+                    // Wrong directory?
+                    if (!newCanonical.getParentFile().equals((new File(path)).getCanonicalFile())
+                                    || newText.contains(File.separator) || newText.indexOf('/') >= 0
+                                    || newText.equals(bad[0]))
+                    {
+                        // Find the problem
+                        String name = newCanonical.getName();
+                        for (int i = newText.length() - 1; i >= 0; --i)
+                        {
+                            if (name.length() - newText.length() + i < 0
+                                            || name.charAt(name.length() - newText.length() + i) != newText.charAt(i))
+                            {
+                                newText = newText.substring(0, i + 1);
+                                break;
+                            }
+                        }
+                        return MessageUtil.format(Messages.OpenSnapshot_BadName, newText);
+                    }
+                }
+                catch (IOException e)
+                {
+                    return e.getLocalizedMessage();
+                }
                 return null;
             }
 
         };
-
-        String msg = Messages.OpenSnapshot_Warning;
-        InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                        Messages.OpenSnapshot_RenameHeapDump, //
-                        MessageUtil.format(msg, extension), filename + "." + extension, //$NON-NLS-1$
-                        inputValidator)
-        {
-
-            @Override
-            protected void createButtonsForButtonBar(Composite parent)
+        String suggestedFilename = filename + "." + extension; //$NON-NLS-1$
+        do {
+            String msg = Messages.OpenSnapshot_Warning;
+            InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+                            Messages.OpenSnapshot_RenameHeapDump, //
+                            MessageUtil.format(msg, extension), suggestedFilename,
+                            inputValidator)
             {
-                super.createButtonsForButtonBar(parent);
 
-                Matcher matcher = TIMESTAMP_PATTERN.matcher(filename);
-                if (matcher.matches())
-                    getText().setSelection(matcher.start(2) - 1, matcher.end(3));
+                @Override
+                protected void createButtonsForButtonBar(Composite parent)
+                {
+                    super.createButtonsForButtonBar(parent);
+
+                    Matcher matcher = TIMESTAMP_PATTERN.matcher(filename);
+                    if (matcher.matches())
+                        getText().setSelection(matcher.start(2) - 1, matcher.end(3));
+                }
+            };
+
+            if (inputDialog.open() != InputDialog.OK)
+                return null;
+
+            String newName = inputDialog.getValue();
+
+            if (newName != null)
+            {
+                File file = new File(path, filename);
+                File newFile = new File(path, newName);
+                if (file.renameTo(newFile))
+                {
+                    return newName;
+                }
+                // Retry, flagging this name as bad
+                bad[0] = newName;
+                suggestedFilename = newName;
             }
-        };
-
-        inputDialog.open();
-
-        String newName = inputDialog.getValue();
-
-        if (newName != null)
-        {
-            new File(path + File.separator + filename).renameTo(new File(path + File.separator + newName));
-        }
-
-        return newName;
+            else
+            {
+                return null;
+            }
+        } while (true);
     }
 }

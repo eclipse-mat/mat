@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -177,7 +177,8 @@ public class ResultRenderer
         if (!icon2name.isEmpty())
         {
             File iconDir = new File(directory, DIR_ICONS);
-            iconDir.mkdir();
+            if (!iconDir.mkdir())
+                ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.FileUtils_FailedToMakeDirectory, iconDir));
 
             for (Map.Entry<URI, String> entry : icon2name.entrySet())
                 copyResource(entry.getKey().toURL(), new File(iconDir, entry.getValue()));
@@ -416,7 +417,8 @@ public class ResultRenderer
         copyResource(PREFIX + "code.js", new File(directory, "code.js"));
 
         File imgDir = new File(directory, "img");
-        imgDir.mkdir();
+        if (!imgDir.mkdir())
+            ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.FileUtils_FailedToMakeDirectory, imgDir));
 
         copyResource(PREFIX + "img/open.gif", new File(imgDir, "open.gif"));
         copyResource(PREFIX + "img/success.gif", new File(imgDir, "success.gif"));
@@ -432,7 +434,8 @@ public class ResultRenderer
         copyResource(PREFIX + "img/nochildren.gif", new File(imgDir, "nochildren.gif"));
 
         File pagesDir = new File(directory, DIR_PAGES);
-        pagesDir.mkdir();
+        if (!pagesDir.mkdir())
+            ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.FileUtils_FailedToMakeDirectory, pagesDir));
     }
 
     private void copyResource(String resource, File target) throws FileNotFoundException, IOException
@@ -687,6 +690,8 @@ public class ResultRenderer
     private void zipDir(int commonPath, File zipDir, ZipOutputStream zos) throws IOException
     {
         String[] dirList = zipDir.list();
+        if (dirList == null)
+            return;
         byte[] readBuffer = new byte[2156];
         int bytesIn = 0;
 

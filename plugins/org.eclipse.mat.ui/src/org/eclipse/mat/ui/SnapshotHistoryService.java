@@ -283,7 +283,10 @@ public class SnapshotHistoryService
             catch (IOException ignore)
             {
                 MemoryAnalyserPlugin.log(ignore);
-                new File(FILE_NAME).delete();
+                if (!file.delete() && file.exists())
+                {
+                    MemoryAnalyserPlugin.log(new IOException(file.getAbsolutePath()));
+                }
             }
             catch (Exception ignore)
             {
@@ -297,11 +300,12 @@ public class SnapshotHistoryService
 
     private static void saveDocument(List<Entry> copy)
     {
+        File file = new File(FILE_NAME);
         try
         {
             if (!copy.isEmpty())
             {
-                ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(FILE_NAME));
+                ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(file));
                 try
                 {
                     oout.writeInt(copy.size());
@@ -316,8 +320,10 @@ public class SnapshotHistoryService
             }
             else
             {
-                File file = new File(FILE_NAME);
-                file.delete();
+                if (file.exists() && !file.delete())
+                {
+                    throw new IOException(file.getPath());
+                }
             }
         }
         catch (IOException ignore)

@@ -164,7 +164,10 @@ public class QueryHistory
             else
             {
                 File file = new File(FILE_NAME);
-                file.delete();
+                if (!file.delete() && file.exists())
+                {
+                    throw new IOException(file.getAbsolutePath());
+                }
             }
         }
         catch (IOException ignore)

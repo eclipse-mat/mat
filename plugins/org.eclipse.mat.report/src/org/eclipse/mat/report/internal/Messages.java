@@ -44,6 +44,10 @@ public final class Messages extends NLS
     public static String ContextDerivedData_Error_OperationNotFound;
     public static String Converters_Error_InvalidEnumValue;
     public static String DisplayFileResult_Label_NoFile;
+    public static String FileUtils_FailedToDeleteDirectory;
+    public static String FileUtils_FailedToMakeDirectory;
+    public static String FileUtils_FileUtils_FailedToDeleteFile;
+    public static String FileUtils_ZipSlip;
     public static String Filter_Error_IllegalCharacters;
     public static String Filter_Error_InvalidRegex;
     public static String Filter_Error_Parsing;
@@ -57,6 +61,9 @@ public final class Messages extends NLS
     public static String HtmlOutputter_Label_FirstObjects;
     public static String HtmlOutputter_Label_AllNObjects;
     public static String HtmlOutputter_Msg_TreeIsLimited;
+    public static String ITestResult_Error;
+    public static String ITestResult_Success;
+    public static String ITestResult_Warning;
     public static String PageSnippets_Label_HideUnhide;
     public static String PageSnippets_Label_UnhideHide;
     public static String PageSnippets_Label_CreatedBy;
@@ -109,6 +116,7 @@ public final class Messages extends NLS
     public static String ResultRenderer_Label_TableOfContents;
     public static String RunRegisterdReport_Error_UnknownReport;
     public static String SpecFactory_Error_MissingTemplate;
+    public static String TestSuite_FailedToUnzipReport;
     public static String TextOutputter_PieChart;
     public static String TextOutputter_Slice;
     public static String TextResult_Label_Links;
@@ -120,14 +128,6 @@ public final class Messages extends NLS
     public static String ConsoleProgressListener_INFO;
     public static String ConsoleProgressListener_UNKNOWN;
     public static String ConsoleProgressListener_WARNING;
-
-    public static String ITestResult_Error;
-    public static String ITestResult_Success;
-    public static String ITestResult_Warning;
-    
-    public static String TestSuite_FailedToUnzipReport;
-    public static String FileUtils_FailedToMakeDirectory;
-    public static String FileUtils_ZipSlip;
 
     static
     {
