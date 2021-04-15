@@ -66,7 +66,7 @@ public abstract class Copy
     public static void copyToClipboard(String text, Display display)
     {
         Clipboard clipboard = new Clipboard(display);
-        clipboard.setContents(new Object[] { text.toString() }, new Transfer[] { TextTransfer.getInstance() });
+        clipboard.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
         clipboard.dispose();
     }
 
@@ -130,6 +130,7 @@ public abstract class Copy
                             c[i].aligning(Alignment.CENTER);
                             break;
                         case SWT.LEFT:
+                        default:
                             c[i].aligning(Alignment.LEFT);
                             break;
                     }
@@ -202,6 +203,7 @@ public abstract class Copy
                             c[i].aligning(Alignment.CENTER);
                             break;
                         case SWT.LEFT:
+                        default:
                             c[i].aligning(Alignment.LEFT);
                             break;
 

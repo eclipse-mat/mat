@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -73,9 +73,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -544,10 +541,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                             break;
                         case 3:
                             String buffer = resolvedValue.getSelectionText();
-                            Clipboard clipboard = new Clipboard(resolvedValue.getDisplay());
-                            clipboard.setContents(new Object[] { buffer.toString() },
-                                            new Transfer[] { TextTransfer.getInstance() });
-                            clipboard.dispose();
+                            Copy.copyToClipboard(buffer, resolvedValue.getDisplay());
                             break;
                         default:
                             break;

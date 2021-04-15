@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,10 +25,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 
 public abstract class CopyActions implements IQuery
@@ -75,10 +73,7 @@ public abstract class CopyActions implements IQuery
                 {
                     public void run()
                     {
-                        Clipboard clipboard = new Clipboard(display);
-                        clipboard.setContents(new Object[] { buf.toString() }, new Transfer[] { TextTransfer
-                                        .getInstance() });
-                        clipboard.dispose();
+                        Copy.copyToClipboard(buf.toString(), display);
                     }
                 });
             }

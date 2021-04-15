@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -198,6 +198,8 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                                 break;
                             case IStatus.ERROR:
                             case IStatus.INFO:
+                            case IStatus.WARNING:
+                            default:
                                 cancel.setEnabled(false);
                                 form.setText(Messages.MultiPaneEditor_Failed_to_open);
                                 RowData rd = new RowData(form.getBody().getClientArea().width - layout.marginLeft - layout.marginRight, SWT.DEFAULT);
