@@ -126,7 +126,12 @@ public final class Messages extends NLS
     public static String ITestResult_Warning;
     
     public static String TestSuite_FailedToUnzipReport;
+    public static String FileUtils_FailedToDeleteDirectory;
+
     public static String FileUtils_FailedToMakeDirectory;
+
+    public static String FileUtils_FileUtils_FailedToDeleteFile;
+
     public static String FileUtils_ZipSlip;
 
     static

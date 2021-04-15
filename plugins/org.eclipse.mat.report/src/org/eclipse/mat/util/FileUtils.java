@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.report.internal.ReportPlugin;
 
 public final class FileUtils
 {
@@ -83,9 +85,9 @@ public final class FileUtils
     {
         File tempFile = File.createTempFile(prefix, "", parent); //$NON-NLS-1$
         if (!tempFile.delete())
-            throw new IOException();
+            throw new IOException(tempFile.getAbsolutePath());
         if (!tempFile.mkdir())
-            throw new IOException();
+            throw new IOException(tempFile.getAbsolutePath());
         deleterThread.add(tempFile);
         return tempFile;
     }
@@ -162,12 +164,18 @@ public final class FileUtils
                 {
                     if (fileArray[i].isDirectory())
                         deleteDirectory(fileArray[i]);
-                    else
-                        fileArray[i].delete();
+                    else if (!fileArray[i].delete())
+                    {
+                        ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.FileUtils_FileUtils_FailedToDeleteFile, fileArray[i].getAbsolutePath()));
+                    }
+     
                 }
             }
 
-            dir.delete();
+            if (!dir.delete())
+            {
+                ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.FileUtils_FailedToDeleteDirectory, dir.getAbsolutePath()));
+            }
         }
     }
 
@@ -198,7 +206,7 @@ public final class FileUtils
      */
     public static void unzipFile(File file, File destinationDirectory) throws IOException
     {
-        if (!destinationDirectory.exists())
+        if (!destinationDirectory.isDirectory())
         {
             if (!destinationDirectory.mkdir())
             {
