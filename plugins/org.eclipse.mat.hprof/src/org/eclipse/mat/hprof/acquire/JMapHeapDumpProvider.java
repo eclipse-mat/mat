@@ -127,15 +127,16 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
         // just use jmap by default ...
         String jmap = "jmap"; //$NON-NLS-1$
         String cmd = jmap;
-        if (jdkHome != null && jdkHome.exists())
+        if (jmapProcessInfo.jdkHome != null && jmapProcessInfo.jdkHome.exists())
         {
             for (String mod : modules)
             {
-                File mod1 = new File(jdkHome.getAbsoluteFile(), "bin"); //$NON-NLS-1$
+                File mod1 = new File(jmapProcessInfo.jdkHome.getAbsoluteFile(), "bin"); //$NON-NLS-1$
                 mod1 = new File(mod1, mod);
                 if (mod1.canExecute())
                 {
                     jmap = mod1.getAbsolutePath();
+                    // Found it, so remember the location
                     persistJDKLocation(LAST_JMAP_JDK_DIRECTORY_KEY, jmapProcessInfo.jdkHome.getAbsolutePath());
                     cmd = mod;
                     break;
@@ -211,7 +212,6 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
         {
             if (p != null) p.destroy();
         }
-
         if (jmapProcessInfo.compress)
         {
             try
