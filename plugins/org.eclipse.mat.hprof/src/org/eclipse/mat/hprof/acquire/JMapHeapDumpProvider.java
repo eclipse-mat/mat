@@ -72,7 +72,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
     public boolean defaultCompress;
 
     @Argument(isMandatory = false)
-    public boolean defaultChunked;
+    public boolean defaultChunked = true;
 
     @Argument(isMandatory = false)
     public boolean defaultLive = true;
@@ -120,99 +120,133 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
             jmapProcessInfo = new JmapVmInfo(info.getPid(), info.getDescription(), info.isHeapDumpEnabled(), info.getProposedFileName(), info.getHeapDumpProvider());
         }
         listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
-        // jcmd is preferred, but non-live (-all) is not supported on Java 8 
-        final String modules1[] = {"jcmd", "jcmd.exe", "jmap", "jmap.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        final String modules2[] = {"jmap", "jmap.exe", "jcmd", "jcmd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        final String modules[] = jmapProcessInfo.live ? modules1 : modules2;
-        // just use jmap by default ...
-        String jmap = "jmap"; //$NON-NLS-1$
-        String cmd = jmap;
-        if (jmapProcessInfo.jdkHome != null && jmapProcessInfo.jdkHome.exists())
-        {
-            for (String mod : modules)
-            {
-                File mod1 = new File(jmapProcessInfo.jdkHome.getAbsoluteFile(), "bin"); //$NON-NLS-1$
-                mod1 = new File(mod1, mod);
-                if (mod1.canExecute())
-                {
-                    jmap = mod1.getAbsolutePath();
-                    // Found it, so remember the location
-                    persistJDKLocation(LAST_JMAP_JDK_DIRECTORY_KEY, jmapProcessInfo.jdkHome.getAbsolutePath());
-                    cmd = mod;
-                    break;
-                }
-            }
-        }
+        boolean remoteGz = jmapProcessInfo.compress && jmapProcessInfo.chunked;
         // build the line to execute as a String[] because quotes in the name cause
         // problems on Linux - See bug 313636
-        String[] execLine = cmd.startsWith("jcmd") ?  //$NON-NLS-1$
-                        (jmapProcessInfo.live ?
-                                        new String[] { jmap, // jcmd command
-                                                        String.valueOf(info.getPid()),
-                                                        "GC.heap_dump",  //$NON-NLS-1$
-                                                        preferredLocation.getAbsolutePath()}
-                        :
-                            // -all option is not recognized by Java 8
-                            new String[] { jmap, // jcmd command
-                                            String.valueOf(info.getPid()),
-                                            "GC.heap_dump",  //$NON-NLS-1$
-                                            "-all", //$NON-NLS-1$
-                                            preferredLocation.getAbsolutePath()}
-                                        )
-                        :
-                            new String[] { jmap, // jmap command
-                                            "-dump:" + (jmapProcessInfo.live ? "live," : "") + "format=b,file=" + preferredLocation.getAbsolutePath(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-                                            String.valueOf(info.getPid()) // pid
-                                        };
-
-        // log what gets executed
-        StringBuilder logMessage = new StringBuilder();
-        logMessage.append("Executing { "); //$NON-NLS-1$
-        for (int i = 0; i < execLine.length; i++)
+        boolean useJcmd = true;
+        for (;;)
         {
-            logMessage.append("\"").append(execLine[i]).append("\""); //$NON-NLS-1$ //$NON-NLS-2$
-            if (i < execLine.length - 1) logMessage.append(", "); //$NON-NLS-1$
-        }
-        logMessage.append(" }"); //$NON-NLS-1$
-
-        Logger.getLogger(getClass().getName()).info(logMessage.toString());
-        listener.subTask(jmap);
-        Process p = null;
-        try
-        {
-            p = Runtime.getRuntime().exec(execLine);
-
-            StreamCollector error = new StreamCollector(p.getErrorStream());
-            error.start();
-            StreamCollector output = new StreamCollector(p.getInputStream());
-            output.start();
-
-            if (listener.isCanceled()) return null;
-
-            int exitCode = p.waitFor();
-            if (exitCode != 0)
+            // jcmd is preferred, but non-live (-all) is not supported on Java 8 
+            final String jmapmodules[] = {"jmap", "jmap.exe"}; //$NON-NLS-1$ //$NON-NLS-2$
+            final String jcmdmodules[] = {"jcmd", "jcmd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$
+            String[] execLine;
+            File jmapf = null;
+            if (useJcmd)
+                jmapf = fullCmdName(jmapProcessInfo, jcmdmodules);
+            if (jmapf == null)
             {
-                throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, exitCode, error.buf.toString(), jmap));
+                jmapf = fullCmdName(jmapProcessInfo, jmapmodules);
+                if (jmapf != null)
+                    useJcmd = false;
             }
-
-            if (!preferredLocation.exists())
+            String jmap;
+            if (jmapf != null)
             {
-                throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_HeapDumpNotCreated, exitCode, output.buf.toString(), error.buf.toString(), jmap));
+                jmap = jmapf.getPath();
             }
+            else
+            {
+                if (useJcmd)
+                {
+                    jmap = "jcmd"; //$NON-NLS-1$
+                }
+                else
+                {
+                    jmap = "jmap"; //$NON-NLS-1$
+                }
+            }
+            if (useJcmd)
+            {
+                List<String>execLine1 = new ArrayList<String>();
+                execLine1.add(jmap);
+                execLine1.add(String.valueOf(info.getPid()));
+                execLine1.add("GC.heap_dump"); //$NON-NLS-1$
+                // -all option is not recognized by OpenJ9 Java 11
+                if (!jmapProcessInfo.live)
+                    execLine1.add("-all"); //$NON-NLS-1$
+                // -gz option is not recognized prior to some Java 15
+                if (remoteGz)
+                    execLine1.add("-gz=1"); //$NON-NLS-1$
+                execLine1.add(preferredLocation.getAbsolutePath());
+                execLine = execLine1.toArray(new String[execLine1.size()]);
+            }
+            else
+            {
+                String option = "-dump:format=b"; //$NON-NLS-1$
+                if (jmapProcessInfo.live)
+                    option += ",live"; //$NON-NLS-1$
+                if (remoteGz)
+                    option += ",gz=1"; //$NON-NLS-1$
+                option += ",file="; //$NON-NLS-1$
+                option += preferredLocation.getAbsolutePath();
+                execLine = new String[] {jmap, option, String.valueOf(info.getPid())};
+            }
+            listener.subTask(jmap);
+            // log what gets executed
+            StringBuilder logMessage = new StringBuilder();
+            logMessage.append("Executing { "); //$NON-NLS-1$
+            for (int i = 0; i < execLine.length; i++)
+            {
+                logMessage.append("\"").append(execLine[i]).append("\""); //$NON-NLS-1$ //$NON-NLS-2$
+                if (i < execLine.length - 1) logMessage.append(", "); //$NON-NLS-1$
+            }
+            logMessage.append(" }"); //$NON-NLS-1$
+
+            Logger.getLogger(getClass().getName()).info(logMessage.toString());
+            Process p = null;
+            try
+            {
+                p = Runtime.getRuntime().exec(execLine);
+
+                StreamCollector error = new StreamCollector(p.getErrorStream());
+                error.start();
+                StreamCollector output = new StreamCollector(p.getInputStream());
+                output.start();
+
+                if (listener.isCanceled()) return null;
+
+                int exitCode = p.waitFor();
+                if (exitCode != 0 
+                                || !preferredLocation.exists() 
+                                && (error.buf.length() > 0 || output.buf.toString().startsWith("Error")))  //$NON-NLS-1$
+                {
+                    if (remoteGz)
+                    {
+                        remoteGz = false;
+                        continue;
+                    }
+                    if (useJcmd)
+                    {
+                        useJcmd = false;
+                        continue;
+                    }
+                }
+                if (exitCode != 0)
+                {
+                    throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, exitCode, error.buf.toString(), jmap));
+                }
+
+                if (!preferredLocation.exists())
+                {
+                    throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_HeapDumpNotCreated, exitCode, output.buf.toString(), error.buf.toString(), jmap));
+                }
+            }
+            catch (IOException ioe)
+            {
+                throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ioe);
+            }
+            catch (InterruptedException ie)
+            {
+                throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ie);
+            }
+            finally
+            {
+                if (p != null) p.destroy();
+            }
+            break;
         }
-        catch (IOException ioe)
-        {
-            throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ioe);
-        }
-        catch (InterruptedException ie)
-        {
-            throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ie);
-        }
-        finally
-        {
-            if (p != null) p.destroy();
-        }
-        if (jmapProcessInfo.compress)
+
+        if (jmapProcessInfo.compress && !remoteGz)
         {
             try
             {
@@ -227,6 +261,27 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
         listener.done();
 
         return preferredLocation;
+    }
+
+    private File fullCmdName(JmapVmInfo jmapProcessInfo, final String[] modules)
+    {
+        File jmap = null;
+        if (jmapProcessInfo.jdkHome != null && jmapProcessInfo.jdkHome.exists())
+        {
+            for (String mod : modules)
+            {
+                File mod1 = new File(jmapProcessInfo.jdkHome.getAbsoluteFile(), "bin"); //$NON-NLS-1$
+                mod1 = new File(mod1, mod);
+                if (mod1.canExecute())
+                {
+                    jmap = mod1.getAbsoluteFile();
+                    // Found it, so remember the location
+                    persistJDKLocation(LAST_JMAP_JDK_DIRECTORY_KEY, jmapProcessInfo.jdkHome.getAbsolutePath());
+                    break;
+                }
+            }
+        }
+        return jmap;
     }
 
     File compressFile(File dump, boolean chunked, IProgressListener listener) throws IOException

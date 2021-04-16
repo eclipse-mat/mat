@@ -53,7 +53,7 @@ public class LocalJavaProcessesUtils
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String cmds[] = cmd.startsWith("jcmd") ?  //$NON-NLS-1$
                         new String[]{jps, "-l", "-J-Dfile.encoding="+encoding} //$NON-NLS-1$//$NON-NLS-2$
-        : new String[]{jps, "-m", "-l", "-J-Dfile.encoding="+encoding}; //$NON-NLS-1$//$NON-NLS-2$
+        : new String[]{jps, "-m", "-l", "-J-Dfile.encoding="+encoding}; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                         listener.subTask(jps);
                         StreamCollector error = null;
                         StreamCollector output = null;
@@ -72,7 +72,8 @@ public class LocalJavaProcessesUtils
 
                             List<JmapVmInfo> vms = new ArrayList<JmapVmInfo>();
                             int jpsProcesses = 0;
-                            String jpssig = cmd.startsWith("jcmd") ? "JCmd -l" : "Jps -m -l"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            String jpssig1 = cmd.startsWith("jcmd") ? "sun.tools.jcmd.JCmd -l" : "Jps -m -l"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            String jpssig2 = cmd.startsWith("jcmd") ? "openj9.tools.attach.diagnostics.tools.Jcmd -l" : "Jps -m -l"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             StringTokenizer tok = new StringTokenizer(output.buf.toString(), "\r\n"); //$NON-NLS-1$
                             while (tok.hasMoreTokens())
                             {
@@ -83,7 +84,7 @@ public class LocalJavaProcessesUtils
                                 if (info != null)
                                 {
                                     vms.add(info);
-                                    if (info.getDescription().contains(jpssig))
+                                    if (info.getDescription().contains(jpssig1) || info.getDescription().contains(jpssig2))
                                         ++jpsProcesses;
                                 }
                             }
@@ -92,7 +93,7 @@ public class LocalJavaProcessesUtils
                             {
                                 for (JmapVmInfo info : vms)
                                 {
-                                    if (info.getDescription().contains(jpssig))
+                                    if (info.getDescription().contains(jpssig1) || info.getDescription().contains(jpssig2))
                                     {
                                         info.setHeapDumpEnabled(false);
                                         break;

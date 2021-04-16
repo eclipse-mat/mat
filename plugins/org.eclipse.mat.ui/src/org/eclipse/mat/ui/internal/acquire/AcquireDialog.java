@@ -48,11 +48,14 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction.AcquireWizard;
+import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -200,6 +203,14 @@ public class AcquireDialog extends WizardPage
 
             public void widgetDefaultSelected(SelectionEvent arg0)
             {
+            }
+        });
+        localVMsTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.keyCode == 'c' && (e.stateMask & SWT.MOD1) != 0)
+                    Copy.copyToClipboard(localVMsTable);
             }
         });
 

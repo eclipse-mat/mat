@@ -347,7 +347,10 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
                         {
                             Logger.getLogger(AcquireDumpOperation.class.getName()).log(Level.INFO,
                                             MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
-                            parameter.getField().set(impl, null);
+                            if (parameter.isBoolean())
+                                parameter.getField().set(impl, parameter.getDefaultValue());
+                            else
+                                parameter.getField().set(impl, null);
                         }
                         continue;
                     }

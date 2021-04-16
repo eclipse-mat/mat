@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020,2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public class GZIPInputStream2 extends FilterInputStream
     long uncompressedLen;
     CRC32 crc = new CRC32();
     boolean checkcrc;
+    String comment;
     public GZIPInputStream2(GZIPInputStream2 gs) throws IOException
     {
         super(new InflaterInputStream((InflaterInputStream)gs.in));
@@ -128,10 +129,13 @@ public class GZIPInputStream2 extends FilterInputStream
         if ((b3 & FLG_FCOMMENT) != 0)
         {
             int b;
+            StringBuilder sb = new StringBuilder();
             while ((b = is.read()) != 0) {
                 if (b == -1)
                     throw new ZipException(Messages.GZIPInputStream2_TruncatedComment);
+                sb.append((char)b);
             }
+            comment = sb.toString();
         }
         // CRC16
         if ((b3 & FLG_FHCRC) != 0)
@@ -173,7 +177,7 @@ public class GZIPInputStream2 extends FilterInputStream
         do
         {
             r = super.read(buf, off, len);
-            // Possible but in InflaterInputStream - might return 0 
+            // Possible bug in InflaterInputStream - might return 0 
         }
         while (r == 0);
         if (r == -1)
@@ -245,6 +249,11 @@ public class GZIPInputStream2 extends FilterInputStream
         long len32 = b4 & 0xff | (b5 & 0xff) << 8 | (b6 & 0xff) << 16 | (b7 & 0xffL) << 24;
         if (len32 != (uncompressedLen & 0xffffffffL))
             throw new ZipException(Messages.GZIPInputStream2_BadTrailerLength);
+    }
+
+    public String comment()
+    {
+        return comment;
     }
 
     @Override
