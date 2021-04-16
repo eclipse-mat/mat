@@ -34,6 +34,7 @@ import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
@@ -45,6 +46,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
@@ -504,11 +506,29 @@ public class ThreadOverviewQuery implements IQuery
             {
                 if (((ThreadStackFrameNode)row).objectId != -1)
                 {
-                    return new IContextObject()
+                    return new IContextObjectSet()
                     {
+                        @Override
                         public int getObjectId()
                         {
                             return ((ThreadStackFrameNode) row).objectId;
+                        }
+
+                        @Override
+                        public int[] getObjectIds()
+                        {
+                            IStackFrame frame = ((ThreadStackFrameNode) row).stackFrame;
+                            int[] objectIds = frame.getLocalObjectsIds();
+                            SetInt si = new SetInt();
+                            for (int i : objectIds)
+                                si.add(i);
+                            return si.toArray();
+                        }
+
+                        @Override
+                        public String getOQL()
+                        {
+                            return OQL.forObjectIds(getObjectIds());
                         }
                     };
                 }
@@ -680,6 +700,8 @@ public class ThreadOverviewQuery implements IQuery
             if (parent instanceof ThreadOverviewNode)
             {
                 ThreadOverviewNode ton = (ThreadOverviewNode) parent;
+                if (ton.stack == null)
+                    return Collections.emptyList();
                 IStackFrame[] frames = ton.stack.getStackFrames();
                 final int numFrames = frames.length;
                 List<ThreadStackFrameNode> stackFrameNodes = new ArrayList<ThreadStackFrameNode>(numFrames);

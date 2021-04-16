@@ -88,6 +88,21 @@ public class RefinedTreeViewer extends RefinedResultViewer
                     {
                         collapse(item);
                     }
+                    event.doit = false;
+                }
+                else if (event.keyCode == SWT.KEYPAD_ADD && (event.stateMask & SWT.MOD2) != 0)
+                {
+                    for (TreeItem item : tree.getSelection())
+                    {
+                        if (item.getItemCount() > 0)
+                        {
+                            item.setExpanded(true);
+                            Object ctrl = item.getData(Key.CONTROL);
+                            if (ctrl == null)
+                                doExpand(item);
+                        }
+                    }
+                    event.doit = false;
                 }
             }
 
