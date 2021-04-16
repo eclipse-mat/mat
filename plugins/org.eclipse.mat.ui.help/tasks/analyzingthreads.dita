@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2021 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation
  -->
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="task_analyzingthreads" xml:lang="en-us">
@@ -18,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -35,7 +36,7 @@
 			</p>
 			<p><b>Threads Overview</b></p>
 			<p>
-				To get an overview of all the threads in the heap dump use the "Thread Overview" button
+				To get an overview of all the threads in the heap dump, use the "Thread Overview" button
 				in the toolbar, as shown on the image below. Alternatively one could use the 
 				<menucascade>
 					<uicontrol>Query Browser</uicontrol>
@@ -47,31 +48,33 @@
 				<alt>screen shot of thread overview</alt>
 			</image>
 			<p>
-				The query provide some properties like Name, Object, Context Classloader, etc...
+				The query provide some properties like thread name, thread object, Context Classloader, and more
 				for each of the threads.
 			</p>
 			<p>
 				Some heap dump formats (e.g. HPROF dumps from recent Java 6 VMs and IBM system dumps)
 				contain information about the call stacks of threads, and the Java local objects per 
-				stack frame. 
+				stack frame. The <b>Max. Locals' Retained Heap</b> column shows the maximum retained
+				heap of each stack frame's locals which helps quickly explore why a thread is retaining
+				a lot of heap.
 			</p>
 			<p>
 				Exploring the call-stacks and the local Java objects is a powerful feature, giving a
-				debugger like capabilities over a snapshot. It allows analyzing in details the reason
-				for a memory intensive operations. And it also enables that heap dumps and Memory Analyzer
-				are used not only for memory-related problems, but also for a wide range of other problems 
-				e.g. unresponsive applications.
+				debugger like capabilities over a snapshot. It allows analyzing in detail the reasons
+				for memory intensive operations. It also allow using Memory Analyzer
+				not only for memory-related problems, but also for a wide range of other problems 
+				such as unresponsive applications.
 			</p>
 			
 			<p><b>Threads Details</b></p>			
 			<p>
-				You can proceed with the analysis of a single thread by using
+				You can proceed with the analysis of a single thread by using the
 				<menucascade>
 					<uicontrol>Java Basics</uicontrol>
 					<uicontrol>Thread Details</uicontrol>
 				</menucascade>
-				context menu. Memory Analyzer provides an extension point, such that extensions can
-				provide semantic information about the threads activity. The result of the Thread Details 
+				context menu. Memory Analyzer provides an extension point such that extensions can
+				provide semantic information about the thread's activity. The result of the Thread Details 
 				query will contain such information (if available), some overview information, and 
 				possibly the stacktrace of the thread.
 			</p>
@@ -86,8 +89,8 @@
 			</p>
 
 			<p><b>Threads Stacks in Dumps from IBM VMs</b></p>	
-			<p>The DTFJ parser allows more control over viewing thread stacks. This is configured using the 
-			DTFJ Parser preferences page. The options are as follows.
+			<p>The DTFJ parser provides more control over viewing thread stacks. This is configured using the 
+			DTFJ Parser preferences page. The options are as follows:
 			<dl>
 			<dlentry>
 				<dt>Normal</dt>
@@ -131,17 +134,21 @@
 			</image>
 			</p>
 			<p><b>Stack frames as pseudo-objects.</b></p>
-			<p> Note that the type of the stack frame is <codeph>&lt;stack frame&gt;</codeph>.
+			<p>Note that the type of the stack frame is <codeph>&lt;stack frame&gt;</codeph>.</p>
+			<p>
 			<image href="../mimes/thread_frames1.png">
 				<alt>outbound references from thread with stack frames as objects</alt>
 			</image>
 			</p>
 			<p><b>Stack frames as pseudo-objects and running methods as pseudo-classes.</b></p>
-			<p>Note the different types for the stack frame such as <codeph>java.io.FileStream.getBytes([BIII)I;</codeph>.
+			<p>Note the different types for the stack frame such as <codeph>java.io.FileStream.getBytes([BIII)I;</codeph>.</p>
+			<p>
 			<image href="../mimes/thread_frames2.png">
 				<alt>outbound references from thread with stack frames as objects and methods as classes</alt>
 			</image>
-			The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.
+			</p>
+			<p>The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.</p>
+			<p>
 			<image href="../mimes/thread_classes2.png">
 				<alt>class histogram showing running methods as pseudo-classes</alt>
 			</image>
