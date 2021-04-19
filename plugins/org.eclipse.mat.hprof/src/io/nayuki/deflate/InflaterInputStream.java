@@ -4,6 +4,9 @@
  * 
  * https://www.nayuki.io/page/deflate-library-java
  * https://github.com/nayuki/DEFLATE-library-Java
+ * Modified for Eclipse Memory Analyzer for:
+ *  cloning of inflator
+ *  pass-through mode for multi-chunk zips
  */
 
 package io.nayuki.deflate;
@@ -62,6 +65,7 @@ public final class InflaterInputStream extends FilterInputStream {
     /* State */
     
     // The state of the decompressor:
+    //   -4: The decompressor is in pass-through mode, indefinite uncompressed
     //   -3: This decompressor stream has been closed. Equivalent to in == null.
     //   -2: A data format exception has been thrown. Equivalent to exception != null.
     //   -1: Currently processing a Huffman-compressed block.
@@ -313,7 +317,22 @@ public final class InflaterInputStream extends FilterInputStream {
             
         } else if (state == -1)  // Decode symbols from Huffman-coded block
             return result + readInsideHuffmanBlock(b, off + result, len - result);
-        else
+        else if (state == -4) {
+            // Modification for Eclipse MAT
+            int n = Math.min(inputBufferLength - inputBufferIndex + (inputBitBufferLength + 7 >> 3), len - result);
+            if (n > 0) {
+                readBytes(b, off + result, n);
+                result += n;
+            } else if (result < len) {
+                n = len - result;
+                int r = in.read(b, off + result, len);
+                if (r >= 0) {
+                    result += r;
+                } else if (result == 0)
+                    result = r;
+            }
+            return result;
+        } else
             throw new AssertionError("Impossible state");
     }
     
@@ -527,12 +546,20 @@ public final class InflaterInputStream extends FilterInputStream {
      * @throws IOException if an I/O exception occurred
      */
     public void detach() throws IOException {
-        if (!isDetachable)
-            throw new IllegalStateException("Detachability not specified at construction");
+        // Modifications for Eclipse MAT
+        //if (!isDetachable)
+        //    throw new IllegalStateException("Detachability not specified at construction");
         if (in == null)
             throw new IllegalStateException("Input stream already detached/closed");
         if (exception != null)
             throw exception;
+        if (!isDetachable)
+        {
+            if (state == -4)
+                throw new IllegalStateException("Input stream already detached");
+            state = -4;
+            return;
+        }
         
         // Rewind the underlying stream, then skip over bytes that were already consumed.
         // Note that a byte with some bits consumed is considered to be fully consumed.
@@ -550,8 +577,21 @@ public final class InflaterInputStream extends FilterInputStream {
         state = -3;
         destroyState();
     }
-    
-    
+
+    /**
+     * Resume decompression.
+     * Addition for Eclipse MAT
+     */
+    public void attach()
+    {
+        if (state != -4)
+            throw new IllegalStateException("Not detached");
+        Arrays.fill(dictionary, (byte)0);
+        dictionaryIndex = 0;
+        isLastBlock = false;
+        state = 0;
+    }
+
     /**
      * Closes this input stream and the underlying stream.
      * It is illegal to call {@link #read()} or {@link #detach()} after closing.

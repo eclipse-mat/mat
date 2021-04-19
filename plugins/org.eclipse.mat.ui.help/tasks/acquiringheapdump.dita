@@ -252,7 +252,7 @@
 			<uicontrol>Next</uicontrol>
 		</menucascade>
 		button to get to the
-		<wintitle>Configuring Heap Dump Provider Arguments</wintitle>
+		<wintitle>Heap Dump Provider Arguments</wintitle>
 		page of the wizard.
 	</p>
 	<p>
@@ -297,8 +297,8 @@
 	</p>
 	<p>
 		<dl>
-			<dlentry>
-				<dt id="1">HPROF jmap dump provider</dt>
+			<dlentry id="1">
+				<dt>HPROF jmap dump provider</dt>
 				<dd>
 					This provider uses the
 					<cmdname>jps</cmdname>

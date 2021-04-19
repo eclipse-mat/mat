@@ -234,6 +234,9 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
             // If by any reason the exception occurs, the focus will not be set
         }
 
+        // Get the argument table looking nice with everything lined up
+        table.pack();
+        table.getParent().pack();
     }
 
     public void addListener(ITableListener listener)

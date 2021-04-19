@@ -206,9 +206,9 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
                 if (listener.isCanceled()) return null;
 
                 int exitCode = p.waitFor();
-                if (exitCode != 0 
-                                || !preferredLocation.exists() 
-                                && (error.buf.length() > 0 || output.buf.toString().startsWith("Error")))  //$NON-NLS-1$
+                // Is there an error we can retry with new options?
+                if (!preferredLocation.exists()
+                                && (exitCode != 0 || error.buf.length() > 0 || output.buf.toString().startsWith("Error")))  //$NON-NLS-1$
                 {
                     if (remoteGz)
                     {

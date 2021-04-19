@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 import java.util.zip.ZipException;
 
@@ -34,21 +36,24 @@ public class GZIPInputStream2 extends FilterInputStream
     private static final int FLG_FEXTRA = 1 << 2;
     InputStream is;
     long uncompressedLen;
+    long uncompressedLocationAtHeader;
     CRC32 crc = new CRC32();
     boolean checkcrc;
     String comment;
+    String filename;
     public GZIPInputStream2(GZIPInputStream2 gs) throws IOException
     {
         super(new InflaterInputStream((InflaterInputStream)gs.in));
         is = gs.is;
         uncompressedLen = gs.uncompressedLen;
+        uncompressedLocationAtHeader = gs.uncompressedLocationAtHeader;
         // FIXME Need to initialize CRC to other value, so until then disable the CRC check
         checkcrc = false;
     }
 
     public GZIPInputStream2(InputStream is) throws IOException
     {
-        super(new InflaterInputStream(is, true));
+        super(new InflaterInputStream(is, false));
         this.is = is;
         readHeader(is);
         checkcrc = true;
@@ -56,15 +61,21 @@ public class GZIPInputStream2 extends FilterInputStream
 
     private InputStream readHeader(InputStream is) throws IOException
     {
-        crc.reset();
         int b0 = is.read();
+        return readHeader(is, b0);
+    }
+    private InputStream readHeader(InputStream is, int b0) throws IOException
+    {;
+        uncompressedLocationAtHeader += uncompressedLen;
+        uncompressedLen = 0;
+        crc.reset();
         crc.update(b0);
         if (b0 != 0x1f)
             throw new ZipException(Messages.GZIPInputStream2_NotAGzip);
         int b1 = is.read();
         crc.update(b1);
         if (b1 != 0x8b)
-            throw new ZipException("Not a Gzip"); //$NON-NLS-1$
+            throw new ZipException(Messages.GZIPInputStream2_NotAGzip);
         int b2 = is.read();
         crc.update(b2);
         if (b2 != 0x8)
@@ -99,7 +110,7 @@ public class GZIPInputStream2 extends FilterInputStream
         crc.update(b8);
         // OS
         int b9 = is.read();
-        if (b9 <0)
+        if (b9 < 0)
             throw new ZipException(Messages.GZIPInputStream2_TruncatedHeader);
         crc.update(b9);
         // Extra
@@ -108,22 +119,31 @@ public class GZIPInputStream2 extends FilterInputStream
             int l1 = is.read();
             if (l1 < 0)
                 throw new ZipException(Messages.GZIPInputStream2_TruncatedExtra);
+            crc.update(l1);
             int l2 = is.read();
             if (l2 < 0)
                 throw new ZipException(Messages.GZIPInputStream2_TruncatedExtra);
+            crc.update(l2);
             int l = (l2 & 0xff) << 8 | (l1 & 0xff);
-            int r = is.read(new byte[l]);
+            byte[] b = new byte[l];
+            int r = is.read(b);
             if (r < l)
                 throw new ZipException(Messages.GZIPInputStream2_TruncatedExtra);
+            crc.update(b);
         }
         // Name
         if ((b3 & FLG_FNAME) != 0)
         {
             int b;
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             while ((b = is.read()) != 0) {
                 if (b == -1)
                     throw new ZipException(Messages.GZIPInputStream2_TruncatedName);
+                crc.update(b);
+                bos.write(b);
             }
+            crc.update(0);
+            filename = new String(bos.toByteArray(), StandardCharsets.UTF_8);
         }
         // Comment
         if ((b3 & FLG_FCOMMENT) != 0)
@@ -133,8 +153,10 @@ public class GZIPInputStream2 extends FilterInputStream
             while ((b = is.read()) != 0) {
                 if (b == -1)
                     throw new ZipException(Messages.GZIPInputStream2_TruncatedComment);
+                crc.update(b);
                 sb.append((char)b);
             }
+            crc.update(0);
             comment = sb.toString();
         }
         // CRC16
@@ -146,7 +168,7 @@ public class GZIPInputStream2 extends FilterInputStream
             int c1 = is.read();
             if (c1 == -1)
                 throw new ZipException(Messages.GZIPInputStream2_TruncatedHeaderCRC);
-            int crcv = c1 & 0xff | (c1 & 0xff) << 8;
+            int crcv = c0 & 0xff | (c1 & 0xff) << 8;
             if ((crc.getValue() & 0xffff) != crcv)
                 throw new ZipException(Messages.GZIPInputStream2_BadHeaderCRC);
         }
@@ -157,12 +179,25 @@ public class GZIPInputStream2 extends FilterInputStream
     @Override
     public int read() throws IOException
     {
-        int r = super.read();
-        if (r == -1)
-        {
-            checkTrailer();
-        }
-        else
+        int r;
+        do {
+            r = super.read();
+            if (r == -1)
+            {
+                // handle chunked zip
+                // Ensure we can read the data after the zipped part
+                ((InflaterInputStream)in).detach();
+                checkTrailer(in);
+                int b0 = in.read();
+                // Real EOF
+                if (b0 <= 0)
+                    break;
+                // New chunk
+                readHeader(in, b0);
+                ((InflaterInputStream)in).attach();
+            }
+        } while (r < 0);
+        if (r >= 0);
         {
             crc.update(r);
             ++uncompressedLen;
@@ -177,14 +212,25 @@ public class GZIPInputStream2 extends FilterInputStream
         do
         {
             r = super.read(buf, off, len);
-            // Possible bug in InflaterInputStream - might return 0 
+            // Possible bug in InflaterInputStream - might return 0
+            if (r == -1)
+            {
+                // Handle chunked zip
+                // Ensure we can read the data after the zipped part
+                ((InflaterInputStream)in).detach();
+                checkTrailer(in);
+                int b0 = in.read();
+                // Real EOF
+                if (b0 <= 0)
+                    break;
+                // New chunk
+                readHeader(in, b0);
+                ((InflaterInputStream)in).attach();
+            }
         }
-        while (r == 0);
-        if (r == -1)
-        {
-            checkTrailer();
-        }
-        else
+        while (r <= 0);
+
+        if (r != -1)
         {
             crc.update(buf, off, r);
             uncompressedLen += r;
@@ -210,10 +256,8 @@ public class GZIPInputStream2 extends FilterInputStream
         return skipped;
     }
 
-    void checkTrailer() throws IOException
+    void checkTrailer(InputStream is) throws IOException
     {
-        // Ensure we can read the data after the zipped part
-        ((InflaterInputStream)in).detach();
         // CRC32
         int b0 = is.read();
         if (b0 < 0)

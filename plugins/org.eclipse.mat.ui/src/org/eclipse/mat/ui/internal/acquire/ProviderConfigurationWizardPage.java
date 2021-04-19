@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
@@ -37,6 +38,7 @@ import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
@@ -65,7 +67,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProviderConfigurationWizardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
-
+    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp"; //$NON-NLS-1$
     private ProviderArgumentsTable table;
     private Table availableProvidersTable;
     private AcquireDialog acquireDialog;
@@ -110,7 +112,11 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
                     AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) ((TableItem) e.item).getData();
                     table.providerSelected(argumentsSet);
                     onFocus(null);
-                    relocateHelp(true);
+                    IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+                    if (!prefs.getBoolean(HIDE_QUERY_HELP))
+                    {
+                        relocateHelp(true);
+                    }
                 }
             }
         });
@@ -118,7 +124,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         // If a process is selected, make the configuration provider match the process
         acquireDialog.addProcessSelectionListener(this);
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
+        //PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
 
         Listener listener = new Listener()
         {
@@ -402,7 +408,11 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         }
         else
         {
-            relocateHelp(true);
+            IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+            if (!prefs.getBoolean(HIDE_QUERY_HELP))
+            {
+                relocateHelp(true);
+            }
         }
         super.setVisible(f);
     }

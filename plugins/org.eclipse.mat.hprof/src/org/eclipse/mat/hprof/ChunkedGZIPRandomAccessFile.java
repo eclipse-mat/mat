@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
@@ -523,14 +524,42 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         boolean writtenComment = false;
         boolean writeHeader = true;
         byte[] defaultHeader = new byte[] {
-           (byte) 0x1f, (byte) 0x8b, (byte) 8, 0, 0, 0, 0, 0, 0, 0
+           (byte) 0x1f, (byte) 0x8b, (byte) 8, (byte) 2, 0, 0, 0, 0, 0, 0
         };
         int left;
         DeflaterOutputStream dos;
+        String fn;
 
         public ChunkedGZIPOutputStream(OutputStream os)
         {
             super(os);
+        }
+
+        public ChunkedGZIPOutputStream(OutputStream os, File originalFile)
+        {
+            super(os);
+            fn = originalFile.getName().replaceFirst(".gz(ip)?$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            long lastMod = originalFile.lastModified();
+            if (lastMod == 0)
+                lastMod = System.currentTimeMillis();
+            lastMod /= 1000;
+            // > year 2038 ?
+            lastMod = Math.min(lastMod, Integer.MAX_VALUE);
+            defaultHeader[4] = (byte)lastMod;
+            defaultHeader[5] = (byte)(lastMod >> 8);
+            defaultHeader[6] = (byte)(lastMod >> 16);
+            defaultHeader[7] = (byte)(lastMod >> 24);
+            String opsys = System.getProperty("os.name").toLowerCase(Locale.ENGLISH); //$NON-NLS-1$
+            if (opsys.contains("linux") || opsys.contains("unix")) //$NON-NLS-1$ //$NON-NLS-2$
+                defaultHeader[9] = 3;
+            else if (opsys.contains("mac")) //$NON-NLS-1$
+                defaultHeader[9] = 7;
+            else if (opsys.contains("win")) //$NON-NLS-1$
+            {
+                // Can't yet distinguish NTFS/FAT/HPFS
+                defaultHeader[9] = 11;
+            } else
+                defaultHeader[9] = (byte)255;
         }
         @Override
         public void write(int b) throws IOException
@@ -540,6 +569,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
                 header();
             }
             dos.write(b);
+            crc.update(b);
             if (--left <= 0)
             {
                 flush();
@@ -554,6 +584,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
                     header();
                 int len1 = Math.min(len, left);
                 dos.write(b, offset, len1);
+                crc.update(b, offset, len1);
                 offset += len1;
                 len -= len1;
                 left -= len1;
@@ -571,16 +602,38 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             if (writtenComment)
             {
                 out.write(defaultHeader);
+                crc.update(defaultHeader);
             }
             else
             {
                 out.write(defaultHeader, 0, 3);
-                out.write(16); // We have a comment.
+                crc.update(defaultHeader, 0, 3);
+                int flags = defaultHeader[3] | 16; // We have a comment
+                if (fn != null)
+                    flags |= 8;
+                out.write(flags);
+                crc.update(flags);
                 out.write(defaultHeader, 4, 6);
+                crc.update(defaultHeader, 4, 6);
+                if (fn != null)
+                {
+                    out.write(fn.getBytes(StandardCharsets.UTF_8));
+                    crc.update(fn.getBytes(StandardCharsets.UTF_8));
+                    out.write(0); // Zero terminate file name
+                    crc.update(0);
+                }
                 out.write(comment.getBytes(StandardCharsets.US_ASCII));
+                crc.update(comment.getBytes(StandardCharsets.US_ASCII));
                 out.write(0); // Zero terminate comment
+                crc.update(0);
                 writtenComment = true;
             }
+            if ((defaultHeader[3] & 2) != 0)
+            {
+                out.write((int)(crc.getValue() & 0xff));
+                out.write((int)(crc.getValue() >> 8 & 0xff));
+            }
+            crc.reset();
             dos = new DeflaterOutputStream(out, def, 65536);
             left = chunkSize;
             writeHeader = false;
@@ -625,7 +678,8 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     public static void compressFileChunked(File toCompress, File compressed) throws IOException
     {
         try (InputStream is = new BufferedInputStream(new FileInputStream(toCompress), 64 * 1024);
-             OutputStream os = new ChunkedGZIPOutputStream(new BufferedOutputStream(new FileOutputStream(compressed), 64 * 1024)))
+             FileOutputStream fos = new FileOutputStream(compressed);
+             OutputStream os = new ChunkedGZIPOutputStream(new BufferedOutputStream(fos, 64 * 1024), toCompress))
         {
             FileUtils.copy(is, os);
         }
