@@ -549,8 +549,8 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             defaultHeader[5] = (byte)(lastMod >> 8);
             defaultHeader[6] = (byte)(lastMod >> 16);
             defaultHeader[7] = (byte)(lastMod >> 24);
-            String opsys = System.getProperty("os.name").toLowerCase(Locale.ENGLISH); //$NON-NLS-1$
-            if (opsys.contains("linux") || opsys.contains("unix")) //$NON-NLS-1$ //$NON-NLS-2$
+            String opsys = System.getProperty("os.name").toLowerCase(Locale.ROOT); //$NON-NLS-1$
+            if (opsys.contains("linux") || opsys.contains("unix") || opsys.contains("aix")) //$NON-NLS-1$ //$NON-NLS-2$
                 defaultHeader[9] = 3;
             else if (opsys.contains("mac")) //$NON-NLS-1$
                 defaultHeader[9] = 7;
@@ -656,6 +656,9 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         {
             try
             {
+                // for zero length files we still want to generate a gzip
+                if (!writtenComment)
+                    header();
                 flush();
                 def.finish();
                 dos.close();

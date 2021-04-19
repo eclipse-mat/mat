@@ -18,7 +18,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.zip.CRC32;
 import java.util.zip.ZipException;
 
 import io.nayuki.deflate.InflaterInputStream;
@@ -37,7 +36,7 @@ public class GZIPInputStream2 extends FilterInputStream
     InputStream is;
     long uncompressedLen;
     long uncompressedLocationAtHeader;
-    CRC32 crc = new CRC32();
+    CRC32 crc;
     boolean checkcrc;
     String comment;
     String filename;
@@ -45,18 +44,17 @@ public class GZIPInputStream2 extends FilterInputStream
     {
         super(new InflaterInputStream((InflaterInputStream)gs.in));
         is = gs.is;
+        crc = gs.crc.clone();
         uncompressedLen = gs.uncompressedLen;
         uncompressedLocationAtHeader = gs.uncompressedLocationAtHeader;
-        // FIXME Need to initialize CRC to other value, so until then disable the CRC check
-        checkcrc = false;
     }
 
     public GZIPInputStream2(InputStream is) throws IOException
     {
         super(new InflaterInputStream(is, false));
         this.is = is;
+        crc = new CRC32();
         readHeader(is);
-        checkcrc = true;
     }
 
     private InputStream readHeader(InputStream is) throws IOException
@@ -85,6 +83,8 @@ public class GZIPInputStream2 extends FilterInputStream
         if (b3 < 0)
             throw new ZipException(Messages.GZIPInputStream2_TruncatedHeader);
         crc.update(b3);
+        if ((b3 & 0xe0) != 0x0)
+            throw new ZipException(Messages.GZIPInputStream2_BadHeaderFlag);
         int b4 = is.read();
         if (b4 < 0)
             throw new ZipException(Messages.GZIPInputStream2_TruncatedHeader);
@@ -143,21 +143,21 @@ public class GZIPInputStream2 extends FilterInputStream
                 bos.write(b);
             }
             crc.update(0);
-            filename = new String(bos.toByteArray(), StandardCharsets.UTF_8);
+            filename = new String(bos.toByteArray(), StandardCharsets.ISO_8859_1);
         }
         // Comment
         if ((b3 & FLG_FCOMMENT) != 0)
         {
             int b;
-            StringBuilder sb = new StringBuilder();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             while ((b = is.read()) != 0) {
                 if (b == -1)
                     throw new ZipException(Messages.GZIPInputStream2_TruncatedComment);
                 crc.update(b);
-                sb.append((char)b);
+                bos.write(b);
             }
             crc.update(0);
-            comment = sb.toString();
+            comment = new String(bos.toByteArray(), StandardCharsets.ISO_8859_1);
         }
         // CRC16
         if ((b3 & FLG_FHCRC) != 0)
@@ -197,7 +197,7 @@ public class GZIPInputStream2 extends FilterInputStream
                 ((InflaterInputStream)in).attach();
             }
         } while (r < 0);
-        if (r >= 0);
+        if (r >= 0)
         {
             crc.update(r);
             ++uncompressedLen;
@@ -274,7 +274,7 @@ public class GZIPInputStream2 extends FilterInputStream
         // Unsigned
         long crc32 = b0 & 0xff | (b1 & 0xff) << 8 | (b2 & 0xff) << 16 | (b3 & 0xffL) << 24;
         long crc32v = crc.getValue();
-        if (checkcrc && crc32v != crc32)
+        if (crc32v != crc32)
             throw new ZipException(Messages.GZIPInputStream2_BadTrailerCRC);
         // uncompressed length
         int b4 = is.read();
@@ -304,5 +304,64 @@ public class GZIPInputStream2 extends FilterInputStream
     public void close() throws IOException
     {
         super.close();
+    }
+
+    /**
+     * A CRC32 implementation - which
+     * allows the state to be cloned.
+     */
+    private static class CRC32 implements Cloneable
+    {
+        int value;
+        private static final int table[] = new int[256];
+        static
+        {
+            for (int i = 0; i < 256; ++i)
+            {
+                int v = i;
+                for (int j = 0; j < 8; ++j)
+                {
+                    if ((v & 1) != 0)
+                        v = 0xedb88320 ^ (v >>> 1);
+                    else
+                        v >>>= 1;
+                }
+                table[i] = v;
+            }
+        }
+        public CRC32()
+        {
+            reset();
+        }
+        @Override
+        public CRC32 clone()
+        {
+            CRC32 c = new CRC32();
+            c.value = value;
+            return c;
+        }
+        public void reset()
+        {
+            value = 0xffffffff;
+        }
+        public void update(int b)
+        {
+            value = table[(value ^ (b & 0xff)) & 0xff] ^ (value >>> 8);
+        }
+        public void update(byte b[], int offset, int len)
+        {
+            for (int i = 0; i < len; ++i)
+            {
+                update(b[offset + i]);
+            }
+        }
+        public void update(byte b[])
+        {
+            update(b, 0, b.length);
+        }
+        public long getValue()
+        {
+            return (value ^ 0xffffffff) & 0xffffffffL;
+        }
     }
 }
