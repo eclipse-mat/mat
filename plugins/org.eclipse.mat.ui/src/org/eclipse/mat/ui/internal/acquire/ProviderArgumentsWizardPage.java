@@ -70,7 +70,7 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         tableComposite.layout();
         tableComposite.pack();
 
-        //PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
         composite.setContent(tableComposite);
         setControl(composite);
 
@@ -93,7 +93,7 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         if (isCurrentPage())
         {
             IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
-            if (!prefs.getBoolean(HIDE_QUERY_HELP))
+            if (!prefs.getBoolean(HIDE_QUERY_HELP) || helpPopup != null && helpPopup.getShell() != null)
             {
                 relocateHelp(true);
             }

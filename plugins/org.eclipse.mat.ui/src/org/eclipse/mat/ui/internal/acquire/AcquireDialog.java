@@ -217,8 +217,7 @@ public class AcquireDialog extends WizardPage
         tableComposite.layout();
         tableComposite.pack();
 
-        Control control = localVMsTable.getParent();
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(control, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
 
         italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
 
@@ -581,6 +580,21 @@ public class AcquireDialog extends WizardPage
         }
         // The button states might depend on the listeners changing
         getContainer().updateButtons();
+    }
+
+    @Override
+    public void performHelp()
+    {
+        if (localVMsTable.getSelectionIndex() >= 0)
+        {
+            AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
+            String helpUrl = argumentsSet.getDescriptor().getHelpUrl();
+            if (helpUrl != null)
+            {
+                PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+            }
+        }
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
     }
 
     private static class GetVMListRunnable implements IRunnableWithProgress

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019,2020 IBM Corporation.
+ * Copyright (c) 2019,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -223,6 +223,12 @@ class CompressedRandomAccessFile extends RandomAccessFile
                     best = e2;
                 if (e3 >= 0 && Math.abs(e3 - estimate) < Math.abs(best - estimate))
                     best = e3;
+                /*
+                 * Attempt to detect a chunked file and round up the size
+                 * to at least 4GB so the parser doesn't throw an error with an inaccurate size 
+                 */
+                if (best < 0x100000000L && len32 <= 1024 * 1024)
+                    best = 0x100000000L;
                 return best;
             }
             else

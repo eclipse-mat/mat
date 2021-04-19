@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP AG and others.
+ * Copyright (c) 2010, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class Messages extends NLS
     public static String ExportHprof_SegmentSizeMismatch;
     public static String ExportHprof_SegmentTooLong;
     public static String GZIPInputStream2_BadHeaderCRC;
+    public static String GZIPInputStream2_BadHeaderFlag;
     public static String GZIPInputStream2_BadTrailerCRC;
     public static String GZIPInputStream2_BadTrailerLength;
     public static String GZIPInputStream2_NotAGzip;
