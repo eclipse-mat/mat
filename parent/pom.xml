@@ -43,9 +43,13 @@
 		<!-- 
 		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-releases/</cbi-repo-url>
 		<cbi-plugins.version>1.1.7</cbi-plugins.version>
-		-->
 		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-snapshots/</cbi-repo-url>
-		<cbi-plugins.version>1.3.1</cbi-plugins.version>
+		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-releases/</cbi-repo-url>
+		-->
+		<eclipse-repo.url>https://repo.eclipse.org/content/repositories/cbi/</eclipse-repo.url>
+		<cbi-snapshots-repo.url>https://repo.eclipse.org/content/repositories/cbi-snapshots/</cbi-snapshots-repo.url>
+		<cbi-releases-repo.url>https://repo.eclipse.org/content/repositories/cbi-releases/</cbi-releases-repo.url>
+		<cbi-plugins.version>1.3.0</cbi-plugins.version>
 		<macSigner.forceContinue>false</macSigner.forceContinue>
 	</properties>
 
