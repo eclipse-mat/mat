@@ -37,7 +37,6 @@ public class GZIPInputStream2 extends FilterInputStream
     long uncompressedLen;
     long uncompressedLocationAtHeader;
     CRC32 crc;
-    boolean checkcrc;
     String comment;
     String filename;
     public GZIPInputStream2(GZIPInputStream2 gs) throws IOException
