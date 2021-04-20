@@ -304,6 +304,18 @@ Biggest instances:
 Keywords
 java.lang.Class
 				</systemoutput></lines>
+				<lines><systemoutput><wintitle>Problem Suspect 8</wintitle>
+One instance of "java.util.concurrent.ForkJoinTask[]" loaded by "&lt;system class loader&gt;" occupies 279.27 MB (40.12%) bytes. The instance is referenced by java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 , loaded by "&lt;system class loader&gt;". 
+
+The thread java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 keeps local variables with total size 120.71 KB (0.02%) bytes.
+The memory is accumulated in one instance of "java.util.concurrent.ForkJoinTask[]", loaded by "&lt;system class loader&gt;", which occupies 279.27 MB (40.12%) bytes.
+The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.
+
+Keywords
+java.util.concurrent.ForkJoinTask[]
+java.util.concurrent.ForkJoinPool$WorkQueue.execLocalTasks()V
+ForkJoinPool.java:1040
+				</systemoutput></lines>
 			</p>
 		</result>
 	</taskbody>

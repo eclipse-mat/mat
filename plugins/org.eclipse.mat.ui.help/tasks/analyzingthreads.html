@@ -43,13 +43,41 @@
 				for each of the threads.
 			</p>
 
-			<p class="p">
+			<div class="p">
 				Some heap dump formats (e.g. HPROF dumps from recent Java 6 VMs and IBM system dumps)
 				contain information about the call stacks of threads, and the Java local objects per 
-				stack frame. The <strong class="ph b">Max. Locals' Retained Heap</strong> column shows the maximum retained
+				stack frame. The <span class="ph uicontrol">Max. Locals' Retained Heap</span> column shows the maximum retained
 				heap of each stack frame's locals which helps quickly explore why a thread is retaining
-				a lot of heap.
-			</p>
+				a lot of heap. When a stack frame is the first selected item the <span class="keyword wintitle">Inspector</span> view shows the class of the
+				method of the frame.
+				The context menu for a stack frame operates on the locals in that frame,
+				and so calculating the precise or approximate retained size when stack frames are selected
+				shows how much memory each stack frame is retaining, or equivalently how much memory would
+				be freed if all the locals of that frame were cleared.
+				<ol class="ol">
+					<li class="li">Select all threads using <span class="ph uicontrol">ctrl+A</span> or <span class="ph uicontrol">command+A</span></li>
+
+					<li class="li">Expand one level with <span class="ph uicontrol">shift+numpad-plus</span></li>
+
+					<li class="li">Select all threads and stack frames using <span class="ph uicontrol">ctrl+A</span> or <span class="ph uicontrol">command+A</span></li>
+
+					<li class="li">Calculate retained size using one of the toolbar items
+					<span class="ph uicontrol">Calculate Minimum Retained Size (quick approx.)</span>
+					or <span class="ph uicontrol">Calculate Precise Retained Size</span></li>
+
+					<li class="li">Find the far right hand column <span class="ph uicontrol">Retained Size</span></li>
+
+					<li class="li">Move it to somewhere more convenient by 
+					dragging the column header or by clicking on the filter cell,
+					then using <span class="ph uicontrol">shift+up-arrow</span></li>
+
+					<li class="li">Sort on the column</li>
+
+					<li class="li">Examine the stack frames retaining the most memory</li>
+
+				</ol>
+
+			</div>
 
 			<p class="p">
 				Exploring the call-stacks and the local Java objects is a powerful feature, giving a

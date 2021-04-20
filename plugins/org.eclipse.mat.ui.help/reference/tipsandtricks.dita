@@ -40,17 +40,17 @@
 					<stentry>Description</stentry>
 				</sthead>
 				<strow>
-					<stentry>Shortcuts. Use <uicontrol>Command</uicontrol> instead of <uicontrol>Ctrl</uicontrol> on macOS</stentry>
+					<stentry>Shortcuts. Use <uicontrol>command</uicontrol> instead of <uicontrol>ctrl</uicontrol> on macOS</stentry>
 					<stentry>
-						<p><uicontrol>Ctrl-Q</uicontrol> - Opens the Query Browser.</p>
-						<p><uicontrol>Ctrl-H</uicontrol> - Opens the history of executed queries.</p>
-						<p><uicontrol>Ctrl-Page Down</uicontrol> - Next tab.</p>
-						<p><uicontrol>Ctrl-Page Up</uicontrol> - Previous tab.</p>
-						<p><uicontrol>Shift-F10</uicontrol> - Context menu for results of queries.</p>
-						<p><uicontrol>Ctrl-F10</uicontrol> - Context menu for editor tabs - to close and rearrange.</p>
-						<p><uicontrol>Ctrl-Shift-P</uicontrol> - Reset perspective.</p>
-						<p><uicontrol>Alt-I</uicontrol> - Opens a pop-up menu that explains the icons.</p>
-						<p><uicontrol>Ctrl-Shift-L</uicontrol> - Opens a pop-up menu that explains the keyboard shortcuts.</p>
+						<p><uicontrol>ctrl+Q</uicontrol> - Opens the Query Browser.</p>
+						<p><uicontrol>ctrl+H</uicontrol> - Opens the history of executed queries.</p>
+						<p><uicontrol>ctrl+page-down</uicontrol> - Next tab.</p>
+						<p><uicontrol>ctrl+page-up</uicontrol> - Previous tab.</p>
+						<p><uicontrol>shift+F10</uicontrol> - Context menu for results of queries.</p>
+						<p><uicontrol>ctrl+F10</uicontrol> - Context menu for editor tabs - to close and rearrange.</p>
+						<p><uicontrol>ctrl+shift+P</uicontrol> - Reset perspective.</p>
+						<p><uicontrol>alt+I</uicontrol> - Opens a pop-up menu that explains the icons.</p>
+						<p><uicontrol>ctrl+shift+L</uicontrol> - Opens a pop-up menu that explains the keyboard shortcuts.</p>
 						
 					</stentry>
 				</strow>
@@ -93,11 +93,11 @@
 						</p>
 						<image href="../mimes/filter.png" align="left" placement="break" />
 						To move between columns of the filter row, click on the required cell, or once one cell 
-						is selected move to others with &lt;Tab&gt; or &lt;Shift&gt; &lt;Tab&gt;.
-						Use &lt;Esc&gt; to cancel or &lt;Enter&gt; to finish modifying the filters, or click on another row to continue to work
+						is selected move to others with <uicontrol>tab</uicontrol> or <uicontrol>shift+tab</uicontrol>.
+						Use <uicontrol>esc</uicontrol> to cancel or <uicontrol>enter</uicontrol> to finish modifying the filters, or click on another row to continue to work
 						with the tree or table, or use
-						&lt;Ctrl&gt; or &lt;Command&gt;+&lt;Tab&gt; to navigate another pane.
-						&lt;Tab&gt; or &lt;Shift&gt;+&lt;Tab&gt; will then revert to normal navigation. 
+						<uicontrol>ctrl+tab</uicontrol> or <uicontrol>command+tab</uicontrol> to navigate another pane.
+						<uicontrol>tab</uicontrol> or <uicontrol>shift+tab</uicontrol> will then revert to normal navigation. 
 					</stentry>
 				</strow>
 				<strow>
@@ -106,10 +106,10 @@
 						To resize or rearrange columns using the keyboard select a filter entry
 						for the column as above.
 						<ul>
-						<li>Use &lt;Ctrl&gt; or &lt;Command&gt; 
+						<li>Use <uicontrol>ctrl</uicontrol> or <uicontrol>command</uicontrol> 
 						up and down cursor keys to resize the column.</li>
-						<li>Use &lt;Shift&gt; up and down cursor keys to change the position of the column.</li>
-						<li>Use use &lt;Ctrl&gt; or &lt;Command&gt; &lt;Numpad plus&gt; when not in edit filter mode to expand
+						<li>Use <uicontrol>shift</uicontrol> up and down cursor keys to change the position of the column.</li>
+						<li>Use use <uicontrol>ctrl</uicontrol> or <uicontrol>command</uicontrol> <uicontrol>numpad plus</uicontrol> when not in edit filter mode to expand
 						columns to full width.</li>
 						</ul>
 					</stentry>
@@ -118,10 +118,11 @@
 					<stentry>Keyboard navigation of trees</stentry>
 					<stentry>
 						<ul>
-						<li>Use &lt;Numpad plus&gt; or &lt;enter&gt; to expand a row.</li>
-						<li>Use &lt;Numpad minus&gt; or &lt;enter&gt; to collapse a row.</li>
-						<li>Use &lt;Numpad multiply&gt; to fully expand a row and its descendants. Use &lt;Escape&gt; to cancel further expansion.</li>
-						<li>Use &lt;Numpad divide&gt; to fully collapse all selected rows and their descendants.</li>
+						<li>Use <uicontrol>numpad-plus</uicontrol> or <uicontrol>enter</uicontrol> to expand a row.</li>
+						<li>Use <uicontrol>shift+numpad-plus</uicontrol> to expand selected rows by one level.</li>
+						<li>Use <uicontrol>numpad-minus</uicontrol> or <uicontrol>enter</uicontrol> to collapse a row.</li>
+						<li>Use <uicontrol>numpad-multiply</uicontrol> to fully expand a row and its descendants. Use <uicontrol>escape</uicontrol> to cancel further expansion.</li>
+						<li>Use <uicontrol>numpad-divide</uicontrol> to fully collapse all selected rows and their descendants.</li>
 						</ul>
 					</stentry>
 				</strow>
@@ -138,7 +139,7 @@
 				<strow>
 					<stentry>Undo/redo in Notes View, OQL Pane</stentry>
 					<stentry>
-						There is undo/redo using <uicontrol>Ctrl-Z</uicontrol> / <uicontrol>Ctrl-Y</uicontrol> in the Notes View and
+						There is undo/redo using <uicontrol>ctrl+Z</uicontrol> / <uicontrol>ctrl+Y</uicontrol> in the Notes View and
 						the OQL Pane. The navigator pane can also be used to retrieve
 						previous OQL statements.
 					</stentry>
@@ -146,7 +147,7 @@
 				<strow>
 					<stentry>Copy To Clipboard</stentry>
 					<stentry>
-						Use <uicontrol>Ctrl-C</uicontrol> to copy the selection to the clipboard. The data will
+						Use <uicontrol>ctrl+C</uicontrol> to copy the selection to the clipboard. The data will
 						keep its structure:
 						<image href="../mimes/1af34c1.png" align="left" placement="break" />
 					</stentry>
@@ -184,19 +185,19 @@
 						</ul>
 						To use keyboard navigation, perform the following:
 						<ol>
-							<li>Use <userinput><cmdname>tab</cmdname></userinput> key
+							<li>Use <uicontrol>tab</uicontrol> key
 						to move to the tab bar</li>
 							<li>Use
 								<ul>
-									<li><userinput><cmdname>left-arrow</cmdname></userinput></li>
-									<li><userinput><cmdname>right-arrow</cmdname></userinput></li>
+									<li><uicontrol>left-arrow</uicontrol></li>
+									<li><uicontrol>right-arrow</uicontrol></li>
 								</ul>
 							to select a tab</li>
-							<li>Use <userinput><cmdname>Ctrl-F10</cmdname></userinput> to bring up the context menu</li>
+							<li>Use <uicontrol>ctrl+F10</uicontrol> to bring up the context menu</li>
 							<li>Use 
 								<ul>
-									<li><uicontrol><shortcut>L</shortcut></uicontrol></li>
-									<li><uicontrol><shortcut>R</shortcut></uicontrol></li>
+									<li><menucascade><uicontrol>Move Tab <shortcut>L</shortcut>eft</uicontrol></menucascade> or the <uicontrol>L</uicontrol> key</li>
+									<li><menucascade><uicontrol>Move Tab <shortcut>R</shortcut>ight</uicontrol></menucascade> or the <uicontrol>R</uicontrol> key</li>
 								</ul>
 								to move the tab.</li>
 						</ol>
@@ -255,7 +256,7 @@
 					<stentry>
 						The totals row now represents all the additional entries in a tree or table.
 						If the totals row is selected then the context menu will operate on all the unshown
-						entries in the tree or table. If all the rows are selected, for example using <uicontrol>Ctrl-A</uicontrol>,
+						entries in the tree or table. If all the rows are selected, for example using <uicontrol>ctrl+A</uicontrol>,
 						then the displayed rows are selected and the totals row is selected and then
 						the context menu will operate on all the entries in the tree and table.
 						Filtering operates as normal, and the rows excluded by the filter are not part of
@@ -269,7 +270,7 @@
 						The Object Query Language (OQL) pane has syntax highlighting for OQL
 						keywords. It also offers suggestions for class names for the 
 						<keyword>SELECT</keyword> <keyword>FROM</keyword> clause, both simple class names and regular expressions.
-						The class name list is brought up on typing a dot '.'. <uicontrol>Ctrl-space</uicontrol>
+						The class name list is brought up on typing a dot '.'. <uicontrol>ctrl+space</uicontrol>
 						can also be used to bring up the list.
 						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
 						The regular expression list appears on typing a double-quote '"'.
@@ -286,7 +287,7 @@
 						</alt>
 						</image>
 						Suggestions are then provided in the <keyword>SELECT</keyword> or
-						<keyword>WHERE</keyword> clauses on typing '<userinput>.</userinput>' or '<userinput>@</userinput>' or <uicontrol>Ctrl-space</uicontrol>.
+						<keyword>WHERE</keyword> clauses on typing '<userinput>.</userinput>' or '<userinput>@</userinput>' or <uicontrol>ctrl+space</uicontrol>.
 						<image href="../mimes/oql_completion4.png" align="left" placement="break">
 						</image>
 						Attributes begin with '@' and the autocompletion is filtered based on

@@ -44,7 +44,7 @@ FROM [ INSTANCEOF ] &lt;class name="name"&gt;
 <ul><li>Text area to type in the query (upper area)</li>
 <li>Result area to display the result of the query execution</li></ul>
 <image href="../mimes/m2fd32fba.png" alt="screen shot of query result"/>
-<p>Use F5 or Ctrl-Enter or toolbar button <image href="../mimes/4fd3f07a.png">
+<p>Use <uicontrol>F5</uicontrol> or <uicontrol>ctrl+enter</uicontrol> or toolbar button <image href="../mimes/4fd3f07a.png">
 <alt>Execute Query button</alt>
 </image> to execute the query.</p>
 <p>Basic OQL syntax is as follows:</p>

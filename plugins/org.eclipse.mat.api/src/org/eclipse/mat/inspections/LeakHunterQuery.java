@@ -333,6 +333,8 @@ public class LeakHunterQuery implements IQuery
                         {
                             isThreadRelated = true;
                             suspectId = referrerId;
+                            IObject suspectObject = snapshot.getObject(suspectId);
+                            suspect = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), suspect.getAccumulationPoint());
                         }
                         referrerClassloader = snapshot.getObject(referrer.getClazz().getClassLoaderId());
 //                        involvedClassloaders.add(suspectClassloader);
@@ -340,7 +342,14 @@ public class LeakHunterQuery implements IQuery
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
                         overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, HTMLUtils.escapeText(referrer
                                         .getDisplayName()), referrerClassloaderName));
-
+                        if (isThreadRelated)
+                        {
+                            overview.append("<p>"); //$NON-NLS-1$
+                            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
+                                            HTMLUtils.escapeText(suspect.getSuspect().getDisplayName()), //
+                                            formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
+                            overview.append("</p>"); //$NON-NLS-1$
+                        }
                     }
                 }
             }
@@ -1061,7 +1070,7 @@ public class LeakHunterQuery implements IQuery
                 stackResult.setCommand("thread_details 0x" + Long.toHexString(suspect.getSuspect().getObjectAddress())); //$NON-NLS-1$
 
                 builder.append("<p>"); //$NON-NLS-1$
-                builder.append(Messages.LeakHunterQuery_StackTraceAvailable + " ").append( //$NON-NLS-1$
+                builder.append(Messages.LeakHunterQuery_StackTraceAvailable).append(" ").append( //$NON-NLS-1$
                                 textResult.linkTo(Messages.LeakHunterQuery_SeeStackstrace, stackResult)).append('.');
 
                 if (!locals.isEmpty())
@@ -1319,7 +1328,14 @@ public class LeakHunterQuery implements IQuery
             {
                 if (!visited.get(referrer))
                 {
-                    if (skipped.get(referrer))
+                    /*
+                     * If it is a non-interesting object based on class name then look further.
+                     * Threads might be named java.lang.Thread but have an interesting
+                     * stack trace so do consider threads.
+                     * Sometimes it isn't so clear - e.g. a java.util.concurrent.ForkJoinTask[]
+                     * might be referred to from several ForkJoinWorkerThreads
+                     */
+                    if (skipped.get(referrer) && !isThread(referrer))
                     {
                         int[] referrers = snapshot.getInboundRefererIds(referrer);
                         fifo.add(referrers);
