@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import org.eclipse.mat.SnapshotException;
@@ -287,8 +288,27 @@ public class TopConsumersQuery implements IQuery
         return sum;
     }
 
-    class PackageTreeNode implements Comparable<PackageTreeNode>
+    private static class PackageTreeNode implements Comparable<PackageTreeNode>
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(packageName, retainedSize);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            PackageTreeNode other = (PackageTreeNode) obj;
+            return Objects.equals(packageName, other.packageName) && retainedSize == other.retainedSize;
+        }
+
         public PackageTreeNode(String packageName)
         {
             this.packageName = packageName;
@@ -305,7 +325,7 @@ public class TopConsumersQuery implements IQuery
                 return 1;
             if (retainedSize > o.retainedSize)
                 return -1;
-            return 0;
+            return packageName.compareTo(o.packageName);
         }
     }
 

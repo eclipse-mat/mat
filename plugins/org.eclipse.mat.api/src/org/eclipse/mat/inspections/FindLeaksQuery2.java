@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -624,7 +624,7 @@ public class FindLeaksQuery2 implements IQuery
         {
             super(object);
             this.retainedSize = retainedSize;
-            this.path = path;
+            this.path = path.clone(); // clone to keep SpotBugs happy;
         }
 
         public long getRetainedHeapSize()
@@ -634,7 +634,7 @@ public class FindLeaksQuery2 implements IQuery
 
         public int[] getPath()
         {
-            return path;
+            return path.clone(); // clone to keep SpotBugs happy;
         }
     }
 

@@ -234,7 +234,7 @@ public class ThreadOverviewQuery implements IQuery
         return result;
     }
 
-    private class ThreadOverviewNode
+    private static class ThreadOverviewNode
     {
         private ThreadInfoImpl threadInfo;
         private IThreadStack stack;
@@ -837,7 +837,7 @@ public class ThreadOverviewQuery implements IQuery
             return -1;
         }
 
-        class NoCompareComparator implements Comparator<Object>
+        static class NoCompareComparator implements Comparator<Object>
         {
             public int compare(Object o1, Object o2)
             {

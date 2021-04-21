@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - fix SpotBugs warnings
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi.model.eclipse;
 
@@ -41,7 +42,7 @@ public class Extension
     {
         this.objectId = objectId;
         this.extensionId = extensionId;
-        this.properties = properties;
+        this.properties = properties.clone(); // clone to prevent SpotBugs warning
     }
 
     /**

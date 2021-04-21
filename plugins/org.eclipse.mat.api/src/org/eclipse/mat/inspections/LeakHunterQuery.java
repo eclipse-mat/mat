@@ -1126,9 +1126,9 @@ public class LeakHunterQuery implements IQuery
                     QuerySpec threadResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStackAndLocals, rt);
                     // Make sure the whole stack trace is expanded
                     List<?> lThreads = rt.getElements();
-                    if (rt instanceof ISelectionProvider && lThreads.size() >= 1 && rt.hasChildren(lThreads.get(0)))
+                    if (rt != null && lThreads.size() >= 1 && rt.hasChildren(lThreads.get(0)))
                     {
-                        ISelectionProvider sel = (ISelectionProvider)rt;
+                        ISelectionProvider sel = rt;
                         List<?> lFrames = rt.getChildren(lThreads.get(0));
                         int limit = lFrames.size();
                         for (Object row : lFrames)

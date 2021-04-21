@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - SpotBugs fixes
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi.model.eclipse;
 
@@ -27,7 +28,7 @@ public class ConfigurationElement
     private Integer elementId;
     private List<ConfigurationElement> configurationElements = new ArrayList<ConfigurationElement>();
 
-    public class PropertyPair
+    public static class PropertyPair
     {
         public String property;
         public String value;
@@ -47,8 +48,8 @@ public class ConfigurationElement
         this.parentId = parentId;
         this.elementId = elementId;
         this.contributingBundle = contributingBundle;
-        this.propertiesAndValues = propertiesAndValues;
-    }
+        this.propertiesAndValues = propertiesAndValues.clone(); // clone to prevent SpotBugs warning
+     }
 
     /**
      * Get objectId of the ConfigurationElement in the heap dump

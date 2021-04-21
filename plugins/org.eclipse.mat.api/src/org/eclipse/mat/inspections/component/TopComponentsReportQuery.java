@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -194,6 +195,26 @@ public class TopComponentsReportQuery implements IQuery
      */
     private static class Record implements Comparable<Record>
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(loaderAddr, name, retainedSize);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Record other = (Record) obj;
+            return loaderAddr == other.loaderAddr && Objects.equals(name, other.name)
+                            && retainedSize == other.retainedSize;
+        }
+
         String name;
         ArrayInt objects = new ArrayInt();
         long retainedSize;
@@ -212,8 +233,14 @@ public class TopComponentsReportQuery implements IQuery
 
         public int compareTo(Record other)
         {
-            return retainedSize > other.retainedSize ? -1 : retainedSize == other.retainedSize ? 0 : 1;
+            if (retainedSize > other.retainedSize)
+                return -1;
+            if (retainedSize < other.retainedSize)
+                return 1;
+            int r = name.compareTo(other.name);
+            if (r != 0)
+                return r;
+            return Long.compare(loaderAddr, other.loaderAddr);
         }
-
     }
 }

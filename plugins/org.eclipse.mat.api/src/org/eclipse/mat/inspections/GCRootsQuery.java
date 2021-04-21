@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,11 @@ package org.eclipse.mat.inspections;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -113,6 +115,25 @@ public class GCRootsQuery implements IQuery
 
     private static class GCType implements Comparable<GCType>
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(count, name);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            GCType other = (GCType) obj;
+            return count == other.count && Objects.equals(name, other.name);
+        }
+
         String name;
         int count;
         int type;
@@ -126,12 +147,36 @@ public class GCRootsQuery implements IQuery
 
         public int compareTo(GCType other)
         {
-            return count > other.count ? -1 : count < other.count ? 1 : 0;
+            return count > other.count ? -1 : count < other.count ? 1 
+                            : name.compareTo(other.name);
         }
     }
 
     private static class ClassRecord implements Comparable<ClassRecord>
     {
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + Arrays.hashCode(objectIds);
+            result = prime * result + Objects.hash(classId);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            ClassRecord other = (ClassRecord) obj;
+            return classId == other.classId && Arrays.equals(objectIds, other.objectIds);
+        }
+
         final int classId;
         final String name;
 
@@ -146,7 +191,8 @@ public class GCRootsQuery implements IQuery
 
         public int compareTo(ClassRecord o)
         {
-            return objectIds.length > o.objectIds.length ? -1 : objectIds.length < o.objectIds.length ? 1 : 0;
+            return objectIds.length > o.objectIds.length ? -1 : objectIds.length < o.objectIds.length ? 1 
+                            : name.compareTo(o.name);
         }
     }
 

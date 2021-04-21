@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -291,6 +291,12 @@ public class BundleRegistryQuery implements IQuery
                         return ((PropertiesFolder) folder).service.getProperties();
                     case BUNDLES_USING:
                         return ((PropertiesFolder) folder).service.getBundlesUsing();
+                    case BUNDLE:
+                        return null;
+                    case LOCATION:
+                        return null;
+                    default:
+                        return null;
                 }
 
             }
@@ -362,6 +368,8 @@ public class BundleRegistryQuery implements IQuery
                 {
                     case LOCATION:
                         return false;
+                    default:
+                        break;
                 }
                 return true;
             }
@@ -560,6 +568,8 @@ public class BundleRegistryQuery implements IQuery
                 {
                     case BUNDLE:
                         return super.getChildren(((DescriptorFolder) folder).descriptor);
+                    default:
+                        break;
                 }
 
             }

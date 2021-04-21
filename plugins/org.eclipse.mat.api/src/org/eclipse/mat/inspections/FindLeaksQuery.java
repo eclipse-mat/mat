@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -413,13 +413,13 @@ public class FindLeaksQuery implements IQuery
                         IMultiplePathsFromGCRootsComputer pathsComputer)
         {
             super(object);
-            this.commonPath = commonPath;
+            this.commonPath = commonPath.clone(); // clone to keep SpotBugs happy
             this.pathsComputer = pathsComputer;
         }
 
         public int[] getCommonPath()
         {
-            return commonPath;
+            return commonPath.clone(); // clone to keep SpotBugs happy
         }
 
         public IMultiplePathsFromGCRootsComputer getPathsComputer()
@@ -446,7 +446,7 @@ public class FindLeaksQuery implements IQuery
 
         public int[] getCommonPath()
         {
-            return commonPath;
+            return commonPath.clone(); // clone to keep SpotBugs happy
         }
 
         public IMultiplePathsFromGCRootsComputer getPathsComputer()
@@ -456,7 +456,7 @@ public class FindLeaksQuery implements IQuery
 
         public int[] getSuspectInstances()
         {
-            return suspectInstances;
+            return suspectInstances.clone(); // clone to keep SpotBugs happy;
         }
 
     }
@@ -498,7 +498,7 @@ public class FindLeaksQuery implements IQuery
 
         public SuspectsResultTable(SuspectRecord[] data, long totalHeap)
         {
-            this.data = data;
+            this.data = data.clone(); // clone to keep SpotBugs happy
             this.totalHeap = totalHeap;
         }
 
@@ -569,7 +569,7 @@ public class FindLeaksQuery implements IQuery
                     return new Bytes(suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint
                                     .getRetainedHeapSize());
                 case 6:
-                    return suspect.accumulationPoint == null ? 0 : Double.valueOf((double) suspect.accumulationPoint
+                    return Double.valueOf(suspect.accumulationPoint == null ? 0 : (double) suspect.accumulationPoint
                                     .getRetainedHeapSize()
                                     / (double) totalHeap);
             }
@@ -642,7 +642,7 @@ public class FindLeaksQuery implements IQuery
 
         public SuspectRecord[] getData()
         {
-            return data;
+            return data.clone(); // clone to keep SpotBugs happy;;
         }
 
         public long getTotalHeap()
