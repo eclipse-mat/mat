@@ -345,8 +345,11 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
                     {
                         if (argumentSet.getValues().containsKey(parameter))
                         {
-                            Logger.getLogger(AcquireDumpOperation.class.getName()).log(Level.INFO,
-                                            MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
+                            if (MemoryAnalyserPlugin.getDefault().isDebugging())
+                            {
+                                Logger.getLogger(AcquireDumpOperation.class.getName()).log(Level.INFO,
+                                                MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
+                            }
                             if (parameter.isBoolean())
                                 parameter.getField().set(impl, parameter.getDefaultValue());
                             else

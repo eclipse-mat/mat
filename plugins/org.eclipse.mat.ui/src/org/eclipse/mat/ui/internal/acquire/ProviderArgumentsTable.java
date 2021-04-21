@@ -538,7 +538,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                         // Has the default value changed, if so then
                         // perhaps the user should also reselect.
                         if (!Objects.deepEquals(old, defaultValue))
-                            newArgumentsSet.setArgumentValue(ad, null);
+                            newArgumentsSet.removeArgumentValue(ad);
                     }
                     else
                     {
@@ -547,7 +547,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                         // Has the default value changed, if so then
                         // perhaps the user should also reselect.
                         if (!Objects.deepEquals(old, defaultValue))
-                            newArgumentsSet.setArgumentValue(ad, null);
+                            newArgumentsSet.removeArgumentValue(ad);
                     }
                 }
                 catch (IllegalAccessException e)

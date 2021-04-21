@@ -211,9 +211,15 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
                 {
                     if (argumentSet.getValues().containsKey(parameter))
                     {
-                        Logger.getLogger(getClass().getName()).log(Level.INFO,
-                                        MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
-                        parameter.getField().set(impl, null);
+                        if (MemoryAnalyserPlugin.getDefault().isDebugging())
+                        {
+                            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                                            MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
+                        }
+                        if (parameter.isBoolean())
+                            parameter.getField().set(impl, parameter.getDefaultValue());
+                        else
+                            parameter.getField().set(impl, null);
                     }
                     continue;
                 }
