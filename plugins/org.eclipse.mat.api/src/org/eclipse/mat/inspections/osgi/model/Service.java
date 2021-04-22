@@ -53,8 +53,8 @@ public class Service
         this.objectId = objectId;
         this.bundleDescriptor = bundleDescriptor;
         this.bundlesUsing = bundlesUsing;
-        this.keys = keys.clone(); // clone to prevent SpotBugs warning
-        this.values = values.clone(); // clone to prevent SpotBugs warning
+        this.keys = keys != null ? keys.clone() : null; // clone to prevent SpotBugs warning
+        this.values = values != null ? values.clone() : null; // clone to prevent SpotBugs warning
     }
 
     /**

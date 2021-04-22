@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -837,8 +838,10 @@ public class ThreadOverviewQuery implements IQuery
             return -1;
         }
 
-        static class NoCompareComparator implements Comparator<Object>
+        static class NoCompareComparator implements Comparator<Object>, Serializable
         {
+            private static final long serialVersionUID = 1L;
+
             public int compare(Object o1, Object o2)
             {
                 return 0;

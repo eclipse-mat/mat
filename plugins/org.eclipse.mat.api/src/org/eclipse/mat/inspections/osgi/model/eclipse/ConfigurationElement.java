@@ -48,7 +48,7 @@ public class ConfigurationElement
         this.parentId = parentId;
         this.elementId = elementId;
         this.contributingBundle = contributingBundle;
-        this.propertiesAndValues = propertiesAndValues.clone(); // clone to prevent SpotBugs warning
+        this.propertiesAndValues = propertiesAndValues != null ? propertiesAndValues.clone() : null; // clone to prevent SpotBugs warning
      }
 
     /**
