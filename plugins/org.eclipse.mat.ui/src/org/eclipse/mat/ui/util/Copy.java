@@ -36,6 +36,7 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -93,13 +94,15 @@ public abstract class Copy
             try
             {
                 IOutputter outputter = RendererRegistry.instance().match("txt", t.getClass());//$NON-NLS-1$
+                if (outputter == null)
+                    throw new UnsupportedOperationException(Messages.ExportActions_ExportTXT);
                 writer = new StringWriter();
                 outputter.process(new ContextImpl(null, null), t, writer);
                 writer.flush();
                 writer.close();
                 copyToClipboard(writer.toString(), control.getDisplay());
             }
-            catch (IOException e)
+            catch (IOException | UnsupportedOperationException e)
             {
                 MemoryAnalyserPlugin.log(e);
                 return;

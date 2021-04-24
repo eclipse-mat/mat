@@ -139,6 +139,8 @@ public final class FileUtils
 
         public synchronized void add(File dir)
         {
+            if (dirList.isEmpty())
+                ReportPlugin.onStop(this);
             dirList.add(dir);
         }
 
@@ -148,6 +150,7 @@ public final class FileUtils
             {
                 for (File dir : dirList)
                     deleteDirectory(dir);
+                dirList.clear();
             }
         }
 

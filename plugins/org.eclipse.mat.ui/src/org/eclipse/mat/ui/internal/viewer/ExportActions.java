@@ -238,13 +238,15 @@ import org.eclipse.swt.widgets.TreeItem;
                     try
                     {
                         IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());//$NON-NLS-1$
+                        if (outputter == null)
+                            throw new UnsupportedOperationException(Messages.ExportActions_ExportCSV);
                         writer = new PrintWriter(new FileWriter(fileName));
                         outputter.process(new ContextImpl(queryContext, //
                                         new File(fileName).getParentFile()), result, writer);
                         writer.flush();
                         writer.close();
                     }
-                    catch (IOException e)
+                    catch (IOException | UnsupportedOperationException e)
                     {
                         return ErrorHelper.createErrorStatus(e);
                     }
@@ -301,13 +303,15 @@ import org.eclipse.swt.widgets.TreeItem;
                     try
                     {
                         IOutputter outputter = RendererRegistry.instance().match("txt", result.getClass());//$NON-NLS-1$
+                        if (outputter == null)
+                            throw new UnsupportedOperationException(Messages.ExportActions_ExportTXT);
                         writer = new PrintWriter(new FileWriter(fileName));
                         outputter.process(new ContextImpl(queryContext, //
                                         new File(fileName).getParentFile()), result, writer);
                         writer.flush();
                         writer.close();
                     }
-                    catch (IOException e)
+                    catch (IOException | UnsupportedOperationException e)
                     {
                         return ErrorHelper.createErrorStatus(e);
                     }
