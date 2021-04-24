@@ -748,6 +748,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNnoSuperClassForArray = errorCount;
     private int msgNproblemReadingJavaStackFrame = errorCount;
     private int msgNskipHeapObject = errorCount;
+    private int msgNthreadBlocking = errorCount;
 
     /*
      * (non-Javadoc)
@@ -1266,7 +1267,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 continue;
             JavaThread th = (JavaThread) next;
             long threadAddress = findMissingObjectsFromJavaThread(th, missingObjects, listener);
-            if (getExtraInfo)
+            if (getExtraInfo || useDTFJRoots)
             {
                 // Scan stack frames for pseudo-classes
                 int frameId = 0;
@@ -1279,82 +1280,98 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         continue;
                     JavaStackFrame jf = (JavaStackFrame) next2;
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
-                    JavaLocation jl = null;
-                    try
+                    if (useDTFJRoots)
                     {
-                        jl = jf.getLocation();
-                        JavaMethod jm = jl.getMethod();
-                        long frameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
-                        prevFrameAddress = frameAddress;
-                        if (frameAddress != 0)
+                        Iterator<?> it = null;
+                        try
                         {
-                            if (indexToAddress0.reverse(frameAddress) < 0)
+                            it = jf.getHeapRoots();
+                        }
+                        catch (LinkageError e)
+                        {
+                        }
+                        if (it != null)
+                            findMissingReferences(missingObjects, it, listener);
+                    }
+                    if (getExtraInfo)
+                    {
+                        JavaLocation jl = null;
+                        try
+                        {
+                            jl = jf.getLocation();
+                            JavaMethod jm = jl.getMethod();
+                            long frameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
+                            prevFrameAddress = frameAddress;
+                            if (frameAddress != 0)
                             {
-                                long methodAddress = getMethodAddress(jm, listener);
-                                if (!allFrames.containsKey(frameAddress))
+                                if (indexToAddress0.reverse(frameAddress) < 0)
                                 {
-                                    if (!getExtraInfo3)
-                                        allMethods.add(jm);
-                                    allFrames.put(frameAddress, methodAddress);
+                                    long methodAddress = getMethodAddress(jm, listener);
+                                    if (!allFrames.containsKey(frameAddress))
+                                    {
+                                        if (!getExtraInfo3)
+                                            allMethods.add(jm);
+                                        allFrames.put(frameAddress, methodAddress);
+                                    }
+                                    else
+                                    {
+                                        String newMethodName;
+                                        try
+                                        {
+                                            newMethodName = getMethodName(jm, listener);
+                                        }
+                                        catch (CorruptDataException e)
+                                        {
+                                            newMethodName = format(methodAddress);
+                                        }
+                                        String oldMethodName;
+                                        long oldMethodAddress = allFrames.get(frameAddress);
+                                        try
+                                        {
+                                            JavaMethod oldJm = methodAddresses.get(allFrames.get(frameAddress));
+                                            if (oldJm != null)
+                                            {
+                                                oldMethodName = getMethodName(oldJm, listener);
+                                            }
+                                            else
+                                            {
+                                                oldMethodName = format(oldMethodAddress);
+                                            }
+                                        }
+                                        catch (CorruptDataException e)
+                                        {
+                                            oldMethodName = format(allFrames.get(oldMethodAddress));
+                                        }
+                                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                        Messages.DTFJIndexBuilder_DuplicateJavaStackFrame, frameId,
+                                                        format(frameAddress), oldMethodName, newMethodName,
+                                                        format(threadAddress)), null);
+                                    }
                                 }
                                 else
                                 {
-                                    String newMethodName;
-                                    try
-                                    {
-                                        newMethodName = getMethodName(jm, listener);
-                                    }
-                                    catch (CorruptDataException e)
-                                    {
-                                        newMethodName = format(methodAddress);
-                                    }
-                                    String oldMethodName;
-                                    long oldMethodAddress = allFrames.get(frameAddress);
-                                    try
-                                    {
-                                        JavaMethod oldJm = methodAddresses.get(allFrames.get(frameAddress));
-                                        if (oldJm != null)
-                                        {
-                                            oldMethodName = getMethodName(oldJm, listener);
-                                        }
-                                        else
-                                        {
-                                            oldMethodName = format(oldMethodAddress);
-                                        }
-                                    }
-                                    catch (CorruptDataException e)
-                                    {
-                                        oldMethodName = format(allFrames.get(oldMethodAddress));
-                                    }
                                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                                    Messages.DTFJIndexBuilder_DuplicateJavaStackFrame, frameId,
-                                                    format(frameAddress), oldMethodName, newMethodName,
-                                                    format(threadAddress)), null);
+                                                    Messages.DTFJIndexBuilder_IgnoringJavaStackFrame, frameId,
+                                                    format(frameAddress), format(threadAddress)), null);
                                 }
+                            }
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            if (jl != null)
+                            {
+                                if (msgNproblemReadingJavaStackFrame-- > 0)
+                                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrameLocation, frameId,
+                                                    jl, format(threadAddress)), e);
                             }
                             else
                             {
-                                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_IgnoringJavaStackFrame, frameId,
-                                                format(frameAddress), format(threadAddress)), null);
+                                if (msgNproblemReadingJavaStackFrame-- > 0)
+                                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame, frameId,
+                                                    format(threadAddress)), e);
                             }
-                        }
-                    }
-                    catch (CorruptDataException e)
-                    {
-                        if (jl != null)
-                        {
-                            if (msgNproblemReadingJavaStackFrame-- > 0)
-                                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrameLocation, frameId,
-                                                jl, format(threadAddress)), e);
-                        }
-                        else
-                        {
-                            if (msgNproblemReadingJavaStackFrame-- > 0)
-                                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame, frameId,
-                                                format(threadAddress)), e);
                         }
                     }
                 }
@@ -1425,6 +1442,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
                 }
             }
+        }
+        listener.worked(1);
+        workCountSoFar += 1;
+        listener.subTask(Messages.DTFJIndexBuilder_FindingMissingHeapRoots);
+        if (useDTFJRoots)
+        {
+            Iterator<?> it = null;
+            try
+            {
+                it = dtfjInfo.getJavaRuntime().getHeapRoots();
+            }
+            catch (LinkageError e)
+            {
+            }
+            if (it != null)
+                findMissingReferences(missingObjects, it, listener);
         }
         listener.worked(1);
         workCountSoFar += 1;
@@ -2462,6 +2495,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         skippedMessages += Math.max(0, -msgNoutboundReferences);
         skippedMessages += Math.max(0, -msgNnoSuperClassForArray);
         skippedMessages += Math.max(0, -msgNproblemReadingJavaStackFrame);
+        skippedMessages += Math.max(0, -msgNskipHeapObject);
+        skippedMessages += Math.max(0, -msgNthreadBlocking);
         if (skippedMessages > 0)
         {
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -2481,6 +2516,46 @@ public class DTFJIndexBuilder implements IIndexBuilder
         methodAddresses = null;
         loaderClassCache = null;
         listener.done();
+    }
+
+    private void findMissingReferences(HashMapLongObject<JavaObject> missingObjects, Iterator<?> it,
+                    IProgressListener listener)
+    {
+        for (; it.hasNext();)
+        {
+            Object next1 = it.next();
+            if (isCorruptData(next1, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, dtfjInfo.getJavaRuntime()))
+                continue;
+            JavaReference r = (JavaReference) next1;
+            try
+            {
+                Object o = r.getTarget();
+                JavaObject jo = null;
+                if (o instanceof JavaObject)
+                {
+                    jo = (JavaObject) o;
+                }
+                else if (o instanceof JavaClass)
+                {
+                    JavaClass jc = (JavaClass)o;
+                    jo = jc.getObject();
+                }
+                if (jo != null)
+                {
+                    long objaddr = jo.getID().getAddress();
+                    if (indexToAddress0.reverse(objaddr) < 0)
+                    {
+                        missingObjects.put(objaddr, jo);
+                    }
+                }
+            }
+            catch (DataUnavailable e)
+            {
+            }
+            catch (CorruptDataException e)
+            {
+            }
+        }
     }
 
     /**
@@ -4140,7 +4215,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         catch (DTFJException e)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+            if (msgNthreadBlocking-- > 0)
+                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ProblemReadingJavaThreadInformationFor, th), e);
         }
     }
@@ -7136,18 +7212,24 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void addRoot(HashMapIntObject<List<XGCRootInfo>> gc, long obj, long ctx, int type)
     {
         XGCRootInfo rri = new XGCRootInfo(obj, ctx, newRootType(type));
+        int objectId = indexToAddress.reverse(rri.getObjectAddress());
+        if (objectId < 0)
+        {
+            // If the object isn't known, can't add it to the mapping
+            if (debugInfo) debugPrint("addRoot with unrecognised object address " + format(obj)); //$NON-NLS-1$
+            return;
+        }
         int contextId = indexToAddress.reverse(rri.getContextAddress());
         if (contextId < 0)
         {
             rri = new XGCRootInfo(obj, obj, newRootType(type));
-            rri.setContextId(indexToAddress.reverse(rri.getObjectAddress()));
+            rri.setContextId(objectId);
         }
         else
         {
             rri.setContextId(contextId);
         }
-        rri.setObjectId(indexToAddress.reverse(rri.getObjectAddress()));
-        int objectId = rri.getObjectId();
+        rri.setObjectId(objectId);
         List<XGCRootInfo> rootsForID = gc.get(objectId);
         if (rootsForID == null)
         {
