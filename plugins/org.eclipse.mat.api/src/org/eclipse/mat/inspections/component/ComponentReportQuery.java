@@ -361,13 +361,13 @@ public class ComponentReportQuery implements IQuery
         int noOfClassLoaders = histogram.getClassLoaderHistogramRecords().size();
 
         StringBuilder buf = new StringBuilder();
-        buf.append(Messages.ComponentReportQuery_Size + " <strong>") //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_Size).append(" <strong>") //$NON-NLS-1$
                         .append(Units.Storage.of(totalSize).format(totalSize)).append("</strong> "); //$NON-NLS-1$
-        buf.append(Messages.ComponentReportQuery_Classes + " <strong>") //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_Classes).append(" <strong>") //$NON-NLS-1$
                         .append(Units.Plain.of(noOfClasses).format(noOfClasses)).append("</strong> "); //$NON-NLS-1$
-        buf.append(Messages.ComponentReportQuery_Objects + " <strong>") //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_Objects).append(" <strong>") //$NON-NLS-1$
                         .append(Units.Plain.of(noOfObjects).format(noOfObjects)).append("</strong> "); //$NON-NLS-1$
-        buf.append(Messages.ComponentReportQuery_ClassLoader + " <strong>") //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_ClassLoader).append(" <strong>") //$NON-NLS-1$
                         .append(Units.Plain.of(noOfClassLoaders).format(noOfClassLoaders)).append("</strong>"); //$NON-NLS-1$
         QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Details, new TextResult(buf.toString(), true));
         spec.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
@@ -431,6 +431,11 @@ public class ComponentReportQuery implements IQuery
         componentReport.add(retainedSet);
     }
 
+    private String escapeHTMLAttribute(String msg)
+    {
+        return HTMLUtils.escapeText(msg).replaceAll("\"", "&quote;").replaceAll("'", "&apos;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    }
+
     // //////////////////////////////////////////////////////////////
     // duplicate strings
     // //////////////////////////////////////////////////////////////
@@ -464,9 +469,11 @@ public class ComponentReportQuery implements IQuery
             table.calculateTotals(table.getRows(), totals, listener);
 
             StringBuilder comment = new StringBuilder();
-            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
-                            HTMLUtils.escapeText(totals.getLabel(2))));
-            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"").append(Messages.ComponentReportQuery_TopElementsInclude).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            comment.append(HTMLUtils.escapeText(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
+                            totals.getLabel(2))));
+            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"") //$NON-NLS-1$ //$NON-NLS-2$
+                            .append(escapeHTMLAttribute(Messages.ComponentReportQuery_TopElementsInclude))
+                            .append("\">"); //$NON-NLS-1$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
@@ -578,7 +585,14 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append(Messages.ComponentReportQuery_DetectedEmptyCollections).append("<ul title=\"").append(Messages.ComponentReportQuery_DetectedEmptyCollections).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            {
+                                comment.append(HTMLUtils
+                                                .escapeText(Messages.ComponentReportQuery_DetectedEmptyCollections))
+                                                .append("<ul title=\"") //$NON-NLS-1$
+                                                .append(escapeHTMLAttribute(
+                                                                Messages.ComponentReportQuery_DetectedEmptyCollections))
+                                                .append("\">"); //$NON-NLS-1$
+                            }
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
@@ -665,7 +679,14 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios).append("<ul title=\"").append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                            {
+                                comment.append(HTMLUtils.escapeText(
+                                                Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios))
+                                                .append("<ul title=\"") //$NON-NLS-1$
+                                                .append(escapeHTMLAttribute(
+                                                                Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios))
+                                                .append("\">"); //$NON-NLS-1$
+                            }
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
@@ -755,7 +776,14 @@ public class ComponentReportQuery implements IQuery
                         String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                         if (comment.length() == 0)
-                            comment.append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios).append("<ul title=\"").append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                        {
+                            comment.append(HTMLUtils
+                                            .escapeText(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios))
+                                            .append("<ul title=\"") //$NON-NLS-1$
+                                            .append(escapeHTMLAttribute(
+                                                            Messages.ComponentReportQuery_Msg_DetectedCollisionRatios))
+                                            .append("\">"); //$NON-NLS-1$
+                        }
 
                         comment.append("<li>"); //$NON-NLS-1$
                         comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
