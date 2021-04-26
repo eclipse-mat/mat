@@ -28,6 +28,11 @@
 	<packaging>eclipse-repository</packaging>
 	<name>MAT RCP</name>
 
+	<properties>
+		<!--  chose .product file -->
+		<productFile>${project.artifactId}.product</productFile>
+		<productConfiguration>${project.basedir}/${productFile}</productConfiguration>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
