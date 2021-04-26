@@ -405,7 +405,6 @@ public class LeakHunterQuery implements IQuery
         {
             threadDetails = extractThreadData(suspect, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
         }
-        overview.append("<br><br>"); //$NON-NLS-1$
 
         /* append keywords */
         appendKeywords(keywords, overview);
@@ -533,7 +532,7 @@ public class LeakHunterQuery implements IQuery
         {
             builder.append("<p>").append(Messages.LeakHunterQuery_BiggestInstances); //$NON-NLS-1$
             builder.append("</p>"); //$NON-NLS-1$
-            builder.append("<ul>"); //$NON-NLS-1$
+            builder.append("<ul title=\"").append(escapeHTMLAttribute(Messages.LeakHunterQuery_BiggestInstances)).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
             for (IObject inst : bigSuspectInstances)
             {
                 builder.append("<li>").append(HTMLUtils.escapeText(inst.getDisplayName())); //$NON-NLS-1$
@@ -550,6 +549,7 @@ public class LeakHunterQuery implements IQuery
         /* get accumulation point info */
         if (suspect.getAccumulationPoint() != null)
         {
+            builder.append("<p>"); //$NON-NLS-1$
             int accumulationPointId = suspect.getAccumulationPoint().getObject().getObjectId();
             if (snapshot.isClassLoader(accumulationPointId))
             {
@@ -587,9 +587,9 @@ public class LeakHunterQuery implements IQuery
                 builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, className,
                                 classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
+            builder.append("</p>"); //$NON-NLS-1$
         }
         ThreadInfoQuery.Result threadDetails = null;
-        builder.append("<br><br>"); //$NON-NLS-1$
 
         // append keywords
         appendKeywords(keywords, builder);
@@ -730,6 +730,11 @@ public class LeakHunterQuery implements IQuery
         }
 
         return composite;
+    }
+
+    private String escapeHTMLAttribute(String msg)
+    {
+        return HTMLUtils.escapeText(msg).replaceAll("\"", "&quote;").replaceAll("'", "&apos;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     /**
@@ -955,9 +960,13 @@ public class LeakHunterQuery implements IQuery
 
     private void appendKeywords(Set<String> keywords, StringBuilder builder)
     {
-        builder.append("<b>").append(Messages.LeakHunterQuery_Keywords).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
+        String title = Messages.LeakHunterQuery_Keywords;
+        builder.append("<p><strong>").append(title).append("</strong>"); //$NON-NLS-1$ //$NON-NLS-2$
+        builder.append("</p>"); //$NON-NLS-1$
+        builder.append("<ul style=\"list-style-type:none;\" title=\"").append(escapeHTMLAttribute(title)).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
         for (String s : keywords)
-            builder.append(HTMLUtils.escapeText(s)).append("<br>"); //$NON-NLS-1$
+            builder.append("<li>").append(HTMLUtils.escapeText(s)).append("</li>"); //$NON-NLS-1$ //$NON-NLS-2$
+        builder.append("</ul>"); //$NON-NLS-1$
     }
 
     private void appendTroubleTicketInformation(List<IObject> classloaders, StringBuilder builder)
@@ -969,13 +978,17 @@ public class LeakHunterQuery implements IQuery
 
             if (!mapping.isEmpty())
             {
-                builder.append("<br><b>").append(HTMLUtils.escapeText(resolver.getTicketSystem())).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
+                String title = resolver.getTicketSystem();
+                builder.append("<p><strong>").append(HTMLUtils.escapeText(title)).append("</strong>"); //$NON-NLS-1$ //$NON-NLS-2$
+                builder.append("</p>"); //$NON-NLS-1$
+                builder.append("<ul style=\"list-style-type:none;\" title=\"").append(escapeHTMLAttribute(title)).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
                 for (Map.Entry<String, String> entry : mapping.entrySet())
                 {
-                    builder.append(
+                    builder.append("<li>").append( //$NON-NLS-1$
                                     MessageUtil.format(Messages.LeakHunterQuery_TicketForSuspect, HTMLUtils.escapeText(entry.getKey()), HTMLUtils.escapeText(entry
-                                                    .getValue()))).append("<br>"); //$NON-NLS-1$
+                                                    .getValue()))).append("</li>"); //$NON-NLS-1$
                 }
+                builder.append("</ul>"); //$NON-NLS-1$
             }
         }
     }
@@ -1000,13 +1013,13 @@ public class LeakHunterQuery implements IQuery
             if (requestInfos != null && !requestInfos.isEmpty())
             {
                 builder.append("<p>"); //$NON-NLS-1$
-
-                for (CompositeResult.Entry requestInfo : requestInfos.getResultEntries())
-                    builder.append(HTMLUtils.escapeText(requestInfo.getName())).append(" ").append( //$NON-NLS-1$
-                                                    textResult.linkTo(Messages.LeakHunterQuery_RequestDetails,
-                                                                    requestInfo.getResult())).append("<br>"); //$NON-NLS-1$
-
                 builder.append("</p>"); //$NON-NLS-1$
+                builder.append("<ul style=\"list-style-type:none;\">"); //$NON-NLS-1$
+                for (CompositeResult.Entry requestInfo : requestInfos.getResultEntries())
+                    builder.append("<li>").append(HTMLUtils.escapeText(requestInfo.getName())).append(" ").append( //$NON-NLS-1$ //$NON-NLS-2$
+                                                    textResult.linkTo(Messages.LeakHunterQuery_RequestDetails,
+                                                                    requestInfo.getResult())).append("</li>"); //$NON-NLS-1$
+                builder.append("</ul>"); //$NON-NLS-1$
             }
 
             // Add stacktrace information if available

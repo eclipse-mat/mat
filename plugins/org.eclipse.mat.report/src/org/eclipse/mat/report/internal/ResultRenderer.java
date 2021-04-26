@@ -526,11 +526,13 @@ public class ResultRenderer
     @SuppressWarnings("nls")
     private void renderResult(HtmlArtefact toc, AbstractPart parent, int depth)
     {
-        toc.append("<ul class=\"collapsible_").append(depth < 3 ? "opened" : "closed").append("\">");
+        String plang = depth == 0 ? PageSnippets.getLang(parent) : "";
+        toc.append("<ul").append(plang).append(" class=\"collapsible_").append(depth < 3 ? "opened" : "closed").append("\">");
 
         for (AbstractPart part : parent.getChildren())
         {
-            toc.append("<li>");
+            String lang = PageSnippets.getLang(part);
+            toc.append("<li").append(lang).append(">");
 
             if (part.getStatus() != null)
                 toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");

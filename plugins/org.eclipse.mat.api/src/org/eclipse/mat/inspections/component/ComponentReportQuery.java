@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -466,7 +466,7 @@ public class ComponentReportQuery implements IQuery
             StringBuilder comment = new StringBuilder();
             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
                             HTMLUtils.escapeText(totals.getLabel(2))));
-            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul>"); //$NON-NLS-1$ //$NON-NLS-2$
+            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"").append(Messages.ComponentReportQuery_TopElementsInclude).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
@@ -578,7 +578,7 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append(Messages.ComponentReportQuery_DetectedEmptyCollections + "<ul>"); //$NON-NLS-1$
+                                comment.append(Messages.ComponentReportQuery_DetectedEmptyCollections).append("<ul title=\"").append(Messages.ComponentReportQuery_DetectedEmptyCollections).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
@@ -665,7 +665,7 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios + "<ul>"); //$NON-NLS-1$
+                                comment.append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios).append("<ul title=\"").append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
@@ -755,7 +755,7 @@ public class ComponentReportQuery implements IQuery
                         String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                         if (comment.length() == 0)
-                            comment.append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios + "<ul>"); //$NON-NLS-1$
+                            comment.append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios).append("<ul title=\"").append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios).append("\">"); //$NON-NLS-1$ //$NON-NLS-2$
 
                         comment.append("<li>"); //$NON-NLS-1$
                         comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,

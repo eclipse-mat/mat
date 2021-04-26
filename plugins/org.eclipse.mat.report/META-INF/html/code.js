@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,7 @@ function preparepage()
 	rendertrees();
 	stripetables();
 	collapsible();
+	roles();
 }
 
 function rendertrees()
@@ -158,6 +159,16 @@ function stripe(table)
 	}
 }
 
+function roles()
+{
+	// Not valid HTML4, but screen reader might benefit
+	var element = document.getElementById("header");
+	element.setAttribute("role","navigation");
+	element = document.getElementById("content");
+	element.setAttribute("role","main");
+	element = document.getElementById("footer");
+	element.setAttribute("role","contentinfo");
+}
 
 //
 // collapsible list items

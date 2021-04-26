@@ -68,6 +68,7 @@ public final class Messages extends NLS
     public static String PageSnippets_Label_UnhideHide;
     public static String PageSnippets_Label_CreatedBy;
     public static String PageSnippets_Label_OpenInMemoryAnalyzer;
+    public static String PageSnippets_Label_SkipToMainContent;
     public static String PageSnippets_Label_StartPage;
     public static String PageSnippets_Label_TableOfContents;
     public static String PartsFactory_Error_Construction;

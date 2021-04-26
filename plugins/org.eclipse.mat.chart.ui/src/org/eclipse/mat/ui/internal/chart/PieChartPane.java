@@ -315,9 +315,13 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         private void formatSliceName()
         {
             sliceName = sliceName.replaceAll("<b>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("<strong>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("<p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("<q>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("</p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("</b>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("</strong>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("</q>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("<br>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("<br/>", ""); //$NON-NLS-1$ //$NON-NLS-2$
         }
