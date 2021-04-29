@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -802,6 +802,8 @@ public final class SnapshotImpl implements ISnapshot
         {
             reachable[objId] = false;
         }
+        // Clear to make space
+        objectIds = null;
 
         /*
          * build the result in an IntArray - the exact number of marked is not
@@ -817,6 +819,8 @@ public final class SnapshotImpl implements ISnapshot
                 retained.add(i);
             }
         }
+        // Clear to make space
+        reachable = null;
         return retained.toArray();
 
     }
@@ -906,6 +910,8 @@ public final class SnapshotImpl implements ISnapshot
                         progressMonitor);
         secondMarker.markSingleThreaded();
 
+        // Clear to make space
+        objectIds = null;
         /*
          * Have to merge the results of the two markings here
          */
@@ -918,6 +924,9 @@ public final class SnapshotImpl implements ISnapshot
                 retainedSet.add(i);
             }
         }
+        // Clear to make space
+        firstPass = null;
+        secondPass = null;
         return retainedSet.toArray();
     }
 
@@ -1065,7 +1074,10 @@ public final class SnapshotImpl implements ISnapshot
                 }
             }
         }
-
+        // Clear to make space
+        objectIds = null;
+        stack = null;
+        temp = null;
         return retainedSet.toArray();
 
     }
@@ -1185,7 +1197,13 @@ public final class SnapshotImpl implements ISnapshot
                 }
             }
         }
-
+        // Clear to make space
+        objectIds = null;
+        positiveCache.clear();
+        positiveCache = null;
+        negativeCache.clear();
+        negativeCache = null;
+        temp = null;
         return result.toArray();
 
     }
@@ -1287,7 +1305,11 @@ public final class SnapshotImpl implements ISnapshot
                 }
             }
         }
-
+        // Clear to make space
+        objectIds = null;
+        positiveCache = null;
+        negativeCache = null;
+        temp = null;
         return result.toArray();
 
     }
@@ -1749,7 +1771,8 @@ public final class SnapshotImpl implements ISnapshot
                 stack.push(i);
             }
         }
-
+        // Clear to make space
+        stack = null;
         return result.toArray();
     }
 
@@ -1905,7 +1928,7 @@ public final class SnapshotImpl implements ISnapshot
                 {
                     if (referringThreads == null)
                     {
-                        referringThreads = getReferringTreads(getGCRootInfo(foundPath[foundPath.length - 1]));
+                        referringThreads = getReferringThreads(getGCRootInfo(foundPath[foundPath.length - 1]));
                         currentReferringThread = 0;
                         if (referringThreads.length == 0)
                         {
@@ -1967,7 +1990,7 @@ public final class SnapshotImpl implements ISnapshot
 
         }
 
-        private int[] getReferringTreads(GCRootInfo[] rootInfos)
+        private int[] getReferringThreads(GCRootInfo[] rootInfos)
         {
             SetInt threads = new SetInt();
             for (GCRootInfo info : rootInfos)

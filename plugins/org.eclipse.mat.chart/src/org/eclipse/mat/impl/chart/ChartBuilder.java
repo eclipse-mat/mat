@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -150,9 +150,10 @@ public class ChartBuilder
         EList<Fill> entries = sd.getSeriesPalette().getEntries();
         entries.clear();
         int index = 0;
-        while (index < slices.size() - 1)
+        while (index < slices.size())
         {
-            int[] color = COLORS[index % COLORS.length];
+            int[] color = index == slices.size() - 1 && slices.get(index).getContext() == null ? color = COLOR_REST
+                            : COLORS[index % COLORS.length];
             ColorDefinition defn;
             Color explicitColor = null;
             Slice slice = slices.get(index); 
@@ -172,9 +173,6 @@ public class ChartBuilder
 
             index++;
         }
-        int[] lastColor = slices.get(slices.size() - 1).getContext() == null ? COLOR_REST //
-                        : COLORS[(slices.size() - 1) % COLORS.length];
-        entries.add(ColorDefinitionImpl.create(lastColor[0], lastColor[1], lastColor[2]));
 
         PieSeries pieSeries = (PieSeries) PieSeriesImpl.create();
         pieSeries.setDataSet(NumberDataSetImpl.create(values));

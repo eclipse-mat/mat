@@ -581,7 +581,7 @@ public class LeakHunterQuery implements IQuery
                                 .getObject().getClazz().getClassLoaderId());
 //                involvedClassLoaders.add(accPointClassloader);
                 involvedClassLoaders.add(suspect.getAccumulationPoint().getObject());
-              
+
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
                 builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, className,
@@ -745,7 +745,7 @@ public class LeakHunterQuery implements IQuery
      * @param row the current row
      * @param prev previous object in tree
      * @return array [root object, previous object traversed] or
-     *     null if no selected object at root 
+     *     null if no selected object at root
      */
     private int[] findEndTree(IResultTree tree, ISelectionProvider sel, Object row, int prev)
     {
@@ -806,31 +806,31 @@ public class LeakHunterQuery implements IQuery
         Map<String, String> mapping = new HashMap<String, String>();
         for (IObject suspect : classloaders)
         {
-			String ticket = null;
-			String key = null;
-        	if (suspect instanceof IClassLoader)
-			{
-				ticket = resolver.resolveByClassLoader((IClassLoader) suspect, listener);
-				if (ticket != null && !"".equals(ticket.trim())) //$NON-NLS-1$
-				{
-					key = suspect.getClassSpecificName();
-					if (key == null) key = suspect.getTechnicalName();
+            String ticket = null;
+            String key = null;
+            if (suspect instanceof IClassLoader)
+            {
+                ticket = resolver.resolveByClassLoader((IClassLoader) suspect, listener);
+                if (ticket != null && !"".equals(ticket.trim())) //$NON-NLS-1$
+                {
+                    key = suspect.getClassSpecificName();
+                    if (key == null) key = suspect.getTechnicalName();
 
-				}
-			} 
-			else 
-			{
-				IClass clazz = (suspect instanceof IClass) ? (IClass) suspect : suspect.getClazz(); 
-				ticket = resolver.resolveByClass(clazz, listener);
-				key = clazz.getName();
-			}
-        	
-        	if (ticket != null)
-        	{
-        		String old = mapping.put(ticket, key);
-        		if (old != null) mapping.put(ticket, key + ", " + old); //$NON-NLS-1$
-        	}
-        	
+                }
+            }
+            else
+            {
+                IClass clazz = (suspect instanceof IClass) ? (IClass) suspect : suspect.getClazz(); 
+                ticket = resolver.resolveByClass(clazz, listener);
+                key = clazz.getName();
+            }
+
+            if (ticket != null)
+            {
+                String old = mapping.put(ticket, key);
+                if (old != null) mapping.put(ticket, key + ", " + old); //$NON-NLS-1$
+            }
+
         }
         return mapping;
     }
@@ -1057,13 +1057,91 @@ public class LeakHunterQuery implements IQuery
                 if (threadName == null)
                     threadName = threadObject.getTechnicalName();
                 stackBuilder.append(threadName).append("\r\n"); //$NON-NLS-1$
+                // Have some locals already been identifier as significant?
+                boolean foundLocals = !locals.isEmpty();
+                // Is one variable a significant part of the suspect
+                long significantLocal = (long)(0.1 * suspect.getSuspectRetained());
+                // Are several variables from a frame that significant together
+                long significantFrame = (long)(0.25 * suspect.getSuspectRetained());
                 for (IStackFrame frame : stack.getStackFrames())
                 {
                     boolean involved = false;
                     for (int l : frame.getLocalObjectsIds())
                     {
-                        if (locals.contains(l))
+                        if (!foundLocals)
+                        {
+                            /*
+                             * We didn't find a local on the accumulation point path, so
+                             * just look for big locals.
+                             */
+                            if (snapshot.getRetainedHeapSize(l) > significantLocal)
+                            {
+                                int dom = snapshot.getImmediateDominatorId(l);
+                                // Also allow for stack frames as objects
+                                if (dom == threadId || dom >= 0 && snapshot.getImmediateDominatorId(dom) == threadId)
+                                {
+                                    locals.add(l);
+                                    involved = true;
+                                }
+                            }
+                        }
+                        else if (locals.contains(l))
                             involved = true;
+                    }
+                    if (!involved && !foundLocals)
+                    {
+                        /*
+                         * Check whether several variables in this frame
+                         * dominated by the thread together retain a lot.
+                         */
+                        SetInt dominated = new SetInt();
+                        for (int l : frame.getLocalObjectsIds())
+                        {
+                            int dom = snapshot.getImmediateDominatorId(l);
+                            // Also allow for stack frames as objects
+                            if (dom == threadId || dom >= 0 && snapshot.getImmediateDominatorId(dom) == threadId)
+                            {
+                                dominated.add(l);
+                            }
+                        }
+                        int doms[] = dominated.toArray();
+                        long domsize = snapshot.getMinRetainedSize(doms, listener);
+                        if (domsize > significantFrame)
+                        {
+                            int doms1[] = doms;
+                            /*
+                             * Eliminate variables until we lose no more than 20% of the size.
+                             */
+                            long significantFrame1 = (long)(0.8 * domsize);
+                            do
+                            {
+                                doms = doms1;
+                                long dombest = 0;
+                                doms1 = null;
+                                // Try removing each local
+                                for (int i = 0; i < doms.length; ++i)
+                                {
+                                    // Remove a local
+                                    int doms2[] = new int[doms.length - 1];
+                                    for (int j = 0; j < doms2.length; ++j)
+                                    {
+                                        doms2[j] = doms[j >= i ? j + 1 : j];
+                                    }
+                                    // See the retained size now
+                                    long domsize1 = snapshot.getMinRetainedSize(doms2, listener);
+                                    if (domsize1 > dombest && domsize1 > significantFrame1)
+                                    {
+                                        doms1 = doms2;
+                                        dombest = domsize1;
+                                    }
+                                }
+                            } while (doms1 != null);
+                            for (int l : doms)
+                            {
+                                locals.add(l);
+                            }
+                            involved = true;
+                        }
                     }
                     stackBuilder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
                     if (involved)
