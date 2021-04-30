@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,9 +9,13 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - lazy loading of length
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
+import java.io.IOException;
+
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.IArray;
 
 /**
@@ -45,6 +49,8 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
      */
     public Object getInfo()
     {
+        // Check lazy load of info is done
+        getLength();
         return info;
     }
 
@@ -58,6 +64,8 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
 
     public int getLength()
     {
+        if (length == -1)
+            readLength();
         return length;
     }
 
@@ -91,4 +99,73 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         return builder.toString();
     }
 
+    @Override
+    public int getObjectId()
+    {
+        try
+        {
+            int objectId = super.getObjectId();
+
+            if (objectId < 0)
+            {
+                objectId = source.mapAddressToId(getObjectAddress());
+                setObjectId(objectId);
+            }
+
+            return objectId;
+        }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public long getObjectAddress()
+    {
+        try
+        {
+            long address = super.getObjectAddress();
+
+            if (address == Long.MIN_VALUE)
+            {
+                address = source.mapIdToAddress(getObjectId());
+                setObjectAddress(address);
+            }
+
+            return address;
+        }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Read length for this array
+     */
+    synchronized void readLength()
+    {
+        // test again after synchronization
+        if (length != -1)
+            return;
+
+        try
+        {
+            int objectId = getObjectId();
+
+            AbstractArrayImpl fullCopy = (AbstractArrayImpl) source.getHeapObjectReader().read(objectId, source);
+            this.setObjectAddress(fullCopy.getObjectAddress());
+            setInfo(fullCopy.getInfo());
+            setLength(fullCopy.length);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }

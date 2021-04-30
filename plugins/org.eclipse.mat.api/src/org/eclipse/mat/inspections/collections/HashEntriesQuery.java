@@ -38,6 +38,7 @@ import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
@@ -315,11 +316,18 @@ public class HashEntriesQuery implements IQuery
 
         List<Entry> hashEntries = new ArrayList<Entry>();
 
+        int counter = 0;
+        IClass type = null;
         for (int[] ids : objects)
         {
             for (int id : ids)
             {
                 IObject obj = snapshot.getObject(id);
+                if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
+                {
+                    type = obj.getClazz();
+                    listener.subTask(Messages.HashEntriesQuery_Msg_Extracting + "\n" + type.getName()); //$NON-NLS-1$
+                }
                 ExtractedMap map = CollectionExtractionUtils.extractMap(obj, collection, specificExtractor);
 
                 if (map != null)

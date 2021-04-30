@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,7 @@ public class ExtractListValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        AbstractExtractedCollection extractor = CollectionExtractionUtils.extractCollection(list);
+        AbstractExtractedCollection<?, ?> extractor = CollectionExtractionUtils.extractCollection(list);
         // FIXME: use a better message when it is a list but it's
         // non-extractable?
         if (extractor != null && extractor.hasExtractableContents())

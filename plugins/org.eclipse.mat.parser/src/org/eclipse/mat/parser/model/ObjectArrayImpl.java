@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - lazy loading of length
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
@@ -53,7 +54,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         try {
             return getSnapshot().getHeapSize(getObjectId());
         } catch (SnapshotException e) {
-            return doGetUsedHeapSize(classInstance, length);
+            return doGetUsedHeapSize(classInstance, getLength());
         }
     }
 
@@ -127,7 +128,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         try
         {
             int index = Integer.parseInt(name.substring(1, name.length() - 1));
-            if (index < 0 || index > length)
+            if (index < 0 || index > getLength())
                 throw new IndexOutOfBoundsException(MessageUtil.format(Messages.ObjectArrayImpl_forArray, index,
                                 getTechnicalName()));
 

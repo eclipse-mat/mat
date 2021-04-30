@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
@@ -31,6 +32,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -100,6 +102,9 @@ public class CollectionsBySizeQuery implements IQuery
     @Argument(isMandatory = false)
     public String size_attribute;
 
+    private final long LIMIT = 20;
+    private HashMapIntLong exceptions = new HashMapIntLong();
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes);
@@ -133,14 +138,21 @@ public class CollectionsBySizeQuery implements IQuery
     private void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
                     String specificClass) throws SnapshotException
     {
+        int counter = 0;
+        IClass type = null;
         for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 IObject obj = snapshot.getObject(objectId);
+                if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
+                {
+                    type = obj.getClazz();
+                    listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes + "\n" + type.getName()); //$NON-NLS-1$
+                }
                 try
                 {
-                    AbstractExtractedCollection coll = CollectionExtractionUtils.extractCollection(obj, specificClass,
+                    AbstractExtractedCollection<?, ?> coll = CollectionExtractionUtils.extractCollection(obj, specificClass,
                                     specificExtractor);
                     if (coll != null && coll.hasSize())
                     {
@@ -151,10 +163,20 @@ public class CollectionsBySizeQuery implements IQuery
                 }
                 catch (RuntimeException e)
                 {
-                    listener.sendUserMessage(
-                                    IProgressListener.Severity.INFO,
-                                    MessageUtil.format(Messages.CollectionsBySizeQuery_IgnoringCollection,
-                                                    obj.getTechnicalName()), e);
+                    int classId = obj.getClazz().getObjectId();
+                    if (!exceptions.containsKey(classId))
+                    {
+                        exceptions.put(classId, 0);
+                    }
+                    long c =  exceptions.get(classId);
+                    exceptions.put(classId, c + 1);
+                    if (c < LIMIT)
+                    {
+                        listener.sendUserMessage(
+                                        IProgressListener.Severity.INFO,
+                                        MessageUtil.format(Messages.CollectionsBySizeQuery_IgnoringCollection,
+                                                        obj.getTechnicalName()), e);
+                    }
                 }
 
                 if (listener.isCanceled())

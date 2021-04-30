@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
@@ -28,6 +29,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -82,6 +84,9 @@ public class MapCollisionRatioQuery implements IQuery
     @Argument(isMandatory = false)
     public String array_attribute;
 
+    private final long LIMIT = 20;
+    private HashMapIntLong exceptions = new HashMapIntLong();
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios);
@@ -95,6 +100,8 @@ public class MapCollisionRatioQuery implements IQuery
         Quantize quantize = builder.build();
 
         IMapExtractor specificExtractor = new HashMapCollectionExtractor(size_attribute, array_attribute, null, null);
+        int counter = 0;
+        IClass type = null;
         for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
@@ -103,6 +110,11 @@ public class MapCollisionRatioQuery implements IQuery
                     break;
 
                 IObject obj = snapshot.getObject(objectId);
+                if (counter++ % 1000 == 0 && obj.getClazz().equals(type))
+                {
+                    type = obj.getClazz();
+                    listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios + "\n" + type.getName()); //$NON-NLS-1$
+                }
                 try
                 {
                     ExtractedMap coll = CollectionExtractionUtils.extractMap(obj, collection, specificExtractor);
@@ -124,10 +136,20 @@ public class MapCollisionRatioQuery implements IQuery
                 }
                 catch (RuntimeException e)
                 {
-                    listener.sendUserMessage(
-                                    IProgressListener.Severity.INFO,
-                                    MessageUtil.format(Messages.MapCollisionRatioQuery_IgnoringCollection,
-                                                    obj.getTechnicalName()), e);
+                    int classId = obj.getClazz().getObjectId();
+                    if (!exceptions.containsKey(classId))
+                    {
+                        exceptions.put(classId, 0);
+                    }
+                    long c =  exceptions.get(classId);
+                    exceptions.put(classId, c + 1);
+                    if (c < LIMIT)
+                    {
+                        listener.sendUserMessage(
+                                        IProgressListener.Severity.INFO,
+                                        MessageUtil.format(Messages.MapCollisionRatioQuery_IgnoringCollection,
+                                                        obj.getTechnicalName()), e);
+                    }
                 }
             }
         }
