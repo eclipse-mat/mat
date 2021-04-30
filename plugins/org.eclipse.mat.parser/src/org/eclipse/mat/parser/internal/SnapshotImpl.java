@@ -62,6 +62,8 @@ import org.eclipse.mat.parser.model.AbstractObjectImpl;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
+import org.eclipse.mat.parser.model.ObjectArrayImpl;
+import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XClassHistogramRecord;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
@@ -77,6 +79,7 @@ import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
@@ -2185,7 +2188,19 @@ public final class SnapshotImpl implements ISnapshot
                 // check if the object is an array (no index needed)
                 if (snapshot.isArray(objectId))
                 {
-                    answer = snapshot.heapObjectReader.read(objectId, snapshot);
+                    // Lazy loading of array length
+                    ClassImpl classImpl = (ClassImpl) snapshot.getObject(snapshot.indexManager.o2class().get(objectId));
+                    for (int i = 0; i < IPrimitiveArray.TYPE.length; ++i)
+                    {
+                        String an = IPrimitiveArray.TYPE[i];
+                        if (classImpl.getName().equals(an))
+                        {
+                            answer = new PrimitiveArrayImpl(objectId, Long.MIN_VALUE, classImpl, -1, i);
+                            break;
+                        }
+                    }
+                    if (answer == null)
+                        answer = new ObjectArrayImpl(objectId, Long.MIN_VALUE, classImpl, -1);
                 }
                 else
                 {
@@ -2201,10 +2216,6 @@ public final class SnapshotImpl implements ISnapshot
 
                 return answer;
 
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
             }
             catch (SnapshotException e)
             {

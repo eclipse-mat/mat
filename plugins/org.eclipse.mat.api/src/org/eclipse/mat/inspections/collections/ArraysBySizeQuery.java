@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,11 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
@@ -25,6 +26,9 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IArray;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
@@ -46,14 +50,17 @@ public class ArraysBySizeQuery implements IQuery
     {
         listener.subTask(Messages.ArraysBySizeQuery_ExtractingArraySizes);
 
-        // group by size attribute
+        // group by length and size attribute
         Quantize.Builder builder = Quantize.valueDistribution( //
-                        new Column(Messages.ArraysBySizeQuery_ColumnLength, int.class));
+                        new Column(Messages.ArraysBySizeQuery_ColumnLength, int.class).noTotals(),
+                        new Column(Messages.ArraysBySizeQuery_SingleInstanceSize, Bytes.class).noTotals());
         builder.column(Messages.ArraysBySizeQuery_ColumnNumObjects, Quantize.COUNT);
-        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG, SortDirection.DESC);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_BYTES, SortDirection.DESC);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
+        int counter = 0;
+        IClass type = null;
         for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
@@ -63,9 +70,17 @@ public class ArraysBySizeQuery implements IQuery
 
                 if (!snapshot.isArray(objectId))
                     continue;
+                
+                if (counter++ % 1000 == 0 && snapshot.getClassOf(objectId).equals(type))
+                {
+                    type = snapshot.getClassOf(objectId);
+                    listener.subTask(Messages.ArraysBySizeQuery_ExtractingArraySizes + "\n" + type.getName()); //$NON-NLS-1$
+                }
 
+                IObject obj = snapshot.getObject(objectId);
+                int len = (obj instanceof IArray) ? ((IArray)obj).getLength() : 0;
                 long size = snapshot.getHeapSize(objectId);
-                quantize.addValue(objectId, size, null, size);
+                quantize.addValue(objectId, len, size, null, size);
             }
         }
         return quantize.getResult();

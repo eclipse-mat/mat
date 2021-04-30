@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,14 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
         // Ad-hoc calculation
         if (count == 0)
             return 0.0;
-        return 0.5*(double)consec / count;
+        double x = (double)consec / count;
+        // return 0.5*(double)x;
+        /*
+         * Slightly better than the above calculation.
+         * Simulated with random fills of hash tables
+         * Quadratic going through (0,0),(0.5,0.1975),(1,0.5)
+         */
+        return 0.29 * x + 0.21 * x * x;
     }
 
     public Double getFillRatio(IObject coll) throws SnapshotException

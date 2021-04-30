@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -108,7 +108,8 @@ public class CollectionFillRatioQuery extends AbstractFillRatioQuery implements 
         Quantize.Builder builder = Quantize.linearFrequencyDistribution(
                         Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 5.0000000000, (double) 1 / (double) segments);
         builder.column(Messages.CollectionFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
-        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_BYTES);
+        builder.column(Messages.Column_WastedHeap, Quantize.SUM_BYTES);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
@@ -127,7 +128,7 @@ public class CollectionFillRatioQuery extends AbstractFillRatioQuery implements 
             throw new IllegalArgumentException(Messages.CollectionFillRatioQuery_NeedSizeAndArrayOrNone);
         }
 
-        runQuantizer(listener, quantize, specificExtractor, collection, snapshot, objects);
+        runQuantizer(listener, quantize, specificExtractor, collection, snapshot, objects, Messages.CollectionFillRatioQuery_ExtractingFillRatios);
         return quantize.getResult();
     }
 }

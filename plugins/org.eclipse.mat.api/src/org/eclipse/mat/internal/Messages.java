@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ public class Messages extends NLS
     public static String ArraysBySizeQuery_ColumnLength;
     public static String ArraysBySizeQuery_ColumnNumObjects;
     public static String ArraysBySizeQuery_ExtractingArraySizes;
+    public static String ArraysBySizeQuery_SingleInstanceSize;
 
     public static String BigDropsQuery_AccumulationPoint;
     public static String BigDropsQuery_Column_AccPtSize;
@@ -100,6 +101,7 @@ public class Messages extends NLS
     public static String Column_Percentage;
     public static String Column_RetainedHeap;
     public static String Column_ShallowHeap;
+    public static String Column_WastedHeap;
 
     public static String CompareTablesQuery_APPROX;
     public static String CompareTablesQuery_Comparing;
@@ -132,6 +134,7 @@ public class Messages extends NLS
     public static String CompareTablesQuery_UnionMiddle;
     public static String CompareTablesQuery_UnionOf2;
 
+    public static String ComponentReportQuery_ArrayFillRatios;
     public static String ComponentReportQuery_Classes;
     public static String ComponentReportQuery_ClassLoader;
     public static String ComponentReportQuery_CollectionFillRatios;
@@ -139,6 +142,9 @@ public class Messages extends NLS
     public static String ComponentReportQuery_ComponentReport;
     public static String ComponentReportQuery_Details;
     public static String ComponentReportQuery_DetectedEmptyCollections;
+    public static String ComponentReportQuery_DetectedTheFollowingArraysWithLowFillRatios;
+    public static String ComponentReportQuery_DetectedTheFollowingPrimitiveArray;
+    public static String ComponentReportQuery_DetectedZeroLengthArray;
     public static String ComponentReportQuery_Distribution;
     public static String ComponentReportQuery_DuplicateStrings;
     public static String ComponentReportQuery_EmptyCollections;
@@ -172,12 +178,16 @@ public class Messages extends NLS
     public static String ComponentReportQuery_Msg_WeakReferencesFound;
     public static String ComponentReportQuery_Msg_WeakReferencesRetained;
     public static String ComponentReportQuery_Msg_WeakReferencesStronglyRetained;
+    public static String ComponentReportQuery_NoArraysWithLowFillRatios;
+    public static String ComponentReportQuery_NoExcessiveDuplicateStrings;
+    public static String ComponentReportQuery_NoExcessivePrimitiveArrays;
+    public static String ComponentReportQuery_NoExcessiveUsageZeroLengthArray;
     public static String ComponentReportQuery_Objects;
     public static String ComponentReportQuery_Overview;
-
     public static String ComponentReportQuery_PathsToReferents;
     public static String ComponentReportQuery_PossibleMemoryLeak;
     public static String ComponentReportQuery_PossibleMemoryWaste;
+    public static String ComponentReportQuery_PrimitiveArraysWithAConstantValue;
     public static String ComponentReportQuery_ReferentResult;
 
     public static String ComponentReportQuery_RetainedSet;
@@ -186,6 +196,7 @@ public class Messages extends NLS
     public static String ComponentReportQuery_TopConsumers;
     public static String ComponentReportQuery_TopElementsInclude;
     public static String ComponentReportQuery_WeakReferenceStatistics;
+    public static String ComponentReportQuery_ZeroLengthArrays;
     public static String CustomizedRetainedSetQuery_RetainedBy;
 
     public static String DeltaHistogram_Progress;
@@ -514,6 +525,9 @@ public class Messages extends NLS
     public static String PieFactory_Label_ShallowSize;
 
     public static String PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues;
+    public static String PrimitiveArraysWithAConstantValueQuery_Column_Length;
+    public static String PrimitiveArraysWithAConstantValueQuery_Column_NumObjects;
+    public static String PrimitiveArraysWithAConstantValueQuery_Column_Value;
 
     public static String ReferenceLeakQuery_CommonPaths;
     public static String ReferenceLeakQuery_CommonPathsLimit;

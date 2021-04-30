@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.ContextDerivedData;
@@ -80,7 +81,7 @@ public final class Quantize
 
             /**
              * Creates a new column to display the values of a function.
-             * @param label the readable valued used to  label the column
+             * @param label the readable valued used to label the column
              * @return the new Column
              */
             Column column(String label);
@@ -113,6 +114,12 @@ public final class Quantize
      */
     public static final Function.Factory SUM_LONG = new FnFactoryImpl(SumLong.class, Long.class, false);
     /**
+     * Function to add values as Bytes.
+     * @since 1.12
+     */
+    public static final Function.Factory SUM_BYTES = new FnFactoryImpl(SumBytes.class, Bytes.class, false);
+
+    /**
      * Function to find the minimum double value.
      */
     public static final Function.Factory MIN = new FnFactoryImpl(Min.class, Double.class, true);
@@ -121,6 +128,11 @@ public final class Quantize
      */
     public static final Function.Factory MIN_LONG = new FnFactoryImpl(MinLong.class, Long.class, true);
     /**
+     * Function to find the minimum Bytes value.
+     * @since 1.12
+     */
+    public static final Function.Factory MIN_BYTES = new FnFactoryImpl(MinBytes.class, Bytes.class, true);
+    /**
      * Function to find the maximum double value.
      */
     public static final Function.Factory MAX = new FnFactoryImpl(Max.class, Double.class, true);
@@ -128,6 +140,12 @@ public final class Quantize
      * Function to find the maximum long value.
      */
     public static final Function.Factory MAX_LONG = new FnFactoryImpl(MaxLong.class, Long.class, true);
+    /**
+     * Function to find the maximum Bytes value.
+     * @since 1.12
+     */
+    public static final Function.Factory MAX_BYTES = new FnFactoryImpl(MaxBytes.class, Long.class, true);
+
     /**
      * Function to find the average value.
      */
@@ -138,6 +156,13 @@ public final class Quantize
      * @since 0.8
      */
     public static final Function.Factory AVERAGE_LONG = new FnFactoryImpl(AverageLong.class, Double.class, true);
+    /**
+     * Function to find the average Bytes value.
+     * 
+     * @since 1.12
+     */
+    public static final Function.Factory AVERAGE_BYTES = new FnFactoryImpl(AverageBytes.class, Bytes.class, true);
+
 
     // //////////////////////////////////////////////////////////////
     // factory methods
@@ -195,7 +220,7 @@ public final class Quantize
      */
     public static Builder linearFrequencyDistribution(String label, double lowerBound, double upperBound, double step)
     {
-        String lessEq = Messages.Quantize_LessEq_Prefix; //$NON-NLS-1$
+        String lessEq = Messages.Quantize_LessEq_Prefix;
         DecimalFormat format = new DecimalFormat("#,##0.00"); //$NON-NLS-1$
         format.setPositivePrefix(lessEq+format.getPositivePrefix());
         format.setNegativePrefix(lessEq+format.getNegativePrefix());
@@ -229,7 +254,7 @@ public final class Quantize
      */
     public static Builder linearFrequencyDistribution(String label, long lowerBound, long upperBound, long step)
     {
-        String lessEq = Messages.Quantize_LessEq_Prefix; //$NON-NLS-1$
+        String lessEq = Messages.Quantize_LessEq_Prefix;
         DecimalFormat format = new DecimalFormat("#,##0"); //$NON-NLS-1$
         format.setPositivePrefix(lessEq+format.getPositivePrefix());
         format.setNegativePrefix(lessEq+format.getNegativePrefix());
@@ -238,8 +263,8 @@ public final class Quantize
         {
             // Use the locale formatter
             DecimalFormat df = (DecimalFormat)nf;
-            df.setPositivePrefix(lessEq+df.getPositivePrefix()); //$NON-NLS-1$
-            df.setNegativePrefix(lessEq+df.getNegativePrefix()); //$NON-NLS-1$
+            df.setPositivePrefix(lessEq+df.getPositivePrefix());
+            df.setNegativePrefix(lessEq+df.getNegativePrefix());
             format = df;
         }
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionLong(lowerBound, upperBound, step)))
@@ -434,8 +459,8 @@ public final class Quantize
                 @SuppressWarnings("unchecked")
                 public int compare(BucketImpl o1, BucketImpl o2)
                 {
-                    Comparable key1 = (Comparable) o1.getKey();
-                    Comparable key2 = (Comparable) o2.getKey();
+                    Comparable<Object> key1 = (Comparable<Object>) o1.getKey();
+                    Comparable<Object> key2 = (Comparable<Object>) o2.getKey();
 
                     if (key1 == null && key2 == null)
                         return 0;
@@ -607,6 +632,39 @@ public final class Quantize
         }
     }
 
+    /* package */static class SumBytes implements Function
+    {
+        Bytes sum;
+
+        public void add(Object object)
+        {
+            if (object == null)
+                return;
+            if (sum == null)
+            {
+                if (object instanceof Bytes)
+                    sum = (Bytes)object;
+                else
+                    sum = new Bytes(((Number) object).longValue());
+            }
+            else
+            {
+                if (object instanceof Bytes)
+                    sum = sum.add(((Bytes)object).getValue());
+                else
+                    sum = sum.add(((Number) object).longValue());
+            }
+        }
+
+        public Object getValue()
+        {
+            if (sum == null)
+                return new Bytes(0);
+            else
+                return sum;
+        }
+    }
+
     /* package */static class Min implements Function
     {
         boolean hasValue = false;
@@ -652,6 +710,37 @@ public final class Quantize
             {
                 min = ((Number) object).longValue();
                 hasValue = true;
+            }
+        }
+
+        public Object getValue()
+        {
+            return min;
+        }
+    }
+
+    /* package */static class MinBytes implements Function
+    {
+        Bytes min;
+
+        public void add(Object object)
+        {
+            if (object == null)
+                return;
+
+            if (min != null)
+            {
+                if (object instanceof Bytes)
+                    min = min.compareTo(object) >= 0 ? min : (Bytes)object;
+                else
+                    min = new Bytes(Math.min(min.getValue(), ((Number) object).longValue()));
+            }
+            else
+            {
+                if (object instanceof Bytes)
+                    min = (Bytes)object;
+                else
+                    min = new Bytes(((Number) object).longValue());
             }
         }
 
@@ -715,6 +804,37 @@ public final class Quantize
         }
     }
 
+    /* package */static class MaxBytes implements Function
+    {
+        Bytes max;
+
+        public void add(Object object)
+        {
+            if (object == null)
+                return;
+
+            if (max != null)
+            {
+                if (object instanceof Bytes)
+                    max = max.compareTo(object) <= 0 ? max : (Bytes)object;
+                else
+                    max = new Bytes(Math.max(max.getValue(), ((Number) object).longValue()));
+            }
+            else
+            {
+                if (object instanceof Bytes)
+                    max = (Bytes)object;
+                else
+                    max = new Bytes(((Number) object).longValue());
+            }
+        }
+
+        public Object getValue()
+        {
+            return max;
+        }
+    }
+
     /* package */static class Average implements Function
     {
         int count;
@@ -752,6 +872,43 @@ public final class Quantize
         public Object getValue()
         {
             return count > 0 ? sum / count : 0L;
+        }
+    }
+
+    /* package */static class AverageBytes implements Function
+    {
+        int count;
+        Bytes sum;
+
+        public void add(Object object)
+        {
+            if (object == null)
+                return;
+            if (count == 0)
+            {
+                if (object instanceof Bytes)
+                    sum = (Bytes)object;
+                else
+                    sum = new Bytes(((Number) object).longValue());
+            }
+            else
+            {
+                if (object instanceof Bytes)
+                    sum = sum.add(((Bytes)object).getValue());
+                else
+                    sum = sum.add(((Number) object).longValue());
+            }
+            count++;
+        }
+
+        public Object getValue()
+        {
+            if (count == 0)
+                return new Bytes(1);
+            else if (count == 1)
+                return sum;
+            else
+                return new Bytes(sum.getValue() / count);
         }
     }
 

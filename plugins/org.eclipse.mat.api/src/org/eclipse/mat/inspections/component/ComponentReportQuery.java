@@ -56,6 +56,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
@@ -93,7 +94,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec componentReport = new SectionSpec(MessageUtil.format(Messages.ComponentReportQuery_ComponentReport,
                         objects.getLabel()));
 
-        Ticks ticks = new Ticks(listener, componentReport.getName(), 13);
+        Ticks ticks = new Ticks(listener, componentReport.getName(), 16);
 
         // calculate retained set
         int[] retained = calculateRetainedSize(ticks);
@@ -130,6 +131,27 @@ public class ComponentReportQuery implements IQuery
         try
         {
             addCollectionFillRatios(possibleWaste, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        try
+        {
+            addZeroLengthArrays(possibleWaste, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        try
+        {
+            addArrayFillRatios(possibleWaste, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        try
+        {
+            addPrimitiveArrays(possibleWaste, totalSize, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
@@ -469,11 +491,6 @@ public class ComponentReportQuery implements IQuery
             table.calculateTotals(table.getRows(), totals, listener);
 
             StringBuilder comment = new StringBuilder();
-            comment.append(HTMLUtils.escapeText(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
-                            totals.getLabel(2))));
-            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"") //$NON-NLS-1$ //$NON-NLS-2$
-                            .append(escapeHTMLAttribute(Messages.ComponentReportQuery_TopElementsInclude))
-                            .append("\">"); //$NON-NLS-1$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
@@ -484,22 +501,41 @@ public class ComponentReportQuery implements IQuery
 
                 String size = table.getFormattedColumnValue(row, 3);
 
+                if (comment.length() == 0)
+                {
+                    comment.append(HTMLUtils.escapeText(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
+                                    totals.getLabel(2))));
+                    comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"") //$NON-NLS-1$ //$NON-NLS-2$
+                                    .append(escapeHTMLAttribute(Messages.ComponentReportQuery_TopElementsInclude))
+                                    .append("\">"); //$NON-NLS-1$
+                }
+
                 comment.append("<li>").append(table.getFormattedColumnValue(row, 1)); //$NON-NLS-1$
                 comment.append(" &times; <strong>").append(HTMLUtils.escapeText(value)).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
                 comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
-            comment.append("</ul>"); //$NON-NLS-1$
+            boolean warn = comment.length() != 0;
+            if (warn)
+                comment.append("</ul>"); //$NON-NLS-1$
+            else
+                comment.append(Messages.ComponentReportQuery_NoExcessiveDuplicateStrings);
 
             // build result
             SectionSpec duplicateStrings = new SectionSpec(Messages.ComponentReportQuery_DuplicateStrings);
+            if (warn)
+                duplicateStrings.setStatus(ITestResult.Status.WARNING);
             componentReport.add(duplicateStrings);
 
             QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
                             true));
             spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+            if (warn)
+                spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
             duplicateStrings.add(spec);
 
             spec = new QuerySpec(Messages.ComponentReportQuery_Histogram);
+            if (warn)
+                spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
             spec.setResult(table);
             IObject o = snapshot.getObject(record.getClassId());
             if (o instanceof IClass)
@@ -570,6 +606,7 @@ public class ComponentReportQuery implements IQuery
                 builder.setInlineRetainedSizeCalculation(true);
                 RefinedTable refinedTable = (RefinedTable) builder.build();
 
+                Boolean warn = false;
                 int count = refinedTable.getRowCount();
                 for (int rowId = 0; rowId < count && rowId < 10; rowId++)
                 {
@@ -605,6 +642,8 @@ public class ComponentReportQuery implements IQuery
                 }
 
                 QuerySpec bySizeSpec = new QuerySpec(clazz.getName());
+                if (warn)
+                    bySizeSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                 bySizeSpec.setResult(refinedTable);
                 addCommand(bySizeSpec, "collections_grouped_by_size", record.getObjectIds(), clazz); //$NON-NLS-1$
                 collectionbySizeSpec.add(bySizeSpec);
@@ -615,18 +654,243 @@ public class ComponentReportQuery implements IQuery
         if (collectionbySizeSpec.getChildren().isEmpty())
             return;
 
-        if (comment.length() == 0)
+        boolean warn = comment.length() != 0;
+        if (!warn)
             comment.append(Messages.ComponentReportQuery_Msg_NoExcessiveEmptyCollectionsFound);
         else
+        {
             comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
 
         QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(), true));
         spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn)
+            spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
         overview.add(spec);
 
         overview.add(collectionbySizeSpec);
 
         componentReport.add(overview);
+    }
+
+    private void addZeroLengthArrays(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
+                    throws Exception
+    {
+        // Works, but very slow for some dump types, so disable for them.
+        if (!aggressive)
+            InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
+        long threshold = totalSize / 20;
+
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_ZeroLengthArrays);
+
+        StringBuilder comment = new StringBuilder();
+        SectionSpec arraybySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
+        arraybySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+
+        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        {
+            if (listener.isCanceled())
+                break;
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            if (clazz.isArrayType())
+            {
+                // run the query: arrays by size
+                RefinedResultBuilder builder = SnapshotQuery.lookup("arrays_grouped_by_size", snapshot) //$NON-NLS-1$
+                                .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
+                                .refine(listener);
+
+                // refine result: sort & evaluate
+                builder.setInlineRetainedSizeCalculation(true);
+                RefinedTable refinedTable = (RefinedTable) builder.build();
+
+                Boolean warn = false;
+                int count = refinedTable.getRowCount();
+                for (int rowId = 0; rowId < count && rowId < 10; rowId++)
+                {
+                    Object row = refinedTable.getRow(rowId);
+                    int arraySize = (Integer) refinedTable.getColumnValue(row, 0);
+
+                    if (arraySize <= 0)
+                    {
+                        long size = Math.abs((Long) refinedTable.getColumnValue(row, 4));
+                        if (size > threshold)
+                        {
+                            int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 1);
+                            String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
+
+                            if (comment.length() == 0)
+                            {
+                                comment.append(HTMLUtils
+                                                .escapeText(Messages.ComponentReportQuery_DetectedZeroLengthArray))
+                                                .append("<ul title=\"") //$NON-NLS-1$
+                                                .append(escapeHTMLAttribute(
+                                                                Messages.ComponentReportQuery_DetectedZeroLengthArray))
+                                                .append("\">"); //$NON-NLS-1$
+                            }
+
+                            String cn = clazz.getName();
+                            String an = cn.substring(0, cn.length() - 1) + arraySize + cn.substring(cn.length() - 1);
+                            comment.append("<li>"); //$NON-NLS-1$
+                            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                                            numberOfObjects, HTMLUtils.escapeText(an), HTMLUtils.escapeText(retainedSize)));
+                            comment.append("</li>"); //$NON-NLS-1$
+                        }
+
+                        break;
+                    }
+                }
+
+                QuerySpec bySizeSpec = new QuerySpec(clazz.getName());
+                if (warn)
+                    bySizeSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+                bySizeSpec.setResult(refinedTable);
+                addCommand(bySizeSpec, "arrays_grouped_by_size", record.getObjectIds(), clazz); //$NON-NLS-1$
+                arraybySizeSpec.add(bySizeSpec);
+            }
+        }
+        listener.tick();
+
+        if (arraybySizeSpec.getChildren().isEmpty())
+            return;
+
+        boolean warn = comment.length() != 0;
+        if (!warn)
+            comment.append(Messages.ComponentReportQuery_NoExcessiveUsageZeroLengthArray);
+        else
+        {
+            comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
+
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(), true));
+        spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn)
+            spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+        overview.add(spec);
+
+        overview.add(arraybySizeSpec);
+
+        componentReport.add(overview);
+    }
+
+    private void addPrimitiveArrays(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
+                    throws Exception
+    {
+        // Doesn't work for PHD
+        InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
+        long threshold = totalSize / 20;
+
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_PrimitiveArraysWithAConstantValue);
+
+        StringBuilder comment = new StringBuilder();
+        SectionSpec primitiveArrayWithAConstantValue = new SectionSpec(Messages.ComponentReportQuery_Details);
+        primitiveArrayWithAConstantValue.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+
+        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        {
+            if (listener.isCanceled())
+                break;
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            boolean prim = false;
+            for (String aname : IPrimitiveArray.TYPE)
+            {
+                if (clazz.getName().equals(aname))
+                {
+                    prim = true;
+                    break;
+                }
+            }
+            if (prim)
+            {
+                // run the query: collections by size
+                RefinedResultBuilder builder = SnapshotQuery.lookup("primitive_arrays_with_a_constant_value", snapshot) //$NON-NLS-1$
+                                .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
+                                .refine(listener);
+
+                // refine result: sort & evaluate
+                builder.setInlineRetainedSizeCalculation(true);
+                RefinedTable refinedTable = (RefinedTable) builder.build();
+                TotalsRow totals = new TotalsRow();
+                refinedTable.calculateTotals(refinedTable.getRows(), totals, listener);
+                boolean warn = false;
+                int count = refinedTable.getRowCount();
+                long totalSizeArrays = 0;
+                int totalNumberObjects = 0;
+                for (int rowId = 0; rowId < count; rowId++)
+                {
+                    Object row = refinedTable.getRow(rowId);
+
+                    long size = Math.abs((Long) refinedTable.getColumnValue(row, 4));
+                    totalSizeArrays += size;
+                    int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 2);
+                    totalNumberObjects += numberOfObjects;
+                    if (size > threshold)
+                    {
+                        int length = (Integer) refinedTable.getColumnValue(row, 0);
+                        String value = refinedTable.getFormattedColumnValue(row, 1);
+                        String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
+                        String cn = clazz.getName();
+                        String an = cn.substring(0, cn.length() - 1) + length + cn.substring(cn.length() - 1) + " {" + value + "}"; //$NON-NLS-1$ //$NON-NLS-2$
+                        primitiveArrayComment(comment, numberOfObjects, retainedSize, an);
+                        warn = true;
+                    }
+                }
+                if (totalSizeArrays > threshold)
+                {
+                    String retainedSize = totals.getLabel(3);
+                    primitiveArrayComment(comment, totalNumberObjects, retainedSize, clazz.getName());
+                    warn = true;
+                }
+                QuerySpec bySizeSpec = new QuerySpec(clazz.getName());
+                bySizeSpec.setResult(refinedTable);
+                if (warn)
+                    bySizeSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+                addCommand(bySizeSpec, "primitive_arrays_with_a_constant_value", record.getObjectIds(), clazz); //$NON-NLS-1$
+                primitiveArrayWithAConstantValue.add(bySizeSpec);
+            }
+        }
+        listener.tick();
+
+        if (primitiveArrayWithAConstantValue.getChildren().isEmpty())
+            return;
+
+        boolean warn = comment.length() != 0;
+        if (!warn)
+            comment.append(Messages.ComponentReportQuery_NoExcessivePrimitiveArrays);
+        else
+        {
+            comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
+
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(), true));
+        spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn)
+            spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+        overview.add(spec);
+
+        overview.add(primitiveArrayWithAConstantValue);
+
+        componentReport.add(overview);
+    }
+
+    private void primitiveArrayComment(StringBuilder comment, int numberOfObjects, String retainedSize, String an)
+    {
+        if (comment.length() == 0)
+        {
+            comment.append(HTMLUtils
+                            .escapeText(Messages.ComponentReportQuery_DetectedTheFollowingPrimitiveArray))
+            .append("<ul title=\"") //$NON-NLS-1$
+            .append(escapeHTMLAttribute(
+                            Messages.ComponentReportQuery_DetectedTheFollowingPrimitiveArray))
+            .append("\">"); //$NON-NLS-1$
+        }
+
+        comment.append("<li>"); //$NON-NLS-1$
+        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                        numberOfObjects, HTMLUtils.escapeText(an), HTMLUtils.escapeText(retainedSize)));
+        comment.append("</li>"); //$NON-NLS-1$
     }
 
     // //////////////////////////////////////////////////////////////
@@ -664,6 +928,7 @@ public class ComponentReportQuery implements IQuery
                 builder.setInlineRetainedSizeCalculation(true);
                 RefinedTable refinedTable = (RefinedTable) builder.build();
 
+                boolean warn = false;
                 int count = refinedTable.getRowCount();
                 for (int rowId = 0; rowId < count; rowId++)
                 {
@@ -672,11 +937,12 @@ public class ComponentReportQuery implements IQuery
 
                     if (fillRatio > 0d && fillRatio < 0.21d)
                     {
-                        long size = Math.abs((Long) refinedTable.getColumnValue(row, 3));
+                        int retainedCol = 4;
+                        long size = Math.abs((Long) refinedTable.getColumnValue(row, retainedCol));
                         if (size > threshold)
                         {
                             int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 1);
-                            String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
+                            String retainedSize = refinedTable.getFormattedColumnValue(row, retainedCol);
 
                             if (comment.length() == 0)
                             {
@@ -692,6 +958,7 @@ public class ComponentReportQuery implements IQuery
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
                                             numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                             comment.append("</li>"); //$NON-NLS-1$
+                            warn = true;
                         }
 
                         break;
@@ -699,6 +966,8 @@ public class ComponentReportQuery implements IQuery
                 }
 
                 QuerySpec spec = new QuerySpec(clazz.getName());
+                if (warn)
+                    spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                 spec.setResult(refinedTable);
                 addCommand(spec, "collection_fill_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
@@ -709,14 +978,128 @@ public class ComponentReportQuery implements IQuery
         if (detailsSpec.getChildren().isEmpty())
             return;
 
-        if (comment.length() == 0)
+        boolean warn2 = comment.length() != 0;
+        if (!warn2)
             comment.append(Messages.ComponentReportQuery_Msg_NoLowFillRatiosFound);
         else
+        {
             comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
 
         QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
                         true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn2)
+            commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+
+        overview.add(commentSpec);
+        overview.add(detailsSpec);
+        componentReport.add(overview);
+    }
+
+    private void addArrayFillRatios(SectionSpec componentReport, long totalSize, Histogram histogram,
+                    Ticks listener) throws Exception
+    {
+        // Works, but very slow for some dump types, so disable for them.
+        if (!aggressive)
+            InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
+        long threshold = totalSize / 20;
+
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_ArrayFillRatios);
+
+        StringBuilder comment = new StringBuilder();
+        SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
+        detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+
+        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        {
+            if (listener.isCanceled())
+                break;
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            if (clazz.isArrayType())
+            {
+                // run the query: collections by size
+                RefinedResultBuilder builder = SnapshotQuery.lookup("array_fill_ratio", snapshot) //$NON-NLS-1$
+                                .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
+                                .refine(listener);
+
+                // refine result: sort & evaluate
+                builder.setInlineRetainedSizeCalculation(true);
+                RefinedTable refinedTable = (RefinedTable) builder.build();
+
+                int count = refinedTable.getRowCount();
+                if (count == 0)
+                    continue;
+                boolean warn = false;
+                for (int rowId = 0; rowId < count; rowId++)
+                {
+                    Object row = refinedTable.getRow(rowId);
+                    double fillRatio = (Double) refinedTable.getColumnValue(row, 0);
+
+                    /*
+                     * Empty arrays, non-zero length arrays should be counted here.
+                     * Collections are not because they have a query for size 0 collections.
+                     */
+                    if (fillRatio >= 0d && fillRatio < 0.21d)
+                    {
+                        int retainedCol = 4;
+                        long size = Math.abs((Long) refinedTable.getColumnValue(row, retainedCol));
+                        if (size > threshold)
+                        {
+                            int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 1);
+                            String retainedSize = refinedTable.getFormattedColumnValue(row, retainedCol);
+
+                            if (comment.length() == 0)
+                            {
+                                comment.append(HTMLUtils.escapeText(
+                                                Messages.ComponentReportQuery_DetectedTheFollowingArraysWithLowFillRatios))
+                                                .append("<ul title=\"") //$NON-NLS-1$
+                                                .append(escapeHTMLAttribute(
+                                                                Messages.ComponentReportQuery_DetectedTheFollowingArraysWithLowFillRatios))
+                                                .append("\">"); //$NON-NLS-1$
+                            }
+
+                            comment.append("<li>"); //$NON-NLS-1$
+                            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
+                            comment.append("</li>"); //$NON-NLS-1$
+                            warn = true;
+                        }
+
+                        break;
+                    }
+                }
+
+                QuerySpec spec = new QuerySpec(clazz.getName());
+                spec.setResult(refinedTable);
+                addCommand(spec, "array_fill_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
+                detailsSpec.add(spec);
+                if (warn)
+                {
+                    spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+                }
+            }
+        }
+        listener.tick();
+
+        if (detailsSpec.getChildren().isEmpty())
+            return;
+
+        boolean warn2 = comment.length() != 0;
+        if (!warn2)
+            comment.append(Messages.ComponentReportQuery_NoArraysWithLowFillRatios);
+        else
+        {
+            comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
+
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
+        commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn2)
+            commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
 
         overview.add(commentSpec);
         overview.add(detailsSpec);
@@ -764,6 +1147,7 @@ public class ComponentReportQuery implements IQuery
                 builder.setInlineRetainedSizeCalculation(true);
                 RefinedTable refinedTable = (RefinedTable) builder.build();
 
+                boolean warn = false;
                 int count = refinedTable.getRowCount();
                 for (int rowId = 0; rowId < count; rowId++)
                 {
@@ -789,11 +1173,14 @@ public class ComponentReportQuery implements IQuery
                         comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
                                         numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                         comment.append("</li>"); //$NON-NLS-1$
+                        warn = true;
                         break;
                     }
                 }
 
                 QuerySpec spec = new QuerySpec(clazz.getName());
+                if (warn)
+                    spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                 spec.setResult(refinedTable);
                 addCommand(spec, "map_collision_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
@@ -804,14 +1191,20 @@ public class ComponentReportQuery implements IQuery
         if (detailsSpec.getChildren().isEmpty())
             return;
 
-        if (comment.length() == 0)
+        boolean warn2 = comment.length() != 0;
+        if (!warn2)
             comment.append(Messages.ComponentReportQuery_Msg_NoCollisionRatiosFound);
         else
+        {
             comment.append("</ul>"); //$NON-NLS-1$
+            overview.setStatus(ITestResult.Status.WARNING);
+        }
 
         QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
                         true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (warn2)
+            commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
 
         overview.add(commentSpec);
         overview.add(detailsSpec);

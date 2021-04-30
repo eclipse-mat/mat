@@ -407,7 +407,7 @@ public class HtmlOutputter implements IOutputter
                 switch (columns[columnIndex].getAlign())
                 {
                     case RIGHT:
-                        artefact.append("<td align=\"center\">");
+                        artefact.append("<td align=\"right\">");
                         break;
                     case CENTER:
                         artefact.append("<td align=\"center\">");

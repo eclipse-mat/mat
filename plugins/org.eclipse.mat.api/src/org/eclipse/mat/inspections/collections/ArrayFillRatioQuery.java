@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -52,11 +52,12 @@ public class ArrayFillRatioQuery extends AbstractFillRatioQuery implements IQuer
         Quantize.Builder builder = Quantize.linearFrequencyDistribution(Messages.ArrayFillRatioQuery_ColumnFillRatio,
                         0, 1, (double) 1 / (double) segments);
         builder.column(Messages.ArrayFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
-        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_BYTES);
+        builder.column(Messages.Column_WastedHeap, Quantize.SUM_BYTES);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        runQuantizer(listener, quantize, null, null, snapshot, objects);
+        runQuantizer(listener, quantize, null, null, snapshot, objects, Messages.ArrayFillRatioQuery_ExtractingFillRatios);
         return quantize.getResult();
     }
 }

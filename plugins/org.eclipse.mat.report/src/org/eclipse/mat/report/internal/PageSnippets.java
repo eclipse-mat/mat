@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 import org.eclipse.mat.report.internal.ResultRenderer.Key;
@@ -200,9 +201,10 @@ import org.eclipse.mat.util.HTMLUtils;
                                 .append("\"></a> ");
             }
 
-            if (part.getStatus() != null)
+            ITestResult.Status status = getStatus(part);
+            if (status != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
-                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");
+                                .append("img/").append(status.name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(status.toString()).append("\"> ");
 
             if (!linkToHeading)
                 artefact.append("<a name=\"").append(id(part)).append("\">");
@@ -220,9 +222,10 @@ import org.eclipse.mat.util.HTMLUtils;
         String v = String.valueOf(order);
         artefact.append("<h").append(v).append(lang).append(">");
 
-        if (part instanceof QueryPart && part.getStatus() != null)
+        ITestResult.Status status = getStatus(part);
+        if (status != null)
             artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(part.getStatus().toString()).append("\"> ");
+                            status.name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(status.toString()).append("\"> ");
 
         link(artefact, filename, part.spec().getName());
         addCommandLink(part, artefact);
@@ -241,9 +244,15 @@ import org.eclipse.mat.util.HTMLUtils;
         else
         {
             if (linkToHeading)
-                artefact.append("<h5").append(lang).append(" id=\"").append(id(query)).append("\">");
+                artefact.append("<h5").append(lang).append(" id=\"").append(id(query)).append("\"");
             else
-                artefact.append("<h5").append(lang).append(">");
+                artefact.append("<h5").append(lang);
+            boolean isImportant = query.params().shallow().getBoolean(Params.Html.IS_IMPORTANT, false);
+            if (isImportant)
+            {
+                artefact.append(" class=\"important\"");
+            }
+            artefact.append(">");
 
             boolean isExpanded = forceExpansion || !query.params().getBoolean(Params.Html.COLLAPSED, false);
 
@@ -359,5 +368,19 @@ import org.eclipse.mat.util.HTMLUtils;
     private static String id(AbstractPart part)
     {
         return id("i", part);
+    }
+
+    /**
+     * The test result might not have been cascaded up yet, so evaluate now.
+     */
+    private static ITestResult.Status getStatus(AbstractPart part)
+    {
+        ITestResult.Status status = part.getStatus();
+        for (AbstractPart child : part.getChildren())
+        {
+            ITestResult.Status status2 = getStatus(child);
+            status = ITestResult.Status.max(status, status2);
+        }
+        return status;
     }
 }

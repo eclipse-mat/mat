@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Chris Grindstaff, James Livingston and IBM Corporation
+ * Copyright (c) 2008, 2021 Chris Grindstaff, James Livingston and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,10 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -25,13 +25,15 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
+import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
-import org.eclipse.mat.snapshot.query.ObjectListResult;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("primitive_arrays_with_a_constant_value")
@@ -52,19 +54,23 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues);
 
-        ArrayInt result = new ArrayInt();
-        extract(result, listener);
-        return new ObjectListResult.Inbound(snapshot, result.toArray());
-    }
+        // group by size attribute
+        Quantize.Builder builder = Quantize.valueDistribution( //
+                        new Column(Messages.PrimitiveArraysWithAConstantValueQuery_Column_Length, int.class).noTotals(),
+                        new Column(Messages.PrimitiveArraysWithAConstantValueQuery_Column_Value, Comparable.class).noTotals());
+        builder.column(Messages.PrimitiveArraysWithAConstantValueQuery_Column_NumObjects, Quantize.COUNT);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_BYTES, SortDirection.DESC);
+        builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
+        Quantize quantize = builder.build();
 
-    private void extract(ArrayInt result, IProgressListener listener) throws SnapshotException
-    {
+        int counter = 0;
+        IClass type = null;
         for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    return;
+                    throw new IProgressListener.OperationCanceledException();
 
                 if (!snapshot.isArray(objectId))
                     continue;
@@ -72,6 +78,11 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                 IObject object = snapshot.getObject(objectId);
                 if (object instanceof IObjectArray)
                     continue;
+                if (counter++ % 1000 == 0 && object.getClazz().equals(type))
+                {
+                    type = object.getClazz();
+                    listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues + "\n" + type.getName()); //$NON-NLS-1$
+                }
 
                 IPrimitiveArray array = (IPrimitiveArray) object;
 
@@ -92,9 +103,14 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                         }
                     }
                     if (allSame)
-                        result.add(objectId);
+                    {
+                        long size = snapshot.getHeapSize(objectId);
+                        // Key by length and value
+                        quantize.addValue(objectId, length, value0, null, size);
+                    }
                 }
             }
         }
+        return quantize.getResult();
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -47,8 +47,8 @@ public class GroupByValueQuery implements IQuery
     {
         Quantize quantize = Quantize.valueDistribution(Messages.GroupByValueQuery_Column_StringValue) //
                         .column(Messages.GroupByValueQuery_Column_Objects, Quantize.COUNT) //
-                        .column(Messages.Column_ShallowHeap, Quantize.SUM_LONG, SortDirection.DESC) //
-                        .column(Messages.GroupByValueQuery_Column_AvgRetainedSize, Quantize.AVERAGE_LONG) //
+                        .column(Messages.Column_ShallowHeap, Quantize.SUM_BYTES, SortDirection.DESC) //
+                        .column(Messages.GroupByValueQuery_Column_AvgRetainedSize, Quantize.AVERAGE_BYTES) //
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
 

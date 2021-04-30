@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,14 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collectionextract;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.internal.collectionextract.ArrayCollectionExtractor;
 import org.eclipse.mat.internal.collectionextract.ExtractionUtils;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.CollectionExtractionInfo;
 import org.eclipse.mat.snapshot.extension.JdkVersion;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -32,6 +37,7 @@ import org.eclipse.mat.snapshot.registry.CollectionExtractorProviderRegistry;
  */
 public class CollectionExtractionUtils
 {
+    private static Map<ISnapshot,HashMapIntObject<ICollectionExtractor>>cache = new WeakHashMap<ISnapshot,HashMapIntObject<ICollectionExtractor>>();
 
     /**
      * Finds a proper ICollectionExtractor for the object passed as parameter
@@ -50,17 +56,35 @@ public class CollectionExtractionUtils
         if (collection instanceof IObjectArray)
             return ArrayCollectionExtractor.INSTANCE;
 
-        JdkVersion version = ExtractionUtils.resolveVersion(collection.getSnapshot());
+        ISnapshot snapshot = collection.getSnapshot();
         IClass collectionClass = collection.getClazz();
+
+        /* Cache the lookup */
+        HashMapIntObject<ICollectionExtractor>c1 = cache.get(snapshot);
+        if (c1 == null)
+        {
+            c1 = new HashMapIntObject<ICollectionExtractor>();
+            cache.put(snapshot, c1);
+        }
+        else
+        {
+            if (c1.containsKey(collectionClass.getObjectId()))
+                return c1.get(collectionClass.getObjectId());
+        }
+        JdkVersion version = ExtractionUtils.resolveVersion(snapshot);
 
         for (CollectionExtractionInfo info : CollectionExtractorProviderRegistry.instance().getCollectionExtractionInfo())
         {
             if (info.version.contains(version))
             {
-                if (collectionClass.doesExtend(info.className)) { return info.extractor; }
+                if (collectionClass.doesExtend(info.className))
+                { 
+                    c1.put(collectionClass.getObjectId(), info.extractor);
+                    return info.extractor;
+                }
             }
         }
-
+        c1.put(collectionClass.getObjectId(), null);
         return null;
     }
 
