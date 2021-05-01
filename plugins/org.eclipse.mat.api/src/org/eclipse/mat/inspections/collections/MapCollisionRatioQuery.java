@@ -84,9 +84,6 @@ public class MapCollisionRatioQuery implements IQuery
     @Argument(isMandatory = false)
     public String array_attribute;
 
-    private final long LIMIT = 20;
-    private HashMapIntLong exceptions = new HashMapIntLong();
-
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios);
@@ -100,6 +97,8 @@ public class MapCollisionRatioQuery implements IQuery
         Quantize quantize = builder.build();
 
         IMapExtractor specificExtractor = new HashMapCollectionExtractor(size_attribute, array_attribute, null, null);
+        final long LIMIT = 20;
+        HashMapIntLong exceptions = new HashMapIntLong();
         int counter = 0;
         IClass type = null;
         for (int[] objectIds : objects)

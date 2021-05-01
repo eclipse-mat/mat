@@ -32,9 +32,6 @@ import org.eclipse.mat.util.MessageUtil;
 
 public class AbstractFillRatioQuery
 {
-    private final long LIMIT = 20;
-    private HashMapIntLong exceptions = new HashMapIntLong();
-
     protected void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
                     String specificClass, ISnapshot snapshot, Iterable<int[]> objects, String msg) throws SnapshotException
     {
@@ -42,6 +39,8 @@ public class AbstractFillRatioQuery
         int refsize = info.getIdentifierSize();
         if (refsize == 8 && Boolean.TRUE.equals((Boolean) info.getProperty("$useCompressedOops"))) //$NON-NLS-1$
             refsize = 4;
+        final long LIMIT = 20;
+        HashMapIntLong exceptions = new HashMapIntLong();
         int counter = 0;
         IClass type = null;
         for (int[] objectIds : objects)

@@ -102,9 +102,6 @@ public class CollectionsBySizeQuery implements IQuery
     @Argument(isMandatory = false)
     public String size_attribute;
 
-    private final long LIMIT = 20;
-    private HashMapIntLong exceptions = new HashMapIntLong();
-
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes);
@@ -138,6 +135,9 @@ public class CollectionsBySizeQuery implements IQuery
     private void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
                     String specificClass) throws SnapshotException
     {
+
+        final long LIMIT = 20;
+        HashMapIntLong exceptions = new HashMapIntLong();
         int counter = 0;
         IClass type = null;
         for (int[] objectIds : objects)

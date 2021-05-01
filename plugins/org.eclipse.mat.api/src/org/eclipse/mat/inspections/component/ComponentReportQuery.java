@@ -635,6 +635,7 @@ public class ComponentReportQuery implements IQuery
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
                                             numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                             comment.append("</li>"); //$NON-NLS-1$
+                            warn = true;
                         }
 
                         break;
@@ -735,6 +736,7 @@ public class ComponentReportQuery implements IQuery
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
                                             numberOfObjects, HTMLUtils.escapeText(an), HTMLUtils.escapeText(retainedSize)));
                             comment.append("</li>"); //$NON-NLS-1$
+                            warn = true;
                         }
 
                         break;
