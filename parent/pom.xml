@@ -30,7 +30,9 @@
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 		<download-remote-publish-rcp-path>genie.mat@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-remote-publish-rcp-path>
 		<!-- mat-target specifies which .target definition file will be used -->
-		<mat-target>mat-2020-03</mat-target>
+		<mat-target>mat-2021-03</mat-target>
+		<!-- mat-product specifies which .product definition file will be used -->
+		<mat-product>${mat-target}</mat-product>
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
