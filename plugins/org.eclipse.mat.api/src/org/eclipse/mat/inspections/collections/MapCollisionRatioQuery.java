@@ -56,6 +56,10 @@ import org.eclipse.mat.util.MessageUtil;
     "javax.management.openmbean.TabularDataSupport",
     "com.ibm.jvm.util.HashMapRT",
     "com.sap.engine.lib.util.AbstractDataStructure",
+    "org.eclipse.mat.collect.HashMapIntLong",
+    "org.eclipse.mat.collect.HashMapIntObject",
+    "org.eclipse.mat.collect.HashMapLongObject",
+    "org.eclipse.mat.collect.HashMapObjectLong",
 
     // Sometimes useful to see collision ratio of a HashSet
     "java.util.HashSet",

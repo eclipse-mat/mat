@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,15 @@ import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA_11;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.HashMapObjectLong;
+import org.eclipse.mat.collect.QueueInt;
+import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.snapshot.extension.CollectionExtractionInfo;
 import org.eclipse.mat.snapshot.extension.ICollectionExtractorProvider;
 import org.eclipse.mat.snapshot.extension.JdkVersion;
@@ -263,6 +272,17 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     new CollectionExtractionInfo("java.util.AbstractMap$1", new KeySetCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
+
+                    // MAT collections for self-analysis
+                    new CollectionExtractionInfo(SetInt.class.getName(), new MATCollectionExtractor("size", "limit")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(SetLong.class.getName(), new MATCollectionExtractor("size", "limit")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(QueueInt.class.getName(), new MATCollectionExtractor("size", "capacity")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(ArrayInt.class.getName(), new FieldSizedCapacityCollectionExtractor("size", "elements")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(ArrayLong.class.getName(), new FieldSizedCapacityCollectionExtractor("size", "elements")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(HashMapIntLong.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo(HashMapIntObject.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo(HashMapLongObject.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo(HashMapObjectLong.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // usually shouldn't match
                     new CollectionExtractionInfo("java.util.AbstractList", new NoContentCollectionExtractor()), //$NON-NLS-1$

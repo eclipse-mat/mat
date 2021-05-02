@@ -15,7 +15,15 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.HashMapObjectLong;
+import org.eclipse.mat.collect.QueueInt;
+import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
@@ -36,9 +44,10 @@ public class AbstractFillRatioQuery
                     String specificClass, ISnapshot snapshot, Iterable<int[]> objects, String msg) throws SnapshotException
     {
         SnapshotInfo info = snapshot.getSnapshotInfo();
-        int refsize = info.getIdentifierSize();
-        if (refsize == 8 && Boolean.TRUE.equals((Boolean) info.getProperty("$useCompressedOops"))) //$NON-NLS-1$
-            refsize = 4;
+        final int refsize = info.getIdentifierSize() == 8
+                        && Boolean.TRUE.equals((Boolean) info.getProperty("$useCompressedOops")) //$NON-NLS-1$
+                                        ? 4
+                                        : info.getIdentifierSize();
         final long LIMIT = 20;
         HashMapIntLong exceptions = new HashMapIntLong();
         int counter = 0;
@@ -71,7 +80,29 @@ public class AbstractFillRatioQuery
                                 Integer c = coll.getCapacity();
                                 if (c != null)
                                 {
-                                    wasted = (long)(c * refsize * (1 - fillRatio));
+                                    // These don't have reference sized slots
+                                    int refsize2;
+                                    if (obj.getClazz().getName().equals(SetInt.class.getName()))
+                                        refsize2 = 4;
+                                    else if (obj.getClazz().getName().equals(ArrayInt.class.getName()))
+                                        refsize2 = 4;
+                                    else if (obj.getClazz().getName().equals(QueueInt.class.getName()))
+                                        refsize2 = 4;
+                                    else if (obj.getClazz().getName().equals(SetLong.class.getName()))
+                                        refsize2 = 8;
+                                    else if (obj.getClazz().getName().equals(ArrayLong.class.getName()))
+                                        refsize2 = 8;
+                                    else if (obj.getClazz().getName().equals(HashMapIntLong.class.getName()))
+                                        refsize2 = 13;
+                                    else if (obj.getClazz().getName().equals(HashMapIntObject.class.getName()))
+                                        refsize2 = 5 + refsize;
+                                    else if (obj.getClazz().getName().equals(HashMapLongObject.class.getName()))
+                                        refsize2 = 9 + refsize;
+                                    else if (obj.getClazz().getName().equals(HashMapObjectLong.class.getName()))
+                                        refsize2 = 9 + refsize;
+                                    else
+                                        refsize2 = refsize;
+                                    wasted = (long)(c * refsize2 * (1 - fillRatio));
                                 }
                             }
                             else if (coll.hasExtractableArray())
@@ -80,6 +111,20 @@ public class AbstractFillRatioQuery
                                 if (backing != null)
                                 {
                                     wasted = (long)(backing.getClazz().getHeapSizePerInstance() * (1 - fillRatio));
+                                }
+                            }
+                            else if (coll.hasSize())
+                            {
+                                Integer size = coll.size();
+                                if (size != null)
+                                {
+                                    int s = size;
+                                    // Try to have some limits on what might be calculated
+                                    if (fillRatio > 0)
+                                    {
+                                        wasted = (long) Math.min((s * refsize / (1 - fillRatio)),
+                                                        snapshot.getSnapshotInfo().getUsedHeapSize());
+                                    }
                                 }
                             }
                             quantize.addValue(objectId, fillRatio, 1, new Bytes(coll.getUsedHeapSize()), new Bytes(wasted));

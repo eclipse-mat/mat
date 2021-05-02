@@ -102,6 +102,12 @@ public class ComponentReportQuery implements IQuery
         ticks.tick();
 
         Histogram histogram = snapshot.getHistogram(retained, ticks);
+        // Fill in the approx. retained sizes so we can show the biggest (most important?) first.
+        for (ClassHistogramRecord cr : histogram.getClassHistogramRecords())
+        {
+            long retsize = snapshot.getMinRetainedSize(cr.getObjectIds(), listener);
+            cr.setRetainedHeapSize(retsize);
+        }
         if (ticks.isCanceled())
             throw new IProgressListener.OperationCanceledException();
         ticks.tick();
@@ -462,10 +468,18 @@ public class ComponentReportQuery implements IQuery
     // duplicate strings
     // //////////////////////////////////////////////////////////////
 
+    private List<ClassHistogramRecord>sorted(Collection<ClassHistogramRecord>c)
+    {
+        List<ClassHistogramRecord> l = new ArrayList<ClassHistogramRecord>(c);
+        l.sort(Histogram.COMPARATOR_FOR_LABEL);
+        l.sort(Histogram.reverseComparator(Histogram.COMPARATOR_FOR_RETAINEDHEAPSIZE));
+        return l;
+    }
+
     private void addDuplicateStrings(SectionSpec componentReport, Histogram histogram, Ticks listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
@@ -589,7 +603,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec collectionbySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         collectionbySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
@@ -689,7 +703,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec arraybySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         arraybySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
@@ -789,7 +803,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec primitiveArrayWithAConstantValue = new SectionSpec(Messages.ComponentReportQuery_Details);
         primitiveArrayWithAConstantValue.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
@@ -913,13 +927,13 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
             ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
-            if (extractor != null && extractor.hasSize() && extractor.hasExtractableContents())
+            if (extractor != null && extractor.hasSize() && (extractor.hasFillRatio() || extractor.hasCapacity() || extractor.hasExtractableContents()))
             {
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
@@ -1014,7 +1028,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
@@ -1124,13 +1138,13 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
             ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
-            if (extractor != null && extractor instanceof IMapExtractor)
+            if (extractor != null && extractor instanceof IMapExtractor && ((IMapExtractor)extractor).hasCollisionRatio())
             {
                 // run the query: collections by size
                 int[] objectIds = record.getObjectIds();
@@ -1281,7 +1295,7 @@ public class ComponentReportQuery implements IQuery
         ArrayInt instanceSet = new ArrayInt();
         SetInt referentSet = new SetInt();
 
-        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (ticks.isCanceled())
                 break;
