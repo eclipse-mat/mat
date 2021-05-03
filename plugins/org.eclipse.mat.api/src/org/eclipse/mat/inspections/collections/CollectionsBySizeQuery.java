@@ -72,10 +72,8 @@ import org.eclipse.mat.util.MessageUtil;
     "org.eclipse.mat.collect.QueueInt",
     "org.eclipse.mat.collect.ArrayInt",
     "org.eclipse.mat.collect.ArrayLong",
-    "org.eclipse.mat.collect.HashMapIntLong",
-    "org.eclipse.mat.collect.HashMapIntObject",
-    "org.eclipse.mat.collect.HashMapLongObject",
-    "org.eclipse.mat.collect.HashMapObjectLong",
+    "org.eclipse.mat.collect.ArrayIntBig",
+    "org.eclipse.mat.collect.ArrayLongBig",
 
     "java.util.AbstractMap",
     "java.util.jar.Attributes",
@@ -94,7 +92,11 @@ import org.eclipse.mat.util.MessageUtil;
     "javax.script.SimpleBindings",
     "javax.management.openmbean.TabularDataSupport",
     "com.ibm.jvm.util.HashMapRT",
-    "com.sap.engine.lib.util.AbstractDataStructure"
+    "com.sap.engine.lib.util.AbstractDataStructure",
+    "org.eclipse.mat.collect.HashMapIntLong",
+    "org.eclipse.mat.collect.HashMapIntObject",
+    "org.eclipse.mat.collect.HashMapLongObject",
+    "org.eclipse.mat.collect.HashMapObjectLong",
 })
 public class CollectionsBySizeQuery implements IQuery
 {

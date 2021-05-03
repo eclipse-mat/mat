@@ -8,8 +8,8 @@
 <meta name="DC.Title" content="Component Report"/>
 <meta name="abstract" content="Analyze a component for possible memory waste and other inefficiencies."/>
 <meta name="description" content="Analyze a component for possible memory waste and other inefficiencies."/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_inspections_component_report"/>
 <meta name="DC.Language" content="en-us"/>
@@ -114,10 +114,13 @@
 				<a class="xref" href="group_by_value.html" title="Group a set of objects by value.">groups</a>
 				the char arrays by their value. It lists all char arrays with 10 or
 				more instances with identical content.
+				Java 9 introduced compact strings, using byte arrays to represent
+				the string value. This section also includes those byte arrays which
+				are dominated by a string.
 			</p>
 
 			<div class="p">
-				The content of the char arrays typically gives away ideas how to
+				The content of the char (or byte) arrays typically gives away ideas how to
 				reduce the duplicates:
 				<ul class="ul">
 					<li class="li">
@@ -177,17 +180,121 @@
 				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
 					dominators</a>
 				command.
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__collectionsbysize">
+					Collections Grouped by Size</a> query.
 			</p>
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__colfillratio"><h2 class="title sectiontitle">Collection Fill Ratio</h2>
+		<div class="section" id="ref_inspections_component_report__colfillratio"><h2 class="title sectiontitle">Collection Fill Ratios</h2>
 			
 			<p class="p">Just like empty ones, collections with only a few elements
 				also take up a lot of memory. Again, the backing array of the
-				collection is the main culprit. The examination of the fill ratios
+				collection is the main culprit.
+			</p>
+
+			<p class="p">The examination of the fill ratios
 				using a heap dump from a production system gives hints to what
-				initial capacity to use.</p>
+				initial capacity to use.
+				To find out who is
+				responsible for the collections with only a few elements, use the
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+					dominators</a>
+				command.
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__collectionfillratio">
+					Collection Fill Ratio</a> query.
+			</p>
+
+		</div>
+
+		<div class="section" id="ref_inspections_component_report__emptyarray"><h2 class="title sectiontitle">Zero-Length Arrays</h2>
+			
+			<p class="p">Even if arrays have a zero length they stilly consume memory.
+			Arrays of length 1 might be replaced by a direct reference to the object,
+			depending on whether that part of the code never refers to bigger arrays
+			or whether some other code updates the contents of the array. 
+				</p>
+
+			<p class="p">
+				One remedy is the lazy initialization of the arrays: create the
+				array only when it is actually needed. 
+				Another remedy is to use a singleton empty array.
+				Consider if the objects need to be distinct
+				(perhaps used as keys into a hash map) before making the chane.
+				To find out who is
+				responsible for the zero-length arrays, use the
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+					dominators</a>
+				command.
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__arraybysize">
+					Arrays Grouped by Size</a> query.
+			</p>
+
+		</div>
+
+		<div class="section" id="ref_inspections_component_report__arrayfillratio"><h2 class="title sectiontitle">Array Fill Ratios</h2>
+			
+			<p class="p">Just like empty ones, arrays with only a few elements
+				also take up a lot of memory. The examination of the fill ratios
+				using a heap dump from a production system gives hints to what
+				size of array to use. The remedy depends on whether other code
+				refers to entries by index, in which case it might be possible
+				just to reallocate an array up to the last occupied index,
+				using for example <samp class="ph codeph">Arrays.copyOf()</samp>
+				or whether the code just walks through the array, and the array
+				could be replaced by a copy with just the non-null entries.</p>
+
+				<p class="p">
+				To find out who is
+				responsible for the arrays with many empty entries, use the
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+					dominators</a>
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__arrayfillratio">
+					Array Fill Ratio</a> query
+				</p>
+
+		</div>
+
+		<div class="section" id="ref_inspections_component_report__primitiveArrayConstValue"><h2 class="title sectiontitle">Primitive Arrays with a Constant Value</h2>
+			
+				<div class="p">Sometimes primitive arrays:
+					<ul class="ul">
+						<li class="li"><samp class="ph codeph">boolean[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">byte[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">char[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">short[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">int[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">float[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">long[]</samp></li>
+
+						<li class="li"><samp class="ph codeph">double[]</samp></li>
+
+					</ul>
+
+					has just a single value for all the entries.
+					This could be wasted space, and indicate the array is not needed yet.
+					If the entry is
+					the default value for the type
+					<samp class="ph codeph">0</samp>, <samp class="ph codeph">false</samp> or <samp class="ph codeph">nul</samp>
+					then perhaps the array has not been used yet.
+					If the array is a fixed non-default value then perhaps the array could be
+					replaced by a reference to that value.
+				</div>
+
+				<p class="p">
+				To find out who is
+				responsible for the arrays with many empty entries, use the
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+					dominators</a>
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__primitivearrayconstvalue">
+					Primitive Arrays with a Constant Value</a> query
+				</p>
 
 		</div>
 
@@ -336,7 +443,15 @@ Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also
 			<p class="p">High collision ratios can indicate sub-optimal hash codes.
 				This is not a memory problem (a better hash code does not save
 				space) but rather performance problem because of the linear access
-				inside the buckets.</p>
+				inside the buckets.
+				To find out who is
+				responsible for the collections with a poor collision ratio, use the
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+					dominators</a>
+				command.
+				See the <a class="xref" href="../../tasks/analyzingjavacollectionusage.html#task_analyzingjavacollectionusage__mapcollision">
+					Map Collision Ratio</a> query.
+			</p>
 
 		</div>
 

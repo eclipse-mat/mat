@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,16 +38,19 @@ public interface IMapExtractor extends ICollectionExtractor
     /**
      * Check if the extractor can calculate collision ratio
      * 
-     * @return
+     * @return true if @{@link #getCollisionRatio(IObject)} could be called
+     * @see #getCollisionRatio(IObject)
      */
     boolean hasCollisionRatio();
 
     /**
-     * Calculates the collision ratio in the collection
-     * 
+     * Calculates the collision ratio in the collection.
+     * Could be an estimate.
      * @param collection
+     *            - the collection to calculate the collision ratio of
      * @return Double number of elements with colliding keys / size
      * @throws SnapshotException
+     * @see #hasCollisionRatio()
      */
     Double getCollisionRatio(IObject collection) throws SnapshotException;
 

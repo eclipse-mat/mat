@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@
 			<table rowsep="1" colsep="1">
 				<tgroup cols="2">
 					<tbody>
-						<row>
+						<row id="arrayfillratio">
 							<entry>
 								<b><cmdname>Array Fill Ratio</cmdname> Query</b>
 							</entry>
@@ -47,14 +47,14 @@
 								have null values so this query works only on object arrays.
 							</entry>
 						</row>
-						<row>
+						<row id="arraybysize">
 							<entry>
 								<b><cmdname>Arrays Grouped by Size</cmdname> Query</b>
 							</entry>
 							<entry>Distribution histogram of given arrays grouped
 								by the size.</entry>
 						</row>
-						<row>
+						<row id="collectionfillratio">
 							<entry>
 								<b><cmdname>Collection Fill Ratio</cmdname> Query</b>
 							</entry>
@@ -207,7 +207,7 @@
 									'array_attribute' argument.</p>
 							</entry>
 						</row>
-						<row>
+						<row id="collectionsbysize">
 							<entry>
 								<b><cmdname>Collections Grouped By Size</cmdname> Query</b>
 							</entry>
@@ -436,7 +436,7 @@
 								<p>Lists elements of a single HashSet.</p>
 							</entry>
 						</row>
-						<row>
+						<row id="mapcollision">
 							<entry>
 								<b><cmdname>Map Collision Ratio</cmdname> Query</b>
 							</entry>
@@ -523,13 +523,14 @@
 									'array_attribute' argument.</p>
 							</entry>
 						</row>
-						<row>
+						<row id="primitivearrayconstvalue">
 							<entry>
 								<b><cmdname>Primitive Arrays with a Constant Value</cmdname> Query</b>
 							</entry>
 							<entry>
-								Lists all primitive arrays (from a selection) which are filled with one and the
-								same value
+								Lists a summary of all primitive arrays (from a selection) which are filled with one and the
+								same value.
+								Arrays with the same length and constant value are grouped together.
 							</entry>							
 						</row>
 					</tbody>

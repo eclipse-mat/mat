@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,58 +29,63 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 public interface ICollectionExtractor
 {
     /**
-     * Check if the size of the collection can be extracted
-     * 
-     * @return
+     * Check if the size of the collection can be extracted.
+     * @return true if {@link #getSize(IObject)} could be called
+     * @see {@link #getSize(IObject)}
      */
     boolean hasSize();
 
     /**
-     * Extract the size of the collection
-     * 
+     * Extract the size of the collection.
      * @param collection
-     * @return
+     *            - the collection to find the size of
+     * @return the size, or null if not available
      * @throws SnapshotException
+     * @see #hasSize()
      */
     Integer getSize(IObject collection) throws SnapshotException;
 
     /**
      * Check if the collection has capacity, e.g. ArrayList
-     * 
-     * @return
+     * @return true if {@link #getCapacity(IObject)} could be called
+     * @see {@link #getCapacity(IObject)}
      */
     boolean hasCapacity();
 
     /**
      * Return the capacity of the collection, if applicable
-     * 
      * @param collection
-     * @return
+     *            - the collection to find the capacity of
+     * @return the capacity in bytes, or null if unavailable
      * @throws SnapshotException
+     * @see #hasCapacity()
      */
     Integer getCapacity(IObject collection) throws SnapshotException;
 
     /**
      * Check if fill ratio for the collection can be calculated, i.e. if it has
-     * some predefined capacity and actual size
-     * 
-     * @return
+     * some predefined capacity and actual size.
+     * @return true if {@link #getFillRatio(IObject)} could be called
+     * @see #getFillRatio(IObject)
      */
     boolean hasFillRatio();
 
     /**
-     * Calculate the fill ration of a collection
+     * Calculate the fill ratio of a collection
      * 
      * @param collection
-     * @return
+     *            - the collection to find the fill ratio of
+     * @return the fill ratio, between 0.0 and 1.0, or null if unavailable
      * @throws SnapshotException
+     * @see #hasFillRatio()
      */
     Double getFillRatio(IObject collection) throws SnapshotException;
 
     /**
      * Check if the collection has extractable contents
      * 
-     * @return
+     * @return true if {@link #extractEntryIds(IObject)} could be called
+     * @see #extractEntryIds(IObject)
      */
     boolean hasExtractableContents();
 
@@ -89,16 +94,18 @@ public interface ICollectionExtractor
      * collection
      * 
      * @param collection
-     * @return
+     *            - the collection to find the objects it holds
+     * @return an array of ints which are the object ids.
      * @throws SnapshotException
+     * @see #hasExtractableContents()
      */
     int[] extractEntryIds(IObject collection) throws SnapshotException;
 
     /**
      * Return true if the collection array based and the array can be extracted
      * from the heap dump
-     * 
-     * @return
+     * @return true if {@link #extractEntries(IObject)} could be called
+     * @see #extractEntries(IObject)
      */
     boolean hasExtractableArray();
 
@@ -106,8 +113,10 @@ public interface ICollectionExtractor
      * Extracts the array containing the collection content
      * 
      * @param collection
-     * @return
+     *            - the collection to find the object array holding its contents
+     * @return the backing array for the collection
      * @throws SnapshotException
+     * @see {@link #hasExtractableArray()}
      */
     IObjectArray extractEntries(IObject collection) throws SnapshotException;
 
@@ -116,8 +125,11 @@ public interface ICollectionExtractor
      * hasExtractableContents or hasExtractableArray
      * 
      * @param collection
-     * @return
+     *            - the collection to find the number of non-null content objects
+     * @return the number of non-null elements, or null if not available
      * @throws SnapshotException
+     * @see #hasExtractableContents() 
+     * @see #hasExtractableArray()
      */
     Integer getNumberOfNotNullElements(IObject collection) throws SnapshotException;
 }
