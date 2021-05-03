@@ -66,6 +66,8 @@ import org.eclipse.mat.util.IProgressListener;
     "org.eclipse.mat.collect.HashMapIntObject",
     "org.eclipse.mat.collect.HashMapLongObject",
     "org.eclipse.mat.collect.HashMapObjectLong",
+    "org.eclipse.mat.collect.ArrayIntBig",
+    "org.eclipse.mat.collect.ArrayLongBig",
 
     "java.util.AbstractMap",
     "java.util.jar.Attributes",

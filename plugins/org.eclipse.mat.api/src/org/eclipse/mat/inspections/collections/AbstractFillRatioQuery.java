@@ -16,7 +16,9 @@ package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.collect.ArrayLongBig;
 import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
@@ -100,6 +102,10 @@ public class AbstractFillRatioQuery
                                         refsize2 = 9 + refsize;
                                     else if (obj.getClazz().getName().equals(HashMapObjectLong.class.getName()))
                                         refsize2 = 9 + refsize;
+                                    else if (obj.getClazz().getName().equals(ArrayIntBig.class.getName()))
+                                        refsize2 = 4;
+                                    else if (obj.getClazz().getName().equals(ArrayLongBig.class.getName()))
+                                        refsize2 = 8;
                                     else
                                         refsize2 = refsize;
                                     wasted = (long)(c * refsize2 * (1 - fillRatio));

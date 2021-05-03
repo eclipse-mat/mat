@@ -30,7 +30,7 @@
 			
 <div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
 					<tbody class="tbody">
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__arrayfillratio" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Array Fill Ratio</span> Query</strong>
 							</td>
@@ -44,7 +44,7 @@
 
 						</tr>
 
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__arraybysize" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Arrays Grouped by Size</span> Query</strong>
 							</td>
@@ -54,7 +54,7 @@
 
 						</tr>
 
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__collectionfillratio" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Collection Fill Ratio</span> Query</strong>
 							</td>
@@ -305,7 +305,7 @@
 
 						</tr>
 
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__collectionsbysize" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Collections Grouped By Size</span> Query</strong>
 							</td>
@@ -676,7 +676,7 @@
 
 						</tr>
 
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__mapcollision" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Map Collision Ratio</span> Query</strong>
 							</td>
@@ -817,14 +817,15 @@
 
 						</tr>
 
-						<tr class="row">
+						<tr id="task_analyzingjavacollectionusage__primitivearrayconstvalue" class="row">
 							<td class="entry" valign="top">
 								<strong class="ph b"><span class="keyword cmdname">Primitive Arrays with a Constant Value</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
-								Lists all primitive arrays (from a selection) which are filled with one and the
-								same value
+								Lists a summary of all primitive arrays (from a selection) which are filled with one and the
+								same value.
+								Arrays with the same length and constant value are grouped together.
 							</td>
 							
 						</tr>

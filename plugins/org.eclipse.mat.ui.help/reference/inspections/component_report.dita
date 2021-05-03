@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <!--
-    Copyright (c) 2008, 2020 SAP AG and others.
+    Copyright (c) 2008, 2021 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -110,9 +110,12 @@
 				<xref href="group_by_value.dita" scope="local">groups</xref>
 				the char arrays by their value. It lists all char arrays with 10 or
 				more instances with identical content.
+				Java 9 introduced compact strings, using byte arrays to represent
+				the string value. This section also includes those byte arrays which
+				are dominated by a string.
 			</p>
 			<p>
-				The content of the char arrays typically gives away ideas how to
+				The content of the char (or byte) arrays typically gives away ideas how to
 				reduce the duplicates:
 				<ul>
 					<li>
@@ -166,15 +169,105 @@
 				<xref href="immediate_dominators.dita" scope="local">immediate
 					dominators</xref>
 				command.
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/collectionsbysize" scope="local">
+					Collections Grouped by Size</xref> query.
 			</p>
 		</section>
 		<section id="colfillratio">
-			<title>Collection Fill Ratio</title>
+			<title>Collection Fill Ratios</title>
 			<p>Just like empty ones, collections with only a few elements
 				also take up a lot of memory. Again, the backing array of the
-				collection is the main culprit. The examination of the fill ratios
+				collection is the main culprit.
+			</p>
+			<p>The examination of the fill ratios
 				using a heap dump from a production system gives hints to what
-				initial capacity to use.</p>
+				initial capacity to use.
+				To find out who is
+				responsible for the collections with only a few elements, use the
+				<xref href="immediate_dominators.dita" scope="local">immediate
+					dominators</xref>
+				command.
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/collectionfillratio" scope="local">
+					Collection Fill Ratio</xref> query.
+			</p>
+		</section>
+		<section id="emptyarray">
+			<title>Zero-Length Arrays</title>
+			<p>Even if arrays have a zero length they stilly consume memory.
+			Arrays of length 1 might be replaced by a direct reference to the object,
+			depending on whether that part of the code never refers to bigger arrays
+			or whether some other code updates the contents of the array. 
+				</p>
+			<p>
+				One remedy is the lazy initialization of the arrays: create the
+				array only when it is actually needed. 
+				Another remedy is to use a singleton empty array.
+				Consider if the objects need to be distinct
+				(perhaps used as keys into a hash map) before making the chane.
+				To find out who is
+				responsible for the zero-length arrays, use the
+				<xref href="immediate_dominators.dita" scope="local">immediate
+					dominators</xref>
+				command.
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/arraybysize" scope="local">
+					Arrays Grouped by Size</xref> query.
+			</p>
+		</section>
+		<section id="arrayfillratio">
+			<title>Array Fill Ratios</title>
+			<p>Just like empty ones, arrays with only a few elements
+				also take up a lot of memory. The examination of the fill ratios
+				using a heap dump from a production system gives hints to what
+				size of array to use. The remedy depends on whether other code
+				refers to entries by index, in which case it might be possible
+				just to reallocate an array up to the last occupied index,
+				using for example <codeph>Arrays.copyOf()</codeph>
+				or whether the code just walks through the array, and the array
+				could be replaced by a copy with just the non-null entries.</p>
+				<p>
+				To find out who is
+				responsible for the arrays with many empty entries, use the
+				<xref href="immediate_dominators.dita" scope="local">immediate
+					dominators</xref>
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/arrayfillratio" scope="local">
+					Array Fill Ratio</xref> query
+				</p>
+		</section>
+		<section id="primitiveArrayConstValue">
+			<title>Primitive Arrays with a Constant Value</title>
+				<p>Sometimes primitive arrays:
+					<ul>
+						<li><codeph>boolean[]</codeph></li>
+						<li><codeph>byte[]</codeph></li>
+						<li><codeph>char[]</codeph></li>
+						<li><codeph>short[]</codeph></li>
+						<li><codeph>int[]</codeph></li>
+						<li><codeph>float[]</codeph></li>
+						<li><codeph>long[]</codeph></li>
+						<li><codeph>double[]</codeph></li>
+					</ul>
+					has just a single value for all the entries.
+					This could be wasted space, and indicate the array is not needed yet.
+					If the entry is
+					the default value for the type
+					<codeph>0</codeph>, <codeph>false</codeph> or <codeph>nul</codeph>
+					then perhaps the array has not been used yet.
+					If the array is a fixed non-default value then perhaps the array could be
+					replaced by a reference to that value.
+				</p>
+				<p>
+				To find out who is
+				responsible for the arrays with many empty entries, use the
+				<xref href="immediate_dominators.dita" scope="local">immediate
+					dominators</xref>
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/primitivearrayconstvalue" scope="local">
+					Primitive Arrays with a Constant Value</xref> query
+				</p>
 		</section>
 		<section id="softref">
 			<title>Soft Reference Statistics</title>
@@ -295,7 +388,16 @@ Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also
 			<p>High collision ratios can indicate sub-optimal hash codes.
 				This is not a memory problem (a better hash code does not save
 				space) but rather performance problem because of the linear access
-				inside the buckets.</p>
+				inside the buckets.
+				To find out who is
+				responsible for the collections with a poor collision ratio, use the
+				<xref href="immediate_dominators.dita" scope="local">immediate
+					dominators</xref>
+				command.
+				See the <xref 
+					href="../../tasks/analyzingjavacollectionusage.dita#task_analyzingjavacollectionusage/mapcollision" scope="local">
+					Map Collision Ratio</xref> query.
+			</p>
 		</section>
 	</refbody>
 </reference>

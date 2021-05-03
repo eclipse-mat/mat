@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -122,7 +123,7 @@ public class ComponentReportQuery implements IQuery
 
         try
         {
-            addDuplicateStrings(possibleWaste, histogram, ticks);
+            addDuplicateStrings(possibleWaste, totalSize, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
@@ -476,21 +477,57 @@ public class ComponentReportQuery implements IQuery
         return l;
     }
 
-    private void addDuplicateStrings(SectionSpec componentReport, Histogram histogram, Ticks listener) throws Exception
+    private void addDuplicateStrings(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
+        // We do some random sampling, but make it reproducible
+        Random random = null;
+        SectionSpec duplicateStrings = new SectionSpec(Messages.ComponentReportQuery_DuplicateStrings);
+        StringBuilder comment = new StringBuilder();
+        boolean commentWarn = false;
+        SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
+        detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+
         for (ClassHistogramRecord record : sorted(histogram.getClassHistogramRecords()))
         {
             if (listener.isCanceled())
                 break;
-            if (!"char[]".equals(record.getLabel())) //$NON-NLS-1$
+            if (!"char[]".equals(record.getLabel()) //$NON-NLS-1$
+                && !"byte[]".equals(record.getLabel())) //$NON-NLS-1$
                 continue;
-
             int[] objectIds = record.getObjectIds();
-            if (objectIds.length > 100000)
+            // Also allow Java 9 strings
+            if ("byte[]".equals(record.getLabel())) //$NON-NLS-1$
             {
-                int[] copy = new int[100000];
-                System.arraycopy(objectIds, 0, copy, 0, copy.length);
+                ArrayInt ai = new ArrayInt();
+                for (int i = 0; i < objectIds.length; ++i)
+                {
+                    int parent = snapshot.getImmediateDominatorId(objectIds[i]);
+                    if (parent >= 0 && snapshot.getClassOf(parent).getName().equals("java.lang.String")) //$NON-NLS-1$
+                        ai.add(objectIds[i]);
+                }
+                // Check if not Java 9 strings
+                if (ai.isEmpty())
+                    continue;
+                objectIds = ai.toArray();
+            }
+            long threshold = totalSize / 20;
+            final int LIMIT = 100;
+            if (objectIds.length > LIMIT)
+            {
+                // We do some random sampling, but make it reproducible
+                if (random == null)
+                    random = new Random(snapshot.getSnapshotInfo().getUsedHeapSize());
+                int[] copy = new int[LIMIT];
+                for (int i = 0, j = 0; i < objectIds.length; ++i)
+                {
+                    if (random.nextInt(objectIds.length - i) < LIMIT - j)
+                    {
+                        copy[j++] = objectIds[i];
+                    }
+                }
+                // If we only sample a few, make the threshold smaller
+                threshold = threshold * copy.length / objectIds.length * copy.length / objectIds.length;
                 objectIds = copy;
             }
 
@@ -498,14 +535,14 @@ public class ComponentReportQuery implements IQuery
                             .setArgument("objects", objectIds) //$NON-NLS-1$
                             .refine(listener);
 
-            builder.setFilter(1, ">=10"); //$NON-NLS-1$
+            int dupcount = 10;
+            builder.setFilter(1, ">=" + dupcount); //$NON-NLS-1$
             builder.setInlineRetainedSizeCalculation(true);
             RefinedTable table = (RefinedTable) builder.build();
             TotalsRow totals = new TotalsRow();
             table.calculateTotals(table.getRows(), totals, listener);
 
-            StringBuilder comment = new StringBuilder();
-
+            boolean foundStrings = false;
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
                 Object row = table.getRow(rowId);
@@ -513,12 +550,13 @@ public class ComponentReportQuery implements IQuery
                 if (value.length() > 50)
                     value = value.substring(0, 50) + "..."; //$NON-NLS-1$
 
-                String size = table.getFormattedColumnValue(row, 3);
+                String size = table.getFormattedColumnValue(row, 2);
 
-                if (comment.length() == 0)
+                if (!foundStrings)
                 {
+                    foundStrings = true;
                     comment.append(HTMLUtils.escapeText(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
-                                    totals.getLabel(2))));
+                                    totals.getLabel(2), record.getLabel(), dupcount)));
                     comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul title=\"") //$NON-NLS-1$ //$NON-NLS-2$
                                     .append(escapeHTMLAttribute(Messages.ComponentReportQuery_TopElementsInclude))
                                     .append("\">"); //$NON-NLS-1$
@@ -528,37 +566,50 @@ public class ComponentReportQuery implements IQuery
                 comment.append(" &times; <strong>").append(HTMLUtils.escapeText(value)).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
                 comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
-            boolean warn = comment.length() != 0;
-            if (warn)
+            if (foundStrings)
                 comment.append("</ul>"); //$NON-NLS-1$
-            else
-                comment.append(Messages.ComponentReportQuery_NoExcessiveDuplicateStrings);
 
-            // build result
-            SectionSpec duplicateStrings = new SectionSpec(Messages.ComponentReportQuery_DuplicateStrings);
-            if (warn)
-                duplicateStrings.setStatus(ITestResult.Status.WARNING);
-            componentReport.add(duplicateStrings);
+            long bigwasted = 0;
+            for (int rowId = 0; rowId < table.getRowCount(); rowId++)
+            {
+                Object row = table.getRow(rowId);
+                long sizel = Math.abs((Long) table.getColumnValue(row, 4));
+                bigwasted += sizel;
+            }
+            // Only emphasize if a lot of space is wasted
+            boolean warn = bigwasted > threshold;
+            commentWarn |= warn;
 
-            QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
-                            true));
-            spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
-            if (warn)
-                spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
-            duplicateStrings.add(spec);
-
-            spec = new QuerySpec(Messages.ComponentReportQuery_Histogram);
+            QuerySpec spec = new QuerySpec(record.getLabel());
             if (warn)
                 spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
             spec.setResult(table);
             IObject o = snapshot.getObject(record.getClassId());
             if (o instanceof IClass)
                 addCommand(spec, "group_by_value", objectIds, (IClass)o); //$NON-NLS-1$
-            duplicateStrings.add(spec);
-
-            listener.tick();
-            break;
+            detailsSpec.add(spec);
+            // Continue for byte[] and char[]
         }
+
+        if (detailsSpec.getChildren().isEmpty())
+            return;
+
+        if (comment.length() == 0)
+            comment.append(Messages.ComponentReportQuery_NoExcessiveDuplicateStrings);
+
+        // build result
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
+        spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        if (commentWarn)
+        {
+            spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+            duplicateStrings.setStatus(ITestResult.Status.WARNING);
+        }
+        duplicateStrings.add(spec);
+        duplicateStrings.add(detailsSpec);
+        componentReport.add(duplicateStrings);
+        listener.tick();
     }
 
     // //////////////////////////////////////////////////////////////

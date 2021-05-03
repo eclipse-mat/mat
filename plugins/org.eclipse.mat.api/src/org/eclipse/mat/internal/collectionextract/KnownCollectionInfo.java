@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.collect.ArrayLongBig;
 import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
@@ -283,6 +285,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo(HashMapIntObject.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo(HashMapLongObject.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo(HashMapObjectLong.class.getName(), new FieldSizedCapacityMapExtractor("size", "used", "limit")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo(ArrayIntBig.class.getName(), new MATArrayBig("length", "pages")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo(ArrayLongBig.class.getName(), new MATArrayBig("length", "pages")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // usually shouldn't match
                     new CollectionExtractionInfo("java.util.AbstractList", new NoContentCollectionExtractor()), //$NON-NLS-1$
