@@ -60,11 +60,6 @@
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 							<requirement>
-								<type>eclipse-plugin</type>
-								<id>org.eclipse.birt.chart.device.swt</id>
-								<versionRange>2.3.0</versionRange>
-							</requirement>
-							<requirement>
 								<type>p2-installable-unit</type>
 								<id>com.ibm.dtfj.feature.feature.group</id>
 								<versionRange>0.0.0</versionRange>
