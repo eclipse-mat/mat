@@ -704,6 +704,8 @@ public class GeneralSnapshotTests
     {
         Map<File, String> seen = new HashMap<File, String>();
         checkHTMLFile(f, seen);
+        seen.clear();
+        seen = null;
     }
 
     /**
@@ -1014,7 +1016,11 @@ public class GeneralSnapshotTests
                         try
                         {
                             r = q.execute(new CheckedProgressListener(collector));
-                            if ((cmdname.equals("system_properties") || cmdname.equals("thread_overview")|| cmdname.equals("finalizer_thread"))
+                            if ((cmdname.equals("system_properties") 
+                                            || cmdname.equals("thread_overview")
+                                            || cmdname.equals("finalizer_thread")
+                                            || cmdname.equals("path2gc_reg_test")
+                                            )
                                             && (snapshot.getSnapshotInfo().getProperty("$heapFormat").equals("DTFJ-PHD")
                                                             || snapshot.getSnapshotInfo().getProperty("$heapFormat")
                                                             .equals("DTFJ-Javacore")))
@@ -1042,13 +1048,16 @@ public class GeneralSnapshotTests
                         }
                         catch (SnapshotException e)
                         {
-                            if (cmdname.equals("unreachable_objects") && snapshot.getSnapshotAddons(UnreachableObjectsHistogram.class) == null)
+                            if (cmdname.equals("unreachable_objects")
+                                            && snapshot.getSnapshotAddons(UnreachableObjectsHistogram.class) == null
+                                            || snapshot.getSnapshotInfo().getProperty("$heapFormat")
+                                                            .equals("DTFJ-Javacore"))
                             {
                                 // This is an acceptable exception
                             }
                             else
                             {
-                                throw e;
+                                throw new SnapshotException(t, e);
                             }
                         }
                     }
