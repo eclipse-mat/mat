@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - handle missing HashMap
  *******************************************************************************/
 package org.eclipse.mat.tests.regression.query;
 
@@ -37,8 +38,11 @@ import org.eclipse.mat.util.IProgressListener;
 public class Paths2GCRootsRegTest extends Path2GCRootsQuery
 {
     // other arguments are the same as in superclass
-    @Argument(isMandatory = false)
-    public int numberOfPaths = 100;
+    public Paths2GCRootsRegTest()
+    {
+        // change the default
+        numberOfPaths = 100;
+    }
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -47,6 +51,9 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
                         .refine(listener);
         builder.setSortOrder(0, Column.SortDirection.ASC);
         IResultTree tree = (IResultTree) builder.build();
+        // Javacore can't do this
+        if (tree.getElements().size() == 0)
+            return null;
         object = tree.getContext(tree.getElements().get(0)).getObjectId();
 
         // convert excludes into the required format

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.query.results.CompositeResult;
+import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.Params;
@@ -112,7 +113,7 @@ public class QueryPart extends AbstractPart
 
                     ReportPlugin.log(e, MessageUtil.format(Messages.QueryPart_Error_IgnoringResult, spec().getName(),
                                     msg));
-                    return this;
+                    result = new TextResult(e.getLocalizedMessage());
                 }
             }
         }
@@ -159,9 +160,10 @@ public class QueryPart extends AbstractPart
             RefinedResultBuilder builder = new RefinedResultBuilder(context, (IResultTree) result);
             readParamsAndProcess(renderer, context, result, builder);
         }
-        else if (result instanceof IResultPie && Platform.getBundle("org.eclipse.mat.chart.ui") == null) //$NON-NLS-1$
+        else if (result instanceof IResultPie && Platform.getBundle("org.eclipse.mat.chart") == null) //$NON-NLS-1$
         {
             // do not render the result if pie charts are not available
+            // only need BIRT charts, not SWT integration
         }
         else
         {

@@ -542,7 +542,7 @@ public class ResultRenderer
             while (page == null)
                 page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
 
-            PageSnippets.beginLink(toc, page.getRelativePathName() + "#" + part.getId());
+            PageSnippets.beginLink(toc, page.getRelativePathName(), part);
             toc.append(HTMLUtils.escapeText(part.spec().getName()));
             PageSnippets.endLink(toc);
 

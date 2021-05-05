@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.eclipse.mat.tests.collect.ExtractCollectionEntriesBase.matchesPattern;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.either;
@@ -47,9 +48,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,9 +67,11 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
+import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -699,7 +702,7 @@ public class GeneralSnapshotTests
      */
     public void checkHTMLFile(File f) throws IOException, SnapshotException
     {
-        Set<File>seen = new HashSet<File>();
+        Map<File, String> seen = new HashMap<File, String>();
         checkHTMLFile(f, seen);
     }
 
@@ -710,230 +713,311 @@ public class GeneralSnapshotTests
      * @param seen Files already seen
      * @throws IOException
      */
-    public void checkHTMLFile(File f, Set<File>seen) throws IOException, SnapshotException
+    public void checkHTMLFile(File f, Map<File, String>seen) throws IOException, SnapshotException
+    {
+        checkHTMLFile(f, seen, null, null);
+    }
+
+    /**
+     * Recursively check an HTML file, avoiding going
+     * into files already seen.
+     * @param f
+     * @param seen Files already seen
+     * @param anchor the fragment for web page
+     * @param the referer, for better error messages
+     * @throws IOException
+     */
+    public void checkHTMLFile(File f, Map<File, String>seen, String anchor, File referer) throws IOException, SnapshotException
     {
         // canonical needed to avoid problems with ..
-        if (!seen.add(f.getCanonicalFile()))
+        File canonfile = f.getCanonicalFile();
+        boolean seenFile = seen.containsKey(canonfile);
+        if (seenFile && (anchor == null || seen.containsKey(new File(canonfile.getPath() + "#" + anchor))))
             return;
-        FileInputStream fis = new FileInputStream(f);
-        try 
+        String s = seen.get(canonfile);
+        String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (s == null)
         {
-            if (!f.getName().endsWith(".html") 
-                            && !f.getName().endsWith(".csv")
-                            && !f.getName().endsWith(".txt"))
+            FileInputStream fis = new FileInputStream(f);
+            try 
             {
-                // Not HTML or CSV or text
-                return;
-            }
-            String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-            try
-            {
-                // Convert to canonical form
-                encoding = Charset.forName(encoding).name();
-            }
-            catch (IllegalCharsetNameException e)
-            {
-                // Ignore
-            }
-            // Read the file into a string
-            InputStreamReader ir = new InputStreamReader(fis, encoding);
-            char cbuf[] = new char[(int)f.length()];
-            int l = ir.read(cbuf);
-            String s = new String(cbuf, 0, l);
-            // An empty result with a filename ending .csv might be forced into HTML type
-            if (f.getName().endsWith(".csv") && !s.startsWith("<!DOCTYPE HTML PUBLIC"))
-            {
-                checkCSV(f, s);
-                return;
-            }
-            if (f.getName().endsWith(".txt"))
-            {
-                checkTXT(f, s);
-                return;
-            }
-
-            /*
-             *  All these checks are approximate and would be confused
-             *  by false tags in attribute value string etc.
-             */
-
-            // Some basic checks
-            assertThat(f + " Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
-            assertThat(f + " Possible double escaping <", s, not(containsString("&amp;lt;")));
-            assertThat(f + " Possible double escaping &", s, not(containsString("&amp;amp;")));
-
-            /*
-             * Rough test for bad tag - might indicate unescaped '<'.
-             * Find a less-than sign
-             *  Negative lookahead for:
-             *   optional / or !
-             *   series of letters
-             *   then optional digits
-             *   ending with a space or greater-than
-             *   or !DOCTYPE
-             *  then match all until next space or greater-than
-             * We normally have lower case tags and no self-closed tags.
-             */
-            Pattern p = Pattern.compile("<(?!(/?[a-z]+[0-9]*)[ >]|!DOCTYPE )[^ >]*");
-            Matcher m = p.matcher(s);
-            String v;
-            if (m.find())
-            {
-                v = m.group(0);
-            }
-            else
-            {
-                v = null;
-            }
-            assertThat("Bad tag in "+f, v, equalTo(null));
-
-            /*
-             * Rough test for bad entity or unescaped ampersand.
-             * Negative lookahead for
-             * entity name followed by semicolon
-             * entity number preceded by # followed by semicolon 
-             */
-            p = Pattern.compile("&(?!([a-z]+;)|(#[0-9]+;))[^a-z#]+");
-            m = p.matcher(s);
-            if (m.find())
-            {
-                v = m.group(0);
-            }
-            else
-            {
-                v = null;
-            }
-            assertThat("Bad entity in "+f, v, equalTo(null));
-
-            /*
-             * Check for alt text for images.
-             */
-            p = Pattern.compile("<img (?![^>]*alt)[^>]*>");
-            m = p.matcher(s);
-            if (m.find())
-            {
-                v = m.group(0);
-            }
-            else
-            {
-                v = null;
-            }
-            assertThat("No alt for img in "+f, v, equalTo(null));
-
-            /*
-             * Check for alt text for areas.
-             */
-            p = Pattern.compile("<area (?![^>]*alt)[^>]*>");
-            m = p.matcher(s);
-            if (m.find())
-            {
-                v = m.group(0);
-            }
-            else
-            {
-                v = null;
-            }
-            assertThat("No alt for area in "+f, v, equalTo(null));
-
-            /*
-             * Rough check for nesting of tags.
-             */
-            Stack<String> stk = new Stack<String>();
-            Stack<Integer> stki = new Stack<Integer>();
-            // Matches tags
-            p = Pattern.compile("</?[a-z]+[1-6]?");
-            m = p.matcher(s);
-            while (m.find())
-            {
-                String tag = m.group().substring(1);
-                if (tag.startsWith("/"))
+                if (!f.getName().endsWith(".html") 
+                                && !f.getName().endsWith(".csv")
+                                && !f.getName().endsWith(".txt"))
                 {
-                    // Closing tag
+                    // Not HTML or CSV or text
+                    return;
+                }
+                try
+                {
+                    // Convert to canonical form
+                    encoding = Charset.forName(encoding).name();
+                }
+                catch (IllegalCharsetNameException e)
+                {
+                    // Ignore
+                }
+                // Read the file into a string
+                InputStreamReader ir = new InputStreamReader(fis, encoding);
+                char cbuf[] = new char[(int)f.length()];
+                int l = ir.read(cbuf);
+                s = new String(cbuf, 0, l);
+                // Cached version for anchor checks
+                seen.put(canonfile, s);
+                ir.close();
+            }
+            finally
+            {
+                fis.close();
+            }
+        }
+        // An empty result with a filename ending .csv might be forced into HTML type
+        if (f.getName().endsWith(".csv") && !s.startsWith("<!DOCTYPE HTML PUBLIC"))
+        {
+            checkCSV(f, s);
+            return;
+        }
+        if (f.getName().endsWith(".txt"))
+        {
+            checkTXT(f, s);
+            return;
+        }
+
+        /*
+         *  All these checks are approximate and would be confused
+         *  by false tags in attribute value string etc.
+         */
+        if (anchor != null)
+        {
+            if (anchor.length() > 0)
+            {
+                // The fragment should exist as an id or name
+                Pattern p = Pattern.compile(" (id|name)=\"" + Pattern.quote(anchor) + "\"");
+                Matcher m = p.matcher(s);
+                String v;
+                int id = 0;
+                int name = 0;
+                while (m.find())
+                {
+                    if ("id".equals(m.group(1)))
+                        ++id;
+                    else if ("name".equals(m.group(1)))
+                        ++name;
+                }
+                if (id == 0 && name > 0)
+                    id = 1;
+                assertThat(f + " from " + referer + " Expected anchor "+ anchor + " to occur once: " + s, id, equalTo(1));
+            }
+            seen.put(new File(canonfile.getPath() + "#" + anchor), s);
+            if (seenFile)
+            {
+                return;
+            }
+        }
+
+        // Some basic checks
+        assertThat(f + " Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
+        assertThat(f + " Possible double escaping <", s, not(containsString("&amp;lt;")));
+        assertThat(f + " Possible double escaping &", s, not(containsString("&amp;amp;")));
+
+        /*
+         * Rough test for bad tag - might indicate unescaped '<'.
+         * Find a less-than sign
+         *  Negative lookahead for:
+         *   optional / or !
+         *   series of letters
+         *   then optional digits
+         *   ending with a space or greater-than
+         *   or !DOCTYPE
+         *  then match all until next space or greater-than
+         * We normally have lower case tags and no self-closed tags.
+         */
+        Pattern p = Pattern.compile("<(?!(/?[a-z]+[0-9]*)[ >]|!DOCTYPE )[^ >]*");
+        Matcher m = p.matcher(s);
+        String v;
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("Bad tag in "+f, v, equalTo(null));
+
+        /*
+         * Rough test for bad entity or unescaped ampersand.
+         * Negative lookahead for
+         * entity name followed by semicolon
+         * entity number preceded by # followed by semicolon 
+         */
+        p = Pattern.compile("&(?!([a-z]+;)|(#[0-9]+;))[^a-z#]+");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("Bad entity in "+f, v, equalTo(null));
+
+        /*
+         * Check for alt text for images.
+         */
+        p = Pattern.compile("<img (?![^>]*alt)[^>]*>");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("No alt for img in "+f, v, equalTo(null));
+
+        /*
+         * Check for alt text for areas.
+         */
+        p = Pattern.compile("<area (?![^>]*alt)[^>]*>");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("No alt for area in "+f, v, equalTo(null));
+
+        /*
+         * Check for id attribute in elements
+         */
+        p = Pattern.compile("<([a-zA-Z][a-zA-Z0-9]+) id=\"([^\"]*)\"");
+        m = p.matcher(s);
+        while (m.find())
+        {
+            String elem = m.group(1);
+            v = m.group(2);
+            assertThat("Invalid id in "+f+" for "+elem, v, matchesPattern("[a-zA-Z][a-zA-Z0-9:._-]+"));
+        }
+
+        /*
+         * Rough check for nesting of tags.
+         */
+        Stack<String> stk = new Stack<String>();
+        Stack<Integer> stki = new Stack<Integer>();
+        // Matches tags
+        p = Pattern.compile("</?[a-zA-Z]+[1-6]?");
+        m = p.matcher(s);
+        while (m.find())
+        {
+            String tag = m.group().substring(1);
+            if (tag.startsWith("/"))
+            {
+                // Closing tag
+                assertThat("Stack for "+tag, stk.size(), greaterThan(0));
+                tag = tag.substring(1);
+                String tag2 = stk.pop();
+                int si = stki.pop();
+                if (tag2.equals("p") && !tag.equals("a") && !tag.equals("p"))
+                {
+                    // <p> closed by any outer tag except <a>
+                    tag2 = stk.pop();
+                    si = stki.pop();
                     assertThat("Stack for "+tag, stk.size(), greaterThan(0));
-                    tag = tag.substring(1);
-                    String tag2 = stk.pop();
-                    int si = stki.pop();
-                    if (tag2.equals("p") && !tag.equals("a") && !tag.equals("p"))
-                    {
-                        // <p> closed by any outer tag except <a>
-                        tag2 = stk.pop();
-                        si = stki.pop();
-                        assertThat("Stack for "+tag, stk.size(), greaterThan(0));
-                    }
-                    String range = s.substring(si, m.end());
-                    assertThat("Tag closing at " + m.start()+" "+range+" "+f, tag, equalTo(tag2));
                 }
-                else
+                String range = s.substring(si, m.end());
+                assertThat("Tag closing at " + m.start()+" "+range+" "+f, tag, equalTo(tag2));
+            }
+            else
+            {
+                // Self closing tag?
+                if (!(tag.equals("br") 
+                                || tag.equals("hr")
+                                || tag.equals("img")
+                                || tag.equals("link")
+                                || tag.equals("input")
+                                || tag.equals("meta")
+                                || tag.equals("area")))
                 {
-                    // Self closing tag?
-                    if (!(tag.equals("br") 
-                                    || tag.equals("hr")
-                                    || tag.equals("img")
-                                    || tag.equals("link")
-                                    || tag.equals("input")
-                                    || tag.equals("meta")
-                                    || tag.equals("area")))
+                    // <p> is closed by following block tag
+                    if (stk.size() >= 1 && stk.peek().equals("p") && (
+                                    tag.equals("h1") ||
+                                    tag.equals("h2") ||
+                                    tag.equals("h3") ||
+                                    tag.equals("h4") ||
+                                    tag.equals("h5") ||
+                                    tag.equals("h6") ||
+                                    tag.equals("pre") ||
+                                    tag.equals("ol") ||
+                                    tag.equals("ul") ||
+                                    tag.equals("div")))
                     {
-                        // <p> is closed by following block tag
-                        if (stk.size() >= 1 && stk.peek().equals("p") && (
-                                        tag.equals("h1") ||
-                                        tag.equals("h2") ||
-                                        tag.equals("h3") ||
-                                        tag.equals("h4") ||
-                                        tag.equals("h5") ||
-                                        tag.equals("h6") ||
-                                        tag.equals("pre") ||
-                                        tag.equals("ol") ||
-                                        tag.equals("ul") ||
-                                        tag.equals("div")))
-                        {
-                            // Close the <p> tag
-                            stk.pop();
-                            stki.pop();
-                        }
-                        stk.push(tag);
-                        stki.push(m.start());
+                        // Close the <p> tag
+                        stk.pop();
+                        stki.pop();
                     }
+                    stk.push(tag);
+                    stki.push(m.start());
                 }
             }
-            assertThat("Stack should be empty", stk.size(), equalTo(0));
+        }
+        assertThat("Stack should be empty", stk.size(), equalTo(0));
 
-            // Look for references to other files
-            for (int i = 0; i >= 0; )
+        // Look for references to other files
+        for (int i = 0; i >= 0; )
+        {
+            String match = "href=\"";
+            i = s.indexOf(match, i);
+            if (i >= 0)
             {
-                String match = "href=\"";
-                i = s.indexOf(match, i);
-                if (i >= 0)
+                int j = s.indexOf("\"", i + match.length());
+                String fn = s.substring(i + match.length(), j);
+                if (!fn.startsWith("/") && !fn.startsWith("http") && !fn.startsWith(QueryObjectLink.PROTOCOL))
                 {
-                    int j = s.indexOf("\"", i + match.length());
-                    String fn = s.substring(i + match.length(), j);
-                    if (!fn.startsWith("/") && !fn.contains("#") && !fn.startsWith("http") && !fn.startsWith(QueryObjectLink.PROTOCOL))
+                    String anchor1 = null;
+                    int anch = fn.indexOf('#');
+                    if (anch >= 0)
                     {
-                        File d = f.getParentFile();
-                        File newf = new File(d, fn);
-                        checkHTMLFile(newf, seen);
+                        // Extract the anchor
+                        anchor1 = fn.substring(anch + 1);
+                        if (anchor1.length() > 0)
+                            assertThat(f + " Invalid anchor in "+fn, anchor1, matchesPattern("[a-zA-Z][a-zA-Z0-9:._-]+"));
+                        // Just an anchor means in this file, otherwise remove the anchor
+                        fn = anch == 0 ? f.getName() : fn.substring(0, anch);
                     }
-                    else if (fn.startsWith(QueryObjectLink.PROTOCOL))
+                    File d = f.getParentFile();
+                    File newf = new File(d, fn);
+                    checkHTMLFile(newf, seen, anchor1, f);
+                }
+                else if (fn.startsWith(QueryObjectLink.PROTOCOL))
+                {
+                    QueryObjectLink link = QueryObjectLink.parse(fn);
+                    if (link.getType() == QueryObjectLink.Type.OBJECT)
                     {
-                        QueryObjectLink link = QueryObjectLink.parse(fn);
-                        if (link.getType() == QueryObjectLink.Type.OBJECT)
+                        String t = link.getTarget();
+                        assertNotNull(fn, t);
+                        SnapshotQueryContext sc = new SnapshotQueryContext(snapshot);
+                        int id = sc.mapToObjectId(t);
+                    }
+                    else if (link.getType() == QueryObjectLink.Type.QUERY)
+                    {
+                        String t = link.getTarget();
+                        assertNotNull(fn, t);
+                        SnapshotQuery q = SnapshotQuery.parse(t, snapshot);
+                        String cmdname = q.getDescriptor().getIdentifier();
+                        IResult r;
+                        try
                         {
-                            String t = link.getTarget();
-                            assertNotNull(fn, t);
-                            SnapshotQueryContext sc = new SnapshotQueryContext(snapshot);
-                            int id = sc.mapToObjectId(t);
-                        }
-                        else if (link.getType() == QueryObjectLink.Type.QUERY)
-                        {
-                            String t = link.getTarget();
-                            assertNotNull(fn, t);
-                            SnapshotQuery q = SnapshotQuery.parse(t, snapshot);
-                            String cmdname = q.getDescriptor().getIdentifier();
-                            IResult r = q.execute(new CheckedProgressListener(collector));
+                            r = q.execute(new CheckedProgressListener(collector));
                             if ((cmdname.equals("system_properties") || cmdname.equals("thread_overview")|| cmdname.equals("finalizer_thread"))
                                             && (snapshot.getSnapshotInfo().getProperty("$heapFormat").equals("DTFJ-PHD")
                                                             || snapshot.getSnapshotInfo().getProperty("$heapFormat")
-                                                                            .equals("DTFJ-Javacore")))
+                                                            .equals("DTFJ-Javacore")))
                             {
                                 // Might not return a result for PHD but
                                 // shouldn't fail
@@ -943,24 +1027,43 @@ public class GeneralSnapshotTests
                                 assertNotNull(t, r);
                             }
                         }
-                        else if (link.getType() == QueryObjectLink.Type.DETAIL_RESULT)
+                        catch (UnsupportedOperationException e)
                         {
-                            String t = link.getTarget();
-                            assertNotNull(fn, t);
+                            if (snapshot.getSnapshotInfo().getProperty("$heapFormat").equals("DTFJ-PHD")
+                                                            || snapshot.getSnapshotInfo().getProperty("$heapFormat")
+                                                            .equals("DTFJ-Javacore"))
+                            {
+                                // This is an acceptable exception for PHD, JavaCore
+                            }
+                            else
+                            {
+                                throw e;
+                            }
                         }
-                        else
+                        catch (SnapshotException e)
                         {
-                            assertTrue("Unexpected link type "+link.getType()+" "+fn, false);
+                            if (cmdname.equals("unreachable_objects") && snapshot.getSnapshotAddons(UnreachableObjectsHistogram.class) == null)
+                            {
+                                // This is an acceptable exception
+                            }
+                            else
+                            {
+                                throw e;
+                            }
                         }
                     }
-                    i = j;
+                    else if (link.getType() == QueryObjectLink.Type.DETAIL_RESULT)
+                    {
+                        String t = link.getTarget();
+                        assertNotNull(fn, t);
+                    }
+                    else
+                    {
+                        assertTrue("Unexpected link type "+link.getType()+" "+fn, false);
+                    }
                 }
+                i = j;
             }
-            ir.close();
-        }
-        finally
-        {
-            fis.close();
         }
     }
 

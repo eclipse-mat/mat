@@ -20,9 +20,14 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.report.Params;
+import org.eclipse.mat.report.QuerySpec;
+import org.eclipse.mat.report.SectionSpec;
+import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 import org.eclipse.mat.report.internal.ResultRenderer.Key;
 import org.eclipse.mat.util.HTMLUtils;
@@ -104,7 +109,7 @@ import org.eclipse.mat.util.HTMLUtils;
                 if (!isFirst)
                     artefact.append("&raquo; ");
                 String targetlang = getLang(p);
-                link(artefact, page.getRelativePathName() + "#" + id(part), p.spec().getName(), targetlang, targetlang);
+                link(artefact, page.getRelativePathName() + "#" + id(p), p.spec().getName(), targetlang, targetlang);
                 artefact.append("</li>");
 
                 isFirst = false;
@@ -113,7 +118,10 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append("<li>");
             if (!isFirst)
                 artefact.append("&raquo; ");
-            artefact.append("<a href=\"#\">").append(HTMLUtils.escapeText(part.spec().getName())).append("</a></li>");
+
+            /* Can't link directly to the part id as the details part is on another page */
+            String id = "content";
+            artefact.append("<a href=\"#" + id + "\">").append(HTMLUtils.escapeText(part.spec().getName())).append("</a></li>");
         }
 
         artefact.append("</ul></div>\n");
@@ -177,7 +185,7 @@ import org.eclipse.mat.util.HTMLUtils;
         boolean showHeading = part.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
         if (!showHeading)
         {
-            artefact.append("<a").append(lang).append(" name=\"").append(id(part)).append("\"></a>");
+            artefact.append("<a").append(lang).append(" id=\"").append(id(part)).append("\"></a>");
         }
         else
         {
@@ -207,7 +215,7 @@ import org.eclipse.mat.util.HTMLUtils;
                                 .append("img/").append(status.name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(status.toString()).append("\"> ");
 
             if (!linkToHeading)
-                artefact.append("<a name=\"").append(id(part)).append("\">");
+                artefact.append("<a id=\"").append(id(part)).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
             if (!linkToHeading)
                 artefact.append("</a>");
@@ -220,7 +228,7 @@ import org.eclipse.mat.util.HTMLUtils;
     {
         String lang = getLang(part);
         String v = String.valueOf(order);
-        artefact.append("<h").append(v).append(lang).append(">");
+        artefact.append("<h").append(v).append(lang).append(" id=\"").append(id(part)).append("\">");
 
         ITestResult.Status status = getStatus(part);
         if (status != null)
@@ -239,7 +247,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
         if (!showHeading)
         {
-            artefact.append("<a").append(lang).append(" name=\"").append(id(query)).append("\"></a>");
+            artefact.append("<a").append(lang).append(" id=\"").append(id(query)).append("\"></a>");
         }
         else
         {
@@ -270,7 +278,7 @@ import org.eclipse.mat.util.HTMLUtils;
                                 query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(query.getStatus().toString()).append("\"> ");
 
             if (!linkToHeading)
-                artefact.append("<a name=\"").append(id(query)).append("\">");
+                artefact.append("<a id=\"").append(id(query)).append("\">");
             artefact.append(HTMLUtils.escapeText(query.spec().getName()));
             if (!linkToHeading)
                 artefact.append("</a>");
@@ -294,6 +302,12 @@ import org.eclipse.mat.util.HTMLUtils;
     public static void beginLink(HtmlArtefact artefact, String target)
     {
         beginLink(artefact, target, "", "");
+    }
+
+    public static void beginLink(HtmlArtefact artefact, String target, AbstractPart part)
+    {
+        String lang = getLang(part);
+        beginLink(artefact, target + "#" + id(part), lang, lang);
     }
 
     static void beginLink(HtmlArtefact artefact, String target, String linklang, String targetlang)
@@ -376,6 +390,17 @@ import org.eclipse.mat.util.HTMLUtils;
     private static ITestResult.Status getStatus(AbstractPart part)
     {
         ITestResult.Status status = part.getStatus();
+        Spec s = part.spec();
+        if (s instanceof SectionSpec)
+            status = ITestResult.Status.max(status, ((SectionSpec)s).getStatus());
+        else if (s instanceof QuerySpec)
+        {
+            IResult result = ((QuerySpec)s).getResult();
+            if (result instanceof ITestResult)
+                status = ITestResult.Status.max(status, ((ITestResult)result).getStatus());
+            if (result instanceof CompositeResult)
+                status = ITestResult.Status.max(status, ((CompositeResult)result).getStatus());
+        }
         for (AbstractPart child : part.getChildren())
         {
             ITestResult.Status status2 = getStatus(child);
