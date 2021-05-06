@@ -22,7 +22,8 @@
             runtime ${runtime_classpath}
             test ${test_classpath}
             plugin ${plugin_classpath}
-        	maven.repo.local ${maven.repo.local}
+            user.home ${user.home}
+            maven.repo.local ${maven.repo.local}
         </echo>
         <property name="maven.repo.local" value="${user.home}/.m2/repository"/>
         <!-- Rely on MANIFEST.MF pulling in some extra jars via plugins with resolution:=optional. 
@@ -35,7 +36,7 @@
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
             <classpath>
                 <pathelement path="${test_classpath}"/>
-                <fileset dir="${maven.repo.local}">
+                <fileset dir="${user.home}/.m2/repository">
                     <include name="**/com.ibm.dtfj.*.jar"/>
                     <include name="**/com.ibm.icu-*.jar"/>
                     <include name="**/org.eclipse.core.runtime-*.jar"/>
