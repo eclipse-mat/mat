@@ -22,7 +22,9 @@
             runtime ${runtime_classpath}
             test ${test_classpath}
             plugin ${plugin_classpath}
+        	maven.repo.local ${maven.repo.local}
         </echo>
+        <property name="maven.repo.local" value="${user.home}/.m2/repository"/>
         <!-- Rely on MANIFEST.MF pulling in some extra jars via plugins with resolution:=optional. 
         The Eclipse, DTFJ plugins must be found by javadoc for the external references to be built. Hope that the extra
         plugins in MANIFEST.MF don't cause trouble - couldn't find another Maven way of doing it -->
@@ -30,11 +32,20 @@
             destdir="doc" doctitle="Memory Analyzer API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false"
             notree="false"
             source="1.8"
-            classpath="${compile_classpath}${path.separator}${runtime_classpath}${path.separator}${plugin_classpath}${path.separator}${test_classpath}"
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
+            <classpath>
+                <pathelement path="${test_classpath}"/>
+                <fileset dir="${maven.repo.local}">
+                    <include name="**/com.ibm.dtfj.*.jar"/>
+                    <include name="**/com.ibm.icu-*.jar"/>
+                    <include name="**/org.eclipse.core.runtime-*.jar"/>
+                </fileset>
+            </classpath>
             <!-- Change source attribute to the Java version with which we build standalone MAT -->
             <arg value="-Xmaxwarns"/>
-            <arg value="1000"/>
+            <arg value="10000"/>
+            <arg value="-Xmaxerrs"/>
+            <arg value="10000"/>
             <tag name="noimplement" scope="types" description="No Implement:" />
             <tag name="noextend" scope="types" description="No Extend:" />
             <tag name="noreference" scope="methods,constructors,fields,types" description="No Reference:" />
@@ -46,9 +57,11 @@
         	<!-- Change to the Java version with which we build MAT -->
             <link href="https://docs.oracle.com/javase/8/docs/api/" />
             <!-- Change to the version with which we build standalone MAT -->
-            <link href="https://help.eclipse.org/2020-03/topic/org.eclipse.platform.doc.isv/reference/api/" />
+            <link offline="true" href="https://help.eclipse.org/2021-03/topic/org.eclipse.platform.doc.isv/reference/api/"
+                  packagelistloc="javadoc/eclipse/" />
             <link href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/" />
-            <link href="https://www.ibm.com/docs/api/v1/content/SSYKE2_8.0.0/openj9/api/jdk8/platform/dtfj/" />
+            <link offline="true" href="https://www.ibm.com/docs/api/v1/content/SSYKE2_8.0.0/openj9/api-dtfj/" 
+                  packagelistloc="javadoc/dtfj/" />
             <packageset dir="../org.eclipse.mat.report/src" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
