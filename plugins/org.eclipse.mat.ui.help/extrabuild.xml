@@ -70,6 +70,9 @@
             <packageset dir="../org.eclipse.mat.jdt/src" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
+            <packageset dir="../org.eclipse.mat.jruby.resolver/src" defaultexcludes="yes">
+              <include name="**"/>
+            </packageset>
             <packageset dir="../org.eclipse.mat.ui/src" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
