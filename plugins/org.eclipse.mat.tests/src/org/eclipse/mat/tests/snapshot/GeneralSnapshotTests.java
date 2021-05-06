@@ -1282,9 +1282,10 @@ public class GeneralSnapshotTests
                             (chunked ? " -chunked" : "") +
                             (mapping != null ? " -redact NAMES -map "+mapping.getPath() : "") +
                             (segsize > 0 ? " -segsize "+segsize : ""), snapshot);
-            IResult t = query.execute(new CheckedProgressListener(collector));
+            CheckedProgressListener checkListener = new CheckedProgressListener(collector);
+            IResult t = query.execute(checkListener);
             assertNotNull(t);
-            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
+            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), checkListener);
             try {
                 assertEquals("Snapshot prefix filename", new File(tmpdir, fn.getName()).getName(), new File(newSnapshot.getSnapshotInfo().getPrefix()).getName());
                 SnapshotInfo oldInfo = snapshot.getSnapshotInfo();

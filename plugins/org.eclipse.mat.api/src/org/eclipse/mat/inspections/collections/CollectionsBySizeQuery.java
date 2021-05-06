@@ -14,8 +14,11 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.util.Arrays;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
@@ -143,6 +146,16 @@ public class CollectionsBySizeQuery implements IQuery
         return quantize.getResult();
     }
 
+    private static class Result
+    {
+        final int size;
+        final long used;
+        public Result(int size, long used)
+        {
+            this.size = size;
+            this.used = used;
+        }
+    }
     private void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
                     String specificClass) throws SnapshotException
     {
@@ -153,8 +166,25 @@ public class CollectionsBySizeQuery implements IQuery
         IClass type = null;
         for (int[] objectIds : objects)
         {
+            HashMapIntObject<Result> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
             for (int objectId : objectIds)
             {
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<Result>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
+            {
+                if (listener.isCanceled())
+                    break;
+
                 IObject obj = snapshot.getObject(objectId);
                 if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
                 {
@@ -169,7 +199,12 @@ public class CollectionsBySizeQuery implements IQuery
                     {
                         Integer size = coll.size();
                         if (size != null)
-                            quantize.addValue(objectId, size, null, coll.getUsedHeapSize());
+                        {
+                            if (resultMap != null)
+                                resultMap.put(objectId, new Result(size, coll.getUsedHeapSize()));
+                            else
+                                quantize.addValue(objectId, size, null, coll.getUsedHeapSize());
+                        }
                     }
                 }
                 catch (RuntimeException e)
@@ -189,10 +224,20 @@ public class CollectionsBySizeQuery implements IQuery
                                                         obj.getTechnicalName()), e);
                     }
                 }
-
-                if (listener.isCanceled())
-                    return;
             }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        Result r = resultMap.get(objectId);
+                        quantize.addValue(objectId, r.size, null, r.used);
+                    }
+                }
+            }
+            if (listener.isCanceled())
+                break;
         }
     }
 }

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.util.Arrays;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
@@ -30,7 +32,6 @@ import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.internal.Messages;
-import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
@@ -42,6 +43,19 @@ import org.eclipse.mat.util.MessageUtil;
 
 public class AbstractFillRatioQuery
 {
+    private static class Result
+    {
+        final double fill;
+        final long used;
+        final long wasted;
+        public Result(double fill, long used, long wasted)
+        {
+            this.fill = fill;
+            this.used = used;
+            this.wasted = wasted;
+        }
+    }
+
     protected void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
                     String specificClass, ISnapshot snapshot, Iterable<int[]> objects, String msg) throws SnapshotException
     {
@@ -56,10 +70,24 @@ public class AbstractFillRatioQuery
         IClass type = null;
         for (int[] objectIds : objects)
         {
+            HashMapIntObject<Result> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
             for (int objectId : objectIds)
             {
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<Result>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
+            {
                 if (listener.isCanceled())
-                    return;
+                    break;
 
                 IObject obj = snapshot.getObject(objectId);
                 if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
@@ -71,7 +99,7 @@ public class AbstractFillRatioQuery
                 {
                     AbstractExtractedCollection<?, ?> coll = CollectionExtractionUtils.extractCollection(obj, specificClass,
                                     specificExtractor);
-                    if (coll != null)
+                    if (coll != null && coll.hasCapacity())
                     {
                         Double fillRatio = coll.getFillRatio();
                         if (fillRatio != null)
@@ -129,11 +157,14 @@ public class AbstractFillRatioQuery
                                     if (fillRatio > 0)
                                     {
                                         wasted = (long) Math.min((s * refsize / (1 - fillRatio)),
-                                                        snapshot.getSnapshotInfo().getUsedHeapSize());
+                                                        coll.getUsedHeapSize());
                                     }
                                 }
                             }
-                            quantize.addValue(objectId, fillRatio, 1, new Bytes(coll.getUsedHeapSize()), new Bytes(wasted));
+                            if (resultMap != null)
+                                resultMap.put(objectId, new Result(fillRatio, coll.getUsedHeapSize(),wasted));
+                            else
+                                quantize.addValue(objectId, fillRatio, 1, coll.getUsedHeapSize(), wasted);
                         }
                     }
                 }
@@ -155,6 +186,19 @@ public class AbstractFillRatioQuery
                     }
                 }
             }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        Result r = resultMap.get(objectId);
+                        quantize.addValue(objectId, r.fill, 1, r.used, r.wasted);
+                    }
+                }
+            }
+            if (listener.isCanceled())
+                break;
         }
     }
 }

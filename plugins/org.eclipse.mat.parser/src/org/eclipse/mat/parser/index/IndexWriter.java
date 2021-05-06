@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import java.util.function.Supplier;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.collect.ArrayLongBig;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.BitField;
@@ -86,52 +87,72 @@ public abstract class IndexWriter
     {
         long[] identifiers;
         int size;
+        ArrayLongBig collect;
 
         public void add(long id)
         {
-            if (identifiers == null)
+            if (collect == null)
+                collect = new ArrayLongBig();
+            // Avoid strange exceptions later
+            int s = collect.length();
+            long minCapacity = size + s + 1;
+            int newCapacity = Math.min((int)minCapacity, Integer.MAX_VALUE - 8);
+            if (newCapacity < minCapacity)
             {
-                identifiers = new long[10000];
-                size = 0;
+                throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ArrayLength, minCapacity, newCapacity));
             }
+            collect.add(id);
+        }
 
-            if (size + 1 > identifiers.length)
+        public void sort()
+        {
+            if (collect == null)
             {
-                int minCapacity = size + 1;
-                int newCapacity = newCapacity(identifiers.length, minCapacity);
+            }
+            else if (identifiers == null)
+            {
+                size = collect.length();
+                identifiers = collect.toArray();
+                collect = null;
+            }
+            else
+            {
+                int s = collect.length();
+                long minCapacity = size + s;
+                int newCapacity = Math.min((int)minCapacity, Integer.MAX_VALUE - 8);
                 if (newCapacity < minCapacity)
                 {
                     // Avoid strange exceptions later
                     throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ArrayLength, minCapacity, newCapacity));
                 }
                 identifiers = copyOf(identifiers, newCapacity);
+                for (int i = 0; i < s; ++i)
+                {
+                    identifiers[size + i] = collect.get(i);
+                }
+                size += s;
+                collect = null;
             }
-
-            identifiers[size++] = id;
-        }
-
-        public void sort()
-        {
             Arrays.parallelSort(identifiers, 0, size);
         }
 
         public int size()
         {
-            return size;
+            return size + (collect != null ? collect.length() : 0);
         }
 
         public long get(int index)
         {
-            if (index < 0 || index >= size)
-                throw new IndexOutOfBoundsException("Index: "+index+", Size: "+size); //$NON-NLS-1$//$NON-NLS-2$
+            if (index < 0 || index >= size())
+                throw new IndexOutOfBoundsException("Index: "+index+", Size: "+size()); //$NON-NLS-1$//$NON-NLS-2$
 
-            return identifiers[index];
+            return index < size ? identifiers[index] : collect.get(index - size);
         }
 
         public int reverse(long val)
         {
             int a, c;
-            for (a = 0, c = size; a < c;)
+            for (a = 0, c = size(); a < c;)
             {
                 // Avoid overflow problems by using unsigned divide by 2
                 int b = (a + c) >>> 1;
@@ -162,12 +183,12 @@ public abstract class IndexWriter
 
                 public boolean hasNext()
                 {
-                    return index < size;
+                    return index < size();
                 }
 
                 public long next()
                 {
-                    return identifiers[index++];
+                    return get(index++);
                 }
 
             };
@@ -177,7 +198,7 @@ public abstract class IndexWriter
         {
             long answer[] = new long[length];
             for (int ii = 0; ii < length; ii++)
-                answer[ii] = identifiers[index + ii];
+                answer[ii] = get(index + ii);
             return answer;
         }
 
@@ -187,6 +208,7 @@ public abstract class IndexWriter
         public void delete()
         {
             identifiers = null;
+            collect = null;
         }
 
         public void unload() throws IOException
@@ -1575,6 +1597,8 @@ public abstract class IndexWriter
             Arrays.sort(refIndex, fromIndex, toIndex);
 
             int endPseudo = fromIndex;
+            // Shouldn't ever be duplicate pseudo reference, but handle just in case
+            int pseudos = 0;
 
             if ((toIndex - fromIndex) > 100000)
             {
@@ -1589,15 +1613,24 @@ public abstract class IndexWriter
 
                     endPseudo++;
                     refIndex[jj] = -refIndex[jj] - 1;
-
+                }
+                /*
+                 * Output the pseudo references in reverse order as they were
+                 * originally negative and are now the wrong way round.
+                 * Doesn't strictly matter, but ascending order is helpful for gzip
+                 * readers.
+                 */
+                for (jj = endPseudo - 1; jj >= fromIndex; jj--)
+                {
                     if (!duplicates.get(refIndex[jj]))
                     {
                         body.add(refIndex[jj]);
                         duplicates.set(refIndex[jj]);
+                        ++pseudos;
                     }
                 }
 
-                for (; jj < toIndex; jj++) // other references
+                for (jj = endPseudo; jj < toIndex; jj++) // other references
                 {
                     if ((jj == fromIndex || refIndex[jj - 1] != refIndex[jj]) && !duplicates.get(refIndex[jj]))
                     {
@@ -1618,12 +1651,23 @@ public abstract class IndexWriter
 
                     endPseudo++;
                     refIndex[jj] = -refIndex[jj] - 1;
-
+                }
+                /*
+                 * Output the pseudo references in reverse order as they were
+                 * originally negative and are now the wrong way round.
+                 * Doesn't strictly matter, but ascending order is helpful for gzip
+                 * readers.
+                 */
+                for (jj = endPseudo - 1; jj >= fromIndex; jj--)
+                {
                     if (duplicates.add(refIndex[jj]))
+                    {
                         body.add(refIndex[jj]);
+                        ++pseudos;
+                    }
                 }
 
-                for (; jj < toIndex; jj++) // other references
+                for (jj = endPseudo; jj < toIndex; jj++) // other references
                 {
                     if ((jj == fromIndex || refIndex[jj - 1] != refIndex[jj]) && !duplicates.contains(refIndex[jj]))
                     {
@@ -1637,11 +1681,11 @@ public abstract class IndexWriter
                 long h = getHeader(objectId);
                 if (h > INBOUND_MAX_KEY1)
                 {
-                    keyWriter.storeKey(objectId, new long[] { h - 1, endPseudo - fromIndex });
+                    keyWriter.storeKey(objectId, new long[] { h - 1, pseudos });
                 }
                 else
                 {
-                    keyWriter.storeKey(objectId, new int[] { header[objectId] - 1, endPseudo - fromIndex });
+                    keyWriter.storeKey(objectId, new int[] { header[objectId] - 1, pseudos });
                 }
             }
         }
@@ -2428,8 +2472,7 @@ public abstract class IndexWriter
 
     public static long[] copyOf(long[] original, int newLength)
     {
-        long[] copy = new long[newLength];
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        long copy[] = Arrays.copyOf(original, newLength);
         return copy;
     }
 

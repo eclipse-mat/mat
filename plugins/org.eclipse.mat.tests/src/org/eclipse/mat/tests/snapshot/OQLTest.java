@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1519,7 +1519,15 @@ public class OQLTest
                         + "( SELECT * "
                         + "FROM java.util.Hashtable s  ) ) v ");
         assertEquals(11, irt.getRowCount());
-        assertEquals("META-INF", irt.getColumnValue(irt.getRow(1), 0));
+        // Order may vary, so look at all the entries
+        int found = 0;
+        for (int i = 0; i < irt.getRowCount(); ++i)
+        {
+            Object v = irt.getColumnValue(irt.getRow(i), 0);
+            if ("META-INF".equals(v))
+                ++found;
+        }
+        assertEquals(1, found);
         checkGetOQL(irt);
     }
 

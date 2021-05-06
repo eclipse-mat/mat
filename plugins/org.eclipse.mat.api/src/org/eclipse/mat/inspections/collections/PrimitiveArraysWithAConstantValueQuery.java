@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.util.Arrays;
+
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
@@ -49,6 +52,18 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
     @Help("The array objects. Only primitive arrays will be examined.")
     public IHeapObjectArgument objects;
 
+    private static class Result
+    {
+        final int len;
+        final Object value;
+        final long used;
+        public Result(int len, Object value, long used)
+        {
+            this.len = len;
+            this.value = value;
+            this.used = used;
+        }
+    }
     public IResult execute(IProgressListener listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
@@ -67,24 +82,38 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
         IClass type = null;
         for (int[] objectIds : objects)
         {
+            HashMapIntObject<Result> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
             for (int objectId : objectIds)
             {
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<Result>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
+            {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break;
 
                 if (!snapshot.isArray(objectId))
                     continue;
 
-                IObject object = snapshot.getObject(objectId);
-                if (object instanceof IObjectArray)
+                IObject obj = snapshot.getObject(objectId);
+                if (obj instanceof IObjectArray)
                     continue;
-                if (counter++ % 1000 == 0 && object.getClazz().equals(type))
+                if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
                 {
-                    type = object.getClazz();
+                    type = obj.getClazz();
                     listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues + "\n" + type.getName()); //$NON-NLS-1$
                 }
 
-                IPrimitiveArray array = (IPrimitiveArray) object;
+                IPrimitiveArray array = (IPrimitiveArray) obj;
 
                 int length = array.getLength();
                 if (length > 1)
@@ -106,10 +135,26 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                     {
                         long size = snapshot.getHeapSize(objectId);
                         // Key by length and value
-                        quantize.addValue(objectId, length, value0, null, size);
+                        if (resultMap != null)
+                            resultMap.put(objectId, new Result(length, value0, size));
+                        else
+                            quantize.addValue(objectId, length, value0, null, size);
                     }
                 }
             }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        Result r = resultMap.get(objectId);
+                        quantize.addValue(objectId, r.len, r.value, null, r.used);
+                    }
+                }
+            }
+            if (listener.isCanceled())
+                break;
         }
         return quantize.getResult();
     }

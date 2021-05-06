@@ -14,7 +14,10 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.util.Arrays;
+
 import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
@@ -88,6 +91,16 @@ public class MapCollisionRatioQuery implements IQuery
     @Argument(isMandatory = false)
     public String array_attribute;
 
+    private static class Result
+    {
+        final double ratio;
+        final long used;
+        public Result(double ratio, long used)
+        {
+            this.ratio = ratio;
+            this.used = used;
+        }
+    }
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios);
@@ -107,7 +120,21 @@ public class MapCollisionRatioQuery implements IQuery
         IClass type = null;
         for (int[] objectIds : objects)
         {
+            HashMapIntObject<Result> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
             for (int objectId : objectIds)
+            {
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<Result>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
             {
                 if (listener.isCanceled())
                     break;
@@ -133,7 +160,10 @@ public class MapCollisionRatioQuery implements IQuery
                             Double collisionRatio = coll.getCollisionRatio();
                             if (collisionRatio == null)
                                 collisionRatio = 0.0;
-                            quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
+                            if (resultMap != null)
+                                resultMap.put(objectId, new Result(collisionRatio, coll.getUsedHeapSize()));
+                            else
+                                quantize.addValue(objectId, collisionRatio, null, coll.getUsedHeapSize());
                         }
                     }
                 }
@@ -155,6 +185,19 @@ public class MapCollisionRatioQuery implements IQuery
                     }
                 }
             }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        Result r = resultMap.get(objectId);
+                        quantize.addValue(objectId, r.ratio, null, r.used);
+                    }
+                }
+            }
+            if (listener.isCanceled())
+                break;
         }
 
         return quantize.getResult();

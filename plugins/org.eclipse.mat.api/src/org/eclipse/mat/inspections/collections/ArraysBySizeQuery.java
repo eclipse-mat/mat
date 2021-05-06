@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.util.Arrays;
+
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
@@ -46,6 +49,17 @@ public class ArraysBySizeQuery implements IQuery
     @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
+    private static class Result
+    {
+        final int len;
+        final long size;
+        public Result(int len, long size)
+        {
+            this.len = len;
+            this.size = size;
+        }
+    }
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask(Messages.ArraysBySizeQuery_ExtractingArraySizes);
@@ -63,10 +77,24 @@ public class ArraysBySizeQuery implements IQuery
         IClass type = null;
         for (int[] objectIds : objects)
         {
+            HashMapIntObject<Result> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
             for (int objectId : objectIds)
             {
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<Result>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
+            {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break;
 
                 if (!snapshot.isArray(objectId))
                     continue;
@@ -80,8 +108,24 @@ public class ArraysBySizeQuery implements IQuery
                 IObject obj = snapshot.getObject(objectId);
                 int len = (obj instanceof IArray) ? ((IArray)obj).getLength() : 0;
                 long size = snapshot.getHeapSize(objectId);
-                quantize.addValue(objectId, len, size, null, size);
+                if (resultMap != null)
+                    resultMap.put(objectId, new Result(len, size));
+                else
+                    quantize.addValue(objectId, len, size, null, size);
             }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        Result r = resultMap.get(objectId);
+                        quantize.addValue(objectId, r.len, r.size, null, r.size);
+                    }
+                }
+            }
+            if (listener.isCanceled())
+                break;
         }
         return quantize.getResult();
     }

@@ -1232,7 +1232,7 @@ public final class SnapshotImpl implements ISnapshot
         /*
          * an array where all top-ancestors will be saved
          */
-        ArrayInt result = new ArrayInt();
+        ArrayIntBig result = new ArrayIntBig();
 
         // used to temporarily keep the walked-through objects before we decide
         // in which cache to store them

@@ -15,11 +15,13 @@
 package org.eclipse.mat.inspections.collections;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
@@ -318,11 +320,28 @@ public class HashEntriesQuery implements IQuery
 
         int counter = 0;
         IClass type = null;
-        for (int[] ids : objects)
+        for (int[] objectIds : objects)
         {
-            for (int id : ids)
+            HashMapIntObject<List<Entry>> resultMap = null;
+            int sortedObjs[] = objectIds;
+            int prev = Integer.MIN_VALUE;
+            for (int objectId : objectIds)
             {
-                IObject obj = snapshot.getObject(id);
+                if (objectId < prev)
+                {
+                    sortedObjs = objectIds.clone();
+                    Arrays.sort(sortedObjs);
+                    resultMap = new HashMapIntObject<List<Entry>>();
+                    break;
+                }
+                objectId = prev;
+            }
+            for (int objectId : sortedObjs)
+            {
+                if (listener.isCanceled())
+                    break;
+
+                IObject obj = snapshot.getObject(objectId);
                 if (counter++ % 1000 == 0 && !obj.getClazz().equals(type))
                 {
                     type = obj.getClazz();
@@ -332,6 +351,7 @@ public class HashEntriesQuery implements IQuery
 
                 if (map != null)
                 {
+                    List<Entry> hashEntries1 = resultMap != null ? new ArrayList<Entry>() : hashEntries;
                     for (Map.Entry<IObject, IObject> me : map)
                     {
                         Entry e;
@@ -346,15 +366,26 @@ public class HashEntriesQuery implements IQuery
                         {
                             int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
                             int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
-                            e = new Entry(id, obj.getDisplayName(), keyId, valueId);
+                            e = new Entry(objectId, obj.getDisplayName(), keyId, valueId);
                         }
-                        hashEntries.add(e);
+                        hashEntries1.add(e);
+                    }
+                    if (resultMap != null)
+                        resultMap.put(objectId, hashEntries1);
+                }
+            }
+            if (resultMap != null)
+            {
+                for (int objectId : objectIds)
+                {
+                    if (resultMap.containsKey(objectId))
+                    {
+                        hashEntries.addAll(resultMap.get(objectId));
                     }
                 }
-
-                if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
             }
+            if (listener.isCanceled())
+                break;
         }
 
         listener.done();
