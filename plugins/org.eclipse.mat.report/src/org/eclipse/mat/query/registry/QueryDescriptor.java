@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,13 @@
 package org.eclipse.mat.query.registry;
 
 import java.net.URL;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
+import javax.tools.JavaCompiler;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
@@ -94,7 +97,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * The type of the query object, to be instantiated and the arguments injected when the query is run.
-     * @return the type, suitable for instantiation with {@link Class#newInstance()} or {@link java.lang.reflect.Constructor#newInstance()}
+     * @return the type, suitable for instantiation with {@link Class#newInstance()} or {@link Constructor#newInstance(Object...)}
      */
     public Class<? extends IQuery> getCommandType()
     {

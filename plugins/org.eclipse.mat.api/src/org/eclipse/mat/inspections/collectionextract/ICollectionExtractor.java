@@ -31,7 +31,7 @@ public interface ICollectionExtractor
     /**
      * Check if the size of the collection can be extracted.
      * @return true if {@link #getSize(IObject)} could be called
-     * @see {@link #getSize(IObject)}
+     * @see #getSize(IObject)
      */
     boolean hasSize();
 
@@ -48,7 +48,7 @@ public interface ICollectionExtractor
     /**
      * Check if the collection has capacity, e.g. ArrayList
      * @return true if {@link #getCapacity(IObject)} could be called
-     * @see {@link #getCapacity(IObject)}
+     * @see #getCapacity(IObject)
      */
     boolean hasCapacity();
 
@@ -116,7 +116,7 @@ public interface ICollectionExtractor
      *            - the collection to find the object array holding its contents
      * @return the backing array for the collection
      * @throws SnapshotException
-     * @see {@link #hasExtractableArray()}
+     * @see #hasExtractableArray()
      */
     IObjectArray extractEntries(IObject collection) throws SnapshotException;
 

@@ -36,12 +36,6 @@
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
             <classpath>
                 <pathelement path="${test_classpath}"/>
-                <fileset dir="${user.home}/.m2/repository" erroronmissingdir="false">
-                    <include name="**/com.ibm.dtfj.*.jar"/>
-                    <include name="**/com.ibm.icu-*.jar"/>
-                    <include name="**/org.eclipse.core.runtime-*.jar"/>
-                    <include name="**/org.eclipse.birt.*.jar"/>
-                </fileset>
             </classpath>
             <!-- Change source attribute to the Java version with which we build standalone MAT -->
             <arg value="-Xmaxwarns"/>

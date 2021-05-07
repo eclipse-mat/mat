@@ -325,7 +325,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      *            Supplier of a new non-seekable stream for the same resource,
      *            {@link #underlying}.
      *            The streams are closed when no longer needed.
-     *            Wrap the innermost stream with {@link UnclosableStream}
+     *            Wrap the innermost stream with {@link UnclosableInputStream}
      *            to avoid closing the underlying stream when one of the
      *            non-seekable streams is closed by this class.
      * @param underlying
@@ -360,7 +360,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      * @param genstream
      *            Supplier of a new non-seekable stream for the same resource.
      *            The streams are closed when no longer needed.
-     *            Wrap the innermost stream with {@link UnclosableStream}
+     *            Wrap the innermost stream with {@link UnclosableInputStream}
      *            to avoid closing the underlying stream when one of the
      *            non-seekable streams is closed by this class.
      * @param underlying

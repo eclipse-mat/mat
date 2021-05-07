@@ -2135,7 +2135,7 @@ public class ExportHprof implements IQuery
 
         /**
          * Return the renamed version of a method/type signature
-         * @param cn
+         * @param sig
          * @return null if not renamed
          */
         public String mapSignature(String sig)
