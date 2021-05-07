@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -108,9 +108,9 @@ public final class ArrayIntBig implements Serializable
     }
 
     /**
-     * Returns <tt>true</tt> if this list contains no elements.
+     * Returns <code>true</code> if this list contains no elements.
      * 
-     * @return <tt>true</tt> if this list contains no elements.
+     * @return <code>true</code> if this list contains no elements.
      */
     public boolean isEmpty()
     {
