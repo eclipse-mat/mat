@@ -82,7 +82,7 @@ public class AbstractFillRatioQuery
                     resultMap = new HashMapIntObject<Result>();
                     break;
                 }
-                objectId = prev;
+                prev = objectId;
             }
             for (int objectId : sortedObjs)
             {

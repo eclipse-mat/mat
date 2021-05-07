@@ -94,7 +94,7 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                     resultMap = new HashMapIntObject<Result>();
                     break;
                 }
-                objectId = prev;
+                prev = objectId;
             }
             for (int objectId : sortedObjs)
             {

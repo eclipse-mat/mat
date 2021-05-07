@@ -334,7 +334,7 @@ public class HashEntriesQuery implements IQuery
                     resultMap = new HashMapIntObject<List<Entry>>();
                     break;
                 }
-                objectId = prev;
+                prev = objectId;
             }
             for (int objectId : sortedObjs)
             {
