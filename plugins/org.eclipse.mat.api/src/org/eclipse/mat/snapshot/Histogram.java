@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1076,7 +1076,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public int[] getObjectIds()
                     {
-                        ArrayInt objectIds = new ArrayInt();
+                        int size = (int)Math.min(node.getNumberOfObjects(), Integer.MAX_VALUE - 8);
+                        ArrayInt objectIds = new ArrayInt(size);
 
                         LinkedList<PackageNode> nodes = new LinkedList<PackageNode>();
                         nodes.add(node);
@@ -1334,7 +1335,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public int[] getObjectIds()
                     {
-                        ArrayInt objectIds = new ArrayInt();
+                        int size = (int)Math.min(node.getNumberOfObjects(), Integer.MAX_VALUE - 8);
+                        ArrayInt objectIds = new ArrayInt(size);
 
                         LinkedList<SuperclassNode> nodes = new LinkedList<SuperclassNode>();
                         nodes.add(node);
@@ -1347,7 +1349,6 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                             nodes.addAll(n.subClasses.values());
                         }
-
                         return objectIds.toArray();
                     }
 

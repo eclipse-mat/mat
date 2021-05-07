@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -159,7 +159,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         if (listener == null)
             listener = new VoidProgressListener();
 
-        ArrayInt ids = new ArrayInt();
+        ArrayInt ids = new ArrayInt(1 + getNumberOfObjects());
         ids.add(getObjectId());
         ids.addAll(getObjectIds());
 

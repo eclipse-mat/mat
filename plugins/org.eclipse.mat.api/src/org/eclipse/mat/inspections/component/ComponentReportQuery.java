@@ -353,7 +353,11 @@ public class ComponentReportQuery implements IQuery
         Collection<IClass> finalizer = snapshot.getClassesByName(className, true);
         if (finalizer != null)
         {
-            ArrayInt objectIds = new ArrayInt();
+            // Estimate the size
+            int count = 0;
+            for (IClass c : finalizer)
+                count += c.getNumberOfObjects();
+            ArrayInt objectIds = new ArrayInt(count);
             for (IClass c : finalizer)
                 objectIds.addAll(c.getObjectIds());
 
