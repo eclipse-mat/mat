@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,6 @@ import org.eclipse.mat.util.IProgressListener;
 /**
  * An argument of type IHeapObjectArgument can be used to inject heap objects
  * into Query.
- * <p>
- * 
  * <pre>
  * &#064;Argument
  * public IHeapObjectArgument objects;

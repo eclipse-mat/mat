@@ -158,6 +158,7 @@ public final class InflaterInputStream extends FilterInputStream {
      * 
      * Only safe to use copy or original once the underlying stream
      * has been positioned to the appropriate location.
+     * @param copy the original stream
      */
     public InflaterInputStream(InflaterInputStream copy)
     {
