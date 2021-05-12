@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Netflix (Jason Koch) - refactors for increased performance and concurrency
+ *    Andrew Johnson (IBM) - release some indexes for GC
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +34,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
+import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
@@ -76,9 +79,53 @@ import org.eclipse.mat.util.SilentProgressListener;
             int newNoOfObjects = 0;
             int[] newRoots = idx.gcRoots.getAllKeys();
 
+            IOne2LongIndex identifiersOld = idx.identifiers;
+            File tempIndexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix()+"temp."); //$NON-NLS-1$
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
+            idx.identifiers = new LongIndexStreamer().writeTo(tempIndexFile, new IteratorLong() {
+                int i = 0;
+                @Override
+                public boolean hasNext()
+                {
+                    return i < identifiersOld.size();
+                }
+
+                @Override
+                public long next()
+                {
+                    if (hasNext())
+                        return identifiersOld.get(i++);
+                    throw new NoSuchElementException();
+                }
+            });
+            identifiersOld.close();
+            identifiersOld.delete();
             IOne2LongIndex identifiers = idx.identifiers;
+            identifiers.unload();
             IOne2ManyIndex preOutbound = idx.outbound;
+            IOne2OneIndex object2classIdOld = idx.object2classId;
+            tempIndexFile = Index.O2CLASS.getFile(idx.snapshotInfo.getPrefix()+"temp."); //$NON-NLS-1$
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
+            idx.object2classId = new IntIndexStreamer().writeTo(tempIndexFile, new IteratorInt() {
+                int i = 0;
+                @Override
+                public boolean hasNext()
+                {
+                    return i < object2classIdOld.size();
+                }
+
+                @Override
+                public int next()
+                {
+                    if (hasNext())
+                        return object2classIdOld.get(i++);
+                    throw new NoSuchElementException();
+                }
+            });
+            object2classIdOld.close();
+            object2classIdOld.delete();
             IOne2OneIndex object2classId = idx.object2classId;
+            object2classId.unload();
             HashMapIntObject<ClassImpl> classesById = idx.classesById;
 
             /*
@@ -147,7 +194,6 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             // create re-index map
             final int[] map = new int[oldNoOfObjects];
-            final long[] id2a = new long[newNoOfObjects];
 
             List<ClassImpl> classes2remove = new ArrayList<ClassImpl>();
 
@@ -157,8 +203,7 @@ import org.eclipse.mat.util.SilentProgressListener;
             {
                 if (reachable[ii])
                 {
-                    map[ii] = jj;
-                    id2a[jj++] = identifiers.get(ii);
+                    map[ii] = jj++;
                 }
                 else
                 {
@@ -217,10 +262,6 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             reachable = null; // early gc...
 
-            identifiers.close();
-            identifiers.delete();
-            identifiers = null;
-
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 4
@@ -253,7 +294,26 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             File indexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix());
             listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
-            idxManager.setReader(Index.IDENTIFIER, new LongIndexStreamer().writeTo(indexFile, id2a));
+            idxManager.setReader(Index.IDENTIFIER, new LongIndexStreamer().writeTo(indexFile, new IteratorLong() {
+                int i = 0;
+                @Override
+                public boolean hasNext()
+                {
+                    while (i < map.length && map[i] == -1)
+                        ++i;
+                    return i < map.length;
+                }
+
+                @Override
+                public long next()
+                {
+                    if (hasNext())
+                        return identifiers.get(i++);
+                    throw new NoSuchElementException();
+                }
+            }));
+            identifiers.close();
+            identifiers.delete();
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
