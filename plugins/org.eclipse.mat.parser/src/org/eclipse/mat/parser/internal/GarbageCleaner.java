@@ -43,6 +43,8 @@ import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IndexWriter.Identifier;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
@@ -79,53 +81,28 @@ import org.eclipse.mat.util.SilentProgressListener;
             int newNoOfObjects = 0;
             int[] newRoots = idx.gcRoots.getAllKeys();
 
-            IOne2LongIndex identifiersOld = idx.identifiers;
-            File tempIndexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix()+"temp."); //$NON-NLS-1$
-            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
-            idx.identifiers = new LongIndexStreamer().writeTo(tempIndexFile, new IteratorLong() {
-                int i = 0;
-                @Override
-                public boolean hasNext()
-                {
-                    return i < identifiersOld.size();
-                }
-
-                @Override
-                public long next()
-                {
-                    if (hasNext())
-                        return identifiersOld.get(i++);
-                    throw new NoSuchElementException();
-                }
-            });
-            identifiersOld.close();
-            identifiersOld.delete();
+            if (idx.identifiers instanceof Identifier && oldNoOfObjects > 5000000)
+            {
+                IOne2LongIndex identifiersOld = idx.identifiers;
+                File tempIndexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix() + "temp."); //$NON-NLS-1$
+                listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
+                idx.identifiers = new LongIndexStreamer().writeTo(tempIndexFile,
+                                ((Identifier) identifiersOld).iterator());
+                identifiersOld.close();
+                identifiersOld.delete();
+            }
             IOne2LongIndex identifiers = idx.identifiers;
-            identifiers.unload();
             IOne2ManyIndex preOutbound = idx.outbound;
-            IOne2OneIndex object2classIdOld = idx.object2classId;
-            tempIndexFile = Index.O2CLASS.getFile(idx.snapshotInfo.getPrefix()+"temp."); //$NON-NLS-1$
-            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
-            idx.object2classId = new IntIndexStreamer().writeTo(tempIndexFile, new IteratorInt() {
-                int i = 0;
-                @Override
-                public boolean hasNext()
-                {
-                    return i < object2classIdOld.size();
-                }
-
-                @Override
-                public int next()
-                {
-                    if (hasNext())
-                        return object2classIdOld.get(i++);
-                    throw new NoSuchElementException();
-                }
-            });
-            object2classIdOld.close();
-            object2classIdOld.delete();
+            if (idx.object2classId instanceof IntIndexCollector && oldNoOfObjects > 5000000)
+            {
+                IOne2OneIndex object2classIdOld = idx.object2classId;
+                File tempIndexFile = Index.O2CLASS.getFile(idx.snapshotInfo.getPrefix() + "temp."); //$NON-NLS-1$
+                listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, tempIndexFile.getAbsolutePath()));
+                idx.object2classId = ((IntIndexCollector) object2classIdOld).writeTo(tempIndexFile);
+                object2classIdOld.close();
+                object2classIdOld.delete();
+            }
             IOne2OneIndex object2classId = idx.object2classId;
-            object2classId.unload();
             HashMapIntObject<ClassImpl> classesById = idx.classesById;
 
             /*

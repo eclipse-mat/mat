@@ -40,6 +40,7 @@ import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.IntArray1NWriter;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexCollector;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -629,11 +630,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
         index.setThread2objects2roots(thread2objects2roots);
 
-        index.setIdentifiers(identifiers);
+        index.setIdentifiers((new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(info.getPrefix() + "temp."), identifiers.iterator())); //$NON-NLS-1$);
 
         index.setArray2size(array2size.writeTo(Index.A2SIZE.getFile(info.getPrefix() + "temp."))); //$NON-NLS-1$
 
-        index.setObject2classId(object2classId);
+        index.setObject2classId(object2classId.writeTo(Index.O2CLASS.getFile(info.getPrefix() + "temp."))); //$NON-NLS-1$
 
         index.setOutbound(outbound.flush());
 

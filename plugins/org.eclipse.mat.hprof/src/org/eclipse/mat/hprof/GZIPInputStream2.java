@@ -292,7 +292,7 @@ public class GZIPInputStream2 extends FilterInputStream
      * Need to implement {@link FilterInputStream#skip(long)} to the check CRC.
      * We can call the underlying {@link #skip(long)} if we are rereading data.
      * @param n bytes to skip
-     * @param bytes actually skipped
+     * @return bytes actually skipped
      */
     @Override
     public long skip(long n) throws IOException
