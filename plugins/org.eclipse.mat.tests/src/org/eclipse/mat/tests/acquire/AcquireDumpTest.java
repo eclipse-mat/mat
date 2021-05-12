@@ -14,11 +14,11 @@ package org.eclipse.mat.tests.acquire;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
@@ -43,7 +43,6 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -158,7 +157,7 @@ public class AcquireDumpTest
                     }
                     catch (NoSuchFieldException e1)
                     {
-                        e1.printStackTrace();
+                        System.out.println("Failed to set field: " + e1.getMessage());
                     }
                     catch (SecurityException e1)
                     {
@@ -237,10 +236,13 @@ public class AcquireDumpTest
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
                             incFound();
-                            // Currently zipped hprof is very slow (>1 hour)
-                            if (!compress || chunked)
+                            // Zipped hprof was very slow (>1 hour) but is better now
+                            if (true)
                             {
+                                long then = System.currentTimeMillis();
                                 checkEclipseBundleQuery(answer);
+                                long now = System.currentTimeMillis();
+                                System.out.println("Took "+(now-then)+"ms for EclipseBundle query for "+dmp+" "+dmp.length());
                             }
                         }
                         finally

@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipException;
 
+import org.eclipse.mat.util.MessageUtil;
+
 import io.nayuki.deflate.InflaterInputStream;
 
 /**
@@ -33,12 +35,30 @@ public class GZIPInputStream2 extends FilterInputStream
     private static final int FLG_FCOMMENT = 1 << 4;
     private static final int FLG_FNAME = 1 << 3;
     private static final int FLG_FEXTRA = 1 << 2;
+    /** The underlying compressed input */
     InputStream is;
+    /** The uncompressed bytes read in this chunk */
     long uncompressedLen;
+    /** The total uncompressed bytes read from the start to the current header */
     long uncompressedLocationAtHeader;
+    /** For accumulating the cyclic redundancy check for the header and trailer */
     CRC32 crc;
+    /** The comment in the header */
     String comment;
+    /** The filename in the header */
     String filename;
+    /** The position of the last mark as an absolute position */
+    long mark;
+    /** The position of the farthest reset - reads beyond this update the CRC */
+    long reset;
+    /** End of file reached */
+    boolean eof;
+    /**
+     * Copy constructor used for duplicating a stream. To use either stream
+     * thereafter the underlying stream must be in the correct position.
+     * @param gs the stream to be duplicated
+     * @throws IOException
+     */
     public GZIPInputStream2(GZIPInputStream2 gs) throws IOException
     {
         super(new InflaterInputStream((InflaterInputStream)gs.in));
@@ -46,8 +66,16 @@ public class GZIPInputStream2 extends FilterInputStream
         crc = gs.crc.clone();
         uncompressedLen = gs.uncompressedLen;
         uncompressedLocationAtHeader = gs.uncompressedLocationAtHeader;
+        mark = gs.mark;
+        reset = gs.reset;
+        eof = gs.eof;
     }
 
+    /**
+     * Normal constructor
+     * @param is the compressed data
+     * @throws IOException
+     */
     public GZIPInputStream2(InputStream is) throws IOException
     {
         super(new InflaterInputStream(is, false));
@@ -169,7 +197,7 @@ public class GZIPInputStream2 extends FilterInputStream
                 throw new ZipException(Messages.GZIPInputStream2_TruncatedHeaderCRC);
             int crcv = c0 & 0xff | (c1 & 0xff) << 8;
             if ((crc.getValue() & 0xffff) != crcv)
-                throw new ZipException(Messages.GZIPInputStream2_BadHeaderCRC);
+                throw new ZipException(MessageUtil.format(Messages.GZIPInputStream2_BadHeaderCRC, Integer.toHexString(crcv), Integer.toHexString((int)(crc.getValue() & 0xffff))));
         }
         crc.reset();
         return is;
@@ -184,13 +212,18 @@ public class GZIPInputStream2 extends FilterInputStream
             if (r == -1)
             {
                 // handle chunked zip
+                if (eof)
+                    break;
                 // Ensure we can read the data after the zipped part
                 ((InflaterInputStream)in).detach();
                 checkTrailer(in);
                 int b0 = in.read();
                 // Real EOF
                 if (b0 <= 0)
+                {
+                    eof = true;
                     break;
+                }
                 // New chunk
                 readHeader(in, b0);
                 ((InflaterInputStream)in).attach();
@@ -198,7 +231,10 @@ public class GZIPInputStream2 extends FilterInputStream
         } while (r < 0);
         if (r >= 0)
         {
-            crc.update(r);
+            if (uncompressedLocationAtHeader + uncompressedLen >= reset)
+            {
+                crc.update(r);
+            }
             ++uncompressedLen;
         }
         return r;
@@ -215,31 +251,71 @@ public class GZIPInputStream2 extends FilterInputStream
             if (r == -1)
             {
                 // Handle chunked zip
+                if (eof)
+                    break;
                 // Ensure we can read the data after the zipped part
                 ((InflaterInputStream)in).detach();
                 checkTrailer(in);
                 int b0 = in.read();
                 // Real EOF
                 if (b0 <= 0)
+                {
+                    eof = true;
                     break;
+                }
                 // New chunk
                 readHeader(in, b0);
                 ((InflaterInputStream)in).attach();
+                r = 0;
             }
         }
-        while (r <= 0);
+        while (r <= 0 && len != 0);
 
         if (r != -1)
         {
-            crc.update(buf, off, r);
+            // update CRC if we see data for the first time
+            if (uncompressedLocationAtHeader + uncompressedLen >= reset)
+            {
+                crc.update(buf, off, r);
+            }
+            else if (uncompressedLocationAtHeader + uncompressedLen + r >= reset)
+            {
+                int d = (int)(reset - (uncompressedLocationAtHeader + uncompressedLen));
+                crc.update(buf, off + d, r - d);
+            }
             uncompressedLen += r;
         }
         return r;
     }
 
-    public long skip2(long n) throws IOException
+    /**
+     * Need to implement {@link FilterInputStream#skip(long)} to the check CRC.
+     * We can call the underlying {@link #skip(long)} if we are rereading data.
+     * @param n bytes to skip
+     * @param bytes actually skipped
+     */
+    @Override
+    public long skip(long n) throws IOException
     {
         long skipped = 0;
+        if (n <= 0)
+            return 0;
+        if (uncompressedLocationAtHeader + uncompressedLen < reset)
+        {
+            long toSkip = Math.min(n, reset - (uncompressedLocationAtHeader + uncompressedLen));
+            while (toSkip > 0)
+            {
+                long r = in.skip(toSkip);
+                if (r == 0)
+                {
+                    break;
+                }
+                toSkip -= r;
+                n -= r;
+                skipped += r;
+                uncompressedLen += r;
+            }
+        }
         byte buf[] = null;
         while (n > 0)
         {
@@ -251,6 +327,9 @@ public class GZIPInputStream2 extends FilterInputStream
                 break;
             skipped += r;
             n -= r;
+            // Early end to indicate to upper levels this is a natural boundary
+            if (r < toskip)
+                break;
         }
         return skipped;
     }
@@ -274,7 +353,7 @@ public class GZIPInputStream2 extends FilterInputStream
         long crc32 = b0 & 0xff | (b1 & 0xff) << 8 | (b2 & 0xff) << 16 | (b3 & 0xffL) << 24;
         long crc32v = crc.getValue();
         if (crc32v != crc32)
-            throw new ZipException(Messages.GZIPInputStream2_BadTrailerCRC);
+            throw new ZipException(MessageUtil.format(Messages.GZIPInputStream2_BadTrailerCRC, Integer.toHexString((int)crc32), Integer.toHexString((int)crc32v)));
         // uncompressed length
         int b4 = is.read();
         if (b4 < 0)
@@ -291,12 +370,45 @@ public class GZIPInputStream2 extends FilterInputStream
         // Unsigned
         long len32 = b4 & 0xff | (b5 & 0xff) << 8 | (b6 & 0xff) << 16 | (b7 & 0xffL) << 24;
         if (len32 != (uncompressedLen & 0xffffffffL))
-            throw new ZipException(Messages.GZIPInputStream2_BadTrailerLength);
+            throw new ZipException(MessageUtil.format(Messages.GZIPInputStream2_BadTrailerLength, Integer.toHexString((int)len32), Long.toHexString(uncompressedLen)));
     }
 
     public String comment()
     {
         return comment;
+    }
+
+    public String filename()
+    {
+        return filename;
+    }
+
+    @Override
+    public void mark(int limit)
+    {
+        super.mark(limit);
+        mark = uncompressedLocationAtHeader + uncompressedLen;
+    }
+
+    @Override
+    public void reset() throws IOException
+    {
+        super.reset();
+        // Remember where to restart calculating CRC
+        reset = Math.max(reset, uncompressedLocationAtHeader + uncompressedLen);
+        uncompressedLen = mark - uncompressedLocationAtHeader;
+    }
+
+    @Override
+    public boolean markSupported()
+    {
+        return super.markSupported();
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.getClass()+" "+(this.uncompressedLocationAtHeader+this.uncompressedLen)+" "+in;
     }
 
     @Override

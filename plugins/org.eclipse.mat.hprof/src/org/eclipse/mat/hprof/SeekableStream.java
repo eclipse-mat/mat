@@ -133,6 +133,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 PosStream ret = new PosStream(new GZIPInputStream2((GZIPInputStream2)in), seq);
                 ret.basepos = basepos;
                 ret.pos = pos;
+                ret.markpos = markpos;
                 return ret;
             }
             return null;
@@ -150,6 +151,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         //InputStream is;
         /** Position in the base stream when not in use. */
         long basepos;
+        /** Position in the gzip stream of the last mark */
+        long markpos = -1;
         boolean eof;
         /** Used to save the stream when not in active use */
         SoftReference<InputStream> savedStream;
@@ -163,6 +166,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         @Override
         public int read() throws IOException
         {
+            trymark(1);
             int r = super.read();
             if (r != -1)
                 ++pos;
@@ -174,12 +178,70 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         @Override
         public int read(byte buf[], int off, int len) throws IOException
         {
+            trymark(len);
             int r = super.read(buf, off, len);
             if (r != -1)
                 pos += r;
             else
                 eof = true;
             return r;
+        }
+
+        private static final int SKIP_LAST = PosStream.MARK;
+        /**
+         * Skip so we have quite a long last buffer, suitable for marking
+         * @param skip the length to skip
+         * @return the amount actually skipped
+         */
+        @Override
+        public long skip(long toSkip) throws IOException
+        {
+            if (toSkip <= 0)
+                return 0;
+            long n = 0;
+            while (n < toSkip)
+            {
+                long rd;
+                if (toSkip - n > SKIP_LAST)
+                    rd = (toSkip - n - SKIP_LAST);
+                else
+                {
+                    trymark((int)(toSkip - n));
+                    rd = (toSkip - n);
+                }
+                long r = super.skip(rd);
+                if (r == 0 && rd > 0)
+                {
+                    r = super.read();
+                    if (r == -1)
+                    {
+                        eof = true;
+                        break;
+                    }
+                    r = 1;
+                }
+                pos += r;
+                n += r;
+                // Early escape to indicate end of block?
+                if (r < rd)
+                    break;
+            }
+            return n;
+        }
+
+        @Override
+        public void mark(int limit)
+        {
+            super.mark(limit);
+            markpos = pos;
+        }
+
+        @Override
+        public void reset() throws IOException
+        {
+            super.reset();
+            // Pos only changed if reset() does not throw an exception
+            pos = markpos;
         }
 
         @Override
@@ -219,6 +281,21 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
 
         /**
+         * Maximum mark size for gzip stream
+         * @see GZIPInputStream2
+         */
+        static final int MARKN = 32768 - 257;
+        /** Mark if we would go this far forward from the last mark */
+        static final int MARK = MARKN / 2;
+        void trymark(int n)
+        {
+            if (markSupported() && (markpos == -1 || pos < markpos || pos + n - markpos >= MARK))
+            {
+                mark(MARKN);
+            }
+        }
+
+        /**
          * Sets the stream available or not available for use.
          * @param state true if required to be active
          * @return if now active ({@link #read()} etc. can work,
@@ -236,9 +313,19 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             }
             else
             {
-                //in = null;
-                //return false;
-                return true;
+                if (markpos != -1 && markpos < pos && pos - markpos <= MARKN)
+                {
+                    try
+                    {
+                        reset();
+                    }
+                    catch (IOException e)
+                    {
+                        // Ignore, position unchanged
+                    }
+                }
+                in = null;
+                return false;
             }
         }
 
@@ -672,11 +759,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             if (p.isCleared())
             {
                 long gap = p.position() - pos;
-                System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay+",cleared"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay+",cleared "+p.savedStream.get()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 continue;
             }
             long gap = p.position() - pos;
-            System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            System.out.println(n+","+p.position()+","+p.seq+","+gap+","+p.decay+" "+p.savedStream.get()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
             if (gap < bestgap)
             {
                 best = p;
@@ -703,6 +790,32 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     public void seek(long pos) throws IOException
     {
         long then = System.currentTimeMillis();
+        if (current != null)
+        {
+            if (current.markpos >= pos && current.pos > pos)
+            {
+                // Short backward seek, so perhaps we can do it with a reset()
+                try
+                {
+                    current.reset();
+                }
+                catch (IOException e)
+                {
+                    // Ignore
+                }
+                if (current.pos <= pos)
+                {
+                    while (current.pos <= pos)
+                    {
+                        long n = skip(pos - current.pos);
+                        if (n <= 0)
+                            break;
+                    }
+                }
+                if (current != null && current.pos == pos)
+                    return;
+            }
+        }
         if (current != null)
         {
             // Remember the position in the underlying stream
@@ -869,7 +982,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         return r;
     }
 
-    //@Override
+    @Override
     public int read(byte buffer[], int offset, int length) throws IOException
     {
         if (current == null)
@@ -885,6 +998,33 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             // Come to the end of the stream, so remove the underlying stream
             streamClose(current);
             current = null;
+        }
+        return r;
+    }
+
+    @Override
+    public long skip(long length) throws IOException
+    {
+        if (current == null)
+            throw new EOFException(Long.toString(position()));
+        if (length <= 0)
+            return 0;
+        long r = current.skip(length);
+        if (current.position() > estlen && estlen > 0)
+            estlen = current.position();
+        if (r == 0)
+        {
+            r = current.read();
+            if (r == -1)
+            {
+                // Indicate at end of stream
+                lastpos = current.position();
+                estlen = lastpos;
+                // Come to the end of the stream, so remove the underlying stream
+                streamClose(current);
+                current = null;
+                throw new EOFException(Long.toString(position()));
+            }
         }
         return r;
     }
