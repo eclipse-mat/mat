@@ -7,6 +7,8 @@
  * Modified for Eclipse Memory Analyzer for:
  *  cloning of inflator
  *  pass-through mode for multi-chunk zips
+ *  mark/reset
+ *  merge of output buffer and dictionary
  */
 
 package io.nayuki.deflate;
@@ -38,7 +40,6 @@ public final class InflaterInputStream extends FilterInputStream {
     private int inputBitBufferLength;  // Always in the range [0, 63]
     
     // Queued bytes to yield first when this.read() is called
-    private byte[] outputBuffer;     // Should have length 257 (but pointless if longer)
     private int outputBufferLength;  // Number of valid prefix bytes, at least 0
     private int outputBufferIndex;   // Index of next byte to produce, in the range [0, outputBufferLength]
     
@@ -78,6 +79,7 @@ public final class InflaterInputStream extends FilterInputStream {
     
     // Indicates whether a block header with the "bfinal" flag has been seen.
     // This starts as false, should eventually become true, and never changes back to false.
+    // except for the Eclipse MAT changes when a new segment is attached
     private boolean isLastBlock;
     
     // Current code trees for when state == -1. When state != -1, both must be null.
@@ -87,6 +89,15 @@ public final class InflaterInputStream extends FilterInputStream {
     private short[] distanceCodeTable;  // Derived from distanceCodeTree; same nullness
     
     
+    
+    /*
+     * For marking.
+     * markPos >= 0 is position of mark in buffer [dictionary]
+     * markPos = -1 not set
+     * markPos = -2 has been set, but nothing has been read
+     * markPos = -3 has been set but too much has been read
+     */
+    private int markPos = -1;
     
     /*---- Constructors ----*/
     
@@ -137,7 +148,6 @@ public final class InflaterInputStream extends FilterInputStream {
         inputBufferIndex = 0;
         inputBitBuffer = 0;
         inputBitBufferLength = 0;
-        outputBuffer = new byte[257];
         outputBufferLength = 0;
         outputBufferIndex = 0;
         dictionary = new byte[DICTIONARY_LENGTH];
@@ -158,6 +168,7 @@ public final class InflaterInputStream extends FilterInputStream {
      * 
      * Only safe to use copy or original once the underlying stream
      * has been positioned to the appropriate location.
+     * Added by Eclipse MAT.
      * @param copy the original stream
      */
     public InflaterInputStream(InflaterInputStream copy)
@@ -169,13 +180,14 @@ public final class InflaterInputStream extends FilterInputStream {
         inputBufferIndex = copy.inputBufferIndex;
         inputBitBuffer = copy.inputBitBuffer;
         inputBitBufferLength = copy.inputBitBufferLength;
-        if (copy.outputBuffer != null)
-            outputBuffer = Arrays.copyOf(copy.outputBuffer, copy.outputBuffer.length);
         outputBufferLength = copy.outputBufferLength;
         outputBufferIndex = copy.outputBufferIndex;
         if (copy.dictionary != null)
             dictionary = Arrays.copyOf(copy.dictionary,  copy.dictionary.length);
+        else
+            dictionary = null;
         dictionaryIndex = copy.dictionaryIndex;
+        markPos = copy.markPos;
 
         // Initialize state
         state = copy.state;
@@ -254,12 +266,26 @@ public final class InflaterInputStream extends FilterInputStream {
         
         int result = 0;  // Number of bytes filled in the array 'b'
         
-        // First move bytes (if any) from the output buffer
+        // First move bytes (if any) from the output buffer [which is actually in the dictionary]
         if (outputBufferLength > 0) {
+            // There could be a new mark while we are re-reading data, or reading duplicated bytes.
+            if (markPos == -2)
+                markPos = (dictionaryIndex - (outputBufferLength - outputBufferIndex)) & DICTIONARY_MASK;
             int n = Math.min(outputBufferLength - outputBufferIndex, len);
-            System.arraycopy(outputBuffer, outputBufferIndex, b, off, n);
-            result = n;
-            outputBufferIndex += n;
+            // Move up to end of dictionary array
+            int i = (dictionaryIndex - (outputBufferLength - outputBufferIndex)) & DICTIONARY_MASK;
+            int n1 = Math.min(n, DICTIONARY_LENGTH - i);
+            System.arraycopy(dictionary, i, b, off + result, n1);
+            result = n1;
+            outputBufferIndex += n1;
+            // Move the remainder
+            if (n1 < n) {
+                // Wrap
+                n1 = n - n1;
+                System.arraycopy(dictionary, 0, b, off + result, n1);
+                result += n1;
+                outputBufferIndex += n1;
+            }
             if (outputBufferIndex == outputBufferLength) {
                 outputBufferLength = 0;
                 outputBufferIndex = 0;
@@ -273,7 +299,7 @@ public final class InflaterInputStream extends FilterInputStream {
         // Get into a block if not already inside one
         while (state == 0) {
             if (isLastBlock)
-                return -1;
+                return (result != 0) ? result : -1;
             
             // Read and process the block header
             isLastBlock = readBits(1) == 1;
@@ -308,6 +334,7 @@ public final class InflaterInputStream extends FilterInputStream {
             // Read bytes from uncompressed block
             int toRead = Math.min(state, len - result);
             readBytes(b, off + result, toRead);
+            updateMark(dictionaryIndex, toRead);
             for (int i = 0; i < toRead; i++) {
                 dictionary[dictionaryIndex] = b[off + result];
                 dictionaryIndex = (dictionaryIndex + 1) & DICTIONARY_MASK;
@@ -320,13 +347,13 @@ public final class InflaterInputStream extends FilterInputStream {
             return result + readInsideHuffmanBlock(b, off + result, len - result);
         else if (state == -4) {
             // Modification for Eclipse MAT
-            int n = Math.min(inputBufferLength - inputBufferIndex + (inputBitBufferLength + 7 >> 3), len - result);
+            int n = Math.min(inputBufferLength - inputBufferIndex + (inputBitBufferLength >> 3), len - result);
             if (n > 0) {
                 readBytes(b, off + result, n);
                 result += n;
             } else if (result < len) {
                 n = len - result;
-                int r = in.read(b, off + result, len);
+                int r = in.read(b, off + result, n);
                 if (r >= 0) {
                     result += r;
                 } else if (result == 0)
@@ -337,6 +364,185 @@ public final class InflaterInputStream extends FilterInputStream {
             throw new AssertionError("Impossible state");
     }
     
+    
+    /**
+     * Notes the current position of the output, so that later the caller can
+     * go back to this spot by calling reset.
+     * This uses the dictionary array as a cache of the last bytes returned to the caller.
+     * The dictionary is 32768 bytes in size, however when reading compressed data
+     * the inflator can generate an extra 257 bytes which are not returned to the caller
+     * but are stored in the dictionary. There is therefore a limit of 32768 - 257 = 32211 bytes
+     * that can be stored.
+     * Strictly speaking, the InputStream contract expects any value of limit to be
+     * honoured, and for implementation to add extra buffering to achieve this.
+     * Addition for Eclipse MAT.
+     * @param limit the caller can read at least this many bytes before calling {@link #reset()}
+     * @see #reset()
+     */
+    @Override
+    public void mark(int limit)
+    {
+        if (limit > DICTIONARY_LENGTH - OUTPUT_BUFFER_LENGTH)
+            throw new IllegalArgumentException(String.valueOf(limit));
+        if (state == -4)
+            throw new IllegalStateException(String.valueOf(state));
+        markPos = -2;
+    }
+
+    /**
+     * Goes back in the output to the point where {@link #mark(int)} was called.
+     * Addition for Eclipse MAT
+     * @throws IOException if it is not possible to go back to the mark point.
+     * The current position is then unchanged.
+     * @see #mark(int)
+     */
+    @Override
+    public void reset() throws IOException
+    {
+        // If we are between chunks then reset doesn't make sense at it
+        // only operates on decompressed data.
+        if (state == -4)
+            throw new IllegalStateException(String.valueOf(state));
+        if (markPos >= 0) {
+            int toread;
+            if (dictionaryIndex > markPos)
+                toread = dictionaryIndex - markPos;
+            else
+                toread = DICTIONARY_LENGTH - markPos + dictionaryIndex;
+            if (outputBufferLength > toread) {
+                assert outputBufferIndex >= outputBufferLength - toread; 
+                outputBufferIndex = outputBufferLength - toread;
+            } else {
+                outputBufferLength = toread;
+                outputBufferIndex = 0;
+            }
+        } else if (markPos == -3)
+            throw new IOException("too far");
+        else if (markPos == -2)
+        {
+            // mark() immediately followed by reset() so we don't need to do anything
+            // mark is still valid for a subsequent reset.
+        }
+        else if (markPos == -1)
+            throw new IOException("no mark");
+        else
+            throw new IllegalStateException(String.valueOf(markPos));
+    }
+
+    /**
+     * Does this stream support {@link #mark(int)} and {@link #reset()} ?
+     * It does.
+     * Addition for Eclipse MAT.
+     * @return true
+     * @see #mark(int)
+     * @see #reset()
+     */
+    @Override
+    public boolean markSupported()
+    {
+        return true;
+    }
+
+    /**
+     * The number of bytes which can be read without blocking.
+     * With the underlying stream it is not clear how many bytes those
+     * will expand to so just rely on what is in the buffers.
+     * Addition for Eclipse MAT.
+     * @return the number of bytes which can be read without blocking.
+     */
+    public int available() throws IOException {
+        long input;
+        int actual = (outputBufferLength - outputBufferIndex);
+        if (state == -4) {
+            // pass through mode
+            input = inputBufferLength - inputBufferIndex + (inputBitBufferLength >> 3);
+        } else {
+            // The amount of compressed data
+            input = inputBufferLength - inputBufferIndex + (inputBitBufferLength >> 3);
+            if (state > 0) {
+                // Uncompressed block
+                if (input > state)
+                    input = state;
+            } else if (state == -1 && input >= 3) {
+                // With 48 bits of input we can decode at least one symbol
+                // However, the symbol could be end of block!
+                input = 0;
+            } else {
+                // We don't know how much can be read without going to the underlying stream
+                input = 0;
+            }
+        }
+        return (int) Math.min(actual + input, Integer.MAX_VALUE);
+    }
+    
+    //@Override
+    public long skip(long n) throws IOException
+    {
+        if (n <= 0)
+            return 0;
+        long skipped = 0;
+        if (outputBufferLength >= 0) {
+            // There could be a new mark while we are re-reading data, or reading duplicated bytes.
+            if (markPos == -2)
+                markPos = (dictionaryIndex - (outputBufferLength - outputBufferIndex)) & DICTIONARY_MASK;
+            if (n >= outputBufferLength - outputBufferIndex) {
+                skipped = outputBufferLength - outputBufferIndex;
+                outputBufferLength = 0;
+                outputBufferIndex = 0;
+                n -= skipped;
+            } else {
+                outputBufferIndex += n;
+                return n;
+            }
+        }
+        byte buf[] = null;
+        while (n > 0)
+        {
+            int toskip = (int)Math.min(n, 16384);
+            if (buf == null)
+                buf = new byte[toskip];
+            long r = read(buf, 0, toskip);
+            if (r == -1)
+            {
+                break;
+            }
+            skipped += r;
+            n -= r;
+        }
+        return skipped;
+    }
+
+    /**
+     * See if too much data has been read for a {@link #reset()} to not work anymore.
+     * Addition for Eclipse MAT.
+     * @param dictionaryIndex the next place to store in the dictionary
+     * @param count the number of bytes to add to dictionary
+     */
+    private void updateMark(int dictionaryIndex, int count)
+    {
+        if (markPos == -1)
+            return;
+        else if (markPos == -2) {
+            if (count <= DICTIONARY_LENGTH)
+                markPos = dictionaryIndex;
+            else
+                markPos = -3;
+        } else if (count >= DICTIONARY_LENGTH)
+            markPos = -3;
+        else if (markPos >= dictionaryIndex)
+            if (dictionaryIndex + count >= markPos)
+                markPos = -3;
+        else if (((dictionaryIndex + count) & DICTIONARY_MASK) >= markPos)
+            markPos = -3;
+    }
+    
+    private void endofblock() {
+        if (isLastBlock && !(markPos >= 0 || outputBufferLength > 0)) {
+            // Clear the dictionary early
+            dictionary = null;
+            dictionaryIndex = -1;
+        }
+    }
     
     // This method exists to split up the public read(byte[],int,int) method that is rather long.
     // For internal use only; must only be called by read(byte[],int,int). The input array's subrange must be valid
@@ -393,6 +599,7 @@ public final class InflaterInputStream extends FilterInputStream {
                 assert 0 <= sym && sym <= 287;
                 if (sym < 256) {  // Literal byte
                     b[off + result] = (byte)sym;
+                    updateMark(dictionaryIndex, 1);
                     dictionary[dictionaryIndex] = (byte)sym;
                     dictionaryIndex = (dictionaryIndex + 1) & DICTIONARY_MASK;
                     result++;
@@ -451,6 +658,7 @@ public final class InflaterInputStream extends FilterInputStream {
                     // Copy bytes to output and dictionary
                     int dictReadIndex = (dictionaryIndex - dist) & DICTIONARY_MASK;
                     if (len - result >= run) {  // Nice case with less branching
+                        updateMark(dictionaryIndex, run);
                         for (int i = 0; i < run; i++) {
                             byte bb = dictionary[dictReadIndex];
                             dictionary[dictionaryIndex] = bb;
@@ -460,6 +668,8 @@ public final class InflaterInputStream extends FilterInputStream {
                             result++;
                         }
                     } else {  // General case
+                        assert outputBufferLength == 0;
+                        updateMark(dictionaryIndex, run);
                         for (int i = 0; i < run; i++) {
                             byte bb = dictionary[dictReadIndex];
                             dictionary[dictionaryIndex] = bb;
@@ -469,8 +679,8 @@ public final class InflaterInputStream extends FilterInputStream {
                                 b[off + result] = bb;
                                 result++;
                             } else {
-                                assert outputBufferLength < outputBuffer.length;
-                                outputBuffer[outputBufferLength] = bb;
+                                assert outputBufferLength < DICTIONARY_LENGTH;
+                                assert outputBufferLength < OUTPUT_BUFFER_LENGTH;
                                 outputBufferLength++;
                             }
                         }
@@ -482,6 +692,7 @@ public final class InflaterInputStream extends FilterInputStream {
                     distanceCodeTree = null;
                     distanceCodeTable = null;
                     state = 0;
+                    endofblock();
                     break;
                 }
                 
@@ -490,6 +701,7 @@ public final class InflaterInputStream extends FilterInputStream {
                 assert 0 <= sym && sym <= 287;
                 if (sym < 256) {  // Literal byte
                     b[off + result] = (byte)sym;
+                    updateMark(dictionaryIndex, 1);
                     dictionary[dictionaryIndex] = (byte)sym;
                     dictionaryIndex = (dictionaryIndex + 1) & DICTIONARY_MASK;
                     result++;
@@ -502,9 +714,11 @@ public final class InflaterInputStream extends FilterInputStream {
                     assert 0 <= distSym && distSym <= 31;
                     int dist = decodeDistance(distSym);
                     assert 1 <= dist && dist <= 32768;
+                    assert outputBufferLength == 0;
                     
                     // Copy bytes to output and dictionary
                     int dictReadIndex = (dictionaryIndex - dist) & DICTIONARY_MASK;
+                    updateMark(dictionaryIndex, run);
                     for (int i = 0; i < run; i++) {
                         byte bb = dictionary[dictReadIndex];
                         dictReadIndex = (dictReadIndex + 1) & DICTIONARY_MASK;
@@ -514,8 +728,8 @@ public final class InflaterInputStream extends FilterInputStream {
                             b[off + result] = bb;
                             result++;
                         } else {
-                            assert outputBufferLength < outputBuffer.length;
-                            outputBuffer[outputBufferLength] = bb;
+                            assert outputBufferLength < DICTIONARY_LENGTH;
+                            assert outputBufferLength < OUTPUT_BUFFER_LENGTH;
                             outputBufferLength++;
                         }
                     }
@@ -525,6 +739,7 @@ public final class InflaterInputStream extends FilterInputStream {
                     distanceCodeTree = null;
                     distanceCodeTable = null;
                     state = 0;
+                    endofblock();
                     break;
                 }
             }
@@ -558,6 +773,7 @@ public final class InflaterInputStream extends FilterInputStream {
         {
             if (state == -4)
                 throw new IllegalStateException("Input stream already detached");
+            endofblock();
             state = -4;
             return;
         }
@@ -581,18 +797,27 @@ public final class InflaterInputStream extends FilterInputStream {
 
     /**
      * Resume decompression.
-     * Addition for Eclipse MAT
+     * Addition for Eclipse MAT.
      */
     public void attach()
     {
         if (state != -4)
             throw new IllegalStateException("Not detached");
-        Arrays.fill(dictionary, (byte)0);
-        dictionaryIndex = 0;
+        // Keep the old dictionary if it is needed for reset()
+        // Could clear it (but no point) if (!(markPos >= 0 || outputBufferLength > 0))
+        if (dictionary == null) {
+            // The dictionary was cleared earlier
+            dictionary = new byte[DICTIONARY_LENGTH];
+            dictionaryIndex = 0;
+        }
         isLastBlock = false;
         state = 0;
     }
 
+    public String toString() {
+        return this.getClass()+" "+state+" "+(dictionary == null ? "no buf" : dictionary);
+    }
+    
     /**
      * Closes this input stream and the underlying stream.
      * It is illegal to call {@link #read()} or {@link #detach()} after closing.
@@ -1014,7 +1239,6 @@ public final class InflaterInputStream extends FilterInputStream {
         inputBufferIndex = 0;
         inputBitBuffer = 0;
         inputBitBufferLength = 0;
-        outputBuffer = null;
         outputBufferLength = 0;
         outputBufferIndex = 0;
         dictionary = null;
@@ -1070,6 +1294,9 @@ public final class InflaterInputStream extends FilterInputStream {
     // This is why the above must be a power of 2.
     private static final int DICTIONARY_MASK = DICTIONARY_LENGTH - 1;
     
+    // The maximum size of extra output that can be generated that might not fit into the 
+    // read buffer. This data needs to be saved for later.
+    private static final int OUTPUT_BUFFER_LENGTH = 257;
     
     // For length symbols from 257 to 285 (inclusive). RUN_LENGTH_TABLE[i] =
     // (base of run length) << 3 | (number of extra bits to read).
