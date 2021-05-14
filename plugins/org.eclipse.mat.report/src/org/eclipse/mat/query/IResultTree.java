@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,11 +22,12 @@ public interface IResultTree extends IStructuredResult
 {
     /**
      * Returns the root elements of the tree.
-     * @return list of elements which can be passed to 
+     * @return a list of all the root elements of the tree
+     * as opaque row objects representing each row
+     * which can be passed to 
      * {@link IResultTree#getChildren(Object)} or 
      * {@link IStructuredResult#getContext(Object)} or
-     * {@link IStructuredResult#getColumnValue(Object, int)}.
-     * @return a list of all the root elements of the tree
+     * {@link IStructuredResult#getColumnValue(Object, int)}. 
      */
     List<?> getElements();
 

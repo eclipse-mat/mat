@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public interface ISnapshot
      * Performance: Fast - in memory.
      * 
      * @return int[] containing the objectIds of all GC roots
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public int[] getGCRoots() throws SnapshotException;
 
@@ -87,7 +87,7 @@ public interface ISnapshot
      * Performance: Fast - in memory.
      * 
      * @return collection of all classes
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public Collection<IClass> getClasses() throws SnapshotException;
 
@@ -110,7 +110,7 @@ public interface ISnapshot
      *            from matching classes (the name isn't taken into account for
      *            sub classes anymore)
      * @return collection of matching classes - current implementations can return null if there is no class found
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public Collection<IClass> getClassesByName(String name, boolean includeSubClasses) throws SnapshotException;
 
@@ -129,7 +129,7 @@ public interface ISnapshot
      *            from matching classes (the name isn't taken into account for
      *            subclasses anymore)
      * @return collection of matching classes
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public Collection<IClass> getClassesByName(Pattern namePattern, boolean includeSubClasses) throws SnapshotException;
 
@@ -145,7 +145,8 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return histogram
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving the information
+     *          such as because of a damaged index.
      */
     public Histogram getHistogram(IProgressListener progressListener) throws SnapshotException;
 
@@ -166,7 +167,8 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return histogram - current implementations can return null if the listener is cancelled
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving the information
+     *          such as because of a damaged index.
      */
     public Histogram getHistogram(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
 
@@ -180,7 +182,7 @@ public interface ISnapshot
      * @param objectId
      *            object which is referenced
      * @return objects referencing the given object
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public int[] getInboundRefererIds(int objectId) throws SnapshotException;
 
@@ -205,7 +207,7 @@ public interface ISnapshot
      * @param objectId
      *            object which is referencing
      * @return objects referenced by the given object
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public int[] getOutboundReferentIds(int objectId) throws SnapshotException;
 
@@ -623,7 +625,8 @@ public interface ISnapshot
      * @param objectId
      *            id of object you want the address for
      * @return object address
-     * @throws SnapshotException
+     * @throws SnapshotException shouldn't normally happen as often
+     *             a {@link RuntimeException} would be thrown if the object ID is invalid.
      */
     public long mapIdToAddress(int objectId) throws SnapshotException;
 
@@ -636,7 +639,7 @@ public interface ISnapshot
      * @param objectAddress
      *            address of object you want the id for
      * @return object id
-     * @throws SnapshotException
+     * @throws SnapshotException if the object address is not found.
      */
     public int mapAddressToId(long objectAddress) throws SnapshotException;
 
@@ -657,7 +660,8 @@ public interface ISnapshot
      * the extra information is obtained via {@link org.eclipse.mat.parser.IObjectReader#getAddon(Class)}.
      * @return SnapshotAddons - extended information, e.g. perm info, OoM stack
      *         trace info, JVM arguments, etc.
-     * @throws SnapshotException
+     *         returns null if the information is not present
+     * @throws SnapshotException if there is a problem retrieving the information
      */
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException;
 
@@ -669,7 +673,7 @@ public interface ISnapshot
      * @return IThreadStack - an object representing the call stack of the
      *         thread. Returns null if no info is available for the object, or
      *         no stack info is available at all
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving the information
      * @since 0.8
      */
     public IThreadStack getThreadStack(int objectId) throws SnapshotException;

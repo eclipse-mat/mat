@@ -8569,7 +8569,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         /**
          * Get the image to use again, increment the use count.
-         * @return
+         * @return the DTFJ {@link Image}
          */
         public Image obtain()
         {

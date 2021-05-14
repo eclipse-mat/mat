@@ -346,7 +346,7 @@ public class QueryPart extends AbstractPart
 
     /**
      * Set a filter when the filter is not localized.
-     * Currently {@ RefinedResultBuilder#setFilter(int, String)} expects numbers to be localized.
+     * Currently {@link RefinedResultBuilder#setFilter(int, String)} expects numbers to be localized.
      * This is possible a problem for reports, which might not be fully localized.
      * If a report sets a filter >=10.301 this will have a problem
      * in a French locale where . is a thousands separator.

@@ -525,8 +525,8 @@ public class IBMDumpProvider extends BaseProvider
          * @param lib executable library
          * @param command to pass to the library
          * @throws IOException if there is a problem with communication
-         * @throws AgentLoadException1 if the library cannot be loaded
-         * @throws AgentInitializationException1 if the command does not run properly
+         * @throws AgentLoadException if the library cannot be loaded
+         * @throws AgentInitializationException if the command does not run properly
          */
         public void loadAgentLibrary(String lib, String command)
                         throws IOException, AgentLoadException, AgentInitializationException

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation.
+ * Copyright (c) 2020,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -103,7 +103,7 @@ class HeapObjectsTracker
 
     /**
      * Starts progress tracker for an array of ints from the iterator
-     * {@link {@link IHeapObjectArgument#iterator()}
+     * {@link IHeapObjectArgument#iterator()}
      * @param objectIds The object ids
      * @param last whether this is the last block or not
      */
@@ -149,7 +149,7 @@ class HeapObjectsTracker
     /**
      * Calculates the work done at the end of processing
      * an array of ints from the iterator
-     * {@link {@link IHeapObjectArgument#iterator()}
+     * {@link IHeapObjectArgument#iterator()}
      * @return the amount for {@link IProgressListener#worked}
      */
     public int endBlock()

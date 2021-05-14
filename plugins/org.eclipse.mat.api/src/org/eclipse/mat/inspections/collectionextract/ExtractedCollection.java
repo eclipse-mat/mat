@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,13 +15,10 @@
 package org.eclipse.mat.inspections.collectionextract;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 
 /**
  * An class representing a collection extracted from the heap. It provides
@@ -82,7 +79,7 @@ public class ExtractedCollection extends AbstractExtractedCollection<IObject, IC
     /**
      * Get the number of non-null elements contained in the collection
      * 
-     * @return
+     * @return the number of non-null elements
      * @throws SnapshotException
      */
     public Integer getNumberOfNotNullElements() throws SnapshotException

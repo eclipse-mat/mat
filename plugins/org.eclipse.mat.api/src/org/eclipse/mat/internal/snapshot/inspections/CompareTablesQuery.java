@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP AG and IBM Corporation. 
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Eclipse Public License 2.0 
- * which accompanies this distribution, and is available at 
+ * Copyright (c) 2010, 2021 SAP AG and IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * SPDX-License-Identifier: EPL-2.0 
- * 
+ * SPDX-License-Identifier: EPL-2.0
+ *
  * Contributors: SAP AG - initial API and implementation
  * Andrew Johnson - conversion to proper query, set operations via contexts
  ******************************************************************************/
@@ -844,7 +844,7 @@ public class CompareTablesQuery implements IQuery
             // Compare using getClassSpecificName() but this could be done
             // using the key by specifying the class in the key match
             boolean skip = false;
-            if (cls1.isArrayType()) 
+            if (cls1.isArrayType())
             {
                 if (cls1 instanceof IPrimitiveArray)
                 {
@@ -1996,7 +1996,7 @@ public class CompareTablesQuery implements IQuery
                                      * Is this a query returning a list of objects
                                      * or one with columns?
                                      * @param oql
-                                     * @return
+                                     * @return true if it returns a list of objects
                                      */
                                     public boolean OQLobjectQuery(String oql)
                                     {

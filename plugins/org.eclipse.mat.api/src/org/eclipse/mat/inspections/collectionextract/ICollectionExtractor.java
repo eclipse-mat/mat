@@ -40,7 +40,7 @@ public interface ICollectionExtractor
      * @param collection
      *            - the collection to find the size of
      * @return the size, or null if not available
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      * @see #hasSize()
      */
     Integer getSize(IObject collection) throws SnapshotException;
@@ -57,7 +57,7 @@ public interface ICollectionExtractor
      * @param collection
      *            - the collection to find the capacity of
      * @return the capacity in bytes, or null if unavailable
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      * @see #hasCapacity()
      */
     Integer getCapacity(IObject collection) throws SnapshotException;
@@ -76,7 +76,7 @@ public interface ICollectionExtractor
      * @param collection
      *            - the collection to find the fill ratio of
      * @return the fill ratio, between 0.0 and 1.0, or null if unavailable
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      * @see #hasFillRatio()
      */
     Double getFillRatio(IObject collection) throws SnapshotException;
@@ -96,7 +96,7 @@ public interface ICollectionExtractor
      * @param collection
      *            - the collection to find the objects it holds
      * @return an array of ints which are the object ids.
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      * @see #hasExtractableContents()
      */
     int[] extractEntryIds(IObject collection) throws SnapshotException;
@@ -115,7 +115,7 @@ public interface ICollectionExtractor
      * @param collection
      *            - the collection to find the object array holding its contents
      * @return the backing array for the collection
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      * @see #hasExtractableArray()
      */
     IObjectArray extractEntries(IObject collection) throws SnapshotException;

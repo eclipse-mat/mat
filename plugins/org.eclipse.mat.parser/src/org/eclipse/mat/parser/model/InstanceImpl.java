@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -113,7 +113,6 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
     /**
      * Set the fields of this instance.
      * The order should match the order of {@link #getFields()}.
-     * @return a list of fields
      */
     protected void setFields(List<Field> fields)
     {

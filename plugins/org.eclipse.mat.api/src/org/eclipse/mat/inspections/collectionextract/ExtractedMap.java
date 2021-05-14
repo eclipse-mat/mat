@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,8 +38,9 @@ public class ExtractedMap extends AbstractExtractedCollection<Map.Entry<IObject,
     }
 
     /**
-     * Check if collision ratio can be calculated for the map
-     * @return
+     * Check if collision ratio can be calculated for the map.
+     * @return true if @{@link #getCollisionRatio()} could be called
+     * @see #getCollisionRatio()
      */
     public boolean hasCollisionRatio()
     {
@@ -47,9 +48,11 @@ public class ExtractedMap extends AbstractExtractedCollection<Map.Entry<IObject,
     }
 
     /**
-     * Get the ration of collisions inside the map
-     * @return
-     * @throws SnapshotException
+     * Get the ratio of collisions inside the map.
+     * @return the collision ratio as a {@link Double} between 0.0 and 1.0 inclusive,
+     * or possibly null
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
+     * @see #hasCollisionRatio()
      */
     public Double getCollisionRatio() throws SnapshotException
     {
@@ -61,8 +64,8 @@ public class ExtractedMap extends AbstractExtractedCollection<Map.Entry<IObject,
      * by IDENTITY, so cannot be used to compare for example Strings
      * 
      * @param key
-     * @return
-     * @throws SnapshotException
+     * @return the value object, assuming a match by key identity
+     * @throws SnapshotException if there is a problem retrieving data from the snapshot
      */
     public IObject getByKeyIdentity(IObject key) throws SnapshotException
     {
@@ -76,6 +79,9 @@ public class ExtractedMap extends AbstractExtractedCollection<Map.Entry<IObject,
         return null;
     }
 
+    /**
+     * The entries of the map.
+     */
     public Iterator<Map.Entry<IObject, IObject>> iterator()
     {
         try

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -134,12 +134,12 @@ public class TestSnapshots
     /**
      * Get a snapshot from a dump
      * 
-     * @param name
+     * @param dumpname
      *            Name or names of dump, separated by semicolon
      * @param options
      * @param pristine
      *            If true, return a brand new snapshot, not a cached version
-     * @return
+     * @return the snapshot, ready for use in tests
      */
     public static ISnapshot getSnapshot(String dumpname, Map<String, String> options, boolean pristine)
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,10 @@ public interface IResultTable extends IStructuredResult
      * 
      * @param rowId
      *            The row number.
-     * @return The row object, which can be passed to 
+     * @return an opaque row object representing this row
+     * which can be passed to 
      * {@link IStructuredResult#getContext(Object)} or
      * {@link IStructuredResult#getColumnValue(Object, int)}. 
-     * @return an opaque object representing this row
      */
     Object getRow(int rowId);
 

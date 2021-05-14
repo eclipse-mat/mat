@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -74,9 +74,9 @@ public class EditorPaneRegistry extends RegistryReader<PaneConfiguration>
      * Find the appropriate editor pane for the result,
      * ignoring ones associated with the ignore class.
      * Searches all subclasses and interfaces.
-     * @param subject
-     * @param ignore
-     * @return
+     * @param subject the result we want to find an appropriate pane for
+     * @param ignore ignore a pane matching this class, choose another
+     * @return the editor pane appropriate for the result
      */
     public AbstractEditorPane createNewPane(IResult subject, Class<?> ignore)
     {

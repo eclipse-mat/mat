@@ -726,10 +726,10 @@ public class GeneralSnapshotTests
      * @param f
      * @param seen Files already seen
      * @param anchor the fragment for web page
-     * @param the referer, for better error messages
+     * @param referrer the referrer, for better error messages
      * @throws IOException
      */
-    public void checkHTMLFile(File f, Map<File, String>seen, String anchor, File referer) throws IOException, SnapshotException
+    public void checkHTMLFile(File f, Map<File, String>seen, String anchor, File referrer) throws IOException, SnapshotException
     {
         // canonical needed to avoid problems with ..
         File canonfile = f.getCanonicalFile();
@@ -808,7 +808,7 @@ public class GeneralSnapshotTests
                 }
                 if (id == 0 && name > 0)
                     id = 1;
-                assertThat(f + " from " + referer + " Expected anchor "+ anchor + " to occur once: " + s, id, equalTo(1));
+                assertThat(f + " from " + referrer + " Expected anchor "+ anchor + " to occur once: " + s, id, equalTo(1));
             }
             seen.put(new File(canonfile.getPath() + "#" + anchor), s);
             if (seenFile)

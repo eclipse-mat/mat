@@ -1394,7 +1394,7 @@ public class ExportHprof implements IQuery
      * Remove it from the list.
      * @param id
      * @param objid
-     * @return
+     * @return the frame number (0-based)
      */
     public int findID(int id, int objid[][])
     {
@@ -2106,7 +2106,7 @@ public class ExportHprof implements IQuery
         /**
          * Is the class name one which should have a new name invented?
          * @param cn
-         * @return
+         * @return true if the class name is to be changed
          */
         public boolean isRemapped(String cn)
         {
@@ -2227,7 +2227,7 @@ public class ExportHprof implements IQuery
          * Rename a file name based on a class name.
          * @param classname
          * @param filename
-         * @return
+         * @return the renamed file name
          */
         public String renameFileName(String classname, String filename)
         {
@@ -2300,9 +2300,9 @@ public class ExportHprof implements IQuery
          * HistogramQuery.$SWITCH_TABLE$org$eclipse$mat$inspections$HistogramQuery$Grouping()
          *
          * @param className
-         * @param method
+         * @param method method name or field name
          * @param upper static field in upper case, else all lower case.
-         * @return
+         * @return the renamed method or field name
          */
         public String renameMethodName(String className, String method, boolean upper)
         {
