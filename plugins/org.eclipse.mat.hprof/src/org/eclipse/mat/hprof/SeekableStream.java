@@ -287,11 +287,65 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         static final int MARKN = 32768 - 257;
         /** Mark if we would go this far forward from the last mark */
         static final int MARK = MARKN / 2;
-        void trymark(int n)
+        /**
+         * See if it is worthwhile doing a new mark, given that we are about
+         * to do an I/O operation
+         * @param n the number of bytes to be read or skipped
+         * @throws IOException
+         */
+        void trymark(int n) throws IOException
         {
-            if (markSupported() && (markpos == -1 || pos < markpos || pos + n - markpos >= MARK))
+            if (markSupported())
             {
-                mark(MARKN);
+                if (markpos == -1 || pos < markpos || pos - markpos > MARKN) 
+                {
+                    // No valid existing mark, so mark now
+                    mark(MARKN);
+                }
+                else if (pos + n - markpos >= MARKN)
+                {
+                    // Would overflow existing mark
+                    if (n < MARK)
+                    {
+                        // Would only just overflow the mark
+                        long pos0 = pos;
+                        try
+                        {
+                            // Go back to find a better position to mark
+                            reset();
+                        }
+                        catch (IOException e)
+                        {
+                        }
+                        if (pos < pos0)
+                        {
+                            // Go forward to get intermediate mark position
+                            long sk = pos0 + n - MARK;
+                            while (pos < sk)
+                            {
+                                long s = super.skip(sk - pos);
+                                if (s >= 0)
+                                    pos += s;
+                                else
+                                    throw new IOException(String.valueOf(s));
+                            }
+                        }
+                        mark(MARKN);
+                        // Go to the original location
+                        while (pos < pos0)
+                        {
+                            long s = super.skip(pos0 - pos);
+                            if (s >= 0)
+                                pos += s;
+                            else
+                                throw new IOException(String.valueOf(s));
+                        }
+                    }
+                }
+                else
+                {
+                    // operation fits within existing mark buffer
+                }
             }
         }
 
@@ -324,6 +378,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                         // Ignore, position unchanged
                     }
                 }
+                // Clear hard ref to allow Soft Reference clearing
                 in = null;
                 return false;
             }
@@ -899,6 +954,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 clearEntry();
             }
         }
+        long skipped1 = 0;
         while (toSkip > 0)
         {
             // Skip in 1GB chunks so we can save intermediate readers
@@ -933,10 +989,13 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             }
             // Skip should normally call read() which will update pos
             toSkip -= skipped;
+            skipped1 += skipped;
             // Possibly create some readers for intermediate places
             // current is null if we have skipped beyond the end of the stream
-            if (toSkip > 0 && ts.size() < cachesize && current != null)
+            if (toSkip > 0 && ts.size() < cachesize && current != null
+                && skipped1 >= 512*1024 && skipped1 * (cachesize - ts.size()) > toSkip + skipped)
             {
+                //System.out.println("added intermediate full="+toSkip1+" "+skipped1+" "+skipped+" "+ts.size()+" "+cachesize);
                 current.basepos = underlyingPosition();
                 PosStream extra = current.copy(nextseq);
                 if (extra != null)
@@ -946,14 +1005,25 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                     // Should always succeed
                     add(extra);
                 }
+                skipped1 = 0;
             }
         }
         long now = System.currentTimeMillis();
         totalseek += now - then;
-        if (verbose && now - then > 1000)
+        if (now - then > 1000)
         {
-            dump();
-            System.out.println(MessageUtil.format("Slow gzip seek to offset {0} from {1} by {2} cache size {3} took {4}ms", pos, pos - toSkip1, toSkip1, ts.size(), (now-then))); //$NON-NLS-1$
+            if (verbose)
+            {
+                dump();
+                System.out.println(MessageUtil.format("Slow gzip seek to offset {0} from {1} by {2} cache size {3} took {4}ms", pos, pos - toSkip1, toSkip1, ts.size(), (now-then))); //$NON-NLS-1$
+            }
+            // Slow, so try make sure 5% free in the cache
+            while (20 * (cachesize - ts.size()) < cachesize)
+                clearClosest();
+            if (verbose)
+            {
+                System.out.println(MessageUtil.format("Cleared to {0}", ts.size()));
+            }
         }
     }
 

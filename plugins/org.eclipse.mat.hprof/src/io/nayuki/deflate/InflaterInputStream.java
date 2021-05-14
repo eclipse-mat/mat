@@ -450,6 +450,7 @@ public final class InflaterInputStream extends FilterInputStream {
      * Addition for Eclipse MAT.
      * @return the number of bytes which can be read without blocking.
      */
+    @Override
     public int available() throws IOException {
         long input;
         int actual = (outputBufferLength - outputBufferIndex);

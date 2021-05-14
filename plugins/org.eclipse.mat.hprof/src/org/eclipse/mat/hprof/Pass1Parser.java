@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -309,7 +309,7 @@ public class Pass1Parser extends AbstractParser
      * Total of the size of the k biggest object arrays.
      * k = number of processors
      * Use to estimate how much more memory parallel parsing will use.
-     * @return
+     * @return size in bytes
      */
     public long biggestArrays()
     {
@@ -322,8 +322,8 @@ public class Pass1Parser extends AbstractParser
     }
 
     /**
-     * The stream length (in case the dump is compressed).
-     * @return
+     * Find the uncompressed stream length (in case the dump is compressed).
+     * @return the length in bytes
      */
     public long streamLength()
     {

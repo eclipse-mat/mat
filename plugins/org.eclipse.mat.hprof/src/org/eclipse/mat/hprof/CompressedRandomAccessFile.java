@@ -41,8 +41,8 @@ class CompressedRandomAccessFile extends RandomAccessFile
     /**
      * Create an unzipped view of the gzipped file, using multiple
      * gzipped readers to obtain the uncompressed data.
-     * @param file
-     * @param hint for random access
+     * @param file the compressed file
+     * @param random hint for random access
      * @param length estimate
      * @throws IOException
      */
@@ -147,7 +147,7 @@ class CompressedRandomAccessFile extends RandomAccessFile
      * Estimate the length of a file, including GZip without
      * decompressing the whole file.
      * @param f
-     * @return
+     * @return the estimate of the length
      * @throws IOException
      */
     public static long estimatedLength(File f) throws IOException
