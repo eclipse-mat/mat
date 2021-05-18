@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -82,7 +82,16 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
             try
             {
                 IObject obj = snapshot.getObject(ids[idx++]);
-                return new EntryObject(obj, getEntryKey(obj), getEntryValue(obj));
+                return new EntryObject(obj, null, null) {
+                    public IObject getKey()
+                    {
+                        return getEntryKey(obj);
+                    }
+                    public IObject getValue()
+                    {
+                        return getEntryValue(obj);
+                    }
+                };
             }
             catch (SnapshotException e)
             {
@@ -112,7 +121,8 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -124,7 +134,8 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            return null;
         }
     }
 }

@@ -50,13 +50,16 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
@@ -123,21 +126,43 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     /* package */static class BaseNode
     {
         int objectId;
+        long addr;
 
         public BaseNode(int objectId)
         {
+            this(objectId, 0);
+        }
+        public BaseNode(int objectId, long addr)
+        {
             this.objectId = objectId;
+            this.addr = addr;
+        }
+
+        static int objectID(IObject object)
+        {
+            if (object == null)
+                return -1;
+            try
+            {
+                return object.getObjectId();
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof SnapshotException)
+                    return -1;
+                throw e;
+            }
         }
     }
 
-    private class ObjectNode extends BaseNode
+    private static class ObjectNode extends BaseNode
     {
         String label;
         int imageType;
 
         public ObjectNode(IObject object)
         {
-            super(object.getObjectId());
+            super(objectID(object), object.getObjectAddress());
             this.label = object.getTechnicalName();
             this.imageType = ImageHelper.getType(object);
         }
@@ -209,19 +234,19 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         }
     }
 
-    public class InfoItem extends BaseNode
+    public static class InfoItem extends BaseNode
     {
         private ImageDescriptor descriptor;
         private String text;
 
         public InfoItem(ImageDescriptor descriptor, String text)
         {
-            this(-1, descriptor, text);
+            this(null, descriptor, text);
         }
 
-        public InfoItem(int objectId, ImageDescriptor descriptor, String text)
+        public InfoItem(IObject object, ImageDescriptor descriptor, String text)
         {
-            super(objectId);
+            super(objectID(object), object != null ? object.getObjectAddress() : 0);
             this.descriptor = descriptor;
             this.text = text;
         }
@@ -814,7 +839,21 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 objectSet = (IContextObject) object;
         }
 
-        if (objectSet == null || objectSet.getObjectId() < 0)
+        long addr = 0;
+        if (objectSet instanceof IContextObjectSet)
+        {
+            String oql = ((IContextObjectSet)objectSet).getOQL();
+            if (oql != null && ((IContextObjectSet)objectSet).getObjectIds().length == 0)
+            {
+                String addr0 = OQL.forAddress(0);
+                addr0 = addr0.substring(0, addr0.length() - 1);
+                if (oql.startsWith(addr0.substring(0, addr0.length())) && oql.substring(addr0.length() - 2).matches("0[xX][0-9a-fA-F]+")) //$NON-NLS-1$
+                {
+                    addr = Long.parseUnsignedLong(oql.substring(addr0.length()), 16);
+                }
+            }
+        }
+        if (objectSet == null || (objectSet.getObjectId() < 0 && addr == 0))
         {
             clearInput();
         }
@@ -828,8 +867,17 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             {
                 int current = ((Integer) data).intValue();
                 if (current == objectId)
-                    return;
+                {
+                    Object addr0 = topTableViewer.getData("address"); //$NON-NLS-1$
+                    if (addr0 != null)
+                    {
+                        long currentAddr = ((Long) addr0).longValue();
+                        if (currentAddr == addr)
+                            return;
+                    }
+                }
             }
+            final long objectAddress = addr;
 
             final ISnapshot savedSnapshot = snapshot;
 
@@ -844,7 +892,11 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         if (snapshot == null || savedSnapshot != snapshot)
                             return Status.OK_STATUS;
 
-                        final IObject object = savedSnapshot.getObject(objectId);
+                        final IObject object;
+                        if (objectId >= 0)
+                            object = savedSnapshot.getObject(objectId);
+                        else
+                            object = (new ObjectReference(savedSnapshot, objectAddress)).getObject();
 
                         // prepare object info
                         final List<Object> classInfos = prepareClassInfo(object);
@@ -864,6 +916,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                             {
                                 topTableViewer.setInput(classInfos);
                                 topTableViewer.setData("input", objectId);//$NON-NLS-1$
+                                topTableViewer.setData("address", object.getObjectAddress());//$NON-NLS-1$
                                 staticsTable.setInput(staticFields);
                                 attributesTable.setInput(attributeFields);
                                 updateVisualViewer(toShow);
@@ -1021,7 +1074,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 {
                     List<Object> details = new ArrayList<Object>();
 
-                    details.add(new InfoItem(object.getObjectId(), MemoryAnalyserPlugin
+                    details.add(new InfoItem(object, MemoryAnalyserPlugin
                                     .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.ID), "0x"//$NON-NLS-1$
                                     + Long.toHexString(object.getObjectAddress())));
 
@@ -1031,7 +1084,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     int p = className.lastIndexOf('.');
                     if (p < 0) // primitive
                     {
-                        InfoItem item = new InfoItem(object.getObjectId(), ImageHelper.getImageDescriptor(ImageHelper
+                        InfoItem item = new InfoItem(object, ImageHelper.getImageDescriptor(ImageHelper
                                         .getType(object)), className);
                         details.add(item);
                         details.add(new InfoItem(MemoryAnalyserPlugin
@@ -1039,7 +1092,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                     else
                     {
-                        details.add(new InfoItem(object.getObjectId(), ImageHelper.getImageDescriptor(ImageHelper
+                        details.add(new InfoItem(object, ImageHelper.getImageDescriptor(ImageHelper
                                         .getType(object)), className.substring(p + 1)));
                         details.add(new InfoItem(MemoryAnalyserPlugin
                                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.PACKAGE), className
@@ -1053,7 +1106,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
                     if (superClass != null)
                     {
-                        details.add(new InfoItem(superClass.getObjectId(), MemoryAnalyserPlugin
+                        details.add(new InfoItem(superClass, MemoryAnalyserPlugin
                                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SUPERCLASS), superClass
                                         .getName()));
                     }
@@ -1071,7 +1124,15 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageUtil.format(
                                     Messages.InspectorView_retainedSize, object.getRetainedHeapSize())));
 
-                    GCRootInfo[] gc = object.getGCRootInfo();
+                    GCRootInfo[] gc;
+                    try
+                    {
+                        gc = object.getGCRootInfo();
+                    }
+                    catch (SnapshotException e)
+                    {
+                        gc = null;
+                    }
                     details.add(gc != null ? (Object) gc : new InfoItem(MemoryAnalyserPlugin
                                     .getImageDescriptor(ImageHelper.Decorations.GC_ROOT),
                                     Messages.InspectorView_noGCRoot));

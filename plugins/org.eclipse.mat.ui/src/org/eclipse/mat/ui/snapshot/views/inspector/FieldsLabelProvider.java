@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.snapshot.views.inspector.FieldsContentProvider.MoreNode;
 import org.eclipse.swt.SWT;
@@ -99,7 +100,9 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
             ISnapshot snapshot = this.inspectorView.snapshot;
             if (snapshot != null)
             {
-                IObject object = snapshot.getObject(snapshot.mapAddressToId(objectAddress));
+                // Could work for unindexed objects
+                ObjectReference ref = new ObjectReference(snapshot, objectAddress);
+                IObject object = ref.getObject();
                 String text = object.getClassSpecificName();
                 if (text == null)
                     text = object.getTechnicalName();

@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -118,17 +119,36 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                 int length = array.getLength();
                 if (length > 1)
                 {
+                    // Read in chunks as DTFJ is slow for single reads
+                    final int BUFSIZE = 16 * 1024;
                     boolean allSame = true;
-                    Object value0 = array.getValueAt(0);
-                    for (int i = 1; i < length; i++)
+                    Object value0 = null;
+                    for (int i = 0; allSame && i < length;)
                     {
-                        Object valueAt = array.getValueAt(i);
-                        if (valueAt.equals(value0))
-                            continue;
+                        int buflen = Math.min(length - i, BUFSIZE);
+                        Object o = array.getValueArray(i, buflen);
+                        int j;
+                        if (i == 0)
+                        {
+                            value0 = Array.get(objectIds, 0);
+                            j = 1;
+                        }
                         else
                         {
-                            allSame = false;
-                            break;
+                            j = 0;
+                        }
+                        int actlen = Array.getLength(o);
+                        i += actlen;
+                        for (;j < actlen; ++j)
+                        {
+                            Object valueAt = Array.get(o, j);
+                            if (valueAt.equals(value0))
+                                continue;
+                            else
+                            {
+                                allSame = false;
+                                break;
+                            }
                         }
                     }
                     if (allSame)

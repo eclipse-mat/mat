@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2018 IBM Corporation.
+ * Copyright (c) 2009,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.dtfj.DTFJIndexBuilder.RuntimeInfo;
 import org.eclipse.mat.parser.IObjectReader;
+import org.eclipse.mat.parser.model.AbstractObjectImpl;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
@@ -74,6 +75,8 @@ public class DTFJHeapObjectReader implements IObjectReader
     private File file;
     /** All the key DTFJ data */
     private RuntimeInfo dtfjInfo;
+    /** the snapshot */
+    private ISnapshot snapshot;
     /**
      * whether to give up and throw an exception if reading object data fails,
      * or whether to carry on getting more data
@@ -88,6 +91,34 @@ public class DTFJHeapObjectReader implements IObjectReader
     {
         // Close the dump
         DTFJIndexBuilder.DumpCache.releaseDump(file, dtfjInfo, true);
+        snapshot = null;
+    }
+
+    class ObjectAddressReference extends ObjectReference
+    {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
+        public ObjectAddressReference()
+        {
+            super(snapshot, 0);
+        }
+
+        public IObject getObject() throws SnapshotException
+        {
+            try
+            {
+                IObject o = DTFJHeapObjectReader.this.read(getObjectAddress(), -1, snapshot);
+                ((AbstractObjectImpl)o).setSnapshot(snapshot);
+                return o;
+            }
+            catch (IOException e)
+            {
+                throw new SnapshotException(e);
+            }
+        }
     }
 
     /**
@@ -132,6 +163,10 @@ public class DTFJHeapObjectReader implements IObjectReader
         {
             return addon.cast(factory);
         }
+        else if (addon.isAssignableFrom(ObjectAddressReference.class))
+        {
+            return addon.cast(new ObjectAddressReference());
+        }
         else
         {
             return null;
@@ -147,6 +182,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     public void open(ISnapshot snapshot) throws IOException, SnapshotException
     {
         file = new File(snapshot.getSnapshotInfo().getPath());
+        this.snapshot = snapshot;
         SnapshotInfo snapinfo = snapshot.getSnapshotInfo();
         RuntimeInfo info = DTFJIndexBuilder.DumpCache.getDump(file, snapinfo.getProperty("$heapFormat")); //$NON-NLS-1$
         Serializable runtimeId = snapinfo.getProperty(DTFJIndexBuilder.RUNTIME_ID_KEY);
@@ -162,12 +198,17 @@ public class DTFJHeapObjectReader implements IObjectReader
     public IObject read(int objectId, ISnapshot snapshot) throws SnapshotException, IOException
     {
         long addr = snapshot.mapIdToAddress(objectId);
+        return read(addr, objectId, snapshot);
+    }
+
+    IObject read(long addr, int objectId, ISnapshot snapshot) throws SnapshotException, IOException
+    {
         try
         {
             // DTFJ is not thread safe, but MAT is multi-threaded
             synchronized (dtfjInfo.getImage())
             {
-                if (getExtraInfo)
+                if (getExtraInfo && objectId != -1)
                 {
                     // See if the class looks like a method
                     ClassImpl cls = (ClassImpl) snapshot.getClassOf(objectId);
@@ -181,7 +222,7 @@ public class DTFJHeapObjectReader implements IObjectReader
                 }
                 JavaObject jo = getJavaObjectByAddress0(addr);
                 IObject inst;
-                if (snapshot.isArray(objectId))
+                if (objectId == -1 ? jo.isArray() : snapshot.isArray(objectId))
                 {
                     inst = createArray(snapshot, objectId, addr, jo);
                 }
@@ -469,7 +510,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     private InstanceImpl createObject(ISnapshot snapshot, int objectId, long addr, JavaObject jo)
                     throws CorruptDataException, MemoryAccessException, SnapshotException
     {
-        ClassImpl cls = (ClassImpl) snapshot.getClassOf(objectId);
+        ClassImpl cls = findClass(snapshot, objectId, jo, addr);
         /*
          * Optimization - don't bother going to dump if there are no fields to
          * be found, and find the number of fields in advance if we do.
@@ -540,6 +581,42 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
         // System.out.println("inst = "+inst);
         return inst;
+    }
+
+    private ClassImpl findClass(ISnapshot snapshot, int objectId, JavaObject jo, long addr)
+                    throws CorruptDataException, SnapshotException
+    {
+        ClassImpl cls;
+        if (objectId == -1)
+        {
+            JavaClass jc = jo.getJavaClass();
+            if (jc != null)
+            {
+                JavaObject jco = jc.getObject();
+                long caddr;
+                if (jco != null)
+                    caddr = jco.getID().getAddress();
+                else
+                    caddr = jc.getID().getAddress();
+                int clsId = snapshot.mapAddressToId(caddr);
+                IObject cls1 = snapshot.getObject(clsId);
+                if (cls1 instanceof ClassImpl)
+                    cls = (ClassImpl) cls1;
+                else
+                    throw new SnapshotException(MessageFormat.format(
+                                    Messages.DTFJHeapObjectReader_ErrorReadingObjectAtIndex, objectId, format(addr)));
+            }
+            else
+            {
+                throw new SnapshotException(MessageFormat.format(
+                                Messages.DTFJHeapObjectReader_ErrorReadingObjectAtIndex, objectId, format(addr)));
+            }
+        }
+        else
+        {
+            cls = (ClassImpl) snapshot.getClassOf(objectId);
+        }
+        return cls;
     }
 
     /**
@@ -622,7 +699,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     private IObject createArray(ISnapshot snapshot, int objectId, long addr, JavaObject jo)
                     throws CorruptDataException, MemoryAccessException, SnapshotException
     {
-        ClassImpl cls = (ClassImpl) snapshot.getClassOf(objectId);
+        ClassImpl cls = findClass(snapshot, objectId, jo, addr);
         int offset = 0;
         int length = jo.getArraySize();
         // System.out.println("Array length "+length);

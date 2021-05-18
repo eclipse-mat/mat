@@ -16,6 +16,7 @@ package org.eclipse.mat.inspections.collections;
 
 import java.util.Arrays;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
@@ -167,7 +168,7 @@ public class MapCollisionRatioQuery implements IQuery
                         }
                     }
                 }
-                catch (RuntimeException e)
+                catch (RuntimeException | SnapshotException e)
                 {
                     int classId = obj.getClazz().getObjectId();
                     if (!exceptions.containsKey(classId))
