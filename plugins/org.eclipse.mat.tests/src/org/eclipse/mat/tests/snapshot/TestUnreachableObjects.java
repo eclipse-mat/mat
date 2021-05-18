@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,17 +13,31 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.Assert.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
+import org.eclipse.mat.tests.snapshot.GeneralSnapshotTests.CheckedProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 
 public class TestUnreachableObjects
 {
@@ -64,6 +78,43 @@ public class TestUnreachableObjects
         compareDiscard(TestSnapshots.IBM_JDK6_32BIT_SYSTEM);
     }
 
+    @Test
+    public void testDiscardReportSunJDK5_64() throws SnapshotException
+    {
+        discardComponentReport(TestSnapshots.SUN_JDK5_64BIT);
+    }
+
+    @Test
+    public void testDiscardReportSunJDK6_32() throws SnapshotException
+    {
+        discardComponentReport(TestSnapshots.SUN_JDK6_32BIT);
+    }
+
+    @Test
+    public void testDiscardReportIBMJDK6_32_SYSTEM() throws SnapshotException
+    {
+        discardComponentReport(TestSnapshots.IBM_JDK6_32BIT_SYSTEM);
+    }
+
+
+    @Test
+    public void testDiscardStringsSunJDK5_64() throws SnapshotException
+    {
+        discardStringsValue(TestSnapshots.SUN_JDK5_64BIT);
+    }
+
+    @Test
+    public void testDiscardStringsSunJDK6_32() throws SnapshotException
+    {
+        discardStringsValue(TestSnapshots.SUN_JDK6_32BIT);
+    }
+
+    @Test
+    public void testDiscardStringsIBMJDK6_32_SYSTEM() throws SnapshotException
+    {
+        discardStringsValue(TestSnapshots.IBM_JDK6_32BIT_SYSTEM);
+    }
+    
     // IBM PHD files do not have accurate roots, so this test won't work for IBM_JDK6_32BIT_HEAP
 
     private void compareUnreachable(String snapshotName) throws SnapshotException
@@ -97,6 +148,81 @@ public class TestUnreachableObjects
         // Tidy up these pristine snapshots early
         unreachables.dispose();
         classic.dispose();
+    }
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
+    private void discardComponentReport(String snapshotName) throws SnapshotException
+    {
+        Map<String, String> options2 = new HashMap<String, String>();
+        options2.put("keep_unreachable_objects", "false");
+        options2.put("discard_ratio", "60");
+        options2.put("discard_pattern", "char\\[\\]|java\\.lang\\.String");
+        options2.put("discard_offset", "80");
+        options2.put("discard_seed", "2");
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotName, options2, true);
+        SnapshotQuery query = SnapshotQuery.lookup("component_report_top", snapshot);
+        query.setArgument("aggressive", true);
+        IResult result = query.execute(new CheckedProgressListener(collector));
+        assertTrue(result != null);
+        // Tidy up these pristine snapshots early
+        snapshot.dispose();
+    }
+
+    private void discardStringsValue(String snapshotName) throws SnapshotException
+    {
+        Map<String, String> options2 = new HashMap<String, String>();
+        options2.put("keep_unreachable_objects", "false");
+        options2.put("discard_ratio", "60");
+        options2.put("discard_pattern", "char\\[\\]|java\\.lang\\.String");
+        options2.put("discard_offset", "80");
+        options2.put("discard_seed", "2");
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotName, options2, true);
+        int len = 0;
+        int bad = 0;
+        int unindexed = 0;
+        for (IClass cls : snapshot.getClassesByName("java.lang.String[]", false))
+        {
+            for (int id : cls.getObjectIds())
+            {
+                IObjectArray ia = (IObjectArray) snapshot.getObject(id);
+                for (NamedReference ref : ia.getOutboundReferences())
+                {
+                    try
+                    {
+                        IObject s = ref.getObject();
+                        String v = s.getClassSpecificName();
+                        if (v != null)
+                        {
+                            len += v.length();
+                            if (v.length() > 0)
+                            {
+                                try
+                                {
+                                    int id1 = s.getObjectId();
+                                    if (id1 < 0)
+                                        ++unindexed;
+                                }
+                                catch (RuntimeException e)
+                                {
+                                    if (e.getCause() instanceof SnapshotException)
+                                        ++unindexed;
+                                }
+                            }
+                        }
+                    }
+                    catch (SnapshotException e)
+                    {
+                        ++bad;
+                    }
+                }
+            }
+        }
+        assertThat("Strings should be readable", len, greaterThanOrEqualTo(800));
+        assertThat("Not too many bad reads", bad, lessThanOrEqualTo(300));
+        assertThat("Unindexed objects have resolved", unindexed, greaterThanOrEqualTo(15));
+        // Tidy up these pristine snapshots early
+        snapshot.dispose();
     }
 
     private void compare(ISnapshot unreachables, ISnapshot classic) throws SnapshotException

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ public class HprofHeapObjectReader implements IObjectReader
 {
     public static final String VERSION_PROPERTY = "hprof.version"; //$NON-NLS-1$
     public static final String HPROF_LENGTH_PROPERTY = "hprof.length"; //$NON-NLS-1$
+    public static final String HPROF_HEAP_START = "hprof.heap.start"; //$NON-NLS-1$
 
     private ISnapshot snapshot;
     private HprofRandomAccessParser hprofDump;
@@ -201,7 +202,7 @@ public class HprofHeapObjectReader implements IObjectReader
     public IObject read(int objectId, ISnapshot snapshot) throws SnapshotException, IOException
     {
         long filePosition = o2hprof.get(objectId);
-        return hprofDump.read(objectId, filePosition, snapshot);
+        return hprofDump.read(objectId, filePosition, snapshot, o2hprof);
     }
 
     /**
@@ -223,6 +224,10 @@ public class HprofHeapObjectReader implements IObjectReader
             A answer = enhancer.getAddon(snapshot, addon);
             if (answer != null)
                 return answer;
+        }
+        if (addon.isAssignableFrom(HprofRandomAccessParser.ObjectAddressReference.class))
+        {
+            return addon.cast(new HprofRandomAccessParser.ObjectAddressReference(snapshot, hprofDump, o2hprof, Long.MIN_VALUE));
         }
         return null;
     }

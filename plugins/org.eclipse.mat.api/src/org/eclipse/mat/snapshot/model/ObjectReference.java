@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - lookup by address
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
@@ -65,7 +66,25 @@ public class ObjectReference implements Serializable
      */
     public IObject getObject() throws SnapshotException
     {
-        return snapshot.getObject(getObjectId());
+        int objectId;
+        try
+        {
+            objectId = getObjectId();
+        }
+        catch (SnapshotException e)
+        {
+            ObjectReference proxy = snapshot.getSnapshotAddons(ObjectReference.class);
+            if (proxy != null)
+            {
+                proxy.address = getObjectAddress();
+                return proxy.getObject();
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        return snapshot.getObject(objectId);
     }
 
     /**

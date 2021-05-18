@@ -709,6 +709,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             long length = Long.parseLong(value);
             info.setProperty(HprofHeapObjectReader.HPROF_LENGTH_PROPERTY, length);
         }
+        else if (IHprofParserHandler.HEAP_POSITION.equals(name))
+        {
+            long pos = Long.parseLong(value);
+            info.setProperty(HprofHeapObjectReader.HPROF_HEAP_START, pos);
+        }
     }
 
     public void addGCRoot(long id, long referrer, int rootType)
@@ -978,6 +983,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private boolean discard()
     {
         if (discardRatio <= 0.0)
+            return false;
+        // Always accept the first object to give a start to the heap
+        if (identifiers.size() == 0)
             return false;
         double d = rand.nextDouble();
         double top = discardRatio + discardOffset;

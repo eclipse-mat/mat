@@ -151,9 +151,25 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
     @Override
     public long getUsedHeapSize()
     {
-        try {
-            return getSnapshot().getHeapSize(getObjectId());
-        } catch (SnapshotException e) {
+        try
+        {
+            int objId;
+            try
+            {
+                objId = getObjectId();
+            }
+            catch (RuntimeException e)
+            {
+                Throwable cause = e.getCause();
+                if (cause instanceof SnapshotException)
+                    throw (SnapshotException) cause;
+                else
+                    throw e;
+            }
+            return getSnapshot().getHeapSize(objId);
+        }
+        catch (SnapshotException e)
+        {
             return classInstance.getHeapSizePerInstance();
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,13 +9,16 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM) - handle missing objects
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
 
@@ -58,6 +61,28 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
                             return node.objectId;
                         }
                     };
+                if (node.addr != Long.MIN_VALUE)
+                    return new IContextObjectSet()
+                    {
+
+                        @Override
+                        public int getObjectId()
+                        {
+                            return -1;
+                        }
+
+                        @Override
+                        public int[] getObjectIds()
+                        {
+                            return new int[0];
+                        }
+
+                        @Override
+                        public String getOQL()
+                        {
+                            return OQL.forAddress(node.addr);
+                        }
+                    };
             }
             else if (row instanceof IClass)
             {
@@ -75,6 +100,33 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
         }
         catch (SnapshotException e)
         {
+            if (row instanceof NamedReferenceNode)
+            {
+                NamedReferenceNode node = (NamedReferenceNode) row;
+                return new IContextObjectSet() {
+
+                    @Override
+                    public int getObjectId()
+                    {
+                        return -1;
+                    }
+
+                    @Override
+                    public int[] getObjectIds()
+                    {
+                        return new int[0];
+                    }
+
+                    @Override
+                    public String getOQL()
+                    {
+                        // Used when the address does not convert to an object ID,
+                        // such as when objects are discarded.
+                        return OQL.forAddress(node.objectAddress);
+                    }
+                    
+                };
+            }
             throw new RuntimeException(e);
         }
     }

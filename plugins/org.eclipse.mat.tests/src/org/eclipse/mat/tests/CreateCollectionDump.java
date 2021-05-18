@@ -115,7 +115,7 @@ public class CreateCollectionDump
                         }
                     }
                     if (!found)
-                        System.out.println("Missing entry set class " + s2.getClass());
+                        System.out.println("Missing entry set " + s2.getClass());
                 }
             }
         }

@@ -17,11 +17,13 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.ui.Messages;
@@ -61,6 +63,10 @@ public abstract class CopyActions implements IQuery
 
                     appendValue(buf, object);
                 }
+                else
+                {
+                    appendValue(buf, argument);
+                }
                 listener.worked(1);
                 if (listener.isCanceled())
                     break;
@@ -88,6 +94,9 @@ public abstract class CopyActions implements IQuery
     }
 
     protected abstract void appendValue(StringBuilder buf, IObject object) throws SnapshotException;
+    protected void appendValue(StringBuilder buf, IContextObject ctx) throws SnapshotException
+    {}
+
 
     // //////////////////////////////////////////////////////////////
     // several copy actions
@@ -99,6 +108,29 @@ public abstract class CopyActions implements IQuery
         protected void appendValue(StringBuilder buf, IObject object)
         {
             buf.append("0x").append(Long.toHexString(object.getObjectAddress()));//$NON-NLS-1$
+        }
+        protected void appendValue(StringBuilder buf, IContextObject ctx) throws SnapshotException
+        {
+            if (ctx instanceof IContextObjectSet)
+            {
+                IContextObjectSet ctxs = (IContextObjectSet)ctx;
+                String oql = ctxs.getOQL();
+                if (oql != null && ctxs.getObjectIds().length == 0)
+                {
+                    String dummy = OQL.forAddress(0x0);
+                    if (oql.startsWith(dummy.substring(0, dummy.length() - 3)))
+                    {
+                        // Special OQL indicating unindexed object
+                        String addr = oql.substring(dummy.length() - 3);
+                        if (addr.matches("0[xX][0-9A-Fa-f]+")) //$NON-NLS-1$
+                        {
+                            if (buf.length() > 0)
+                                buf.append(System.lineSeparator());
+                            buf.append(addr);
+                        }
+                    }
+                }
+            }
         }
     }
 
