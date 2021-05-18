@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - read discarded objects by address
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
@@ -34,6 +35,7 @@ import org.eclipse.mat.ui.Messages;
     private WeakReference<O> array;
 
     private int objectId;
+    private long objectAddr;
 
     protected List<Object> cache = new ArrayList<Object>();
 
@@ -44,7 +46,7 @@ import org.eclipse.mat.ui.Messages;
             this.snapshot = new WeakReference<ISnapshot>(object.getSnapshot());
             this.array = new WeakReference<O>(object);
 
-            this.objectId = object.getObjectId();
+            this.objectAddr = object.getObjectAddress();
         }
     }
 
@@ -73,7 +75,8 @@ import org.eclipse.mat.ui.Messages;
 
             try
             {
-                object = (O) snapshot.getObject(objectId);
+                ObjectReference ref = new ObjectReference(snapshot, objectAddr);
+                object = (O) ref.getObject();
                 this.array = new WeakReference<O>(object);
             }
             catch (SnapshotException e)

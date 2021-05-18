@@ -355,17 +355,30 @@ public class HashEntriesQuery implements IQuery
                     for (Map.Entry<IObject, IObject> me : map)
                     {
                         Entry e;
+                        int keyId,valueId;
+                        try
+                        {
+                            keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
+                        }
+                        catch (RuntimeException e1)
+                        {
+                            keyId = -1;
+                        }
+                        try
+                        {
+                            valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
+                        }
+                        catch (RuntimeException e1)
+                        {
+                            valueId = -1;
+                        }
                         if (me instanceof IObject)
                         {
                             IObject meObject = (IObject) me;
-                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
-                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
                             e = new Entry(obj.getObjectId(), obj.getDisplayName(), keyId, valueId);
                         }
                         else
                         {
-                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
-                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
                             e = new Entry(objectId, obj.getDisplayName(), keyId, valueId);
                         }
                         hashEntries1.add(e);

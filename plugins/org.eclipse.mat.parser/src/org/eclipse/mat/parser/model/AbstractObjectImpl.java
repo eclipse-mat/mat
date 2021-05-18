@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -140,7 +140,20 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     {
         try
         {
-            return source.getRetainedHeapSize(getObjectId());
+            int objId;
+            try
+            {
+                objId = getObjectId();
+            }
+            catch (RuntimeException e)
+            {
+                Throwable cause = e.getCause();
+                if (cause instanceof SnapshotException)
+                    return 0;
+                else
+                    throw e;
+            }
+            return source.getRetainedHeapSize(objId);
         }
         catch (SnapshotException e)
         {
@@ -290,7 +303,20 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
 
     public GCRootInfo[] getGCRootInfo() throws SnapshotException
     {
-        return source.getGCRootInfo(getObjectId());
+        int objId;
+        try
+        {
+            objId = getObjectId();
+        }
+        catch (RuntimeException e)
+        {
+            Throwable cause = e.getCause();
+            if (cause instanceof SnapshotException)
+                throw (SnapshotException)cause;
+            else
+                throw e;
+        }
+        return source.getGCRootInfo(objId);
     }
 
     @Override
