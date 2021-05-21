@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -304,8 +304,8 @@ public class EquinoxBundleReader2 implements IBundleReader
                 continue;
             try
             {
-                int valueId = snapshot.mapAddressToId(valueAddresses[j]);
-                IObject valueObject = snapshot.getObject(valueId);
+                ObjectReference valueRef = new ObjectReference(snapshot, valueAddresses[j]);
+                IObject valueObject = valueRef.getObject();
                 if (valueObject == null)
                     continue;
                 if (valueObject.getClazz().isArrayType())
@@ -314,10 +314,10 @@ public class EquinoxBundleReader2 implements IBundleReader
 
                     for (int k = 0; k < addresses.length; k++)
                     {
-                        if (valueAddresses[k] == 0)
+                        if (addresses[k] == 0)
                             continue;
-                        int id = snapshot.mapAddressToId(addresses[k]);
-                        IObject object = snapshot.getObject(id);
+                        ObjectReference objectRef = new ObjectReference(snapshot, addresses[k]);
+                        IObject object = objectRef.getObject();
                         if (object == null)
                             continue;
                         values[j] = object.getClassSpecificName();
@@ -958,9 +958,9 @@ public class EquinoxBundleReader2 implements IBundleReader
                     continue;
                 try
                 {
-                    int id = snapshot.mapAddressToId(addresses[i]);
+                    ObjectReference objectRef = new ObjectReference(snapshot, addresses[i]);
 
-                    IObject object = snapshot.getObject(id);
+                    IObject object = objectRef.getObject();
                     propertiesAndValues[i] = object.getClassSpecificName();
                 }
                 catch (SnapshotException e)
@@ -1078,8 +1078,8 @@ public class EquinoxBundleReader2 implements IBundleReader
             {
                 if (addresses[i] == 0)
                     continue;
-                int id = snapshot.mapAddressToId(addresses[i]);
-                IObject object = snapshot.getObject(id);
+                ObjectReference objectRef = new ObjectReference(snapshot, addresses[i]);
+                IObject object = objectRef.getObject();
                 properties[i] = object.getClassSpecificName();
 
             }
@@ -1117,7 +1117,8 @@ public class EquinoxBundleReader2 implements IBundleReader
                         int ii = vi[j];
                         if (ii == objectId)
                         {
-                            IObject o = snapshot.getObject(snapshot.mapAddressToId(addrs[j]));
+                            ObjectReference oRef = new ObjectReference(snapshot, addrs[j]);
+                            IObject o = oRef.getObject();
                             if (o != null)
                             {
                                 String nm = o.getClassSpecificName();

@@ -218,7 +218,22 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> threadToLocalVars = source.getRootsPerThread();
         if (threadToLocalVars != null)
         {
-            HashMapIntObject<XGCRootInfo[]> localVars = threadToLocalVars.get(getObjectId());
+            HashMapIntObject<XGCRootInfo[]> localVars;
+            try
+            {
+                localVars = threadToLocalVars.get(getObjectId());
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof SnapshotException)
+                {
+                    localVars = null;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
             if (localVars != null)
             {
                 IteratorInt localsIds = localVars.keys();

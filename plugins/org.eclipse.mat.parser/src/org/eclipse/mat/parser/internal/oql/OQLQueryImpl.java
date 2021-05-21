@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
@@ -242,10 +244,19 @@ public class OQLQueryImpl implements IOQLQuery
          */
         static int getObjectId(Object o)
         {
-            if (o instanceof IObject)
-                return ((IObject)o).getObjectId();
-            //else if (o instanceof RowMap)
-            //    return ((RowMap)o).getObjectId();
+            try
+            {
+                if (o instanceof IObject)
+                    return ((IObject)o).getObjectId();
+                //else if (o instanceof RowMap)
+                //    return ((RowMap)o).getObjectId();
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof SnapshotException)
+                    return -1;
+                throw e;
+            }
             return -1;
         }
 
@@ -293,7 +304,7 @@ public class OQLQueryImpl implements IOQLQuery
                 // Find an example object for each column
                 Object sample = getRowCount() > 0 ? getColumnValue(getRow(0), ii) : null;
                 // See if it is one or more objects from the dump
-                if (getObjectId(sample) != -1 ||
+                if (getObjectId(sample) != -1 || sample instanceof IObject ||
                                 sample instanceof Iterable<?> && ((Iterable<?>)sample).iterator().hasNext() && getObjectId(((Iterable<?>)sample).iterator().next()) != -1 ||
                                 sample instanceof int[])
                 {
@@ -343,7 +354,7 @@ public class OQLQueryImpl implements IOQLQuery
                                     }
                                 }
                             }
-                            if (objectId != -1 || goodContext)
+                            if (objectId != -1 || o instanceof IObject || goodContext)
                             {
                                 return new IContextObjectSet() {
 
@@ -389,8 +400,9 @@ public class OQLQueryImpl implements IOQLQuery
                                                     {
                                                         OQLQueryImpl q2 = new OQLQueryImpl(oqlsource);
                                                         q2.query.getSelectClause().setSelectList(Collections.emptyList());
-                                                        String oqlsource2 = q2.query.toString();
-                                                        return "SELECT "+column.toString()+" FROM OBJECTS (" + oqlsource2+") "+alias2; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                                        //String oqlsource2 = q2.query.toString();
+                                                        //return "SELECT "+column.toString()+" FROM OBJECTS (" + oqlsource2+") "+alias2; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                                        return "SELECT "+column.toString()+" FROM " + q2.query.getFromClause();  //$NON-NLS-1$//$NON-NLS-2$
                                                     }
                                                     catch (OQLParseException e)
                                                     {
@@ -622,7 +634,7 @@ public class OQLQueryImpl implements IOQLQuery
 
             Object subject = ((ValueHolder) objects[index]).subject;
             int objectId = getObjectId(subject);
-            if (objectId != -1 || subject == null || subject instanceof Character || subject instanceof Integer
+            if (objectId != -1 || subject instanceof IObject || subject == null || subject instanceof Character || subject instanceof Integer
                             || subject instanceof Long || subject instanceof Float || subject instanceof Double
                             || subject instanceof Boolean || subject instanceof String || subject instanceof AbstractCustomTableResultSet.RowMap)
             {
@@ -908,7 +920,21 @@ public class OQLQueryImpl implements IOQLQuery
         else if (subject instanceof Long)
             return Long.toString((Long) subject) + "L"; //$NON-NLS-1$
         else if (subject instanceof IObject)
-            return "${snapshot}.getObject(" + Integer.toString(((IObject) subject).getObjectId()) + ")";  //$NON-NLS-1$//$NON-NLS-2$
+        {
+            IObject obj = (IObject) subject;
+            try
+            {
+                return "${snapshot}.getObject(" + Integer.toString(obj.getObjectId()) + ")";  //$NON-NLS-1$//$NON-NLS-2$
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof SnapshotException)
+                {
+                    return "eval((SELECT * FROM OBJECTS 0x" + Long.toHexString(obj.getObjectAddress()) + "))[0]";   //$NON-NLS-1$//$NON-NLS-2$
+                }
+                throw e;
+            }
+        }
         else
             return null;
     }
@@ -916,10 +942,14 @@ public class OQLQueryImpl implements IOQLQuery
     public static String OQLforSubject(String select, Object subject, String alias)
     {
         String from;
-        // OQL literals (not Byte or Short)
-        String literal = OQLLiteral(subject);
-        if (literal != null)
+        String literal;
+        if (subject instanceof IObject)
+            from = "0x" + Long.toHexString(((IObject)subject).getObjectAddress()); //$NON-NLS-1$
+        else if ((literal = OQLLiteral(subject)) != null)
+        {
+            // OQL literals (not Byte or Short)
             from = "(" + literal + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+        }
         else if (subject instanceof AbstractCustomTableResultSet.RowMap)
         {
             AbstractCustomTableResultSet.RowMap rm = ( AbstractCustomTableResultSet.RowMap)subject;
@@ -1827,13 +1857,42 @@ public class OQLQueryImpl implements IOQLQuery
         {
             ArrayLong objectAddresses = query.getFromClause().getObjectAddresses();
             IntArrayResult result = new IntArrayResult(objectAddresses.size());
+            List<ObjectReference> resultRefs = null;
 
             for (IteratorLong ee = objectAddresses.iterator(); ee.hasNext();)
-                result.add(ctx.getSnapshot().mapAddressToId(ee.next()));
+            {
+                long addr = ee.next();
+                if (resultRefs == null)
+                {
+                    try
+                    {
+                        int objId = ctx.getSnapshot().mapAddressToId(addr);
+                        result.add(objId);
+                    }
+                    catch (SnapshotException e)
+                    {
+                        // Unindexed object, so work with addresses
+                        resultRefs = new ArrayList<ObjectReference>();
+                        for (IntIterator ii = result.iterator(); ii.hasNext(); )
+                        {
+                            ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(ii.nextInt()));
+                            resultRefs.add(ref);
+                        }
+                    }
+                }
+                if (resultRefs != null)
+                {
+                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), addr);
+                    resultRefs.add(ref);
+                }
+            }
 
             if (query.getFromClause().includeObjects() && !query.getFromClause().includeSubClasses())
             {
-                return filterAndSelect(result, listener);
+                if (resultRefs != null)
+                    return filterAndSelect(resultRefs, listener);
+                else
+                    return filterAndSelect(result, listener);
             }
             else
             {
@@ -2211,6 +2270,28 @@ public class OQLQueryImpl implements IOQLQuery
         return filteredSet.isEmpty() ? null : select(filteredSet, listener);
     }
 
+    private Object filterAndSelect(List<ObjectReference>objectRefs, IProgressListener listener) throws SnapshotException
+    {
+        String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
+        listener.beginTask(task, objectRefs.size());
+
+        List<Object>filteredSet = new ArrayList<Object>(objectRefs.size());
+
+        for (Iterator<ObjectReference> iter = objectRefs.iterator(); iter.hasNext();)
+        {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
+            ObjectReference ref = iter.next();
+            IObject obj = ref.getObject();
+            if (accept(obj, listener))
+                filteredSet.add(obj);
+            listener.worked(1);
+        }
+
+        return filteredSet.isEmpty() ? null : select(filteredSet, listener);
+    }
+
     private Object select(IntResult objectIds, IProgressListener listener) throws SnapshotException
     {
         Query.SelectClause select = query.getSelectClause();
@@ -2531,6 +2612,11 @@ public class OQLQueryImpl implements IOQLQuery
                         int id = ctx.getSnapshot().mapAddressToId(addr);
                         resultSet.add(id);
                     }
+                }
+                else if (object instanceof ObjectReference)
+                {
+                    int id = ((ObjectReference)object).getObjectId();
+                    resultSet.add(id);
                 }
                 else if (object instanceof long[])
                 {

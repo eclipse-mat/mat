@@ -278,10 +278,10 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         if (ref == null)
             return null;
 
-        int objectId;
+        IObject object;
         try
         {
-            objectId = ref.getObjectId();
+            object = ref.getObject();
         }
         catch (SnapshotException e)
         {
@@ -291,7 +291,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
             throw new SnapshotException(msg, e);
         }
 
-        return this.source.getObject(objectId).resolveValue(name.substring(p + 1));
+        return object.resolveValue(name.substring(p + 1));
     }
 
     /**
@@ -322,7 +322,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof IObject && this.objectId == ((IObject) obj).getObjectId();
+        return obj instanceof IObject && this.getObjectAddress() == ((IObject) obj).getObjectAddress();
     }
 
     @Override

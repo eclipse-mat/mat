@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 IBM Corporation.
+ * Copyright (c) 2012, 2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 class ArrayIndexExpression extends Expression
@@ -109,8 +110,8 @@ class ArrayIndexExpression extends Expression
             ISnapshot snapshot = array.getSnapshot();
             try
             {
-                int objectId = snapshot.mapAddressToId(addr);
-                return snapshot.getObject(objectId);
+                ObjectReference or = new ObjectReference(snapshot, addr);
+                return or.getObject();
             }
             catch (SnapshotException e)
             {
@@ -325,8 +326,8 @@ class ArrayIndexExpression extends Expression
             if (addr == 0)
                 return null;
             ISnapshot snapshot = array.getSnapshot();
-            int objectId = snapshot.mapAddressToId(addr);
-            return snapshot.getObject(objectId);
+            ObjectReference or = new ObjectReference(snapshot, addr);
+            return or.getObject();
         }
         else if (subject instanceof IObject)
         {

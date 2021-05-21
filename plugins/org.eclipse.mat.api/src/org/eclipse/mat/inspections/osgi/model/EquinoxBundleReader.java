@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others
+ * Copyright (c) 2008, 2021 SAP AG and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -269,8 +269,8 @@ public class EquinoxBundleReader implements IBundleReader
                 continue;
             try
             {
-                int valueId = snapshot.mapAddressToId(valueAddresses[j]);
-                IObject valueObject = snapshot.getObject(valueId);
+                ObjectReference valueRef = new ObjectReference(snapshot, valueAddresses[j]);
+                IObject valueObject = valueRef.getObject();
                 if (valueObject == null)
                     continue;
                 if (valueObject.getClazz().isArrayType())
@@ -281,8 +281,8 @@ public class EquinoxBundleReader implements IBundleReader
                     {
                         if (valueAddresses[k] == 0)
                             continue;
-                        int id = snapshot.mapAddressToId(addresses[k]);
-                        IObject object = snapshot.getObject(id);
+                        ObjectReference objectRef = new ObjectReference(snapshot, addresses[k]);
+                        IObject object = objectRef.getObject();
                         if (object == null)
                             continue;
                         values[j] = object.getClassSpecificName();
@@ -454,20 +454,21 @@ public class EquinoxBundleReader implements IBundleReader
         }
 
         long[] addresses = hosts.getReferenceArray();
-        int hostId = snapshot.mapAddressToId(addresses[0]);
         IObject bundleObject = null;
 
         if ("org.eclipse.osgi.framework.internal.core.BundleHost[]".equals( //$NON-NLS-1$
                         fragmentObject.getClazz().getName()))
         {
             // 3.5
-            bundleObject = snapshot.getObject(hostId);
+            ObjectReference hostRef = new ObjectReference(snapshot, addresses[0]);
+            bundleObject = hostRef.getObject();
         }
         else if ("org.eclipse.osgi.framework.internal.core.BundleLoaderProxy[]".equals( //$NON-NLS-1$
                         fragmentObject.getClazz().getName()))
         {
             // 3.4
-            IObject bundleLoaderObject = snapshot.getObject(hostId);
+            ObjectReference hostRef = new ObjectReference(snapshot, addresses[0]);
+            IObject bundleLoaderObject = hostRef.getObject();
             bundleObject = (IObject) bundleLoaderObject.resolveValue("bundle");//$NON-NLS-1$
         }
 
@@ -802,9 +803,9 @@ public class EquinoxBundleReader implements IBundleReader
                     continue;
                 try
                 {
-                    int id = snapshot.mapAddressToId(addresses[i]);
+                    ObjectReference or = new ObjectReference(snapshot, addresses[i]);
 
-                    IObject object = snapshot.getObject(id);
+                    IObject object = or.getObject();
                     propertiesAndValues[i] = object.getClassSpecificName();
                 }
                 catch (SnapshotException e)
@@ -900,8 +901,8 @@ public class EquinoxBundleReader implements IBundleReader
             {
                 if (addresses[i] == 0)
                     continue;
-                int id = snapshot.mapAddressToId(addresses[i]);
-                IObject object = snapshot.getObject(id);
+                ObjectReference or = new ObjectReference(snapshot, addresses[i]);
+                IObject object = or.getObject();
                 properties[i] = object.getClassSpecificName();
 
             }

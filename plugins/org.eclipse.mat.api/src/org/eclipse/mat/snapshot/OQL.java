@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -119,14 +119,27 @@ public final class OQL
         int i = e - 1;
         while (isSpace(s, i))
             --i;
-        if (!isDigit(s, i))
+        if (!isHexDigit(s, i))
             return ""; //$NON-NLS-1$
-        for (;;)
+        for (int p = i;;p = i)
         {
-            if (!isDigit(s, i))
+            if (!isHexDigit(s, i))
                 return s.subSequence(i+1, e);
             while (isDigit(s, i))
                 --i;
+            if (isHexDigit(s, i))
+            {
+                while (isHexDigit(s, i))
+                    --i;
+                if (isHexStart2(s, i) && isHexStart1(s, i - 1))
+                    i -= 2;
+                else
+                    return s.subSequence(p + 1, e);
+            }
+            else if (isHexStart2(s, i) && isHexStart1(s, i - 1))
+                i -= 2;
+            if (i >= 0 && s.charAt(i) != ',' && s.charAt(i) != ' ')
+                return s.subSequence(p + 1, e);
             while (isSpace(s, i))
                 --i;
             if (i < 0 || s.charAt(i) != ',')
@@ -141,6 +154,24 @@ public final class OQL
     {
         char c;
         return i >= 0 && i < s.length() && (c = s.charAt(i)) >= '0' && c <= '9';
+    }
+
+    private static boolean isHexDigit(CharSequence s, int i)
+    {
+        char c;
+        return i >= 0 && i < s.length() && (c = s.charAt(i)) >= '0' && (c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');
+    }
+
+    private static boolean isHexStart2(CharSequence s, int i)
+    {
+        char c;
+        return i >= 0 && i < s.length() && ((c = s.charAt(i)) == 'x' || c == 'X');
+    }
+
+    private static boolean isHexStart1(CharSequence s, int i)
+    {
+        char c;
+        return i >= 0 && i < s.length() && (s.charAt(i) == '0');
     }
 
     private static boolean isSpace(CharSequence s, int i)
