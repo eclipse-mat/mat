@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,11 +14,19 @@ package org.eclipse.mat.inspections;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
+import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IQuery;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
@@ -28,7 +36,9 @@ import org.eclipse.mat.query.annotations.Usage;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -64,6 +74,10 @@ public class OQLQuery implements IQuery
             else if (result instanceof int[])
             {
                 return new ObjectListResultImpl(snapshot, queryString, (int[]) result);
+            }
+            else if (result instanceof List<?>)
+            {
+                return new ObjectTableResultImpl(snapshot, queryString, (List<?>) result);
             }
             else
             {
@@ -107,7 +121,7 @@ public class OQLQuery implements IQuery
         }
     }
 
-    private static class ObjectListResultImpl extends ObjectListResult.Outbound implements IOQLQuery.Result,
+    static class ObjectListResultImpl extends ObjectListResult.Outbound implements IOQLQuery.Result,
                     IResultTree
     {
         String queryString;
@@ -124,7 +138,7 @@ public class OQLQuery implements IQuery
         }
     }
 
-    private static class OQLTextResult extends TextResult implements IOQLQuery.Result
+    static class OQLTextResult extends TextResult implements IOQLQuery.Result
     {
         String queryString;
 
@@ -140,4 +154,153 @@ public class OQLQuery implements IQuery
         }
     }
 
+
+    static class ObjectTableResultImpl implements IOQLQuery.Result,
+                    IResultTable, IDecorator
+    {
+        String queryString;
+        List<?>objs;
+        boolean hasIObjects;
+
+        public ObjectTableResultImpl(ISnapshot snapshot, String queryString, List<?>objs)
+        {
+            this.queryString = queryString;
+            this.objs = objs;
+            for (Object o : objs)
+            {
+                if (o instanceof IObject)
+                {
+                    hasIObjects = true;
+                    break;
+                }
+            }
+        }
+
+        public String getOQLQuery()
+        {
+            return queryString;
+        }
+
+        @Override
+        public ResultMetaData getResultMetaData()
+        {
+            return null;
+        }
+
+        @Override
+        public Column[] getColumns()
+        {
+            if (hasIObjects)
+                return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
+                                new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
+                                new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
+            else
+                return new Column[] { new Column(Messages.Column_ClassName) };
+        }
+
+        @Override
+        public Object getColumnValue(Object row, int columnIndex)
+        {
+            int rw = (Integer)row;
+            //Object o;
+            switch (columnIndex)
+            {
+                case 0:
+                    Object o = objs.get(rw);
+                    if (o instanceof IObject)
+                        return ((IObject)o).getDisplayName();
+                    else if (o != null)
+                        return o.toString();
+                    else
+                        return null;
+                case 1:
+                    if (!hasIObjects)
+                        throw new IllegalArgumentException();
+                    o = objs.get(rw);
+                    if (o instanceof IObject)
+                        return ((IObject)o).getUsedHeapSize();
+                    else
+                        return null;
+                case 2:
+                    if (!hasIObjects)
+                        throw new IllegalArgumentException();
+                    o = objs.get(rw);
+                    if (o instanceof IObject)
+                        return ((IObject)o).getRetainedHeapSize();
+                    else
+                        return null;
+                default:
+                    throw new IllegalArgumentException(row.toString());
+            }
+            
+        }
+
+        @Override
+        public IContextObject getContext(Object row)
+        {
+            if (!hasIObjects)
+                return null;
+            int rw = (Integer)row;
+            return new IContextObjectSet() {
+
+                @Override
+                public int getObjectId()
+                {
+                    Object o = objs.get(rw);
+                    if (o instanceof IObject)
+                    try
+                    {
+                        return ((IObject)o).getObjectId();
+                    }
+                    catch (RuntimeException e)
+                    {
+                        if (e.getCause() instanceof SnapshotException)
+                            return -1;
+                        throw e;
+                    }
+                    return -1;
+                }
+
+                @Override
+                public int[] getObjectIds()
+                {
+                    return new int[0];
+                }
+
+                @Override
+                public String getOQL()
+                {
+                    Object o = objs.get(rw);
+                    if (o instanceof IObject)
+                        return OQL.forAddress(((IObject)o).getObjectAddress());
+                    else
+                        return null;
+                }
+            };
+        }
+
+        @Override
+        public int getRowCount()
+        {
+            return objs.size();
+        }
+
+        @Override
+        public Object getRow(int rowId)
+        {
+            return Integer.valueOf(rowId);
+        }
+
+        @Override
+        public String prefix(Object row)
+        {
+            return null;
+        }
+
+        @Override
+        public String suffix(Object row)
+        {
+            return null;
+        }
+    }
 }

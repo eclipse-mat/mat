@@ -33,6 +33,7 @@ public interface IHprofParserHandler
     String VERSION = "VERSION";//$NON-NLS-1$
     String REFERENCE_SIZE = "REF_SIZE"; //$NON-NLS-1$
     String STREAM_LENGTH = "LENGTH"; //$NON-NLS-1$
+    String HEAP_POSITION = "HEAP_POS"; //$NON-NLS-1$
 
     public class HeapObject
     {

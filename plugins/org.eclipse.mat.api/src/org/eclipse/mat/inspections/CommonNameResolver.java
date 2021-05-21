@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.model.PrettyPrinter;
 import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
@@ -310,8 +311,8 @@ public class CommonNameResolver
 
         protected void addClassName(ISnapshot snapshot, long addr, StringBuilder r) throws SnapshotException
         {
-            int id = snapshot.mapAddressToId(addr);
-            IObject ox = snapshot.getObject(id);
+            ObjectReference or = new ObjectReference(snapshot, addr);
+            IObject ox = or.getObject();
             if (ox instanceof IClass)
             {
                 IClass cls = (IClass) ox;

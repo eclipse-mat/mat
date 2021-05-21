@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -663,10 +665,16 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             IStructuredSelection editorSelection = (IStructuredSelection) editor.getSelection();
             final Object editorElement = editorSelection.getFirstElement();
 
-            boolean isObject = firstElement != null
-                            && editorElement instanceof IContextObject
-                            && firstElement.getObjectId() != ((IContextObject) editorElement)
-                                            .getObjectId();
+            // Has the actual object changed?
+            boolean isObject = firstElement != null && editorElement instanceof IContextObject && (firstElement
+                            .getObjectId() != ((IContextObject) editorElement).getObjectId()
+                            || firstElement.getObjectId() == -1 && firstElement instanceof IContextObjectSet
+                                            && editorElement instanceof IContextObjectSet
+                                            && ((IContextObjectSet) firstElement).getObjectIds().length == 0
+                                            && ((IContextObjectSet) editorElement).getObjectIds().length == 0
+                                            && ((IContextObjectSet) editorElement).getOQL() != null
+                                            && !((IContextObjectSet) editorElement).getOQL()
+                                                            .equals(((IContextObjectSet) firstElement).getOQL()));
 
             if (isObject)
             {
@@ -850,6 +858,15 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 if (oql.startsWith(addr0.substring(0, addr0.length())) && oql.substring(addr0.length() - 2).matches("0[xX][0-9a-fA-F]+")) //$NON-NLS-1$
                 {
                     addr = Long.parseUnsignedLong(oql.substring(addr0.length()), 16);
+                }
+                else
+                {
+                    Pattern p = Pattern.compile("^SELECT .* FROM OBJECTS (0x[0-9a-fA-F]+) ?[a-zA-Z][a-zA-Z0-9]*$"); //$NON-NLS-1$
+                    Matcher m = p.matcher(oql);
+                    if (m.find())
+                    {
+                        addr = Long.parseUnsignedLong(m.group(1).substring(2), 16);
+                    }
                 }
             }
         }

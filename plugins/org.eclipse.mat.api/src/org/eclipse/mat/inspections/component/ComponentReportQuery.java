@@ -1482,8 +1482,17 @@ public class ComponentReportQuery implements IQuery
                     ObjectReference ref = ReferenceQuery.getReferent(obj);
                     if (ref != null)
                     {
-                        if (referents1.contains(ref.getObjectId()))
-                            ai.add(obj.getObjectId());
+                        try
+                        {
+                            if (referents1.contains(ref.getObjectId()))
+                                ai.add(obj.getObjectId());
+                        }
+                        catch (SnapshotException e)
+                        {
+                            // Unindexed object?
+                            // @FIXME log this error?
+                            continue;
+                        }
                     }
                     if (ticks.isCanceled())
                         break;
