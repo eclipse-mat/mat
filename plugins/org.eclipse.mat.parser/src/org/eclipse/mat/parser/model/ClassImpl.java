@@ -308,7 +308,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

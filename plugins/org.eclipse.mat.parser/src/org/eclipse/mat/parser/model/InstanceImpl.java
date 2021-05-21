@@ -13,6 +13,7 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -93,7 +94,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -140,11 +141,11 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

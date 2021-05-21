@@ -157,7 +157,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

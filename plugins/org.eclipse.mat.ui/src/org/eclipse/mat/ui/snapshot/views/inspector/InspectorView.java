@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,6 +103,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionFactory;
@@ -120,6 +124,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     private StyledText resolvedValue;
     private boolean pinSelection = false;
     private Font font;
+    private Map<ISnapshot,Stack<IContextObject>> prev = new WeakHashMap<ISnapshot,Stack<IContextObject>>();
+    private IContextObject current;
 
     private List<Menu> contextMenus = new ArrayList<Menu>();
 
@@ -248,7 +254,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         public InfoItem(IObject object, ImageDescriptor descriptor, String text)
         {
-            super(objectID(object), object != null ? object.getObjectAddress() : 0);
+            super(objectID(object), object != null ? object.getObjectAddress() : Long.MIN_VALUE);
             this.descriptor = descriptor;
             this.text = text;
         }
@@ -663,19 +669,19 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             final IContextObject firstElement = contextProvider.getContext(selection.getFirstElement());
 
             IStructuredSelection editorSelection = (IStructuredSelection) editor.getSelection();
-            final Object editorElement = editorSelection.getFirstElement();
-
+            final Object currentElement = current;
             // Has the actual object changed?
-            boolean isObject = firstElement != null && editorElement instanceof IContextObject && (firstElement
-                            .getObjectId() != ((IContextObject) editorElement).getObjectId()
+            boolean isObject = firstElement != null && currentElement instanceof IContextObject && (firstElement
+                            .getObjectId() != ((IContextObject) currentElement).getObjectId()
                             || firstElement.getObjectId() == -1 && firstElement instanceof IContextObjectSet
-                                            && editorElement instanceof IContextObjectSet
+                                            && currentElement instanceof IContextObjectSet
                                             && ((IContextObjectSet) firstElement).getObjectIds().length == 0
-                                            && ((IContextObjectSet) editorElement).getObjectIds().length == 0
-                                            && ((IContextObjectSet) editorElement).getOQL() != null
-                                            && !((IContextObjectSet) editorElement).getOQL()
+                                            && ((IContextObjectSet) currentElement).getObjectIds().length == 0
+                                            && ((IContextObjectSet) currentElement).getOQL() != null
+                                            && !((IContextObjectSet) currentElement).getOQL()
                                                             .equals(((IContextObjectSet) firstElement).getOQL()));
 
+            boolean addedInto = false;
             if (isObject)
             {
                 manager.add(new Action(Messages.InspectorView_GoInto)
@@ -683,11 +689,29 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     @Override
                     public void run()
                     {
+                        if (!prev.containsKey(snapshot))
+                            prev.put(snapshot, new Stack<IContextObject>());
+                        if (current != null)
+                            prev.get(snapshot).push(current);
                         updateOnSelection(new StructuredSelection(firstElement));
                     }
                 });
-                manager.addSeparator();
+                addedInto = true;
             }
+            if (prev.containsKey(snapshot) && prev.get(snapshot).size() >= 2)
+            {
+                manager.add(new Action(Messages.InspectorView_GoBack)
+                {
+                    @Override
+                    public void run()
+                    {
+                        updateOnSelection(new StructuredSelection(prev.get(snapshot).pop()));
+                    }
+                });
+                addedInto = true;
+            }
+            if (addedInto)
+                manager.addSeparator();
 
             QueryContextMenu contextMenu = new QueryContextMenu(editor, contextProvider);
             contextMenu.addContextActions(manager, selection, viewer.getControl());
@@ -812,6 +836,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             this.snapshot = null;
             this.editor = null;
+            this.prev.clear();
+            this.prev = null;
 
             if (!keepInSync)
             {
@@ -909,6 +935,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         if (snapshot == null || savedSnapshot != snapshot)
                             return Status.OK_STATUS;
 
+                        current = (IContextObject)((IStructuredSelection) selection).getFirstElement();
                         final IObject object;
                         if (objectId >= 0)
                             object = savedSnapshot.getObject(objectId);
@@ -1142,6 +1169,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     Messages.InspectorView_retainedSize, object.getRetainedHeapSize())));
 
                     GCRootInfo[] gc;
+                    boolean unindexed = false;
                     try
                     {
                         gc = object.getGCRootInfo();
@@ -1149,10 +1177,18 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     catch (SnapshotException e)
                     {
                         gc = null;
+                        unindexed = true;
                     }
-                    details.add(gc != null ? (Object) gc : new InfoItem(MemoryAnalyserPlugin
-                                    .getImageDescriptor(ImageHelper.Decorations.GC_ROOT),
-                                    Messages.InspectorView_noGCRoot));
+                    
+                    if (unindexed)
+                        details.add(new InfoItem(getSite().getWorkbenchWindow().getWorkbench().
+                                        getSharedImages().getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING),
+                                        Messages.InspectorView_Unindexed));
+                    else
+                        details.add(gc != null ? (Object) gc
+                                        : new InfoItem(MemoryAnalyserPlugin
+                                                        .getImageDescriptor(ImageHelper.Decorations.GC_ROOT),
+                                                        Messages.InspectorView_noGCRoot));
                     return details;
                 }
 

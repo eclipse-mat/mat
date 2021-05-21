@@ -14,6 +14,7 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,11 +76,11 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -91,11 +92,11 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

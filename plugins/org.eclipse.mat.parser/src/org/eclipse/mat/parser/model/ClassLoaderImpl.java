@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -69,16 +69,27 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
     @Override
     public String getClassSpecificName()
     {
-        String label = source.getClassLoaderLabel(getObjectId());
-
-        if (NO_LABEL.equals(label))
+        try
         {
-            label = ClassSpecificNameResolverRegistry.resolve(this);
-            if (label != null)
-                source.setClassLoaderLabel(getObjectId(), label);
-        }
+            int objectId = getObjectId();
+            String label = source.getClassLoaderLabel(objectId);
 
-        return label;
+            if (NO_LABEL.equals(label))
+            {
+                label = ClassSpecificNameResolverRegistry.resolve(this);
+                if (label != null)
+                    source.setClassLoaderLabel(objectId, label);
+            }
+
+            return label;
+        }
+        catch (RuntimeException e)
+        {
+            if (e.getCause() instanceof SnapshotException)
+                return ClassSpecificNameResolverRegistry.resolve(this);
+            else
+                throw e;
+        }
     }
 
     public List<IClass> getDefinedClasses() throws SnapshotException
