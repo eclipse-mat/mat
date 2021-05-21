@@ -69,6 +69,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
     @Override
     public String getClassSpecificName()
     {
+        // @FIXME
         String label = source.getClassLoaderLabel(getObjectId());
 
         if (NO_LABEL.equals(label))

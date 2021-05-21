@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,9 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
@@ -53,9 +56,13 @@ public final class XClassHistogramRecord extends ClassHistogramRecord
         {
             return classInstance.source.getIndexManager().c2objects().getObjectsOf(classInstance.getCacheEntry());
         }
-        catch (Exception e)
+        catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
+        }
+        catch (IOException e)
+        {
+            throw new UncheckedIOException(e);
         }
     }
 

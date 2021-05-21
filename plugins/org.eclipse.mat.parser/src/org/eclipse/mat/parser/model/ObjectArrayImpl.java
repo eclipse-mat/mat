@@ -14,6 +14,7 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,11 +95,11 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -110,11 +111,11 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -153,11 +154,11 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

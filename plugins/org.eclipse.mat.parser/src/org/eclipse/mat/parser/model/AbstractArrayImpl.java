@@ -14,6 +14,7 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.IArray;
@@ -116,7 +117,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -137,7 +138,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -161,11 +162,11 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         catch (SnapshotException e)
         {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

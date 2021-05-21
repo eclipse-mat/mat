@@ -144,6 +144,7 @@ public class Messages extends NLS
     public static String InspectorView_ClassHierarchy;
     public static String InspectorView_ErrorUpdatingInspector;
     public static String InspectorView_GoInto;
+    public static String InspectorView_GoBack;
     public static String InspectorView_LinkWithSnapshot;
     public static String InspectorView_Name;
     public static String InspectorView_noGCRoot;
