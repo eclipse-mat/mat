@@ -14,6 +14,7 @@
 package org.eclipse.mat.snapshot.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -94,5 +95,24 @@ public class ObjectReference implements Serializable
     public String toString()
     {
         return "0x" + Long.toHexString(address); //$NON-NLS-1$
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(address);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ObjectReference other = (ObjectReference) obj;
+        return address == other.address;
     }
 }

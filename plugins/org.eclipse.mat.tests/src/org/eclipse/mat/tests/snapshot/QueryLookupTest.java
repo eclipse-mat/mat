@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2021 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -907,7 +907,7 @@ public class QueryLookupTest
 
     /**
      * Test that set operations are done.
-     * @throws IOException
+     * @throws SnapshotException
      */
     public void testCompareSetOperations(ISnapshot snapshot1, String setOp, int o1[], int o2[], int o3[], int ei1, int e1[], int ei2, int e2[]) throws SnapshotException
     {

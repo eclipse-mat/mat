@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - hashCode and equals
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
+
+import java.util.Objects;
 
 import org.eclipse.mat.snapshot.ISnapshot;
 
@@ -42,5 +45,27 @@ public class NamedReference extends ObjectReference
     public String getName()
     {
         return name;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(name);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NamedReference other = (NamedReference) obj;
+        return Objects.equals(name, other.name);
     }
 }

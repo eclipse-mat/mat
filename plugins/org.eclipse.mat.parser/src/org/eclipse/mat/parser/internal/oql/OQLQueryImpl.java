@@ -15,6 +15,7 @@ package org.eclipse.mat.parser.internal.oql;
 
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.security.cert.CollectionCertStoreParameters;
 import java.util.AbstractList;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -1594,6 +1595,8 @@ public class OQLQueryImpl implements IOQLQuery
         // one of those will hold the result
         UnionResultSet unionResultSet = null;
         IntResult unionIntResult = null;
+        // Used for accumulating unindexed objects
+        Collection<Object> unionListResult = null;
 
         if (result instanceof CustomTableResultSet)
         {
@@ -1605,6 +1608,10 @@ public class OQLQueryImpl implements IOQLQuery
             IntResult intResult = (IntResult) result;
             unionIntResult = new IntArrayResult(intResult.size());
             unionIntResult.addAll(intResult);
+        }
+        else if (result instanceof List)
+        {
+            unionListResult = new ArrayList<Object>((List<?>)result);
         }
         else
         {
@@ -1643,7 +1650,37 @@ public class OQLQueryImpl implements IOQLQuery
                 }
                 else if (unionIntResult != null)
                 {
-                    unionIntResult.addAll((IntResult) unionResult);
+                    if (unionResult instanceof List)
+                    {
+                        // Existing indexed object list, new unindexed,
+                        // so convert old list
+                        List<?> list = (List<?>)unionResult;
+                        unionListResult = new ArrayList<Object>(unionIntResult.size() + list.size());
+                        for (IntIterator it = unionIntResult.iterator(); it.hasNext();)
+                        {
+                            unionListResult.add(ctx.getSnapshot().getObject(it.nextInt()));
+                            unionIntResult = null;
+                            unionListResult.addAll(list);
+                        }
+                    }
+                    else
+                        unionIntResult.addAll((IntResult) unionResult);
+                }
+                else if (unionListResult != null)
+                {
+                    if (unionResult instanceof List)
+                    {
+                        unionListResult.addAll((List<?>)unionResult);
+                    }
+                    else
+                    {
+                        // Existing unindexed objects list, new indexed,
+                        // so convert new
+                        for (IntIterator it = ((IntResult)unionResult).iterator(); it.hasNext();)
+                        {
+                            unionListResult.add(ctx.getSnapshot().getObject(it.nextInt()));
+                        }
+                    }
                 }
                 // If no combined result has been created then get one now.
                 else if (this.query.getSelectClause().getSelectList().isEmpty() || this.query.getSelectClause().isAsObjects())
@@ -1667,7 +1704,7 @@ public class OQLQueryImpl implements IOQLQuery
             }
         }
 
-        return unionResultSet != null ? (unionResultSet.getRowCount() > 0 ? unionResultSet : null) : unionIntResult;
+        return unionResultSet != null ? (unionResultSet.getRowCount() > 0 ? unionResultSet : null) : (unionIntResult != null ? unionIntResult : unionListResult);
     }
 
     private Object doSubQuery(IProgressListener monitor) throws SnapshotException
@@ -2275,7 +2312,7 @@ public class OQLQueryImpl implements IOQLQuery
         String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
         listener.beginTask(task, objectRefs.size());
 
-        List<Object>filteredSet = new ArrayList<Object>(objectRefs.size());
+        Collection<Object>filteredSet = (query.getSelectClause().isDistinct() || query.getSelectClause().isRetainedSet()) ? new LinkedHashSet<Object>() : new ArrayList<Object>(objectRefs.size());
 
         for (Iterator<ObjectReference> iter = objectRefs.iterator(); iter.hasNext();)
         {
@@ -2289,7 +2326,12 @@ public class OQLQueryImpl implements IOQLQuery
             listener.worked(1);
         }
 
-        return filteredSet.isEmpty() ? null : select(filteredSet, listener);
+        List<Object>list;
+        if (!(filteredSet instanceof List))
+            list = new ArrayList<Object>(filteredSet);
+        else
+            list = (List<Object>)filteredSet;
+        return filteredSet.isEmpty() ? null : select(list, listener);
     }
 
     private Object select(IntResult objectIds, IProgressListener listener) throws SnapshotException
@@ -2310,7 +2352,7 @@ public class OQLQueryImpl implements IOQLQuery
         {
             ResultSet temp = new ResultSet(getSelectQuery(), objectIds.toArray());
             IntResult r = createIntResult(objectIds.size());
-            convertToObjects(temp, r, listener);
+            convertToObjects(temp, r, null, listener);
             return r;
         }
         else
@@ -2349,8 +2391,11 @@ public class OQLQueryImpl implements IOQLQuery
         {
             AbstractCustomTableResultSet temp = new ObjectResultSet(getSelectQuery(), objects);
             IntResult r = createIntResult(temp.getRowCount());
-            convertToObjects(temp, r, listener);
-            return r;
+            Collection<ObjectReference> r2 = r instanceof IntSetResult ? new LinkedHashSet<ObjectReference>() : new ArrayList<ObjectReference>();
+            convertToObjects(temp, r, r2, listener);
+            if (!(r2 instanceof List))
+                r2 = new ArrayList<ObjectReference>(r2);
+            return r2.size() > 0 ? r2 : r;
         }
         else
         {
@@ -2498,8 +2543,11 @@ public class OQLQueryImpl implements IOQLQuery
         {
             AbstractCustomTableResultSet temp = new ObjectResultSet(getSelectQuery(), Arrays.asList(new Object[] { object }));
             IntResult r = createIntResult(temp.getRowCount());
-            convertToObjects(temp, r, listener);
-            return r;
+            Collection<ObjectReference> r2 = r instanceof IntSetResult ? new LinkedHashSet<ObjectReference>() : new ArrayList<ObjectReference>();
+            convertToObjects(temp, r, r2, listener);
+            if (!(r2 instanceof List))
+                r2 = new ArrayList<ObjectReference>(r2);
+            return r2.size() > 0 ? r2 : r;
         }
         else
         {
@@ -2552,7 +2600,7 @@ public class OQLQueryImpl implements IOQLQuery
         return new IntArrayResult(a);
     }
 
-    private void convertToObjects(CustomTableResultSet set, IntResult resultSet, IProgressListener listener)
+    private void convertToObjects(CustomTableResultSet set, IntResult resultSet, Collection<ObjectReference> resultList, IProgressListener listener)
                     throws SnapshotException
     {
         if (set.getColumns().length != 1) { throw new SnapshotException(MessageUtil.format(
@@ -2561,6 +2609,7 @@ public class OQLQueryImpl implements IOQLQuery
         // We don't track work for converting objects
         IProgressListener old = ctx.getProgressListener();
         ctx.setProgressListener(new SilentProgressListener(listener));
+        int resultListSize0 = resultList != null ? resultList.size() : 0; 
         int count = set.getRowCount();
         for (int ii = 0; ii < count; ii++)
         {
@@ -2602,21 +2651,92 @@ public class OQLQueryImpl implements IOQLQuery
                 }
                 else if (object instanceof IObject)
                 {
-                    resultSet.add(((IObject) object).getObjectId());
+                    if (resultList == null)
+                        resultSet.add(((IObject) object).getObjectId());
+                    else
+                    {
+                        try
+                        {
+                            resultSet.add(((IObject) object).getObjectId());
+                        }
+                        catch (RuntimeException e)
+                        {
+                            if (e.getCause() instanceof SnapshotException)
+                            {
+                                for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
+                                {
+                                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
+                                    resultList.add(ref);
+                                }
+                                resultSet = createIntResult(count - ii);
+                                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ((IObject) object).getObjectAddress());
+                                resultList.add(ref);
+                            }
+                            else
+                            {
+                                throw e;
+                            }
+                        }
+                    }
                 }
                 else if (object instanceof Long)
                 {
                     long addr = ((Long) object).longValue();
                     if (addr != 0)
                     {
-                        int id = ctx.getSnapshot().mapAddressToId(addr);
-                        resultSet.add(id);
+                        if (resultList == null)
+                        {
+                            int id = ctx.getSnapshot().mapAddressToId(addr);
+                            resultSet.add(id);
+                        }
+                        else
+                        {
+                            int id;
+                            try
+                            {
+                                id = ctx.getSnapshot().mapAddressToId(addr);
+                                resultSet.add(id);
+                            }
+                            catch (SnapshotException e)
+                            {
+                                for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
+                                {
+                                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
+                                    resultList.add(ref);
+                                }
+                                resultSet = createIntResult(count - ii);
+                                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), addr);
+                                resultList.add(ref);
+                            }
+                        }
                     }
                 }
                 else if (object instanceof ObjectReference)
                 {
-                    int id = ((ObjectReference)object).getObjectId();
-                    resultSet.add(id);
+                    if (resultList == null)
+                    {
+                        int id = ((ObjectReference)object).getObjectId();
+                        resultSet.add(id);
+                    }
+                    else
+                    {
+                        int id;
+                        try
+                        {
+                            id = ((ObjectReference)object).getObjectId();
+                            resultSet.add(id);
+                        }
+                        catch (SnapshotException e)
+                        {
+                            for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
+                            {
+                                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
+                                resultList.add(ref);
+                            }
+                            resultSet = createIntResult(count - ii);
+                            resultList.add(((ObjectReference)object));
+                        }
+                    }
                 }
                 else if (object instanceof long[])
                 {
@@ -2624,8 +2744,31 @@ public class OQLQueryImpl implements IOQLQuery
                     {
                         if (addr != 0)
                         {
-                            int id = ctx.getSnapshot().mapAddressToId(addr);
-                            resultSet.add(id);
+                            if (resultList == null)
+                            {
+                                int id = ctx.getSnapshot().mapAddressToId(addr);
+                                resultSet.add(id);
+                            }
+                            else
+                            {
+                                int id;
+                                try
+                                {
+                                    id = ctx.getSnapshot().mapAddressToId(addr);
+                                    resultSet.add(id);
+                                }
+                                catch (SnapshotException e)
+                                {
+                                    for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
+                                    {
+                                        ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
+                                        resultList.add(ref);
+                                    }
+                                    resultSet = createIntResult(count - ii);
+                                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), addr);
+                                    resultList.add(ref);
+                                }
+                            }
                         }
                     }
                 }
@@ -2634,6 +2777,14 @@ public class OQLQueryImpl implements IOQLQuery
                     throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ResultMustReturnObjectList,
                                     new Object[] { set.getOQLQuery(), String.valueOf(rowObject) }));
                 }
+            }
+        }
+        if (resultList != null && resultList.size() > resultListSize0)
+        {
+            for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
+            {
+                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
+                resultList.add(ref);
             }
         }
         ctx.setProgressListener(old);
