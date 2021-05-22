@@ -1594,6 +1594,8 @@ public class OQLQueryImpl implements IOQLQuery
         // one of those will hold the result
         UnionResultSet unionResultSet = null;
         IntResult unionIntResult = null;
+        // Used for accumulating unindexed objects
+        Collection<Object> unionListResult = null;
 
         if (result instanceof CustomTableResultSet)
         {
@@ -1605,6 +1607,10 @@ public class OQLQueryImpl implements IOQLQuery
             IntResult intResult = (IntResult) result;
             unionIntResult = new IntArrayResult(intResult.size());
             unionIntResult.addAll(intResult);
+        }
+        else if (result instanceof List)
+        {
+            unionListResult = new ArrayList<Object>((List<?>)result);
         }
         else
         {
@@ -1643,7 +1649,37 @@ public class OQLQueryImpl implements IOQLQuery
                 }
                 else if (unionIntResult != null)
                 {
-                    unionIntResult.addAll((IntResult) unionResult);
+                    if (unionResult instanceof List)
+                    {
+                        // Existing indexed object list, new unindexed,
+                        // so convert old list
+                        List<?> list = (List<?>)unionResult;
+                        unionListResult = new ArrayList<Object>(unionIntResult.size() + list.size());
+                        for (IntIterator it = unionIntResult.iterator(); it.hasNext();)
+                        {
+                            unionListResult.add(ctx.getSnapshot().getObject(it.nextInt()));
+                            unionIntResult = null;
+                            unionListResult.addAll(list);
+                        }
+                    }
+                    else
+                        unionIntResult.addAll((IntResult) unionResult);
+                }
+                else if (unionListResult != null)
+                {
+                    if (unionResult instanceof List)
+                    {
+                        unionListResult.addAll((List<?>)unionResult);
+                    }
+                    else
+                    {
+                        // Existing unindexed objects list, new indexed,
+                        // so convert new
+                        for (IntIterator it = ((IntResult)unionResult).iterator(); it.hasNext();)
+                        {
+                            unionListResult.add(ctx.getSnapshot().getObject(it.nextInt()));
+                        }
+                    }
                 }
                 // If no combined result has been created then get one now.
                 else if (this.query.getSelectClause().getSelectList().isEmpty() || this.query.getSelectClause().isAsObjects())
@@ -1667,7 +1703,7 @@ public class OQLQueryImpl implements IOQLQuery
             }
         }
 
-        return unionResultSet != null ? (unionResultSet.getRowCount() > 0 ? unionResultSet : null) : unionIntResult;
+        return unionResultSet != null ? (unionResultSet.getRowCount() > 0 ? unionResultSet : null) : (unionIntResult != null ? unionIntResult : unionListResult);
     }
 
     private Object doSubQuery(IProgressListener monitor) throws SnapshotException
