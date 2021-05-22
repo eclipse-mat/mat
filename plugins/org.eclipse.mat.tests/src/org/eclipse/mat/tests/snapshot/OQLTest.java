@@ -15,6 +15,7 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -24,7 +25,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -52,6 +52,7 @@ import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -2202,7 +2203,19 @@ public class OQLTest
                             // SimpleObject
                             IObject io = (IObject)o;
                             IContextObject c = p.getContext(rt.getRow(i));
-                            checkSingleObjectContext(io.getObjectId(), c, dump);
+                            int objId;
+                            try
+                            {
+                                objId = io.getObjectId();
+                            } 
+                            catch (RuntimeException e)
+                            {
+                                if (e.getCause() instanceof SnapshotException)
+                                    objId = -1;
+                                else
+                                    throw e;
+                            }
+                            checkSingleObjectContext(objId, c, dump);
                         }
                         else if (o instanceof Iterable && ((Iterable<?>)o).iterator().hasNext() && ((Iterable<?>)o).iterator().next() instanceof IObject || o instanceof int[])
                         {
@@ -2406,8 +2419,15 @@ public class OQLTest
         assertThat(c, instanceOf(IContextObjectSet.class));
         IContextObjectSet cs = (IContextObjectSet)c;
         assertEquals(ioid, cs.getObjectId());
-        assertEquals(1, cs.getObjectIds().length);
-        assertEquals(ioid, cs.getObjectIds()[0]);
+        if (ioid >= 0)
+        {
+            assertEquals(1, cs.getObjectIds().length);
+            assertEquals(ioid, cs.getObjectIds()[0]);
+        }
+        else
+        {
+            assertEquals(0, cs.getObjectIds().length);
+        }
         String oql = cs.getOQL();
         Object res = execute(oql, dump);
         if (res instanceof int[])
@@ -2424,7 +2444,8 @@ public class OQLTest
             Object o2 = rt2.getColumnValue(rt2.getRow(0), 0);
             assertThat(o2, instanceOf(IObject.class));
             IObject io2 = (IObject)o2;
-            assertEquals(ioid, io2.getObjectId());
+            if (ioid >= 0)
+                assertEquals(ioid, io2.getObjectId());
         }
     }
 
@@ -2673,6 +2694,315 @@ public class OQLTest
         assertThat(table.getColumnValue(row, 0), equalTo((Object)false));
     }
 
+    /** Discarded objects */
+    long addr[] = new long[] {/*String*/ 0x128e3098,0x12905ba0,0x12906ad8,0x1290be50,0x129166c0,0x12930748,0x12931f40,
+                    /* char []*/ 0x128e3070,0x12905b60,0x12906aa8,
+                    /* Object[] */ 0x17c108d0,0x17c10928,0x17c10980,0x17c109d8,
+                   };
+    void buildAddr(StringBuilder sb, int dups)
+    {
+        for (int i = 0; i < addr.length; ++i)
+        {
+            if (i > 0)
+                sb.append(",");
+            sb.append("0x").append(Long.toHexString(addr[i]));
+        }
+        for (int i = 0; i < dups; ++i)
+        {
+            sb.append(",").append("0x").append(Long.toHexString(addr[i]));
+        }
+    }
+
+    /**
+     * Test unindexed objects
+     * 
+     */
+    @Test
+    public void testUnindexed1() throws SnapshotException
+    {
+        StringBuilder sb = new StringBuilder("SELECT * FROM OBJECTS ");
+        buildAddr(sb, 0);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+        assertThat(l.size(), equalTo(addr.length));
+        for (int i = 0; i < addr.length; ++i) {
+            assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
+        }
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed2() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT * FROM OBJECTS ");
+        buildAddr(sb, dups);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+        assertThat(l.size(), equalTo(addr.length + dups));
+        for (int i = 0; i < addr.length; ++i) {
+            assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
+        }
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed3() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT * FROM OBJECTS ");
+        buildAddr(sb, dups);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+        assertThat(l.size(), equalTo(addr.length));
+        for (int i = 0; i < addr.length; ++i) {
+            assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
+        }
+    }
+    
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed4() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT OBJECTS s.@objectAddress FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<ObjectReference> l = (List<ObjectReference>)result;
+        assertThat(l.size(), equalTo(addr.length + dups));
+        for (int i = 0; i < addr.length; ++i) {
+            assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
+        }
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed5() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT OBJECTS @objectAddress FROM OBJECTS ");
+        buildAddr(sb, dups);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<ObjectReference> l = (List<ObjectReference>)result;
+        assertThat(l.size(), equalTo(addr.length));
+        for (int i = 0; i < addr.length; ++i) {
+            assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
+        }
+    }
+    
+    /**
+     * Test unindexed objects
+     * with duplicates and calculated objects
+     */
+    @Test
+    public void testUnindexed6() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT OBJECTS @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and calculated objects
+     */
+    @Test
+    public void testUnindexed7() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT OBJECTS @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and a union
+     */
+    @Test
+    public void testUnindexed8() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT OBJECTS @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append("UNION (SELECT * FROM java.lang.String)");
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and a union the other way round
+     */
+    @Test
+    public void testUnindexed9() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT * FROM java.lang.String UNION (SELECT DISTINCT OBJECTS @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(")");
+        Object result = execute(sb.toString());
+        assertThat(result, instanceOf(List.class));
+        List<IObject> l = (List<IObject>)result;
+    }
+    
+    /**
+     * Test unindexed objects
+     * 
+     */
+    @Test
+    public void testUnindexed11() throws SnapshotException
+    {
+        StringBuilder sb = new StringBuilder("SELECT s,s,@objectAddress FROM OBJECTS ");
+        buildAddr(sb, 0);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed12() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT s FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed13() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT s FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+    
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed14() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT s.@objectAddress FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates
+     */
+    @Test
+    public void testUnindexed15() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT s.@objectAddress FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+    
+    /**
+     * Test unindexed objects
+     * with duplicates and calculated objects
+     */
+    @Test
+    public void testUnindexed16() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and calculated objects
+     */
+    @Test
+    public void testUnindexed17() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and a union
+     */
+    @Test
+    public void testUnindexed18() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append("UNION (SELECT s FROM java.lang.String s)");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and a union the other way round
+     */
+    @Test
+    public void testUnindexed19() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT s FROM java.lang.String s UNION (SELECT DISTINCT @outboundReferences FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s)");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        checkGetOQL(result);
+    }
     // //////////////////////////////////////////////////////////////
     // internal helpers
     // //////////////////////////////////////////////////////////////

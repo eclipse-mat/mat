@@ -14,6 +14,7 @@ package org.eclipse.mat.inspections;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -23,6 +24,7 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
+import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
@@ -38,7 +40,13 @@ import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
+import org.eclipse.mat.snapshot.model.IArray;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -156,7 +164,7 @@ public class OQLQuery implements IQuery
 
 
     static class ObjectTableResultImpl implements IOQLQuery.Result,
-                    IResultTable, IDecorator
+    IResultTable, IDecorator, IIconProvider
     {
         String queryString;
         List<?>objs;
@@ -168,7 +176,7 @@ public class OQLQuery implements IQuery
             this.objs = objs;
             for (Object o : objs)
             {
-                if (o instanceof IObject)
+                if (o instanceof ObjectReference)
                 {
                     hasIObjects = true;
                     break;
@@ -195,7 +203,7 @@ public class OQLQuery implements IQuery
                                 new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
                                 new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
             else
-                return new Column[] { new Column(Messages.Column_ClassName) };
+                return new Column[] { new Column(Messages.OQLQuery_Column_Value) };
         }
 
         @Override
@@ -207,8 +215,17 @@ public class OQLQuery implements IQuery
             {
                 case 0:
                     Object o = objs.get(rw);
-                    if (o instanceof IObject)
-                        return ((IObject)o).getDisplayName();
+                    if (o instanceof ObjectReference)
+                    {
+                        try
+                        {
+                            return ((ObjectReference)o).getObject().getDisplayName();
+                        }
+                        catch (SnapshotException e)
+                        {
+                            return new IllegalStateException(e);
+                        }
+                    }
                     else if (o != null)
                         return o.toString();
                     else
@@ -218,7 +235,16 @@ public class OQLQuery implements IQuery
                         throw new IllegalArgumentException();
                     o = objs.get(rw);
                     if (o instanceof IObject)
-                        return ((IObject)o).getUsedHeapSize();
+                    {
+                        try
+                        {
+                            return ((ObjectReference)o).getObject().getUsedHeapSize();
+                        }
+                        catch (SnapshotException e)
+                        {
+                            return new IllegalStateException(e);
+                        }
+                    }
                     else
                         return null;
                 case 2:
@@ -226,7 +252,16 @@ public class OQLQuery implements IQuery
                         throw new IllegalArgumentException();
                     o = objs.get(rw);
                     if (o instanceof IObject)
-                        return ((IObject)o).getRetainedHeapSize();
+                    {
+                        try
+                        {
+                            return ((ObjectReference)o).getObject().getRetainedHeapSize();
+                        }
+                        catch (SnapshotException e)
+                        {
+                            return new IllegalStateException(e);
+                        }
+                    }
                     else
                         return null;
                 default:
@@ -246,16 +281,14 @@ public class OQLQuery implements IQuery
                 public int getObjectId()
                 {
                     Object o = objs.get(rw);
-                    if (o instanceof IObject)
-                    try
+                    if (o instanceof ObjectReference)
+                        try
                     {
-                        return ((IObject)o).getObjectId();
+                            return ((ObjectReference)o).getObjectId();
                     }
-                    catch (RuntimeException e)
+                    catch (SnapshotException e)
                     {
-                        if (e.getCause() instanceof SnapshotException)
-                            return -1;
-                        throw e;
+                        return -1;
                     }
                     return -1;
                 }
@@ -263,15 +296,19 @@ public class OQLQuery implements IQuery
                 @Override
                 public int[] getObjectIds()
                 {
-                    return new int[0];
+                    int objId = getObjectId();
+                    if (objId == -1)
+                        return new int[0];
+                    else
+                        return new int[] {objId};
                 }
 
                 @Override
                 public String getOQL()
                 {
                     Object o = objs.get(rw);
-                    if (o instanceof IObject)
-                        return OQL.forAddress(((IObject)o).getObjectAddress());
+                    if (o instanceof ObjectReference)
+                        return OQL.forAddress(((ObjectReference)o).getObjectAddress());
                     else
                         return null;
                 }
@@ -299,6 +336,67 @@ public class OQLQuery implements IQuery
         @Override
         public String suffix(Object row)
         {
+            if (!hasIObjects)
+                return null;
+            int rw = (Integer)row;
+            Object o = objs.get(rw);
+            if (o instanceof ObjectReference)
+            {
+                try
+                {
+
+                    GCRootInfo gc[] = ((ObjectReference) o).getObject().getGCRootInfo();
+                    if (gc != null)
+                        return GCRootInfo.getTypeSetAsString(gc);
+                    else
+                        return null;
+                }
+                catch (SnapshotException e)
+                {
+                    // $JL-EXC$
+                }
+                return Messages.OQLQuery_Unindexed;
+            }
+            return null;
+        }
+
+        @Override
+        public URL getIcon(Object row)
+        {
+            if (!hasIObjects)
+                return null;
+            int rw = (Integer)row;
+            Object o = objs.get(rw);
+            if (o instanceof ObjectReference)
+            {
+                try
+                {
+                    IObject o2 = ((ObjectReference) o).getObject();
+                    try
+                    {
+                        int objectId = o2.getObjectId();
+                        return Icons.forObject(o2.getSnapshot(), objectId);
+                    }
+                    catch (RuntimeException e)
+                    {
+                        if (!(e.getCause() instanceof SnapshotException))
+                            throw e;
+                    }
+
+                    if (o2 instanceof IClassLoader)
+                        return Icons.CLASSLOADER_INSTANCE;
+                    else if (o2 instanceof IClass)
+                        return Icons.CLASS_INSTANCE;
+                    else if (o2 instanceof IArray)
+                        return Icons.ARRAY_INSTANCE;
+                    else
+                        return Icons.OBJECT_INSTANCE;
+                }
+                catch (SnapshotException e)
+                {
+
+                }
+            }
             return null;
         }
     }
