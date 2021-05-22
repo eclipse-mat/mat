@@ -503,6 +503,7 @@ public class Messages extends NLS
     public static String ObjectTreeFactory_ErrorMsg_addChild;
     public static String ObjectTreeFactory_ErrorMsg_addChildren;
 
+    public static String OQLQuery_Column_Value;
     public static String OQLQuery_ExecutedQuery;
     public static String OQLQuery_NoResult;
     public static String OQLQuery_ProblemReported;

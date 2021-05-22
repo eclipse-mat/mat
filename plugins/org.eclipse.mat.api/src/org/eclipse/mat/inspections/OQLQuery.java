@@ -14,6 +14,7 @@ package org.eclipse.mat.inspections;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -23,6 +24,7 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
+import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
@@ -38,7 +40,11 @@ import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.IArray;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -156,7 +162,7 @@ public class OQLQuery implements IQuery
 
 
     static class ObjectTableResultImpl implements IOQLQuery.Result,
-                    IResultTable, IDecorator
+                    IResultTable, IDecorator, IIconProvider
     {
         String queryString;
         List<?>objs;
@@ -195,7 +201,7 @@ public class OQLQuery implements IQuery
                                 new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
                                 new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
             else
-                return new Column[] { new Column(Messages.Column_ClassName) };
+                return new Column[] { new Column(Messages.OQLQuery_Column_Value) };
         }
 
         @Override
@@ -299,6 +305,27 @@ public class OQLQuery implements IQuery
         @Override
         public String suffix(Object row)
         {
+            return null;
+        }
+
+        @Override
+        public URL getIcon(Object row)
+        {
+            if (!hasIObjects)
+                return null;
+            int rw = (Integer)row;
+            Object o = objs.get(rw);
+            if (o instanceof IObject)
+            {
+                if (o instanceof IClassLoader)
+                    return Icons.CLASSLOADER_INSTANCE;
+                else if (o instanceof IClass)
+                    return Icons.CLASS_INSTANCE;
+                else if (o instanceof IArray)
+                    return Icons.ARRAY_INSTANCE;
+                else
+                    return Icons.OBJECT_INSTANCE;
+            }
             return null;
         }
     }

@@ -488,7 +488,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             itemHeight = 17;
 
         int scrollbarHeight = 2;
-        if (!Platform.OS_WIN32.equals(Platform.getOS()))//$NON-NLS-1$
+        if (!Platform.OS_WIN32.equals(Platform.getOS()))
             scrollbarHeight = table.getHorizontalBar().getSize().y;
 
         int detailsHeight = 9 * itemHeight + scrollbarHeight;
@@ -698,7 +698,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 });
                 addedInto = true;
             }
-            if (prev.containsKey(snapshot) && prev.get(snapshot).size() >= 2)
+            if (prev.containsKey(snapshot) && prev.get(snapshot).size() >= 1)
             {
                 manager.add(new Action(Messages.InspectorView_GoBack)
                 {
@@ -837,7 +837,6 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             this.snapshot = null;
             this.editor = null;
             this.prev.clear();
-            this.prev = null;
 
             if (!keepInSync)
             {
