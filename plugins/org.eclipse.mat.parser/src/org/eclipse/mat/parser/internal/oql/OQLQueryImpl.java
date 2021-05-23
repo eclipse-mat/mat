@@ -15,7 +15,6 @@ package org.eclipse.mat.parser.internal.oql;
 
 import java.io.StringReader;
 import java.lang.reflect.Array;
-import java.security.cert.CollectionCertStoreParameters;
 import java.util.AbstractList;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -2391,10 +2390,10 @@ public class OQLQueryImpl implements IOQLQuery
         {
             AbstractCustomTableResultSet temp = new ObjectResultSet(getSelectQuery(), objects);
             IntResult r = createIntResult(temp.getRowCount());
-            Collection<ObjectReference> r2 = r instanceof IntSetResult ? new LinkedHashSet<ObjectReference>() : new ArrayList<ObjectReference>();
+            Collection<IObject> r2 = r instanceof IntSetResult ? new LinkedHashSet<IObject>() : new ArrayList<IObject>();
             convertToObjects(temp, r, r2, listener);
             if (!(r2 instanceof List))
-                r2 = new ArrayList<ObjectReference>(r2);
+                r2 = new ArrayList<IObject>(r2);
             return r2.size() > 0 ? r2 : r;
         }
         else
@@ -2543,10 +2542,10 @@ public class OQLQueryImpl implements IOQLQuery
         {
             AbstractCustomTableResultSet temp = new ObjectResultSet(getSelectQuery(), Arrays.asList(new Object[] { object }));
             IntResult r = createIntResult(temp.getRowCount());
-            Collection<ObjectReference> r2 = r instanceof IntSetResult ? new LinkedHashSet<ObjectReference>() : new ArrayList<ObjectReference>();
+            Collection<IObject> r2 = r instanceof IntSetResult ? new LinkedHashSet<IObject>() : new ArrayList<IObject>();
             convertToObjects(temp, r, r2, listener);
             if (!(r2 instanceof List))
-                r2 = new ArrayList<ObjectReference>(r2);
+                r2 = new ArrayList<IObject>(r2);
             return r2.size() > 0 ? r2 : r;
         }
         else
@@ -2586,6 +2585,10 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 a.add(((IObject) object).getObjectId());
             }
+            else if (object instanceof ObjectReference)
+            {
+                a.add(((ObjectReference) object).getObjectId());
+            }
             else if (object instanceof int[])
             {
                 a.addAll((int[]) object);
@@ -2600,7 +2603,7 @@ public class OQLQueryImpl implements IOQLQuery
         return new IntArrayResult(a);
     }
 
-    private void convertToObjects(CustomTableResultSet set, IntResult resultSet, Collection<ObjectReference> resultList, IProgressListener listener)
+    private void convertToObjects(CustomTableResultSet set, IntResult resultSet, Collection<IObject> resultList, IProgressListener listener)
                     throws SnapshotException
     {
         if (set.getColumns().length != 1) { throw new SnapshotException(MessageUtil.format(
@@ -2665,12 +2668,10 @@ public class OQLQueryImpl implements IOQLQuery
                             {
                                 for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
                                 {
-                                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
-                                    resultList.add(ref);
+                                    resultList.add(ctx.getSnapshot().getObject(it2.nextInt()));
                                 }
                                 resultSet = createIntResult(count - ii);
-                                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ((IObject) object).getObjectAddress());
-                                resultList.add(ref);
+                                resultList.add((IObject)object);
                             }
                             else
                             {
@@ -2701,12 +2702,11 @@ public class OQLQueryImpl implements IOQLQuery
                             {
                                 for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
                                 {
-                                    ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
-                                    resultList.add(ref);
+                                    resultList.add(ctx.getSnapshot().getObject(it2.nextInt()));
                                 }
                                 resultSet = createIntResult(count - ii);
                                 ObjectReference ref = new ObjectReference(ctx.getSnapshot(), addr);
-                                resultList.add(ref);
+                                resultList.add(ref.getObject());
                             }
                         }
                     }
@@ -2730,11 +2730,10 @@ public class OQLQueryImpl implements IOQLQuery
                         {
                             for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
                             {
-                                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
-                                resultList.add(ref);
+                                resultList.add(ctx.getSnapshot().getObject(it2.nextInt()));
                             }
                             resultSet = createIntResult(count - ii);
-                            resultList.add(((ObjectReference)object));
+                            resultList.add(((ObjectReference)object).getObject());
                         }
                     }
                 }
@@ -2761,12 +2760,11 @@ public class OQLQueryImpl implements IOQLQuery
                                 {
                                     for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
                                     {
-                                        ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
-                                        resultList.add(ref);
+                                        resultList.add(ctx.getSnapshot().getObject(it2.nextInt()));
                                     }
                                     resultSet = createIntResult(count - ii);
                                     ObjectReference ref = new ObjectReference(ctx.getSnapshot(), addr);
-                                    resultList.add(ref);
+                                    resultList.add(ref.getObject());
                                 }
                             }
                         }
@@ -2783,8 +2781,7 @@ public class OQLQueryImpl implements IOQLQuery
         {
             for (IntIterator it2 = resultSet.iterator(); it2.hasNext();)
             {
-                ObjectReference ref = new ObjectReference(ctx.getSnapshot(), ctx.getSnapshot().mapIdToAddress(it2.nextInt()));
-                resultList.add(ref);
+                resultList.add(ctx.getSnapshot().getObject(it2.nextInt()));
             }
         }
         ctx.setProgressListener(old);

@@ -176,7 +176,7 @@ public class OQLQuery implements IQuery
             this.objs = objs;
             for (Object o : objs)
             {
-                if (o instanceof ObjectReference)
+                if (o instanceof ObjectReference || o instanceof IObject)
                 {
                     hasIObjects = true;
                     break;
@@ -226,6 +226,8 @@ public class OQLQuery implements IQuery
                             return new IllegalStateException(e);
                         }
                     }
+                    else if (o instanceof IObject)
+                        return ((IObject)o).getDisplayName();
                     else if (o != null)
                         return o.toString();
                     else
@@ -234,7 +236,7 @@ public class OQLQuery implements IQuery
                     if (!hasIObjects)
                         throw new IllegalArgumentException();
                     o = objs.get(rw);
-                    if (o instanceof IObject)
+                    if (o instanceof ObjectReference)
                     {
                         try
                         {
@@ -245,13 +247,15 @@ public class OQLQuery implements IQuery
                             return new IllegalStateException(e);
                         }
                     }
+                    else if (o instanceof IObject)
+                        return ((IObject)o).getUsedHeapSize();
                     else
                         return null;
                 case 2:
                     if (!hasIObjects)
                         throw new IllegalArgumentException();
                     o = objs.get(rw);
-                    if (o instanceof IObject)
+                    if (o instanceof ObjectReference)
                     {
                         try
                         {
@@ -262,6 +266,8 @@ public class OQLQuery implements IQuery
                             return new IllegalStateException(e);
                         }
                     }
+                    else if (o instanceof IObject)
+                        return ((IObject)o).getRetainedHeapSize();
                     else
                         return null;
                 default:
@@ -282,13 +288,27 @@ public class OQLQuery implements IQuery
                 {
                     Object o = objs.get(rw);
                     if (o instanceof ObjectReference)
-                        try
+                    try
                     {
                             return ((ObjectReference)o).getObjectId();
                     }
                     catch (SnapshotException e)
                     {
                         return -1;
+                    }
+                    else if (o instanceof IObject)
+                    {
+                        try
+                        {
+                            return ((IObject)o).getObjectId();
+                        }
+                        catch (RuntimeException e)
+                        {
+                            if (e.getCause() instanceof SnapshotException)
+                                return -1;
+                            else
+                                throw e;
+                        }
                     }
                     return -1;
                 }
@@ -309,6 +329,8 @@ public class OQLQuery implements IQuery
                     Object o = objs.get(rw);
                     if (o instanceof ObjectReference)
                         return OQL.forAddress(((ObjectReference)o).getObjectAddress());
+                    else if (o instanceof IObject)
+                        return OQL.forAddress(((IObject)o).getObjectAddress());
                     else
                         return null;
                 }
@@ -357,6 +379,23 @@ public class OQLQuery implements IQuery
                 }
                 return Messages.OQLQuery_Unindexed;
             }
+            else if (o instanceof IObject)
+            {
+                try
+                {
+
+                    GCRootInfo gc[] = ((IObject) o).getGCRootInfo();
+                    if (gc != null)
+                        return GCRootInfo.getTypeSetAsString(gc);
+                    else
+                        return null;
+                }
+                catch (SnapshotException e)
+                {
+                    // $JL-EXC$
+                }
+                return Messages.OQLQuery_Unindexed;
+            }
             return null;
         }
 
@@ -367,11 +406,11 @@ public class OQLQuery implements IQuery
                 return null;
             int rw = (Integer)row;
             Object o = objs.get(rw);
-            if (o instanceof ObjectReference)
+            if (o instanceof ObjectReference || o instanceof IObject)
             {
                 try
                 {
-                    IObject o2 = ((ObjectReference) o).getObject();
+                    IObject o2 = o instanceof IObject ? (IObject)o : ((ObjectReference) o).getObject();
                     try
                     {
                         int objectId = o2.getObjectId();

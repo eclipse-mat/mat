@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -2781,7 +2782,7 @@ public class OQLTest
         sb.append(" s");
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
-        List<ObjectReference> l = (List<ObjectReference>)result;
+        List<IObject> l = (List<IObject>)result;
         assertThat(l.size(), equalTo(addr.length + dups));
         for (int i = 0; i < addr.length; ++i) {
             assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
@@ -2800,7 +2801,7 @@ public class OQLTest
         buildAddr(sb, dups);
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
-        List<ObjectReference> l = (List<ObjectReference>)result;
+        List<IObject> l = (List<IObject>)result;
         assertThat(l.size(), equalTo(addr.length));
         for (int i = 0; i < addr.length; ++i) {
             assertThat(sb.toString(), l.get(i).getObjectAddress(), equalTo(addr[i]));
@@ -2820,6 +2821,12 @@ public class OQLTest
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
         List<IObject> l = (List<IObject>)result;
+        for (IObject obj : l)
+        {
+            long addr = obj.getObjectAddress();
+            assertThat(sb.toString(), addr, not(equalTo((0L))));
+            assertThat(sb.toString(), obj.getObjectAddress(), equalTo(addr));
+        }
     }
 
     /**
@@ -2835,6 +2842,12 @@ public class OQLTest
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
         List<IObject> l = (List<IObject>)result;
+        for (IObject obj : l)
+        {
+            long addr = obj.getObjectAddress();
+            assertThat(sb.toString(), addr, not(equalTo((0L))));
+            assertThat(sb.toString(), obj.getObjectAddress(), equalTo(addr));
+        }
     }
 
     /**
@@ -2847,10 +2860,16 @@ public class OQLTest
         int dups = 4;
         StringBuilder sb = new StringBuilder("SELECT DISTINCT OBJECTS @outboundReferences FROM OBJECTS ");
         buildAddr(sb, dups);
-        sb.append("UNION (SELECT * FROM java.lang.String)");
+        sb.append(" UNION (SELECT * FROM java.lang.String)");
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
         List<IObject> l = (List<IObject>)result;
+        for (IObject obj : l)
+        {
+            long addr = obj.getObjectAddress();
+            assertThat(sb.toString(), addr, not(equalTo((0L))));
+            assertThat(sb.toString(), obj.getObjectAddress(), equalTo(addr));
+        }
     }
 
     /**
@@ -2867,6 +2886,12 @@ public class OQLTest
         Object result = execute(sb.toString());
         assertThat(result, instanceOf(List.class));
         List<IObject> l = (List<IObject>)result;
+        for (IObject obj : l)
+        {
+            long addr = obj.getObjectAddress();
+            assertThat(sb.toString(), addr, not(equalTo((0L))));
+            assertThat(sb.toString(), obj.getObjectAddress(), equalTo(addr));
+        }
     }
 
     /**
@@ -2983,7 +3008,7 @@ public class OQLTest
         int dups = 4;
         StringBuilder sb = new StringBuilder("SELECT DISTINCT @outboundReferences FROM OBJECTS ");
         buildAddr(sb, dups);
-        sb.append("UNION (SELECT s FROM java.lang.String s)");
+        sb.append(" UNION (SELECT s FROM java.lang.String s)");
         IResultTable result = (IResultTable)execute(sb.toString());
         checkGetOQL(result);
     }
@@ -3000,6 +3025,7 @@ public class OQLTest
         buildAddr(sb, dups);
         sb.append(" s)");
         IResultTable result = (IResultTable)execute(sb.toString());
+        System.out.println(sb.toString());
         checkGetOQL(result);
     }
     // //////////////////////////////////////////////////////////////
