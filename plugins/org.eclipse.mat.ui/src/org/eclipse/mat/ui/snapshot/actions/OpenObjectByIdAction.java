@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - unindexed objects
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -22,6 +23,9 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
@@ -75,11 +79,33 @@ public class OpenObjectByIdAction extends Action
             }
             else
             {
-                int objectId = snapshot.mapAddressToId(objectAddress);
+                int objectId;
+                try
+                {
+                    objectId = snapshot.mapAddressToId(objectAddress);
+                }
+                catch (SnapshotException e)
+                {
+                    objectId = -1;
+                }
                 if (objectId < 0)
                 {
-                    errorMessage = MessageUtil.format(Messages.OpenObjectByIdAction_NoObjectWithAddress,
-                                    new Object[] { value });
+                    ObjectReference ref = new ObjectReference(snapshot, objectAddress);
+                    try
+                    {
+                        // Check the object is valid, though unindexed.
+                        IObject obj = ref.getObject();
+                        objectAddress = obj.getObjectAddress();
+                    }
+                    catch (SnapshotException e)
+                    {
+                        errorMessage = MessageUtil.format(Messages.OpenObjectByIdAction_NoObjectWithAddress,
+                                        new Object[] { value });
+                    }
+                    if (errorMessage == null)
+                    {
+                        QueryExecution.executeCommandLine(editor, null, "oql \"" + OQL.forAddress(objectAddress) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
                 }
                 else
                 {
