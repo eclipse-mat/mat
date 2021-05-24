@@ -268,9 +268,10 @@ public class OQLQueryImpl implements IOQLQuery
         {
             // Always return a map not a single item for consistency.
             // Except if the alias is "" as this used for CompareTablesQuery.
-            if (getColumns().length == 1 && getColumns()[0].getLabel().length() == 0)
+            if (getColumns().length == 1 && getColumns()[0].getLabel().isEmpty())
             {
                 Object ret = getColumnValue(getRow(index), 0);
+                // Squash?
                 if (ret instanceof RowMap)
                     return (RowMap)ret;
             }
@@ -538,7 +539,7 @@ public class OQLQueryImpl implements IOQLQuery
      * Result from a select with select list where the from clause returned a list or array of non-heap objects.
      * Each row is backed by a non-heap object.
      */
-    private static class ObjectResultSet extends AbstractCustomTableResultSet implements CustomTableResultSet
+    private static class ObjectResultSet extends AbstractCustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
 
@@ -714,7 +715,7 @@ public class OQLQueryImpl implements IOQLQuery
      * Result from a select with select list where the from clause returned an array of object IDs.
      * Each row is backed by a heap object, so will appear in the inspector view.
      */
-    private static class ResultSet extends AbstractCustomTableResultSet implements CustomTableResultSet
+    private static class ResultSet extends AbstractCustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
 
@@ -2351,8 +2352,11 @@ public class OQLQueryImpl implements IOQLQuery
         {
             ResultSet temp = new ResultSet(getSelectQuery(), objectIds.toArray());
             IntResult r = createIntResult(objectIds.size());
-            convertToObjects(temp, r, null, listener);
-            return r;
+            Collection<IObject> r2 = r instanceof IntSetResult ? new LinkedHashSet<IObject>() : new ArrayList<IObject>();
+            convertToObjects(temp, r, r2, listener);
+            if (!(r2 instanceof List))
+                r2 = new ArrayList<IObject>(r2);
+            return r2.size() > 0 ? r2 : r;
         }
         else
         {

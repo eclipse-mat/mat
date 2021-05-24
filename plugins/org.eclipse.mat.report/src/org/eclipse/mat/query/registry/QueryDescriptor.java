@@ -13,14 +13,12 @@
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
-import java.net.URL;
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import javax.tools.JavaCompiler;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
@@ -178,10 +176,13 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
             if (!context.available(argument.getType(), argument.getAdvice()) && //
                             !context.converts(argument.getType(), argument.getAdvice()))
             {
-                if (ReportPlugin.getDefault().isDebugging())
-                    ReportPlugin.log(IStatus.INFO, MessageUtil.format(Messages.QueryDescriptor_Error_IgnoringQuery,
-                                    getIdentifier(), argument.getName()));
-                return false;
+                if (argument.isMandatory())
+                {
+                    if (ReportPlugin.getDefault().isDebugging())
+                        ReportPlugin.log(IStatus.INFO, MessageUtil.format(Messages.QueryDescriptor_Error_IgnoringQuery,
+                                        getIdentifier(), argument.getName()));
+                    return false;
+                }
             }
         }
 
