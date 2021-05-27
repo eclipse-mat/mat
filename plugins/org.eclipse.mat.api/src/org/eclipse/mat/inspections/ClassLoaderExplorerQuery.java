@@ -99,11 +99,12 @@ public class ClassLoaderExplorerQuery implements IQuery
             for (IClass clazz : classes)
                 for (int objectId : clazz.getObjectIds())
                 {
-                    IObject o = snapshot.getObject(objectId);
+                    Object o = snapshot.getObject(objectId);
                     while (o instanceof IObject)
                     {
-                        classLoader.put(o.getObjectAddress(), new Node(o));
-                        o = (IObject) o.resolveValue("parent"); //$NON-NLS-1$
+                        IObject io = (IObject)o;
+                        classLoader.put(io.getObjectAddress(), new Node(io));
+                        o = io.resolveValue("parent"); //$NON-NLS-1$
                     }
                 }
         // assign defined classes
