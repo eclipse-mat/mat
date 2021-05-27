@@ -6,10 +6,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
 <meta name="DC.Title" content="New and Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.11 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.11 release."/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.12 release."/>
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.12 release."/>
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_noteworthy"/>
 <meta name="DC.Language" content="en-us"/>
@@ -24,147 +24,23 @@
 	
 	
 	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.11 release.
+		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.12 release.
 	</p>
 
 		<div class="section"><h2 class="title sectiontitle">Enhancements and fixes</h2>
 			
 			<ul class="ul">
-			<li class="li">The snapshot comparison queries have been enhanced to properly
-			compare trees as well as tables.
-			Also, a leak suspect report can be run on two snapshots to show possible memory leaks
-			using the difference between the two snapshots of the memory usage of objects and components.</li>
+			<li class="li">Compressed HPROF dumps created by OpenJDK 15 and later VMs are now read by Memory Analyzer.
+			Also, the performance of Memory Analyzer reading HPROF dumps compressed by Gzip has been improved.</li>
 
-			<li class="li">Memory Analyzer now has a configuration option to allow an attempt to analyse
-			huge heap dumps, bigger than Memory Analyzer could handle in previous version. It does this
-			by optionally discarding some objects from the heap dump while building the snapshot, with
-			the hope that the important objects have not been discarded.</li>
+			<li class="li">Huge heap dumps can be handled in Memory Analyzer by discarding some of the objects from the heap dump.
+			Users of Memory Analyzer can now examine some of those unindexed and discarded objects through the inspector view and OQL.</li>
 
-			<li class="li">Stand-alone Eclipse Memory Analyzer is now based on Eclipse 2020-03 which
-			may give a slightly improved user interface compared to previous versions.
-			As a consequence, stand-alone Eclipse Memory Analyzer is only available for
-			the following platforms.
-				<ul class="ul">
-					<li class="li">Windows (x86_64)</li>
+			<li class="li">The Leaks Suspects Report and the Component Report have been improved with 
+			additional sections and details. The reports are now more accessible with a screen reader.</li>
 
-					<li class="li">Mac OS X (Mac/Cocoa x86_64)</li>
-
-					<li class="li">Linux (x86_64/GTK+)</li>
-
-					<li class="li">Linux (PPC64LE/GTK+)</li>
-
-				</ul>
-
-			The macOS build is now signed and notarized.
+			<li class="li">Other bugs have been fixed. See <a class="xref" href="https://projects.eclipse.org/projects/tools.mat/releases/1.12.0/bugs" target="_blank">Memory Analyzer 1.12 issue list</a>
 			</li>
-
-			</ul>
-
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Fix details</h2>
-			
-			<ul class="ul">
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305154" target="_blank">305154</a>
-					Extend the programming model for MAT Queries - enable programming
-					of queries doing comparison</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=324970" target="_blank">324970</a>
-					Provide a mechanism to continue manual analysis from MAT's
-					automatic reports</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=330074" target="_blank">330074</a>
-					null returns from SnapshotImpl methods</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=347648" target="_blank">347648</a>
-					Retained size column is not compared</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=558593" target="_blank">558593</a>
-					Failing to write a report ZIP causes the report query to fail</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561460" target="_blank">561460</a>
-					More comparison queries</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561776" target="_blank">561776</a>
-					Improve handling of FINALIZABLE and UNFINALIZED</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=561976" target="_blank">561976</a>
-					Improve duplicate classes query</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=562926" target="_blank">562926</a>
-					Use simultaneous release repo for Hamcrest</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=562972" target="_blank">562972</a>
-					Tests more queries and improve collection queries</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=563960" target="_blank">563960</a>
-					Requested length of new long exceeds limit of 2,147,483,639</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=565502" target="_blank">565502</a>
-					Poor performance with bad hashing on HashMapIntObject</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566282" target="_blank">566282</a>
-					Cannot install on latest MacOS version Catalina 10.15</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566673" target="_blank">566673</a>
-					java.lang.ArrayIndexOutOfBoundsException in
-					GarbageCleaner.java</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=566917" target="_blank">566917</a>
-					Occasional poor performance with GZip HPROF</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567048" target="_blank">567048</a>
-					Add detailed progress to group by value query</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567070" target="_blank">567070</a>
-					Optimize progress monitor calculation</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567256" target="_blank">567256</a>
-					Improve help and minor updates</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567433" target="_blank">567433</a>
-					Update MAT version to 1.11.0</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567564" target="_blank">567564</a>
-					Single query report</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567917" target="_blank">567917</a>
-					Add some more network object name resolvers</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=568217" target="_blank">568217</a>
-					Better links for stack frame for thread overview</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305152" target="_blank">305152</a>
-					Improvements to the displayed comparison results</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=346513" target="_blank">346513</a>
-					TextResult link with target=_blank doesn't work</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=537252" target="_blank">537252</a>
-					Cheatsheet fixes</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=560704" target="_blank">560704</a>
-					Class cast exception opening Path To GC Roots query</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=563793" target="_blank">563793</a>
-					Feature request: Add lock information to Thread Overview and Stacks
-					query</li>
-
-				
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=565962" target="_blank">565962</a>
-					Show the thread and stack frame holding the leaked objects</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567414" target="_blank">567414</a>
-					Build standalone MAT packages with a newer Eclipse release</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567533" target="_blank">567533</a>
-					Reports have a white background with dark theme</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=567758" target="_blank">567758</a>
-					Add Close to the left and right option to tabs</li>
-
-				<li class="li">Fix for <a class="xref" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=568352" target="_blank">568352</a>
-					Better JDT integration</li>
 
 			</ul>
 
@@ -173,8 +49,8 @@
 
 		<div class="section"><h2 class="title sectiontitle">Security fixes</h2>
 			
-			Memory Analyzer 1.11 includes the security fixes first included in Memory Analyzer 1.9.2.
-			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.11.0 (or 1.10.0 or 1.9.2) or subsequent versions.
+			Memory Analyzer 1.12 includes the security fixes first included in Memory Analyzer 1.9.2.
+			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.12.0 or subsequent versions.
 			<dl class="dl">
 				
 					<dt class="dt dlterm"><a class="xref" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17634" target="_blank">CVE-2019-17634</a></dt>
@@ -218,13 +94,48 @@
 				
 			</dl>
 
+			The stand-alone Memory Analyzer 1.12 also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			<dl class="dl">
+				
+					<dt class="dt dlterm"><a class="xref" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-27225" target="_blank">CVE-2020-27225</a></dt>
+
+						<dd class="dd"><dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-306: Missing Authentication for Critical Function</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">In versions 4.18 and earlier of the Eclipse Platform, the Help Subsystem does not authenticate active help requests 
+								to the local help web server, allowing an unauthenticated local attacker to issue active help commands to the associated 
+								Eclipse Platform process or Eclipse Rich Client Platform process.</dd>
+
+							
+						</dl>
+</dd>
+
+				
+			</dl>
+
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.10</h2>
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.12</h2>
 			
 			<p class="p">
-				The New and Noteworthy document for version 1.10 is available 
-				<a class="xref" href="http://www.eclipse.org/mat/1.10.0/noteworthy.html">here</a>.
+				The latest New and Noteworthy document for version 1.12 is available 
+				<a class="xref" href="http://www.eclipse.org/mat/1.12.0/noteworthy.html">here</a>.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.11</h2>
+			
+			<p class="p">
+				The New and Noteworthy document for version 1.11 is available 
+				<a class="xref" href="http://www.eclipse.org/mat/1.11.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>

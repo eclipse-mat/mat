@@ -61,7 +61,7 @@
 				</strow>
 				<strow>
 					<stentry>other report options</stentry>
-					<stentry>See <xref format="dita" href="../../tasks/batch.dita#task_batch__report_options">batch mode control of report options</xref></stentry>
+					<stentry>See <xref format="dita" href="../../tasks/batch.dita#task_batch/report_options">batch mode control of report options</xref></stentry>
 				</strow>
 			</simpletable>
 		</section>

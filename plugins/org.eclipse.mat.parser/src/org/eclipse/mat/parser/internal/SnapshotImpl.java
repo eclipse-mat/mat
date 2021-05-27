@@ -1565,10 +1565,10 @@ public final class SnapshotImpl implements ISnapshot
 
     public boolean isArray(int objectId)
     {
-        // Add a useful error message - snapshotInfo.getNumberOfObjecs
+        // Add a useful error message - snapshotInfo.getNumberOfObjects
         // isn't set early on
         int nobjs = indexManager.idx.size();
-        if (objectId > nobjs)
+        if (objectId > nobjs || objectId < 0)
         {
             SnapshotException e = new SnapshotException(
                             MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { objectId }));

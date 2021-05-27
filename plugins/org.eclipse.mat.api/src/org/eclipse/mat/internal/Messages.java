@@ -507,6 +507,7 @@ public class Messages extends NLS
     public static String OQLQuery_ExecutedQuery;
     public static String OQLQuery_NoResult;
     public static String OQLQuery_ProblemReported;
+    public static String OQLQuery_TooManyObjects;
     public static String OQLQuery_Unindexed;
 
     public static String ParseSnapshotApp_ErrorMsg_FileNotFound;
@@ -534,6 +535,7 @@ public class Messages extends NLS
     public static String ReferenceLeakQuery_CommonPaths;
     public static String ReferenceLeakQuery_CommonPathsLimit;
     public static String ReferenceLeakQuery_ComputingReferentLeaks;
+    public static String ReferenceLeakQuery_ErrorReadingReference;
     public static String ReferenceLeakQuery_ExaminingReferenceObjects;
     public static String ReferenceLeakQuery_NoStrongPaths;
     public static String ReferenceLeakQuery_PathToReferent;

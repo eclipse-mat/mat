@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation
+ * Copyright (c) 2012, 2021 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,8 @@ import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -124,7 +126,7 @@ public class PropertySuggestionProvider implements SuggestionProvider
      */
     private void initList(ISnapshot snapshot) throws SnapshotException
     {
-        Class<?> classes[] = {IObject.class, IInstance.class, IClassLoader.class, IClass.class, IArray.class, IPrimitiveArray.class, IObjectArray.class, ISnapshot.class, Object.class, SnapshotInfo.class, List.class};
+        Class<?> classes[] = {IObject.class, IInstance.class, IClassLoader.class, IClass.class, IArray.class, IPrimitiveArray.class, IObjectArray.class, ObjectReference.class, NamedReference.class, ISnapshot.class, Object.class, SnapshotInfo.class, List.class};
         orderedList = new TreeSet<ContentAssistElement>();
 
         for (Class<?> c : classes)

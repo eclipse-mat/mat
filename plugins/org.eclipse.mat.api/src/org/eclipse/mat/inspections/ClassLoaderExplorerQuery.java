@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
@@ -44,6 +44,7 @@ import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
@@ -64,7 +65,7 @@ public class ClassLoaderExplorerQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         // collect all class loader instances
-        HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
+        HashMapLongObject<Node> classLoader = new HashMapLongObject<Node>();
         // Collect root nodes
         SetInt roots = new SetInt();
         if (objects != null)
@@ -97,7 +98,14 @@ public class ClassLoaderExplorerQuery implements IQuery
         if (classes != null)
             for (IClass clazz : classes)
                 for (int objectId : clazz.getObjectIds())
-                    classLoader.put(objectId, new Node(objectId));
+                {
+                    IObject o = snapshot.getObject(objectId);
+                    while (o instanceof IObject)
+                    {
+                        classLoader.put(o.getObjectAddress(), new Node(o));
+                        o = (IObject) o.resolveValue("parent"); //$NON-NLS-1$
+                    }
+                }
         // assign defined classes
         for (IClass clazz : snapshot.getClasses())
         {
@@ -127,7 +135,14 @@ public class ClassLoaderExplorerQuery implements IQuery
                 });
             }
 
-            IClassLoader cl = (IClassLoader) snapshot.getObject(node.classLoaderId);
+            IObject cl;
+            if (node.classLoaderId >= 0)
+                cl = (IClassLoader) snapshot.getObject(node.classLoaderId);
+            else
+            {
+                ObjectReference ref = new ObjectReference(snapshot, node.classLoaderAddress);
+                cl = ref.getObject();
+            }
             node.name = cl.getClassSpecificName();
             if (node.name == null)
                 node.name = cl.getTechnicalName();
@@ -136,7 +151,7 @@ public class ClassLoaderExplorerQuery implements IQuery
             boolean showNode = true;
             if (parent != null)
             {
-                Node parentNode = classLoader.get(parent.getObjectId());
+                Node parentNode = classLoader.get(parent.getObjectAddress());
                 if (!tree)
                 {
                     node.parent = parentNode;
@@ -160,16 +175,15 @@ public class ClassLoaderExplorerQuery implements IQuery
         return new Result(snapshot, nodes);
     }
 
-    private void addClass(HashMapIntObject<Node> classLoader, IClass clazz)
+    private void addClass(HashMapLongObject<Node> classLoader, IClass clazz)
     {
-        Node node = classLoader.get(clazz.getClassLoaderId());
+        Node node = classLoader.get(clazz.getClassLoaderAddress());
         if (node == null)
         {
             // node can be null, if the class hierarchy information is not
             // contained in the heap dump (e.g. PHD)
-            int objectId = clazz.getClassLoaderId();
-            node = new Node(objectId);
-            classLoader.put(objectId, node);
+            node = new Node(clazz);
+            classLoader.put(clazz.getClassLoaderAddress(), node);
         }
         if (node.definedClasses == null)
             node.definedClasses = new ArrayList<IClass>();
@@ -182,7 +196,7 @@ public class ClassLoaderExplorerQuery implements IQuery
         @Override
         public int hashCode()
         {
-            return Objects.hash(classLoaderId, parent);
+            return Objects.hash(classLoaderId, classLoaderAddress, parent);
         }
 
         @Override
@@ -195,20 +209,36 @@ public class ClassLoaderExplorerQuery implements IQuery
             if (getClass() != obj.getClass())
                 return false;
             Node other = (Node) obj;
-            return classLoaderId == other.classLoaderId && Objects.equals(parent, other.parent);
+            return classLoaderId == other.classLoaderId 
+                            && classLoaderAddress == other.classLoaderAddress 
+                            && Objects.equals(parent, other.parent);
         }
 
         Node parent;
         int classLoaderId;
+        long classLoaderAddress;
         String name;
         int instantiatedObjects;
 
         List<IClass> definedClasses;
         List<Node> children;
 
-        public Node(int classLoaderId)
+        public Node(IObject classLoader)
         {
-            this.classLoaderId = classLoaderId;
+            try
+            {
+                this.classLoaderId = classLoader.getObjectId();
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof SnapshotException)
+                {
+                    this.classLoaderAddress = classLoader.getObjectAddress();
+                    this.classLoaderId = -1;
+                }
+                else
+                    throw e;
+            }
         }
     }
 
@@ -323,7 +353,14 @@ public class ClassLoaderExplorerQuery implements IQuery
 
                                         public String getOQL()
                                         {
-                                            return OQL.classesByClassLoaderId(node.classLoaderId);
+                                            if (node.classLoaderId >= 0)
+                                                return OQL.classesByClassLoaderId(node.classLoaderId);
+                                            else
+                                                return "select *"
+                                                                + " from java.lang.Class c"
+                                                                + " where"
+                                                                + " c implements org.eclipse.mat.snapshot.model.IClass"
+                                                                + "     and c.@classLoaderAddress = " + node.classLoaderAddress +"L";
                                         }
                                     };
                                 }
@@ -365,7 +402,10 @@ public class ClassLoaderExplorerQuery implements IQuery
 
                                         public String getOQL()
                                         {
-                                            return OQL.forObjectsOfClass(getObjectId());
+                                            if (getObjectId() >= 0)
+                                                return OQL.forObjectsOfClass(getObjectId());
+                                            else
+                                                return "SELECT * FROM 0x" + Long.toHexString(clazz.getObjectAddress()); //$NON-NLS-1$
                                         }
                                     };
                                 }
@@ -458,13 +498,38 @@ public class ClassLoaderExplorerQuery implements IQuery
             else
             {
                 final Node node = row instanceof Node ? (Node) row : ((Parent) row).node;
-                return new IContextObject()
+                if (node.classLoaderId >= 0)
                 {
-                    public int getObjectId()
+                    return new IContextObject()
                     {
-                        return node.classLoaderId;
-                    }
-                };
+                        public int getObjectId()
+                        {
+                            return node.classLoaderId;
+                        }
+                    };
+                }
+                else
+                {
+                    return new IContextObjectSet()
+                    {
+                        public int getObjectId()
+                        {
+                            return node.classLoaderId;
+                        }
+
+                        @Override
+                        public int[] getObjectIds()
+                        {
+                            return new int[0];
+                        }
+
+                        @Override
+                        public String getOQL()
+                        {
+                            return OQL.forAddress(node.classLoaderAddress);
+                        }
+                    };
+                }
             }
         }
 
@@ -474,10 +539,17 @@ public class ClassLoaderExplorerQuery implements IQuery
                 return Icons.CLASS;
 
             Node node = row instanceof Node ? (Node) row : ((Parent) row).node;
-            if (row instanceof Child)
-                return Icons.inbound(snapshot, node.classLoaderId);
-            return node.parent != null ? Icons.outbound(snapshot, node.classLoaderId) //
-                            : Icons.forObject(snapshot, node.classLoaderId);
+            if (node.classLoaderId >= 0)
+            {
+                if (row instanceof Child)
+                    return Icons.inbound(snapshot, node.classLoaderId);
+                return node.parent != null ? Icons.outbound(snapshot, node.classLoaderId) //
+                                : Icons.forObject(snapshot, node.classLoaderId);
+            }
+            else
+            {
+                return Icons.OBJECT_INSTANCE;
+            }
         }
 
         public String prefix(Object row)

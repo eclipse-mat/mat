@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,6 +119,71 @@ public class OQLQueryImpl implements IOQLQuery
          */
         private static class RowMap extends AbstractMap<String,Object>
         {
+            private static final Object NULL_VALUE = new Object();
+            private final class ColEntry implements Entry<String, Object>
+            {
+                int col2;
+                Object value;
+
+                private ColEntry(int col)
+                {
+                    this.col2 = col;
+                }
+
+                @Override
+                public String getKey()
+                {
+                    return isr.getColumns()[col2].getLabel();
+                }
+
+                @Override
+                public Object getValue()
+                {
+                    Object o = value;
+                    if (o == NULL_VALUE)
+                        return null;
+                    else if (o != null)
+                        return o;
+                    Object row;
+                    if (irtb != null)
+                        row = irtb.getRow(index);
+                    else if (irtr != null)
+                        row = irtr.getElements().get(index);
+                    else
+                        return null;
+                    o = isr.getColumnValue(row, col2);
+                    if (o == null)
+                        value = NULL_VALUE;
+                    else
+                        value = o;
+                    return o;
+                }
+
+                @Override
+                public Object setValue(Object value)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                public int hashCode()
+                {
+                    return Objects.hash(getKey(), getValue());
+                }
+
+                public boolean equals(Object o)
+                {
+                    if ((o instanceof Entry<?,?>))
+                    {
+                        Entry<?,?>ox = (Entry<?,?>)o;
+                        return Objects.equals(getKey(), ox.getKey()) &&
+                                        Objects.equals(getValue(), ox.getValue());
+                    }
+                    {
+                        return false;
+                    }
+                }
+            }
+
             IStructuredResult isr;
             IResultTable irtb;
             IResultTree irtr;
@@ -175,60 +241,34 @@ public class OQLQueryImpl implements IOQLQuery
             @Override
             public Set<Entry<String, Object>> entrySet()
             {
-                Set<Entry<String, Object>> set = new LinkedHashSet<Entry<String, Object>>();
-                final Object NULL_VALUE = new Object();
-                for (int col = 0; col < isr.getColumns().length; ++col)
-                {
-                    String key = isr.getColumns()[col].getLabel();
-                    set.add(new Entry<String, Object>() {
-                        Object value;
+                AbstractSet<Entry<String, Object>> set = new AbstractSet<Entry<String, Object>>() {
 
-                        public Object getValue()
-                        {
-                            Object o = value;
-                            if (o == NULL_VALUE)
-                                return null;
-                            else if (o != null)
-                                return o;
-                            o = get(getKey());
-                            if (o == null)
-                                value = NULL_VALUE;
-                            else
-                                value = o;
-                            return o;
-                        }
-
-                        public Object setValue(Object o)
-                        {
-                            throw new UnsupportedOperationException();
-                        }
-
-                        @Override
-                        public String getKey()
-                        {
-                            return key;
-                        }
-
-                        public int hashCode()
-                        {
-                            return Objects.hash(getKey(), getValue());
-                        }
-
-                        public boolean equals(Object o)
-                        {
-                            if ((o instanceof Entry<?,?>))
+                    @Override
+                    public Iterator<Entry<String, Object>> iterator()
+                    {
+                        return new Iterator<Entry<String, Object>>() {
+                            int col;
+                            @Override
+                            public boolean hasNext()
                             {
-                                Entry<?,?>ox = (Entry<?,?>)o;
-                                return Objects.equals(getKey(), ox.getKey()) &&
-                                       Objects.equals(getValue(), ox.getValue());
+                                return col < size();
                             }
+
+                            @Override
+                            public Entry<String, Object> next()
                             {
-                                return false;
+                                return new ColEntry(col++);
                             }
-                        }
-                    });
-                }
-                return Collections.unmodifiableSet(set);
+                        };
+                    }
+
+                    @Override
+                    public int size()
+                    {
+                        return isr.getColumns().length;
+                    }
+                };
+                return set;
             }
         }
 
@@ -557,7 +597,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         Object[] objects;
 
-        ObjectResultSet(OQLQueryImpl source, List<Object> objects) throws SnapshotException
+        ObjectResultSet(OQLQueryImpl source, Collection<Object> objects) throws SnapshotException
         {
             this(source, objects.toArray());
         }
@@ -1580,6 +1620,40 @@ public class OQLQueryImpl implements IOQLQuery
             result = doFromItem(listener.nextMonitor());
         }
 
+        if (result instanceof CustomTableResultSet)
+        {
+            CustomTableResultSet rs = (CustomTableResultSet)result;
+            if (rs.getColumns().length == 1 & rs.getColumns()[0].getLabel().isEmpty())
+            {
+                // Squash into list
+                List<Object> list = new ArrayList<Object>();
+                for (int i = 0; i < rs.size(); ++i)
+                {
+                    Object o = rs.get(i);
+                    if (o instanceof AbstractCustomTableResultSet.RowMap)
+                    {
+                        AbstractCustomTableResultSet.RowMap rm = (AbstractCustomTableResultSet.RowMap)o;
+                        //System.out.println(rm.isr);
+                        //System.out.println(result.equals(rm.isr));
+                        if (rm.size() > 1 || !rm.containsKey("")) //$NON-NLS-1$
+                        {
+                            // Already squashed, but a RowMap, 
+                            // so result needs to remain a AbstractCustomTableResultSet
+                            list = null;
+                            break;
+                        }
+                        list.add(rm.get("")); //$NON-NLS-1$
+                    }
+                    else
+                    {
+                        list.add(o);
+                    }
+                }
+                if (list != null)
+                    result = list;
+            }
+        }
+
         if (query.getUnionQueries() != null)
         {
             result = union(listener, result);
@@ -2379,7 +2453,7 @@ public class OQLQueryImpl implements IOQLQuery
         }
     }
 
-    private Object select(List<Object> objects, IProgressListener listener) throws SnapshotException
+    private Object select(Collection<Object> objects, IProgressListener listener) throws SnapshotException
     {
         Query.SelectClause select = query.getSelectClause();
 
@@ -2426,10 +2500,10 @@ public class OQLQueryImpl implements IOQLQuery
 
     private Object filterAndSelect(IStructuredResult result, IProgressListener listener) throws SnapshotException
     {
-        List<Object> r = new ArrayList<Object>();
         IStructuredResult irt = (IStructuredResult)result;
         List<?>elements = irt instanceof IResultTree ? ((IResultTree)irt).getElements() : null;
         int count = irt instanceof IResultTable ? ((IResultTable)irt).getRowCount() : elements.size();
+        Collection<Object>r = (query.getSelectClause().isDistinct() || query.getSelectClause().isRetainedSet()) ? new LinkedHashSet<Object>(count) : new ArrayList<Object>(count);
         String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
         listener.beginTask(task, count);
         for (int ii = 0; ii < count; ii++)
@@ -2451,7 +2525,7 @@ public class OQLQueryImpl implements IOQLQuery
 
     private Object filterAndSelect(AbstractCustomTableResultSet result, IProgressListener listener) throws SnapshotException
     {
-        List<Object> r = new ArrayList<Object>();
+        Collection<Object>r = (query.getSelectClause().isDistinct() || query.getSelectClause().isRetainedSet()) ? new LinkedHashSet<Object>(result.size()) : new ArrayList<Object>(result.size());
         String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
         listener.beginTask(task, result.getRowCount() * 2);
         IProgressListener old = this.ctx.getProgressListener();
@@ -2571,7 +2645,7 @@ public class OQLQueryImpl implements IOQLQuery
         return qi;
     }
 
-    private IntArrayResult convertToObjectIds(List<?> objects) throws SnapshotException
+    private IntArrayResult convertToObjectIds(Collection<?> objects) throws SnapshotException
     {
         ArrayInt a = new ArrayInt();
 

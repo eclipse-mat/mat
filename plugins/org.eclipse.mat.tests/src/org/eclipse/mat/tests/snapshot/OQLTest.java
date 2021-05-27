@@ -950,12 +950,27 @@ public class OQLTest
         String label = "";
         IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"" + label + "\" FROM java.lang.Object s");
         String s = q1.toString();
-        IResultTable r = (IResultTable)execute(s);
-        assertEquals(label, r.getColumns()[0].getLabel());
-        IOQLQuery q2 = SnapshotFactory.createQuery(s);
-        String s2 = q2.toString();
-        assertEquals(s, s2);
-        checkGetOQL(r);
+        Object result = execute(s);
+        if (result instanceof IResultTable)
+        {
+            // Either a table with a blank column name
+            IResultTable r = (IResultTable)result;
+            assertEquals(label, r.getColumns()[0].getLabel());
+            IOQLQuery q2 = SnapshotFactory.createQuery(s);
+            String s2 = q2.toString();
+            assertEquals(s, s2);
+            checkGetOQL(r);
+        }
+        else
+        {
+            // Or squashed to a list of Integer
+            assertThat(result, instanceOf(List.class));
+            List<?>l = (List<Object>)result;
+            for (Object o : l)
+            {
+                assertThat(o, instanceOf(Integer.class));
+            }
+        }
     }
 
     /**
