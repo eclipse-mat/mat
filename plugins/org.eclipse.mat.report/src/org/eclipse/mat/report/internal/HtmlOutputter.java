@@ -680,7 +680,8 @@ public class HtmlOutputter implements IOutputter
         {
             // <pre> is a block level tag so cannot be surrounded by <p>
             writer.append("<pre>"); //$NON-NLS-1$
-            writer.append(HTMLUtils.escapeText(textResult.getText()));
+            if (textResult.getText() != null)
+                writer.append(HTMLUtils.escapeText(textResult.getText()));
             writer.append("</pre>"); //$NON-NLS-1$
         }
     }

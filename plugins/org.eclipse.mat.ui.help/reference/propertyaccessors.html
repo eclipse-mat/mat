@@ -73,9 +73,9 @@
 			<table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletable"><tr class="strow">
 					<td valign="top" class="stentry" width="22.22222222222222%">Any heap object</td>
 
-					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
+					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method.summary">IObject</a></td>
 
-					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectId--">objectId</a></td>
+					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectId()">objectId</a></td>
 
 					<td valign="top" class="stentry" width="33.33333333333333%">id of snapshot object</td>
 
@@ -85,7 +85,7 @@
 
 					<td valign="top" class="stentry"> </td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress--">objectAddress</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">objectAddress</a></td>
 
 					<td valign="top" class="stentry">address of snapshot object</td>
 
@@ -105,7 +105,7 @@
 
 					<td valign="top" class="stentry"> </td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClazz--">clazz</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClazz()">clazz</a></td>
 
 					<td valign="top" class="stentry">IClass of this object. See also classof(object).</td>
 
@@ -115,7 +115,22 @@
 
 					<td valign="top" class="stentry"> </td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize--">usedHeapSize</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getOutboundReferences()">outboundReferences</a></td>
+
+					<td valign="top" class="stentry">The outbound references as a list of 
+					<a class="xref" href="../doc/org/eclipse/mat/snapshot/model/NamedReference.html">NamedReference</a> objects
+					from this object: the type as IClass of this object; the fields; the array entries.
+					This is retrieved from the heap dump, not an index, so could contain references
+					to unindexed objects.
+					</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize()">usedHeapSize</a></td>
 
 					<td valign="top" class="stentry">shallow heap size</td>
 
@@ -125,7 +140,7 @@
 
 					<td valign="top" class="stentry"> </td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize--">retainedHeapSize</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize()">retainedHeapSize</a></td>
 
 					<td valign="top" class="stentry">retained heap size</td>
 
@@ -135,17 +150,47 @@
 
 					<td valign="top" class="stentry"> </td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getDisplayName--">displayName</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getTechnicalName()">technicalName</a></td>
 
-					<td valign="top" class="stentry">display name</td>
+					<td valign="top" class="stentry">the technical name (a combination of the class name and the object address)</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClassSpecificName()">classSpecificName</a></td>
+
+					<td valign="top" class="stentry">the value from a name resolver, if available, for example a readable value of a String</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getDisplayName()">displayName</a></td>
+
+					<td valign="top" class="stentry">display name, a combination of the technical name and the class specific name</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getSnapshot()">snapshot</a></td>
+
+					<td valign="top" class="stentry">the snapshot containing this object. An alternative to <samp class="ph codeph">${snapshot}</samp></td>
 
 				</tr>
 <tr class="strow">
 					<td valign="top" class="stentry">Class object</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method.summary">IClass</a></td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#getClassLoaderId--">classLoaderId</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#getClassLoaderId()">classLoaderId</a></td>
 
 					<td valign="top" class="stentry">id of the class loader</td>
 
@@ -153,9 +198,9 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Any array</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary">IArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IArray.html#method.summary">IArray</a></td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IArray.html#getLength--">length</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IArray.html#getLength()">length</a></td>
 
 					<td valign="top" class="stentry">length of the array</td>
 
@@ -163,9 +208,9 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Primitive array</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method.summary">IPrimitiveArray</a></td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueArray--">valueArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueArray()">valueArray</a></td>
 
 					<td valign="top" class="stentry">the values in the array</td>
 
@@ -173,13 +218,63 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Reference array</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary">IObjectArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method.summary">IObjectArray</a></td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#getReferenceArray--">referenceArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObjectArray.html#getReferenceArray()">referenceArray</a></td>
 
 					<td valign="top" class="stentry">the objects in the array (as long values, the addresses of the objects)
 					Access a particular element using get() and convert to an object using OBJECTS.
 					</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Class loader object</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClassloader.html#method.summary">IClassLoader</a></td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClassLoader.html#getClassLoaderId()">definedClasses</a></td>
+
+					<td valign="top" class="stentry">the classes defined by the class loader</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Object Reference</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/ObjectReference.html#method.summary">ObjectReference</a></td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/ObjectReference.html#getObject()">object</a></td>
+
+					<td valign="top" class="stentry">The IObject which the reference points to</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/ObjectReference.html#getObjectId()">objectId</a></td>
+
+					<td valign="top" class="stentry">The id of the IObject which the reference points to. This will fail for unindexed objects.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/ObjectReference.html#getObjectAddress()">objectAddress</a></td>
+
+					<td valign="top" class="stentry">The address of the IObject which the reference points to. This works for unindexed objects.</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Named Reference extends ObjectReference</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/NamedReference.html#method.summary">NamedReference</a></td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/NamedReference.html#getName()">name</a></td>
+
+					<td valign="top" class="stentry">The field name or array index in the form <samp class="ph codeph">[12357]</samp> which describes the reference.</td>
 
 				</tr>
 </table>
@@ -192,7 +287,11 @@
 
 			<p class="p">
 				Adding ( ) forces OQL to interpret this as a Java method
-				call. The call is executed via reflection. The following table lists some
+				call. The call is executed via reflection. 
+				The code is executed inside Memory Analyzer on the objects in the snapshot
+				representing the heap dump. Code from the Java program which generated the dump is not
+				available and is not executed.
+				The following table lists some
 				common Java methods on the underlying Java objects used by Memory Analyzer to represent
 				objects in the heap dump.
 			</p>
@@ -200,7 +299,7 @@
 			<table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__method_prop" border="1" class="simpletable"><tr class="strow">
 					<td valign="top" class="stentry" width="22.22222222222222%">${snapshot}</td>
 
-					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary">ISnapshot</a></td>
+					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#method.summary">ISnapshot</a></td>
 
 					<td valign="top" class="stentry" width="22.22222222222222%">
 						<pre class="pre codeblock"><a class="xref" href="../doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()">getClasses()</a></pre>
@@ -226,7 +325,7 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Class object</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#method.summary">IClass</a></td>
 
 					<td valign="top" class="stentry">
 						<pre class="pre codeblock"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()">hasSuperClass()</a></pre>
@@ -256,7 +355,7 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Any heap object</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#method.summary">IObject</a></td>
 
 					<td valign="top" class="stentry">
 						<pre class="pre codeblock"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">getObjectAddress()</a></pre>
@@ -271,7 +370,7 @@
 <tr class="strow">
 					<td valign="top" class="stentry">Primitive array</td>
 
-					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method.summary">IPrimitiveArray</a></td>
 
 					<td valign="top" class="stentry">
 						<pre class="pre codeblock"><a class="xref" href="../doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)">getValueAt(int index)</a></pre>

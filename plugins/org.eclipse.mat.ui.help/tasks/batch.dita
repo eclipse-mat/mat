@@ -56,7 +56,7 @@
 					of the report run on each of the top components by memory usage.</choice>
 					<choice>To compare two heap dumps use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-snapshot2=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:compare</parmname></choice>
 					<choice>To compare two heap dumps for memory leaks with a leak suspects report use <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath> <varname>myheapdump.hprof</varname> <option>-baseline=</option><varname>myheapdump2.hprof</varname> <parmname>org.eclipse.mat.api:suspects2</parmname>
-					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport__compare">running leak suspect report by snapshot comparison</xref> for more details.</choice>
+					See <xref type="task" href="runningleaksuspectreport.dita#task_runningleaksuspectreport/compare">running leak suspect report by snapshot comparison</xref> for more details.</choice>
 					<choice>To export a new copy of the heap dump with redactions use a command like
 					<codeblock>
 <filepath><cmdname>./mat/ParseHeapDump.sh</cmdname></filepath>

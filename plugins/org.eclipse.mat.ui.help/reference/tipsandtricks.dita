@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -221,7 +221,7 @@
 						<image href="../mimes/link_with_snapshot.png" align="left" placement="break" />
 					</stentry>
 				</strow>
-				<strow>
+				<strow id="value_tab">
 					<stentry>Value tab in Inspector View</stentry>
 					<stentry>
 						The Object Inspector View shows the details for the single selected

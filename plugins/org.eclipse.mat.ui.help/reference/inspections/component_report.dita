@@ -83,7 +83,7 @@
 						number of objects and the number of different class loaders.</li>
 					<li>The pie chart shows the size of the component relative to
 						the total heap size.
-						See <xref href="../tipsandtricks.dita#ref_tips__piechartlinks">Pie Chart Links</xref>
+						See <xref href="../tipsandtricks.dita#ref_tips/piechartlinks">Pie Chart Links</xref>
 						for links from pie charts.
 					</li>
 					<li>
@@ -336,7 +336,7 @@ No objects totalling 0 B are softly referenced and also strongly retained (kept 
 				be retrieved if it is in use anywhere, but if no longer in use
 				then the mapping table will not keep it alive.
 			</p>
-			<p>The report follows the format of the <xref href="#ref_inspections_component_report__softref">Soft Reference</xref>
+			<p>The report follows the format of the <xref href="#ref_inspections_component_report/softref">Soft Reference</xref>
 			section above. An example of the comment is
 				<lines><systemoutput>A total of 620 java.lang.ref.WeakReference objects have been found, which weakly reference 436 objects.
 No objects totalling 0 B are retained (kept alive) only via weak references.

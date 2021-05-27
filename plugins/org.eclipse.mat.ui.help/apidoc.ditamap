@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2021 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+    
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        Andrew Johnson (IBM Corporation) - initial documentation
+ -->
+<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map xml:lang="en-US" id="org.eclipse.mat.help">
+	<title>Memory Analyzer API</title>
+	<topicmeta>
+		<!--  Would be inserted in all topics, so omit
+		<copyright>
+			<copyryear year="2021"/>
+			<copyrholder>
+				Copyright (c) 2021 SAP AG, IBM Corporation and others.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License 2.0
+			    which accompanies this distribution, and is available at
+			    https://www.eclipse.org/legal/epl-2.0/
+		</copyright>
+		-->
+	</topicmeta>
+	<topicref navtitle="API reference" id="apiref" href="doc/index.html" format="html" type="reference"/>
+	<topicref href="legal.dita" type="reference" />
+</map>

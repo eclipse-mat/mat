@@ -170,7 +170,6 @@ public final class OQL
 
     private static boolean isHexStart1(CharSequence s, int i)
     {
-        char c;
         return i >= 0 && i < s.length() && (s.charAt(i) == '0');
     }
 

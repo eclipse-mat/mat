@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation.
+ * Copyright (c) 2020,2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.util.ObjectTreeFactory;
 import org.eclipse.mat.internal.Messages;
@@ -106,6 +107,7 @@ public class ReferenceLeakQuery implements IQuery
 
         int iobjs = 0;
         int eobjs = 0;
+        int errs = 0;
         for (int[] objs : objects)
         {
             for (int ii = 0; ii < objs.length; ii++, iobjs++)
@@ -121,7 +123,18 @@ public class ReferenceLeakQuery implements IQuery
                     ObjectReference ref = ReferenceQuery.getReferent(obj, referent_attribute);
                     if (ref != null)
                     {
-                        int suspect = ref.getObjectId();
+                        int suspect;
+                        try
+                        {
+                            suspect = ref.getObjectId();
+                        }
+                        catch (SnapshotException e)
+                        {
+                            if (++errs <= 20)
+                                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.ReferenceLeakQuery_ErrorReadingReference, obj, referent_attribute, ref), e);
+                            --eobjs;
+                            continue;
+                        }
                         Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
                         excludeMap.put(obj.getClazz(), fields);
                         allExcludeMap.put(obj.getClazz(), fields);

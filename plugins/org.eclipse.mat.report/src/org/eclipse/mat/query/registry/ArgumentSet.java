@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -73,8 +74,11 @@ public class ArgumentSet
                 {
                     if (values.containsKey(parameter))
                     {
-                        Logger.getLogger(getClass().getName()).log(Level.INFO,
-                                        MessageUtil.format(Messages.ArgumentSet_Msg_NullValue, parameter.getName()));
+                        if (ReportPlugin.getDefault().isDebugging())
+                        {
+                            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                                            MessageUtil.format(Messages.ArgumentSet_Msg_NullValue, parameter.getName()));
+                        }
                         parameter.getField().set(impl, null);
                     }
                     continue;
