@@ -1623,7 +1623,7 @@ public class OQLQueryImpl implements IOQLQuery
         if (result instanceof CustomTableResultSet)
         {
             CustomTableResultSet rs = (CustomTableResultSet)result;
-            if (rs.getColumns().length == 1 & rs.getColumns()[0].getLabel().isEmpty())
+            if (rs.getColumns().length == 1 && rs.getColumns()[0].getLabel().isEmpty())
             {
                 // Squash into list
                 List<Object> list = new ArrayList<Object>();
