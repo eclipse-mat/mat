@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?><!--
-    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -34,5 +34,5 @@
 		<delete file="index.xml" />
 		<delete file="dita.list"/>
 		<delete file="dita.xml.properties"/>
-	</target>
+	</target>	<target name="eclipseapidoc">					<ant antfile="${dita.dir}${file.separator}build.xml">			<property name="args.csspath" value="styles"/>			<property name="args.input" location="${basedir}/apidoc.ditamap"/>			<property name="clean.temp" value="yes"/>			<property name="dita.dir" value="${dita.dir}"/>			<property name="dita.eclipse.plugin" value="no" />			<property name="dita.extname" value=".dita"/>			<property name="dita.temp.dir" location="${basedir}/temp"/>			<property name="output.dir" value="${basedir}" />			<property name="transtype" value="eclipsehelp"/>			<property name="args.eclipse.provider" value="Eclipse.org"/>			<property name="args.eclipse.version" value="0.7"/>		</ant>							<delete dir="temp"/>		<delete file="index.xml" />		<delete file="dita.list"/>		<delete file="dita.xml.properties"/>	</target>
 </project>

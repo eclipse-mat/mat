@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG.
+    Copyright (c) 2008, 2021 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@
 						button
 						<image href="../mimes/i-histogram.png" />
 						or by activating the action link on the Overview
-						pane. See the <xref href="../gettingstarted/basictutorial.dita#task_basictutorial__histogram">Basic Tutorial</xref>
+						pane. See the <xref href="../gettingstarted/basictutorial.dita#task_basictutorial/histogram">Basic Tutorial</xref>
 						for more information.
 					</stentry>
 				</strow>

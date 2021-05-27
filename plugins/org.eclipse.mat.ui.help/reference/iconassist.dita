@@ -126,6 +126,14 @@
 					<stentry>Other object; not a class, classloader or array object</stentry>
 				</strow>
 				<strow>
+					<stentry>
+						<image href="../mimes/message_warning.png">
+							<alt>Warning icon</alt>
+						</image>
+					</stentry>
+					<stentry>A warning: for example that object has not been indexed</stentry>
+				</strow>
+				<strow>
 					<stentry></stentry>
 					<stentry>
 						<b>Indicators added to heap objects</b>

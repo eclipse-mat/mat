@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -118,6 +118,58 @@
 			for more details.
 			<note>
 				Please note, that currently the <codeph>FROM OBJECTS</codeph> term is in
+				the test phase!
+			</note>
+		</section>
+		<section id="unindexed">
+			<title>
+				Unindexed objects
+			</title>
+			<p>
+			Normally heap objects are indexed in the snapshot and are referred to
+			by an object id, not an address.
+			If objects have been discarded from the snapshot during parsing,
+			either because they are unreachable, or because of the discard option
+			then sometimes they can still be accessed in OQL.
+			If you know the object address, then a query such as
+			<codeblock>SELECT * FROM OBJECTS 0x2b7468c8</codeblock>
+			will retrieve it.
+			The result of the query is different however. Instead of the
+			object being processed as an object id and displayed in a 
+			list objects query tree view, it is returned as part of a list
+			of IObject and is displayed as a table view.
+			</p>
+			<p>Unindexed objects will not be returned as a result of
+			<ul>
+				<li><codeph>outbound()</codeph>
+				</li>
+				<li><codeph>inbound()</codeph>
+				</li>
+				<li><codeph>dominators()</codeph>
+				</li>
+				<li><codeph>dominatorof()</codeph>
+				</li>
+			</ul>
+			and will cause an error if supplied as an argument to those
+			functions.
+			The built-in function <codeph>classof()</codeph> does work
+			with unindexed objects.
+			</p>
+			<p>See how unindexed objects appear in the inspector view when
+			retrieved by OQL. Note the 
+			<image href="../mimes/message_warning.png">
+				<alt>yellow warning triangle icon</alt>
+			</image>
+			 warning triangle and the <msgph>Unindexed</msgph>
+			in the inspector view top panel, and the <msgph>Unindexed</msgph> suffix
+			in the object view. The retained size is 0 as the retained size is not
+			calculated for unindexed objects.
+			<image href="../mimes/inspector_unindexed.png" scale="66">
+				<alt>Inspector View with unindexed object"</alt>
+			</image>
+			</p>
+			<note>
+				Please note, that currently the unindexed objects facility is in
 				the test phase!
 			</note>
 		</section>

@@ -103,7 +103,7 @@
 		<topicref href="reference/iconassist.dita" type="reference" />
 		<topicref href="reference/tipsandtricks.dita" type="reference" />
 		<topicref href="reference/extendingmat.dita" type="reference" />
-		<topicref navtitle="API Reference" format="html" href="doc/index.html" type="reference" />
+		<topicref navtitle="API Reference" conref="apidoc.ditamap#apiref" />
 	</topichead>
 	<topicref href="noteworthy.dita" type="reference" />
 	<topicref href="legal.dita" type="reference" />

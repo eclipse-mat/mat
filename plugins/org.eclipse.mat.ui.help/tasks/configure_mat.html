@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
 <meta name="DC.Title" content="Memory Analyzer Configuration"/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="task_configure_mat"/>
 <meta name="DC.Language" content="en-us"/>
@@ -195,6 +195,26 @@
 					discarded by Memory Analyzer after parsing but before building the dominator tree.
 					</p>
 
+					<p class="p">The discarded objects are not indexed, so are not part of the dominator tree
+					nor are they counted as part of the retained size. As they are not indexed they
+					will not appear in the <a class="xref" href="../reference/querymatrix.html#ref_querymatrix__list_objects">list objects</a>
+					query.
+					Most other queries will not operate on unindexed (discarded) objects.
+					Sometimes it is possible to view them. The inspector view can display
+					unindexed objects in the attributes and statics tabs.
+					It is possible to 'Go Into' an unindexed object from the inspector view, and
+					'Go Back' to the previous object.
+					Unindexed objects do not have GC root information, so in that
+					position in the inspector view is displayed a 
+					<img class="image" src="../mimes/message_warning.png" alt="yellow warning triangle icon"/>
+					warning triangle
+					and the message <samp class="ph msgph">Unindexed</samp>.
+					Names resolvers can use the values of unindexed objects to find a displayable
+					name for an object. This will be displayed after the object address
+					in the inspector view and in the 
+					<a class="xref" href="../reference/tipsandtricks.html#ref_tips__value_tab">Inspector View value tab</a>.					
+					</p>
+
 					<div class="p">Some trial and error may be required to find suitable values of the options.
 					<ol class="ol">
 					<li class="li">If an OutOfMemoryError still occurs on a parse then more objects need to be
@@ -224,6 +244,8 @@
 					See <a class="xref" href="batch.html#task_batch__discard">
 					batch mode discard options</a> for controlling discard in batch
 					mode.
+					See <a class="xref" href="../reference/oqlsyntaxfrom.html#ref_oqlsyntaxfrom__unindexed">
+					OQL FROM clauses</a> for how to use OQL with unindexed objects. 
 					</div>
 
 					<div class="note note"><span class="notetitle">Note:</span> This feature is experimental and is subject to change

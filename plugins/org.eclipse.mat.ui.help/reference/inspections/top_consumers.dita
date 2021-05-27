@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -56,7 +56,7 @@
 			<image href="../../mimes/m3131b4b6.png"></image>
 			<p>See <xref href="../../tasks/listbiggestobjects.dita">List Biggest Objects</xref>
 			for more information. 
-			See <xref href="../tipsandtricks.dita#ref_tips__piechartlinks">Pie Chart Links</xref>
+			See <xref href="../tipsandtricks.dita#ref_tips/piechartlinks">Pie Chart Links</xref>
 			for links from pie charts.</p>
 		</section>
 	</refbody>

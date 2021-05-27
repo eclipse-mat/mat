@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2021 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -179,6 +179,27 @@
 					unreachable objects histogram</xref> together with any unreachable objects
 					discarded by Memory Analyzer after parsing but before building the dominator tree.
 					</p>
+					<p>The discarded objects are not indexed, so are not part of the dominator tree
+					nor are they counted as part of the retained size. As they are not indexed they
+					will not appear in the <xref format="dita" href="../reference/querymatrix.dita#ref_querymatrix/list_objects">list objects</xref>
+					query.
+					Most other queries will not operate on unindexed (discarded) objects.
+					Sometimes it is possible to view them. The inspector view can display
+					unindexed objects in the attributes and statics tabs.
+					It is possible to 'Go Into' an unindexed object from the inspector view, and
+					'Go Back' to the previous object.
+					Unindexed objects do not have GC root information, so in that
+					position in the inspector view is displayed a 
+					<image href="../mimes/message_warning.png">
+						<alt>yellow warning triangle icon</alt>
+					</image>
+					warning triangle
+					and the message <msgph>Unindexed</msgph>.
+					Names resolvers can use the values of unindexed objects to find a displayable
+					name for an object. This will be displayed after the object address
+					in the inspector view and in the 
+					<xref format="dita" href="../reference/tipsandtricks.dita#ref_tips/value_tab">Inspector View value tab</xref>.					
+					</p>
 					<p>Some trial and error may be required to find suitable values of the options.
 					<ol>
 					<li>If an OutOfMemoryError still occurs on a parse then more objects need to be
@@ -203,6 +224,8 @@
 					See <xref format="dita" href="batch.dita#task_batch/discard">
 					batch mode discard options</xref> for controlling discard in batch
 					mode.
+					See <xref format="dita" href="../reference/oqlsyntaxfrom.dita#ref_oqlsyntaxfrom/unindexed">
+					OQL FROM clauses</xref> for how to use OQL with unindexed objects. 
 					</p>
 					<note>This feature is experimental and is subject to change
 					or removal. Please respond on the 

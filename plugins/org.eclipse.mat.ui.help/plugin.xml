@@ -16,14 +16,15 @@
 <plugin>
 
 	<extension point="org.eclipse.help.toc">
-		<toc file="toc.xml" primary="true" extradir="doc"/>
+		<toc file="toc.xml" primary="true" />
+		<toc file="apidoc.xml" primary="true" extradir="doc" />
 	</extension>
 
 	<extension point="org.eclipse.help.contexts">
 		<contexts file="context.xml" />
 	</extension>
 
-	<extension point="org.eclipse.ui.intro.configExtension">
+	<extension point="org.ebclipse.ui.intro.configExtension">
 		<!-- config extensions to the RCP welcome page -->		
 		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="$nl$/intro/all_tutorials.xml" />
 		

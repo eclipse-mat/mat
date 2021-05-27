@@ -16,6 +16,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
@@ -30,7 +32,6 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
@@ -51,7 +52,6 @@ import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("oql")
-@Category(Category.HIDDEN)
 @Icon("/META-INF/icons/oql.gif")
 @Usage("oql \"select * from ...\"")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/queryingheapobjects.html")
@@ -61,13 +61,65 @@ public class OQLQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(flag = Argument.UNFLAGGED)
-    public String queryString;
+    public String queryString = "select * from ..."; //$NON-NLS-1$
+
+    @Argument(isMandatory = false)
+    public List<IContextObject> contexts;
 
     public IOQLQuery.Result execute(IProgressListener listener) throws Exception
     {
 
         try
         {
+            String oqlQuery = queryString;
+            if (contexts != null)
+            {
+                // Merge the query with the objects 
+                Pattern p = Pattern.compile("select (.*) from( .*)?", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+                Matcher m = p.matcher(oqlQuery);
+                String rep;
+                if (m.find())
+                    rep = m.group(1);
+                else
+                    rep = "*"; //$NON-NLS-1$
+                StringBuilder sb = new StringBuilder();
+                for (IContextObject c : contexts)
+                {
+                    if (c instanceof IContextObjectSet)
+                    {
+                        IContextObjectSet context = (IContextObjectSet)c;
+                    
+                    String q2 = context.getOQL();
+                    if (q2 != null)
+                        OQL.union(sb, q2.replaceFirst("\\*", rep)); //$NON-NLS-1$
+                    else
+                    {
+                        int o[] = context.getObjectIds();
+                        if (o.length >= 1)
+                        {
+                            q2 = OQL.forObjectIds(context.getObjectIds());
+                            OQL.union(sb, q2.replaceFirst("\\*", rep)); //$NON-NLS-1$
+                        }
+                    }
+                    }
+                    else
+                    {
+                        if (c.getObjectId() >= 0)
+                        {
+                            String q3 = OQL.forObjectId(c.getObjectId());
+                            OQL.union(sb, q3.replaceFirst("\\*", rep)); //$NON-NLS-1$
+                        }
+                    }
+                    if (sb.length() > 1000)
+                        break;
+                }
+                if (sb.length() > 0)
+                {
+                    queryString = sb.toString();
+                    if (sb.length() > 1000)
+                        throw new SnapshotException(Messages.OQLQuery_TooManyObjects);
+                }
+            }
             IOQLQuery query = SnapshotFactory.createQuery(queryString);
             Object result = query.execute(snapshot, listener);
 
