@@ -348,6 +348,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 try
                 {
                     snapshot.calculateDominatorTree(listener);
+                    snapshot.calculateMinRetainedHeapSizeForClasses(listener);
                     done = true;
                 }
                 finally
