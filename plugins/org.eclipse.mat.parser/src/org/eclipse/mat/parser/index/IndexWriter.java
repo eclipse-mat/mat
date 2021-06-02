@@ -32,8 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -679,14 +682,10 @@ public abstract class IndexWriter
         // if the writer task has an OutOfMemoryError during async we want to throw it on the next write
         OutOfMemoryError storedError = null;
 
-        // TODO bound these queues, and add more compressor threads if needed
-        // for the moment it is ok, as the compress and write stage is fast
-        // could do more threads but no point
-        final ExecutorService compressor = Executors.newSingleThreadExecutor(
-                r -> new Thread(r, "IntIndexStreamer-Compressor")); //$NON-NLS-1$
-        // this must be single threaded to ensure page update logic stays correct
-        final ExecutorService writer = Executors.newSingleThreadExecutor(
-                r -> new Thread(r, "IntIndexStreamer-Writer")); //$NON-NLS-1$
+        // Writer _must_ be single thread to ensure page update logic stays correct. Compressor
+        // could be, but generally not limited by compression speed, so one is enough.
+        final ExecutorService compressor = singleThreadedExecutor("IntIndexStreamer-Compressor");
+        final ExecutorService writer = singleThreadedExecutor("IntIndexStreamer-Writer");
 
         public IIndexReader.IOne2OneIndex writeTo(File indexFile, IteratorInt iterator) throws IOException
         {
@@ -2022,14 +2021,10 @@ public abstract class IndexWriter
         // if the writer task has an OutOfMemoryError during async we want to throw it on the next write
         OutOfMemoryError storedError = null;
 
-        // TODO bound these queues, and add more compressor threads if needed
-        // for the moment it is ok, as the compress and write stage is fast
-        // could do more threads but no point
-        final ExecutorService compressor = Executors.newSingleThreadExecutor(
-                r -> new Thread(r, "LongIndexStreamer-Compressor")); //$NON-NLS-1$
-        // this must be single threaded to ensure page update logic stays correct
-        final ExecutorService writer = Executors.newSingleThreadExecutor(
-                r -> new Thread(r, "LongIndexStreamer-Writer")); //$NON-NLS-1$
+        // Writer _must_ be single thread to ensure page update logic stays correct. Compressor
+        // could be, but generally not limited by compression speed, so one is enough.
+        final ExecutorService compressor = singleThreadedExecutor("LongIndexStreamer-Compressor");
+        final ExecutorService writer = singleThreadedExecutor("LongIndexStreamer-Writer");
 
         public LongIndexStreamer()
         {}
@@ -2535,4 +2530,29 @@ public abstract class IndexWriter
         return lead == 0x0 ? mostSignificantBit((int) x) : 32 + mostSignificantBit((int) lead);
     }
 
+    static ExecutorService singleThreadedExecutor(String name)
+    {
+        final int poolSize = 1;
+        final int timeoutSeconds = 1;
+
+        RejectedExecutionHandler blockingSubmitToQueue = (Runnable r, ThreadPoolExecutor executor) ->
+            {
+                try
+                {
+                    // call put(), to force blocking on the queue
+                    executor.getQueue().put(r);
+                }
+                catch (InterruptedException e)
+                {
+                    throw new RejectedExecutionException("thread interrupted while waiting to submit", e);
+                }
+            };
+
+        return new ThreadPoolExecutor(
+            poolSize, poolSize,
+            timeoutSeconds, TimeUnit.SECONDS,
+            new SynchronousQueue<Runnable>(),
+            r -> new Thread(r, name),
+            blockingSubmitToQueue);
+    }
 }
