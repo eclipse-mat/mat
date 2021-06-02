@@ -227,7 +227,11 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
 
     public void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException
     {
-        synchronized (getLock(thread))
+        Image imageLock = getLock(thread);
+        // Might not be a DTFJ dump
+        if (imageLock == null)
+            return;
+        synchronized (imageLock)
         {
             // Find the thread
             JavaThread jt = getJavaThread(thread, listener);
@@ -355,7 +359,11 @@ class ThreadDetailsResolver1 implements IThreadDetailsResolver
 
     public void complementDeep(IThreadInfo thread, IProgressListener listener) throws SnapshotException
     {
-        synchronized (getLock(thread))
+        Image imageLock = getLock(thread);
+        // Might not be a DTFJ dump
+        if (imageLock == null)
+            return;
+        synchronized (imageLock)
         {
             complementShallow(thread, listener);
             JavaThread jt = getJavaThread(thread, listener);
