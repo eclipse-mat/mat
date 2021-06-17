@@ -23,7 +23,7 @@
 	<name>MAT Parent</name>
 
 	<properties>
-		<tycho-version>1.7.0</tycho-version>
+		<tycho-version>2.0.0</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-remote-publish-path>genie.mat@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-remote-publish-path>

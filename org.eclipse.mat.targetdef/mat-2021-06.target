@@ -25,7 +25,7 @@
 <unit id="org.eclipse.birt.chart.engine.extension" version="0.0.0"/>
 <repository location="https://download.eclipse.org/birt/update-site/oxygen-interim/"/>
 </location>
-<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>
 <repository location="https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/"/>
 </location>
