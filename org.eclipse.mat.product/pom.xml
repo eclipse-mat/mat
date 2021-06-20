@@ -36,6 +36,27 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>selectproduct</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!--  Make the selected product the first alphabetically -->
+								<copy file="${project.build.directory}/${mat-product}.product" tofile="${project.build.directory}/mat.product" />
+								<copy file="${project.build.directory}/${mat-product}.p2.inf" tofile="${project.build.directory}/mat.p2.inf" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>
 				<version>${tycho-version}</version>
