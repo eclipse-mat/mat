@@ -49,8 +49,8 @@
 						<configuration>
 							<target>
 								<!--  Make the selected product the first alphabetically -->
-								<copy file="${project.build.directory}/${mat-product}.product" tofile="${project.build.directory}/mat.product" />
-								<copy file="${project.build.directory}/${mat-product}.p2.inf" tofile="${project.build.directory}/mat.p2.inf" />
+								<copy file="${project.basedir}/${mat-product}.product" tofile="${project.basedir}/mat.product" />
+								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" />
 							</target>
 						</configuration>
 					</execution>
