@@ -215,7 +215,7 @@ http://www.eclipse.org/legal/epl-2.0
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
 
       <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
-      <property name="osgi.requiredJavaVersion" value="1.8" />
+      <property name="osgi.requiredJavaVersion" value="11" />
       <property name="applicationCSSResources" value="platform:/plugin/org.eclipse.platform/images/" />
       <property name="org.eclipse.update.reconcile" value="false" />
    </configurations>
