@@ -54,9 +54,9 @@ public class Pass2Parser extends AbstractParser
         this.parallel = parallel;
     }
 
-    public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
+    public void read(File file, String prefix, String dumpNrToRead) throws SnapshotException, IOException
     {
-        in = new BufferingRafPositionInputStream(file, 0, 8*1024, streamLength);
+        in = new BufferingRafPositionInputStream(file, prefix, 0, 8*1024, streamLength);
 
         int currentDumpNr = 0;
 

@@ -49,7 +49,7 @@ public class HprofRandomAccessParser extends AbstractParser
     public static final int LAZY_LOADING_LIMIT = 256;
     private final IPositionInputStream in;
 
-    public HprofRandomAccessParser(File file, Version version, int identifierSize, long len,
+    public HprofRandomAccessParser(File file, String prefix, Version version, int identifierSize, long len,
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
         super(strictnessPreference);
@@ -57,7 +57,7 @@ public class HprofRandomAccessParser extends AbstractParser
         boolean gzip = CompressedRandomAccessFile.isGZIP(raf);
         if (gzip)
         {
-            ChunkedGZIPRandomAccessFile cgraf = ChunkedGZIPRandomAccessFile.get(raf, file);
+            ChunkedGZIPRandomAccessFile cgraf = ChunkedGZIPRandomAccessFile.get(raf, file, prefix);
             raf.close();
 
             if (cgraf != null)

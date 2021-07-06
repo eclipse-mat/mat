@@ -56,6 +56,7 @@ public class HprofHeapObjectReader implements IObjectReader
         long len = (olen != null) ? olen : -1;
 
         this.hprofDump = new HprofRandomAccessParser(new File(snapshot.getSnapshotInfo().getPath()), //
+                        snapshot.getSnapshotInfo().getPrefix(), //
                         version, //
                         snapshot.getSnapshotInfo().getIdentifierSize(), len, strictnessPreference);
         this.o2hprof = new IndexReader.LongIndexReader(new File(snapshot.getSnapshotInfo().getPrefix()

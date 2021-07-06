@@ -81,7 +81,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         {
             dumpNrToRead = pass1.determineDumpNumber();
         }
-        pass1.read(file, dumpNrToRead, estimatedLength);
+        pass1.read(file, prefix, dumpNrToRead, estimatedLength);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -114,7 +114,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         boolean parallel = maxFree > memestimate;
 
         Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference, streamLength, parallel);
-        pass2.read(file, dumpNrToRead);
+        pass2.read(file, prefix, dumpNrToRead);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();

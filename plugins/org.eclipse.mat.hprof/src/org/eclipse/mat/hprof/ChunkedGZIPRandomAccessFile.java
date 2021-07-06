@@ -14,6 +14,8 @@ package org.eclipse.mat.hprof;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,6 +85,9 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     // The file name we used.
     private final File file;
 
+    // The prefix of the snapshot.
+    private final String prefix;
+
     // The maximum size of a buffer cache.
     private final int cacheSize;
 
@@ -111,16 +116,19 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      * Creates the file.
      *
      * @param file The file name.
+     * @param prefix The prefix of the snapshot.
      * @param bufferSize The maximum size of uncompressed chunks.
      * @param maxCachedBuffers The maximum number of buffers to cache.
      * @throws FileNotFoundException When the file could not be found.
      * @throws IOException On other IO errors.
      */
-    private ChunkedGZIPRandomAccessFile(File file, int bufferSize, int maxCachedBuffers) throws FileNotFoundException, IOException
+    private ChunkedGZIPRandomAccessFile(File file, String prefix, int bufferSize,
+                                        int maxCachedBuffers) throws FileNotFoundException, IOException
     {
         super(file, "r"); //$NON-NLS-1$
 
         this.file = file;
+        this.prefix = prefix;
         this.last = null;
         this.pos = 0;
         this.fileSize = super.length();
@@ -141,17 +149,19 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      * Creates the file.
      *
      * @param file The file name.
+     * @param prefix The prefix of the snapshot.
      * @param mapping The offset mapping used from a previous use.
      * @param maxCachedBuffers The maximum number of buffers to cache.
      * @throws FileNotFoundException When the file could not be found.
      * @throws IOException On other IO errors.
      */
-    private ChunkedGZIPRandomAccessFile(File file, StoredOffsetMapping mapping, int maxCachedBuffers)
+    private ChunkedGZIPRandomAccessFile(File file, String prefix, StoredOffsetMapping mapping, int maxCachedBuffers)
                     throws FileNotFoundException, IOException
     {
         super(file, "r"); //$NON-NLS-1$
 
         this.file = file;
+        this.prefix = prefix;
         this.last = null;
         this.pos = 0;
         this.fileSize = super.length();
@@ -241,7 +251,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     {
         try
         {
-            reuseMapping(file, new StoredOffsetMapping(buffers, cacheSize, fileSize, modTime));
+            reuseMapping(file, prefix, new StoredOffsetMapping(buffers, cacheSize, fileSize, modTime));
         }
         finally
         {
@@ -448,15 +458,30 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      *
      * @param raf The random access file.
      * @param file The file name.
+     * @param prefix The prefix of the snapshot.
      * @return The random access file or <code>null</code>.
      */
-    public static synchronized ChunkedGZIPRandomAccessFile get(RandomAccessFile raf, File file)
+    public static synchronized ChunkedGZIPRandomAccessFile get(RandomAccessFile raf, File file, String prefix)
             throws IOException
     {
         // Maybe move these to a preference.
         int cacheSizeInMB = 5;
         int maxStoredMappings = 5;
         StoredOffsetMapping mapping = cachedOffsets.get(file.getAbsoluteFile());
+
+        // If we haven't cached it yet, try to look for a mapping index file
+        if (mapping == null)
+        {
+            try
+            {
+                mapping = new StoredOffsetMapping(prefix);
+                cachedOffsets.put(file.getAbsoluteFile(), mapping);
+            }
+            catch (IOException e)
+            {
+                // OK, maybe it is not there or in the wrong format.
+            }
+        }
 
         // Remove the oldest mapping if we exceed the limit.
         while (cachedOffsets.size() > Math.max(1, maxStoredMappings))
@@ -493,12 +518,12 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             if ((mapping != null) && (mapping.getFileSize() == fileSize) &&
                 (mapping.getBufferSize() == chunkSize) &&  (mapping.getLastModTime() == modTime))
             {
-                return new ChunkedGZIPRandomAccessFile(file, mapping, (int) nrOfChunks);
+                return new ChunkedGZIPRandomAccessFile(file, prefix, mapping, (int) nrOfChunks);
             }
             else
             {
                 cachedOffsets.remove(file.getAbsoluteFile());
-                return new ChunkedGZIPRandomAccessFile(file, chunkSize, (int) nrOfChunks);
+                return new ChunkedGZIPRandomAccessFile(file, prefix, chunkSize, (int) nrOfChunks);
             }
         }
 
@@ -782,15 +807,26 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      * Reuses the mapping of the file if it contains more buffer than the currently best one.
      *
      * @param file The file to reuse.
+     * @param prefix The prefix of the snapshot
      * @param mapping The mapping to reuse
      */
-    private static synchronized void reuseMapping(File file, StoredOffsetMapping mapping)
+    private static synchronized void reuseMapping(File file, String prefix, StoredOffsetMapping mapping)
     {
         StoredOffsetMapping oldMapping = cachedOffsets.get(file.getAbsoluteFile());
 
         if ((oldMapping == null) || oldMapping.shouldBeReplacedBy(mapping))
         {
             cachedOffsets.put(file.getAbsoluteFile(), mapping);
+
+            // Write to a index file, so we can reuse it later.
+            try
+            {
+                mapping.write(prefix);
+            }
+            catch (IOException e)
+            {
+                // Just live with it, since we can recreate the mapping (albeit slowly).
+            }
         }
     }
 
@@ -1113,12 +1149,50 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     // This is used to get a memory saving version of the offset mapping used.
     private static class StoredOffsetMapping
     {
+        private static int EXTERNAL_VERSION = 1;
+        private static final String mappingFileSuffix = "chunkedgzip.index"; //$NON-NLS-1$
+
         private final int[] lengths;
         private final int[] fileLengths;
         private final int bufferSize;
         private final long fileSize;
         private final long lastModTime;
         private final long creationDate;
+
+        /**
+         * Reads the mapping from a file.
+         *
+         * @param prefix The prefix of the snapshot
+         * @throws IOException On error.
+         */
+        public StoredOffsetMapping(String prefix) throws IOException
+        {
+            try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
+                                       new FileInputStream(prefix + mappingFileSuffix))))
+            {
+                int version = dis.readInt();
+
+                if (version != EXTERNAL_VERSION)
+                {
+                    throw new IOException("Expected version " + EXTERNAL_VERSION +  //$NON-NLS-2$
+                                          " but got " + version);  //$NON-NLS-1$
+                }
+
+                int nrOfEntries = dis.readInt();
+                bufferSize = dis.readInt();
+                fileSize = dis.readLong();
+                lastModTime = dis.readLong();
+                creationDate = dis.readLong();
+                lengths = new int[nrOfEntries];
+                fileLengths = new int[nrOfEntries];
+
+                for (int i = 0; i < nrOfEntries; ++i)
+                {
+                    lengths[i] = dis.readInt();
+                    fileLengths[i] = dis.readInt();
+                }
+            }
+        }
 
         public StoredOffsetMapping(List<Buffer> buffers, int bufferSize,
                         long fileSize, long lastModTime)
@@ -1158,6 +1232,36 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             {
                 this.fileLengths = fileLengths;
                 this.lengths = lengths;
+            }
+        }
+
+        /**
+         * Writes the mapping to a file.
+         *
+         * @param prefix The prefix of the snapshot
+         * @throws IOException On error.
+         */
+        public void write(String prefix) throws IOException
+        {
+            if ((lengths == null) || (fileLengths == null)) {
+                return;
+            }
+
+            try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(
+                                        new FileOutputStream(prefix + mappingFileSuffix))))
+            {
+                dos.writeInt(EXTERNAL_VERSION);
+                dos.writeInt(lengths.length);
+                dos.writeInt(bufferSize);
+                dos.writeLong(fileSize);
+                dos.writeLong(lastModTime);
+                dos.writeLong(creationDate);
+
+                for (int i = 0; i < lengths.length; ++i)
+                {
+                    dos.writeInt(lengths[i]);
+                    dos.writeInt(fileLengths[i]);
+                }
             }
         }
 
