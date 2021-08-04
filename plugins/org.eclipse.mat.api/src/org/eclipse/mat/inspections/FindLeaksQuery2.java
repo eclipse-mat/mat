@@ -444,90 +444,101 @@ public class FindLeaksQuery2 implements IQuery
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-
-        int numPaths = comp.getAllPaths(listener).length;
-        int diff = objectIds.length - numPaths;
-        if (diff > 0)
+        
+        if (records.length > 0)
         {
-            listener.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                            Messages.FindLeaksQuery_PathNotFound, diff, objectIds.length), null);
-        }
-        setRetainedSizesForMPaths(records, snapshot);
-        Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
-
-        MultiplePathsFromGCRootsRecord parentRecord = records[0];
-
-        // parentRecord.getReferencedRetainedSize()
-        int threshold = (int) (0.8 * objectIds.length);
-
-        Object row = null;
-        while (parentRecord.getCount() > threshold)
-        {
-            // System.out.println("count: " + parentRecord.getCount());
-            commonPath.add(parentRecord.getObjectId());
-
-            // Try to match path in dominator tree
-            if (row == null)
+            int numPaths = comp.getAllPaths(listener).length;
+            int diff = objectIds.length - numPaths;
+            if (diff > 0)
             {
-                // possibly find in dominator tree
-                row = rowmap.get(parentRecord.getObjectId());
+                listener.sendUserMessage(IProgressListener.Severity.INFO,
+                                MessageUtil.format(Messages.FindLeaksQuery_PathNotFound, diff, objectIds.length), null);
             }
+            setRetainedSizesForMPaths(records, snapshot);
+            Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
 
-            MultiplePathsFromGCRootsRecord[] children = parentRecord.nextLevel();
-            if (children == null || children.length == 0)
+            MultiplePathsFromGCRootsRecord parentRecord = records[0];
+
+            // parentRecord.getReferencedRetainedSize()
+            int threshold = (int) (0.8 * objectIds.length);
+
+            Object row = null;
+            while (parentRecord.getCount() > threshold)
             {
-                // reached the end ?! report the parent as it is big enough
-                int path[] = commonPath.toArray();
-                FindLeaksQuery.AccumulationPoint accPoint = new FindLeaksQuery.AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
-                if (rowmap.get(parentRecord.getObjectId()) == row)
+                // System.out.println("count: " + parentRecord.getCount());
+                commonPath.add(parentRecord.getObjectId());
+
+                // Try to match path in dominator tree
+                if (row == null)
                 {
-                    // Row is current, so use delta size
-                    long deltaRetained = readCol(tree, row, retainedDiffCol);
-                    accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()), deltaRetained, path);
+                    // possibly find in dominator tree
+                    row = rowmap.get(parentRecord.getObjectId());
                 }
-                FindLeaksQuery.SuspectRecordGroupOfObjects result = new FindLeaksQuery.SuspectRecordGroupOfObjects(suspectClass, record
-                                .getObjectIds(), record.getRetainedHeapSize(), accPoint, commonPath.toArray(), comp);
-                return result;
-            }
-            setRetainedSizesForMPaths(children, snapshot);
-            Arrays.sort(children, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
 
-            long childReferencedRetainedSize = children[0].getReferencedRetainedSize();
-
-            // Match child?
-            if (row != null && tree.hasChildren(row))
-            {
-                //System.out.println("Finding ");
-                for (Object row2 : tree.getChildren(row))
+                MultiplePathsFromGCRootsRecord[] children = parentRecord.nextLevel();
+                if (children == null || children.length == 0)
                 {
-                    IContextObject co = provs.get(provs.size() - 1).getContext(row2);
-                    if (co != null && co.getObjectId() == children[0].getObjectId())
+                    // reached the end ?! report the parent as it is big enough
+                    int path[] = commonPath.toArray();
+                    FindLeaksQuery.AccumulationPoint accPoint = new FindLeaksQuery.AccumulationPoint(
+                                    snapshot.getObject(parentRecord.getObjectId()));
+                    if (rowmap.get(parentRecord.getObjectId()) == row)
                     {
-                        // Found again
-                        row = row2;
-                        //System.out.println("Found again "+parentRecord.getObjectId() + " " + row);
-                        break;
+                        // Row is current, so use delta size
+                        long deltaRetained = readCol(tree, row, retainedDiffCol);
+                        accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()), deltaRetained,
+                                        path);
+                    }
+                    FindLeaksQuery.SuspectRecordGroupOfObjects result = new FindLeaksQuery.SuspectRecordGroupOfObjects(
+                                    suspectClass, record.getObjectIds(), record.getRetainedHeapSize(), accPoint,
+                                    commonPath.toArray(), comp);
+                    return result;
+                }
+                setRetainedSizesForMPaths(children, snapshot);
+                Arrays.sort(children, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
+
+                long childReferencedRetainedSize = children[0].getReferencedRetainedSize();
+
+                // Match child?
+                if (row != null && tree.hasChildren(row))
+                {
+                    // System.out.println("Finding ");
+                    for (Object row2 : tree.getChildren(row))
+                    {
+                        IContextObject co = provs.get(provs.size() - 1).getContext(row2);
+                        if (co != null && co.getObjectId() == children[0].getObjectId())
+                        {
+                            // Found again
+                            row = row2;
+                            // System.out.println("Found again
+                            // "+parentRecord.getObjectId() + " " + row);
+                            break;
+                        }
                     }
                 }
-            }
-            if ((double) childReferencedRetainedSize / (double) parentRecord.getReferencedRetainedSize() < big_drop_ratio)
-            {
-                // there is a big drop here - return the parent
-                int path[] = commonPath.toArray();
-                FindLeaksQuery.AccumulationPoint accPoint = new FindLeaksQuery.AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
-                if (rowmap.get(parentRecord.getObjectId()) == row)
+                if ((double) childReferencedRetainedSize
+                                / (double) parentRecord.getReferencedRetainedSize() < big_drop_ratio)
                 {
-                    // Row is current, so use delta size
-                    long deltaRetained = readCol(tree, row, retainedDiffCol);
-                    accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()), deltaRetained, path);
+                    // there is a big drop here - return the parent
+                    int path[] = commonPath.toArray();
+                    FindLeaksQuery.AccumulationPoint accPoint = new FindLeaksQuery.AccumulationPoint(
+                                    snapshot.getObject(parentRecord.getObjectId()));
+                    if (rowmap.get(parentRecord.getObjectId()) == row)
+                    {
+                        // Row is current, so use delta size
+                        long deltaRetained = readCol(tree, row, retainedDiffCol);
+                        accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()), deltaRetained,
+                                        path);
+                    }
+                    FindLeaksQuery.SuspectRecordGroupOfObjects result = new FindLeaksQuery.SuspectRecordGroupOfObjects(
+                                    suspectClass, record.getObjectIds(), record.getRetainedHeapSize(), accPoint, path,
+                                    comp);
+                    return result;
                 }
-                FindLeaksQuery.SuspectRecordGroupOfObjects result = new FindLeaksQuery.SuspectRecordGroupOfObjects(suspectClass, record
-                                .getObjectIds(), record.getRetainedHeapSize(), accPoint, path, comp);
-                return result;
-            }
 
-            // no big drop - take the biggest child and try again
-            parentRecord = children[0];
+                // no big drop - take the biggest child and try again
+                parentRecord = children[0];
+            }
         }
 
         // return a SuspectRecord without an accumulation point

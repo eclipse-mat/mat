@@ -257,50 +257,56 @@ public class FindLeaksQuery implements IQuery
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-
-        int numPaths = comp.getAllPaths(listener).length;
-        int diff = objectIds.length - numPaths;
-        if (diff > 0)
+        
+        if (records.length > 0)
         {
-            listener.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                            Messages.FindLeaksQuery_PathNotFound, diff, objectIds.length), null);
-        }
-        setRetainedSizesForMPaths(records, snapshot);
-        Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
-
-        MultiplePathsFromGCRootsRecord parentRecord = records[0];
-
-        // parentRecord.getReferencedRetainedSize()
-        int threshold = (int) (0.8 * objectIds.length);
-
-        while (parentRecord.getCount() > threshold)
-        {
-            // System.out.println("count: " + parentRecord.getCount());
-            commonPath.add(parentRecord.getObjectId());
-
-            MultiplePathsFromGCRootsRecord[] children = parentRecord.nextLevel();
-            if (children == null || children.length == 0)
+            int numPaths = comp.getAllPaths(listener).length;
+            int diff = objectIds.length - numPaths;
+            if (diff > 0)
             {
-                // reached the end ?! report the parent as it is big enough
-                AccumulationPoint accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
-                SuspectRecordGroupOfObjects result = new SuspectRecordGroupOfObjects(suspectClass, record
-                                .getObjectIds(), record.getRetainedHeapSize(), accPoint, commonPath.toArray(), comp);
-                return result;
+                listener.sendUserMessage(IProgressListener.Severity.INFO,
+                                MessageUtil.format(Messages.FindLeaksQuery_PathNotFound, diff, objectIds.length), null);
             }
-            setRetainedSizesForMPaths(children, snapshot);
-            Arrays.sort(children, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
+            setRetainedSizesForMPaths(records, snapshot);
+            Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
 
-            if ((double) children[0].getReferencedRetainedSize() / (double) parentRecord.getReferencedRetainedSize() < big_drop_ratio)
+            MultiplePathsFromGCRootsRecord parentRecord = records[0];
+
+            // parentRecord.getReferencedRetainedSize()
+            int threshold = (int) (0.8 * objectIds.length);
+
+            while (parentRecord.getCount() > threshold)
             {
-                // there is a big drop here - return the parent
-                AccumulationPoint accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
-                SuspectRecordGroupOfObjects result = new SuspectRecordGroupOfObjects(suspectClass, record
-                                .getObjectIds(), record.getRetainedHeapSize(), accPoint, commonPath.toArray(), comp);
-                return result;
-            }
+                // System.out.println("count: " + parentRecord.getCount());
+                commonPath.add(parentRecord.getObjectId());
 
-            // no big drop - take the biggest child and try again
-            parentRecord = children[0];
+                MultiplePathsFromGCRootsRecord[] children = parentRecord.nextLevel();
+                if (children == null || children.length == 0)
+                {
+                    // reached the end ?! report the parent as it is big enough
+                    AccumulationPoint accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
+                    SuspectRecordGroupOfObjects result = new SuspectRecordGroupOfObjects(suspectClass,
+                                    record.getObjectIds(), record.getRetainedHeapSize(), accPoint, commonPath.toArray(),
+                                    comp);
+                    return result;
+                }
+                setRetainedSizesForMPaths(children, snapshot);
+                Arrays.sort(children, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
+
+                if ((double) children[0].getReferencedRetainedSize()
+                                / (double) parentRecord.getReferencedRetainedSize() < big_drop_ratio)
+                {
+                    // there is a big drop here - return the parent
+                    AccumulationPoint accPoint = new AccumulationPoint(snapshot.getObject(parentRecord.getObjectId()));
+                    SuspectRecordGroupOfObjects result = new SuspectRecordGroupOfObjects(suspectClass,
+                                    record.getObjectIds(), record.getRetainedHeapSize(), accPoint, commonPath.toArray(),
+                                    comp);
+                    return result;
+                }
+
+                // no big drop - take the biggest child and try again
+                parentRecord = children[0];
+            }
         }
 
         // return a SuspectRecord without an accumulation point

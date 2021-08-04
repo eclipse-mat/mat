@@ -1270,20 +1270,24 @@ public class LeakHunterQuery implements IQuery
         double factor = 0.8;
         double threshold = numPaths * factor;
         List<IClass> referencePattern = new ArrayList<IClass>();
-
-        Arrays.sort(classRecords, MultiplePathsFromGCRootsClassRecord.getComparatorByNumberOfReferencedObjects());
-        MultiplePathsFromGCRootsClassRecord r = classRecords[0];
-
-        while (r.getCount() > threshold)
+        
+        if (classRecords.length > 0)
         {
-            threshold = r.getCount() * factor;
-            referencePattern.add(r.getClazz());
-            classRecords = r.nextLevel();
-            if (classRecords == null || classRecords.length == 0)
-                break;
-
             Arrays.sort(classRecords, MultiplePathsFromGCRootsClassRecord.getComparatorByNumberOfReferencedObjects());
-            r = classRecords[0];
+            MultiplePathsFromGCRootsClassRecord r = classRecords[0];
+
+            while (r.getCount() > threshold)
+            {
+                threshold = r.getCount() * factor;
+                referencePattern.add(r.getClazz());
+                classRecords = r.nextLevel();
+                if (classRecords == null || classRecords.length == 0)
+                    break;
+
+                Arrays.sort(classRecords,
+                                MultiplePathsFromGCRootsClassRecord.getComparatorByNumberOfReferencedObjects());
+                r = classRecords[0];
+            }
         }
 
         /*
