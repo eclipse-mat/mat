@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dab51bfa_be831e7b",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/internal/SnapshotImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-10-11T13:08:17Z",
+      "side": 1,
+      "message": "I like to avoid the use of VoidProgressListener where possible so that status messages, \nprogress can be shown to the user and cancel can be tested for.\nIf we just need to check for cancel (less than a second or so) then creating a SilentProgressListener might be enough - otherwise we might need a SimpleMonitor?\nI don\u0027t think we to call listener.done() on the supplied listener - that should be\ndone when everything on that listener is complete.",
+      "revId": "b8b9f53b159aac714b54a984181eef706cc3ab28",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
