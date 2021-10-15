@@ -16,6 +16,24 @@
       "revId": "b8b9f53b159aac714b54a984181eef706cc3ab28",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c738323_38f1fb0d",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/internal/SnapshotImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2021-10-15T18:55:02Z",
+      "side": 1,
+      "message": "Thanks, I\u0027ve submitted an additional patch that rectifies this. Agree wrt .done() as well, I have removed that.",
+      "parentUuid": "dab51bfa_be831e7b",
+      "revId": "b8b9f53b159aac714b54a984181eef706cc3ab28",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
