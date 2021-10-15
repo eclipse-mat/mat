@@ -1556,22 +1556,22 @@ public final class SnapshotImpl implements ISnapshot
     }
 
     public void calculateMinRetainedHeapSizeForClasses(IProgressListener listener) throws SnapshotException {
-        IProgressListener vpl = new VoidProgressListener();
+        listener.subTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses);
 
         // too expensive to do accurate search
         boolean approximate = true;
         boolean calculate = true;
 
-        listener.subTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses);
-
         Iterator<ClassImpl> classes = classCache.values();
         while (classes.hasNext())
         {
-            IClass theClass = classes.next();
-            theClass.getRetainedHeapSizeOfObjects(calculate, approximate, vpl);
-        }
+            if (listener.isCanceled()) {
+                break;
+            }
 
-        listener.done();
+            IClass theClass = classes.next();
+            theClass.getRetainedHeapSizeOfObjects(calculate, approximate, listener);
+        }
     }
 
     public long getRetainedHeapSize(int objectId) throws SnapshotException
