@@ -365,64 +365,20 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      */
     private static int getChunkSize(RandomAccessFile raf) throws IOException
     {
+        SkipableReader reader = new RandomAccessFileSkipableReader(raf);
         long oldPos = raf.getFilePointer();
 
         try
         {
             raf.seek(0);
-            int header = raf.readInt();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            if ((header >>> 8) != 0x1f8b08)
-            {
-                // Not gzip with deflate.
+            if (!skipGZIPHeader(reader, new byte[1024], baos)) {
                 return -1;
-            }
-
-            if ((header & 16) == 0)
-            {
-                // No comment
-                return -1;
-            }
-
-            raf.readInt(); // timestamp
-            raf.readChar(); // Extra flags and os.
-
-            if ((header & 4) != 0)
-            {
-                // Skip extra flags.
-                int ch1 = raf.read();
-                int ch2 = raf.read();
-                if ((ch1 | ch2) < 0)
-                    throw new EOFException();
-                int extraLen = ch1 + (ch2 << 8);
-                while (extraLen > 0)
-                {
-                    int skipped = raf.skipBytes(extraLen);
-                    // If we skip 0, don't bother retrying, just presume an error
-                    if (skipped <= 0)
-                        throw new EOFException();
-                    extraLen -= skipped;
-                }
-            }
-
-            // Skip name
-            if ((header & 8) != 0)
-            {
-                // Wait for the last 0.
-                while (raf.read() != 0);
-            }
-
-            // Read the comment.
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            int b;
-
-            while ((b = raf.read()) > 0)
-            {
-                bos.write(b);
             }
 
             // Check if the block size is included in the comment.
-            String comment = bos.toString("UTF-8"); //$NON-NLS-1$
+            String comment = baos.toString("UTF-8"); //$NON-NLS-1$
             String expectedPrefix = HPROF_BLOCKSIZE;
 
             if (comment.startsWith(expectedPrefix))
@@ -444,6 +400,11 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
                 }
             }
 
+            return -1;
+        }
+        catch (IOException e)
+        {
+            //  Fails the gzip format check.
             return -1;
         }
         finally
@@ -830,6 +791,131 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         }
     }
 
+    /**
+     * Skips a zero terminated string.
+     *
+     * @param reader The reader to get the bytes from.
+     * @param tmp A temporary buffer to use. Must be of size 1 or larger.
+     * @param baos Stores the string if not <code>null</code>.
+     * @throws IOException If reading failed.
+     */
+    private static void skipZeroTerminatedString(SkipableReader reader, byte[] tmp,
+                    ByteArrayOutputStream baos) throws IOException {
+        while (true)
+        {
+            // We assume the string to be not very large on average.
+            long read = reader.read(tmp, 0, Math.min(1024, tmp.length));
+
+            if (read == -1)
+            {
+                throw new EOFException();
+            }
+
+            for (int i = 0; i < read; ++i)
+            {
+                if (tmp[i] == 0)
+                {
+                    reader.skip(i + 1 - read); // Skip back to first unprocessed byte.
+                    return;
+                }
+
+                if (baos != null)
+                {
+                    baos.write(tmp[i]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Reads the given number of bytes from the reader.
+     *
+     * @param reader The reader to use.
+     * @param b The buffer to write into.
+     * @param off The offset in the buffer to start writing into.
+     * @param len The number of bytes to read.
+     * @throws IOException If reading the needed number of bytes fails.
+     */
+    private static void readFully(SkipableReader reader, byte[] b, int off, int len) throws IOException {
+        int left = len;
+
+        while (left > 0)
+        {
+            int read = reader.read(b,  off,  left);
+
+            if (read == -1)
+            {
+                throw new EOFException();
+            }
+
+            left -= read;
+            off += read;
+        }
+    }
+
+    /**
+     * Reads and checks the gzip header from the reader.
+     *
+     * @param reader The reader to use.
+     * @param tmp A temporary buffer used. Must be at least 10 bytes long.
+     * @param comment Used to store the comment (if present) if not <code>null</code>.
+     * @return <code>false</code> if there was nothing to read and <code>true</code> otherwise.
+     * @throws IOException When the GZip header is invalid or reading failed.
+     */
+    private static boolean skipGZIPHeader(SkipableReader reader, byte[] tmp,
+                    ByteArrayOutputStream comment) throws IOException {
+        int read = reader.read(tmp, 0, 10);
+
+        if (read == -1)
+        {
+            // EOF
+            return false;
+        }
+
+        // Need to read at least the first 10 bytes.
+        readFully(reader, tmp, read, 10 - read);
+
+        if ((tmp[0] != 0x1f) || ((tmp[1] & 0xff) != 0x8b))
+        {
+            throw new IOException("Missing gzip id"); //$NON-NLS-1$
+        }
+
+        if (tmp[2] != 8)
+        {
+            throw new IOException("Only supports deflate"); //$NON-NLS-1$
+        }
+
+        byte flags = tmp[3];
+
+        // Extras
+        if ((flags & 4) != 0)
+        {
+            readFully(reader, tmp, 0, 2);
+            int len = (tmp[1] & 0xff) * 256 + (tmp[0] & 0xff);
+            reader.skip(len);
+        }
+
+        // Name
+        if ((flags & 8) != 0)
+        {
+            skipZeroTerminatedString(reader, tmp, null);
+        }
+
+        // Comment
+        if ((flags & 16) != 0)
+        {
+            skipZeroTerminatedString(reader, tmp, comment);
+        }
+
+        // Header CRC
+        if ((flags & 2) != 0)
+        {
+            reader.skip(2);
+        }
+
+        return true;
+    }
+
     // Loads the content of a buffer. If this is the first time the buffer is
     // loaded, the next buffer is added too (but not loaded).
     private void loadBuffer(Buffer buf) throws IOException, DataFormatException
@@ -854,88 +940,46 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         addFirst(buf);
 
         // Fill in the cache
-        inf.reset();
         super.seek(buf.getFileOffset());
 
-        int read = super.read(in, 0, READ_SIZE);
+        // We need a special reader, since we cannot use the read and position
+        // methods of this object, since they are overwritten and handle the
+        // uncompressed data.
+        SkipableReader reader = new SkipableReader() {
 
-        if (read == -1)
-        {
+            @Override
+            public void skip(long toSkip) throws IOException
+            {
+                ChunkedGZIPRandomAccessFile.super.seek(ChunkedGZIPRandomAccessFile.super.getFilePointer() + toSkip);
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException
+            {
+                return ChunkedGZIPRandomAccessFile.super.read(b, off, len);
+            }
+        };
+
+        if (!skipGZIPHeader(reader, in, null)) {
             // We are at the end.
             buf.setCacheLen(0);
             return;
         }
 
-        int inCount = Math.max(4, read);
+        long inCount = super.getFilePointer() - buf.getFileOffset();
         int outCount = 0;
-
-        // Skip header, but check at least a little
-        if (read < 4)
-        {
-            // We must read at least 4 bytes.
-            super.readFully(in, read, 4 - read);
-            read = 4;
-        }
-
-        if ((in[0] != 0x1f) || ((in[1] & 0xff) != 0x8b))
-        {
-            throw new IOException("Missing gzip id"); //$NON-NLS-1$
-        }
-
-        if (in[2] != 8)
-        {
-            throw new IOException("Only supports deflate"); //$NON-NLS-1$
-        }
-
-        int off = 10;
-
-        // Extras
-        if ((in[3] & 4) != 0)
-        {
-            int len = (in[off + 1] & 0xff) * 256 + (in[off] & 0xff);
-            off += 2 + len;
-        }
-
-        // Name
-        if ((in[3] & 8) != 0)
-        {
-            int len = 0;
-
-            while (in[off + len] != 0)
-            {
-                ++len;
-            }
-
-            off += len + 1;
-        }
-
-        // Comment
-        if ((in[3] & 16) != 0)
-        {
-            int len = 0;
-
-            while (in[off + len] != 0)
-            {
-                ++len;
-            }
-
-            off += len + 1;
-        }
-
-        // Header CRC
-        if ((in[3] & 2) != 0)
-        {
-            off += 2;
-        }
-
-        inf.setInput(in, off, read - off);
-        outCount = inf.inflate(buf.getCache(), 0, buf.getCache().length);
+        inf.reset();
 
         while (!inf.finished())
         {
             if (inf.needsInput())
             {
-                read = super.read(in, 0, READ_SIZE);
+                int read = super.read(in, 0, READ_SIZE);
+
+                if (read == -1) {
+                    throw new EOFException();
+                }
+
                 inf.setInput(in, 0, read);
                 inCount += read;
             }
@@ -1378,6 +1422,51 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         public int compare(Buffer x, Buffer y)
         {
             return Long.compare(x.getOffset(), y.getOffset());
+        }
+    }
+
+    // Use to abstract a reader with a skip method.
+    private interface SkipableReader {
+
+        /**
+         * Skips the given number of bytes.
+
+         * @param toSkip The bytes to skip. Can be negative.
+         * @throws IOException On error.
+         */
+        public void skip(long toSkip) throws IOException;
+
+        /**
+         * Reads bytes.
+         *
+         * @param b The buffer to write into.
+         * @param off The offset in the buffer to start writing into.
+         * @param len The number of bytes to read.
+         * @return The number of bytes read or -1 if at the end.
+         * @throws IOException On read errors.
+         */
+        public int read(byte[] b, int off, int len) throws IOException;
+    }
+
+    // Implements a skipable reader for a random access file.
+    private static class RandomAccessFileSkipableReader implements SkipableReader {
+
+        private final RandomAccessFile file;
+
+        public RandomAccessFileSkipableReader(RandomAccessFile file) {
+            this.file = file;
+        }
+
+        @Override
+        public void skip(long toSkip) throws IOException
+        {
+            file.seek(file.getFilePointer() + toSkip);
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            return file.read(b, off, len);
         }
     }
 }
