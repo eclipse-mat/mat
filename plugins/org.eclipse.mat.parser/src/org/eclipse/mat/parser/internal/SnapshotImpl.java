@@ -1555,6 +1555,25 @@ public final class SnapshotImpl implements ISnapshot
         return total;
     }
 
+    public void calculateMinRetainedHeapSizeForClasses(IProgressListener listener) throws SnapshotException {
+        listener.subTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses);
+
+        // too expensive to do accurate search
+        boolean approximate = true;
+        boolean calculate = true;
+
+        Iterator<ClassImpl> classes = classCache.values();
+        while (classes.hasNext())
+        {
+            if (listener.isCanceled()) {
+                break;
+            }
+
+            IClass theClass = classes.next();
+            theClass.getRetainedHeapSizeOfObjects(calculate, approximate, listener);
+        }
+    }
+
     public long getRetainedHeapSize(int objectId) throws SnapshotException
     {
         if (this.isDominatorTreeCalculated())

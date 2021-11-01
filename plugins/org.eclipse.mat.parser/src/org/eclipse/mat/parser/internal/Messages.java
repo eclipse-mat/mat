@@ -83,6 +83,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_ValidatingGCRoots;
     public static String SnapshotFactoryImpl_ValidatingIndices;
     public static String SnapshotImpl_BuildingHistogram;
+    public static String SnapshotImpl_CalculatingRetainedHeapSizeForClasses;
     public static String SnapshotImpl_Error_DomTreeNotAvailable;
     public static String SnapshotImpl_Error_ObjectNotFound;
     public static String SnapshotImpl_Error_ParserNotFound;
