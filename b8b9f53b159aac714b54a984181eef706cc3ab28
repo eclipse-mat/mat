@@ -34,6 +34,24 @@
       "revId": "b8b9f53b159aac714b54a984181eef706cc3ab28",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2283062d_e905c449",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/internal/SnapshotImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2021-11-01T16:27:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c738323_38f1fb0d",
+      "revId": "b8b9f53b159aac714b54a984181eef706cc3ab28",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
