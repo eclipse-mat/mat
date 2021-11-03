@@ -392,30 +392,43 @@ public class CompareTablesQuery implements IQuery
                             int length = heapArray.getLength();
                             int step = 65536;
                             int maxarray = 1024*1024;
-                            int maxattribute = 1024;
-                            if (length <= maxarray)
+                            int maxattribute = 150;
+                            boolean big = length > maxarray;
+                            if (big)
                             {
-                                for (int i = 0; i < length; i += step)
+                                length = maxarray;
+                            }
+                            for (int i = 0; i < length; i += step)
+                            {
+                                long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                                for (int j = 0; j < l.length; ++j)
                                 {
-                                    long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
-                                    for (int j = 0; j < l.length; ++j)
+                                    if (l[j] == objAddress)
                                     {
-                                        if (l[j] == objAddress)
+                                        if (sb.length() > 0)
+                                            sb.append(", "); //$NON-NLS-1$
+                                        int sl = sb.length();
+                                        sb.append('[');
+                                        sb.append(i + j);
+                                        sb.append(']');
+                                        if (sb.length() > maxattribute)
                                         {
-                                            if (sb.length() > 0)
-                                                sb.append(", "); //$NON-NLS-1$
-                                            sb.append('[');
-                                            sb.append(i + j);
-                                            sb.append(']');
-                                            if (sb.length() > maxattribute)
-                                            {
-                                                sb.append(",..."); //$NON-NLS-1$
-                                                i = length;
-                                                break;
-                                            }
+                                            // Remove space after comma?
+                                            if (sl > 0)
+                                                sl--;
+                                            sb.delete(sl, sb.length());
+                                            sb.append("..."); //$NON-NLS-1$
+                                            big = false;
+                                            i = length;
+                                            break;
                                         }
                                     }
                                 }
+                            }
+                            if (big)
+                            {
+                                if (sb.length() > 0)
+                                    sb.append(",..."); //$NON-NLS-1$
                             }
                         }
                     }

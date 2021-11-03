@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - ellipsis improvements
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot.inspections;
 
@@ -431,30 +432,44 @@ public class Path2GCRootsQuery implements IQuery
                     int length = heapArray.getLength();
                     int step = 65536;
                     int maxarray = 20 * 1024 * 1024;
-                    int maxattribute = 1024;
-                    if (length <= maxarray)
+                    int maxattribute = 150;
+                    boolean big = length > maxarray;
+                    if (big)
                     {
-                        for (int i = 0; i < length; i += step)
+                        length = maxarray;
+                    }
+                    for (int i = 0; i < length; i += step)
+                    {
+                        long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                        for (int j = 0; j < l.length; ++j)
                         {
-                            long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
-                            for (int j = 0; j < l.length; ++j)
+                            if (l[j] == parentAddress)
                             {
-                                if (l[j] == parentAddress)
+                                if (s.length() > 0)
+                                    s.append(", "); //$NON-NLS-1$
+                                int sl = s.length();
+                                s.append('[');
+                                s.append(i + j);
+                                s.append(']');
+                                if (s.length() > maxattribute)
                                 {
-                                    if (s.length() > 0)
-                                        s.append(", "); //$NON-NLS-1$
-                                    s.append('[');
-                                    s.append(i + j);
-                                    s.append(']');
-                                    if (s.length() > maxattribute)
-                                    {
-                                        s.append(",..."); //$NON-NLS-1$
-                                        i = length;
-                                        break;
-                                    }
+                                    // Remove space after comma?
+                                    if (sl > 0)
+                                        sl--;
+                                    s.delete(sl, s.length());
+                                    s.append("..."); //$NON-NLS-1$
+                                    big = false;
+                                    i = length;
+                                    break;
                                 }
                             }
                         }
+                    }
+                    if (big)
+                    {
+                        // Don't add ellipsis if nothing else added
+                        if (s.length() > 0)
+                            s.append(",..."); //$NON-NLS-1$
                     }
                 }
                 else
