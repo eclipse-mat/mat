@@ -294,30 +294,44 @@ public final class ObjectListResult
                 int length = heapArray.getLength();
                 int step = 65536;
                 int maxarray = Integer.MAX_VALUE;
-                int maxattribute = 1024;
-                if (length <= maxarray)
+                int maxattribute = 150;
+                boolean big = length > maxarray;
+                if (big)
                 {
-                    for (int i = 0; i < length; i += step)
+                    length = maxarray;
+                }
+                for (int i = 0; i < length; i += step)
+                {
+                    long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                    for (int j = 0; j < l.length; ++j)
                     {
-                        long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
-                        for (int j = 0; j < l.length; ++j)
+                        if (l[j] == parentAddress)
                         {
-                            if (l[j] == parentAddress)
+                            if (s.length() > 0)
+                                s.append(", "); //$NON-NLS-1$
+                            int sl = s.length();
+                            s.append('[');
+                            s.append(i + j);
+                            s.append(']');
+                            if (s.length() > maxattribute)
                             {
-                                if (s.length() > 0)
-                                    s.append(", "); //$NON-NLS-1$
-                                s.append('[');
-                                s.append(i + j);
-                                s.append(']');
-                                if (s.length() > maxattribute)
-                                {
-                                    s.append(",..."); //$NON-NLS-1$
-                                    i = length;
-                                    break;
-                                }
+                                // Remove space after comma?
+                                if (sl > 0)
+                                    sl--;
+                                s.delete(sl, s.length());
+                                s.append("..."); //$NON-NLS-1$
+                                big = false;
+                                i = length;
+                                break;
                             }
                         }
                     }
+                }
+                if (big)
+                {
+                    // Don't add ellipsis if nothing else added
+                    if (s.length() > 0)
+                        s.append(",..."); //$NON-NLS-1$
                 }
             }
             else

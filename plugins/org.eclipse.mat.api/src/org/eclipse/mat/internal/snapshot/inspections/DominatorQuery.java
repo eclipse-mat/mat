@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - add attributes for direct links
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot.inspections;
 
@@ -47,6 +48,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -357,10 +360,10 @@ public class DominatorQuery implements IQuery
             nf.setMaximumFractionDigits(2);
             return new Column[] {
                             new Column(Messages.Column_ClassName, String.class).decorator(this), //
-                            new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
-                            new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals(), //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class), //
                             new Column(Messages.Column_Percentage, double.class)
-                                            .formatting(nf).noTotals() };
+                                            .formatting(nf) };
         }
 
         public List<?> getElements()
@@ -434,6 +437,97 @@ public class DominatorQuery implements IQuery
 
         public String prefix(Object row)
         {
+            // Only generate prefixes for small dominator arrays
+            final int SMALL_ARRAY_SIZE = 512;
+            Node node = (Node) row;
+            int objId = node.objectId;
+            if (objId == -1)
+                return null;
+            StringBuilder sb = new StringBuilder();
+            try
+            {
+                int immdom = snapshot.getImmediateDominatorId(objId);
+                if (immdom >= 0)
+                {
+                    if (!snapshot.isArray(immdom))
+                    {
+                        IObject immobj = snapshot.getObject(immdom);
+                        for (NamedReference ref : immobj.getOutboundReferences())
+                        {
+                            if (ref.getObjectId() == objId)
+                            {
+                                if (sb.length() > 0)
+                                    sb.append(',');
+                                sb.append(ref.getName());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (snapshot.getClassOf(immdom).getObjectId() == objId)
+                            sb.append("<class>"); //$NON-NLS-1$
+                        // Big arrays could be expensive to read
+                        if (snapshot.getHeapSize(immdom) < SMALL_ARRAY_SIZE)
+                        {
+                            long objAddress = snapshot.mapIdToAddress(objId);
+                            IObject immobj = snapshot.getObject(immdom);
+                            // Don't get named references for object array - expensive
+                            if (immobj instanceof IObjectArray)
+                            {
+                                // Arrays can be huge, extracting references could be huge
+                                IObjectArray heapArray = (IObjectArray)immobj;
+                                int length = heapArray.getLength();
+                                int step = 65536;
+                                int maxarray = 1024*1024;
+                                int maxattribute = 150;
+                                boolean big = length > maxarray;
+                                if (big)
+                                {
+                                    length = maxarray;
+                                }
+                                for (int i = 0; i < length; i += step)
+                                {
+                                    long l[] = heapArray.getReferenceArray(i, Math.min(step, length - i));
+                                    for (int j = 0; j < l.length; ++j)
+                                    {
+                                        if (l[j] == objAddress)
+                                        {
+                                            if (sb.length() > 0)
+                                                sb.append(", "); //$NON-NLS-1$
+                                            int sl = sb.length();
+                                            sb.append('[');
+                                            sb.append(i + j);
+                                            sb.append(']');
+                                            if (sb.length() > maxattribute)
+                                            {
+                                                // Remove space after comma?
+                                                if (sl > 0)
+                                                    sl--;
+                                                sb.delete(sl, sb.length());
+                                                sb.append("..."); //$NON-NLS-1$
+                                                big = false;
+                                                i = length;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (big)
+                                {
+                                    // Don't add ellipsis if nothing else added
+                                    if (sb.length() > 0)
+                                        sb.append(",..."); //$NON-NLS-1$
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SnapshotException e1)
+            {
+            }
+            if (sb.length() > 0)
+                return sb.toString();
             return null;
         }
 
