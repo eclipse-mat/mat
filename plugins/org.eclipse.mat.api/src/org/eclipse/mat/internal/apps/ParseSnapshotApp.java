@@ -124,6 +124,11 @@ public class ParseSnapshotApp implements IApplication
                                 runtime.getRuntimeId(), runtime.getVersion()));
             }
         }
+        catch (OutOfMemoryError oome)
+        {
+            oome.printStackTrace();
+            return Integer.valueOf(79);
+        }
 
         return IApplication.EXIT_OK;
     }
