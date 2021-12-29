@@ -845,6 +845,13 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             QueryContextMenu contextMenu = new QueryContextMenu(editor, contextProvider);
             contextMenu.addContextActions(manager, selection, viewer.getControl());
         }
+
+        Object firstElement = selection.getFirstElement();
+        if (firstElement instanceof MoreNode)
+        {
+            manager.addSeparator();
+            ((MoreNode) firstElement).getActions().forEach(manager::add);
+        }
     }
 
     private void showBootstrapPart()
