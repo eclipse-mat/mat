@@ -14,11 +14,13 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
@@ -40,11 +42,13 @@ import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -53,6 +57,7 @@ import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -72,6 +77,7 @@ import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.ui.snapshot.views.inspector.FieldsContentProvider.MoreNode;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
@@ -87,6 +93,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -130,8 +137,126 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     private List<Menu> contextMenus = new ArrayList<Menu>();
 
     boolean keepInSync = true;
+    
+    private static final class FieldsViewerComparator extends ViewerComparator
+    {
+        public FieldsViewerComparator()
+        {
+            super(Collator.getInstance());
+        }
 
-    /* package */static class BaseNode
+        @Override
+        public int category(Object element)
+        {
+            if (element instanceof MoreNode)
+                return 1;
+            return 0;
+        }
+
+        @Override
+        public int compare(Viewer viewer, Object e1, Object e2)
+        {
+            int cat1 = category(e1);
+            int cat2 = category(e2);
+
+            if (cat1 != cat2)
+                return cat1 - cat2;
+
+            TableViewer tableViewer = (TableViewer) viewer;
+
+            int direction = tableViewer.getTable().getSortDirection();
+            if (direction == SWT.NONE)
+                return 0;
+
+            int index = getSortColumnIndex(tableViewer.getTable());
+            if (index == -1)
+                return 0;
+
+            String name1 = getLabel(viewer, e1, index);
+            String name2 = getLabel(viewer, e2, index);
+
+            return direction == SWT.UP ? getComparator().compare(name1, name2)
+                            : getComparator().reversed().compare(name1, name2);
+        }
+
+        private int getSortColumnIndex(Table table)
+        {
+            TableColumn[] columns = table.getColumns();
+            TableColumn sortColumn = table.getSortColumn();
+
+            int index = -1;
+            for (int i = 0; i < columns.length; i++)
+            {
+                if (Objects.equals(sortColumn, columns[i]))
+                {
+                    index = i;
+                }
+            }
+
+            return index;
+        }
+
+        private String getLabel(Viewer viewer, Object e, int index)
+        {
+            ITableLabelProvider provider = (ITableLabelProvider) ((ContentViewer) viewer).getLabelProvider();
+
+            String label = provider.getColumnText(e, index);
+            if (label == null)
+            {
+                label = "";//$NON-NLS-1$
+            }
+            return label;
+        }
+
+    }
+
+    private static final class ColumnSelectionListener implements SelectionListener
+    {
+        private final Runnable afterColumnSelected;
+
+        private ColumnSelectionListener(Runnable afterColumnSelected)
+        {
+            this.afterColumnSelected = afterColumnSelected;
+        }
+
+        @Override
+        public void widgetSelected(SelectionEvent e)
+        {
+            TableColumn column = (TableColumn) e.widget;
+
+            Table table = column.getParent();
+            int direction = table.getSortDirection();
+            boolean isSorted = column == table.getSortColumn();
+            direction = nextSortDirection(direction, isSorted);
+
+            table.setSortColumn(column);
+            table.setSortDirection(direction);
+            afterColumnSelected.run();
+        }
+
+        private int nextSortDirection(int direction, boolean isSorted)
+        {
+            if (!isSorted)
+                return SWT.UP;
+            switch (direction)
+            {
+                case SWT.UP:
+                    return SWT.DOWN;
+                case SWT.DOWN:
+                    return SWT.NONE;
+                default:
+                    return SWT.UP;
+            }
+        }
+
+        @Override
+        public void widgetDefaultSelected(SelectionEvent e)
+        {
+            // nothing to do...
+        }
+    }
+
+	/* package */static class BaseNode
     {
         int objectId;
         long addr;
@@ -619,23 +744,28 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         final TableViewer viewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
         Table table = viewer.getTable();
+        
         AccessibleCompositeAdapter.access(table);
         viewer.setContentProvider(new FieldsContentProvider());
         viewer.setLabelProvider(new FieldsLabelProvider(this, table.getFont()));
+        viewer.setComparator(new FieldsViewerComparator());
 
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setText(Messages.InspectorView_Type);
         tableColumn.setWidth(50);
+        tableColumn.addSelectionListener(new ColumnSelectionListener(viewer::refresh));
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(10, 50, false));
 
         tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(80);
         tableColumn.setText(Messages.InspectorView_Name);
+        tableColumn.addSelectionListener(new ColumnSelectionListener(viewer::refresh));
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(30, 80));
 
         tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(250);
         tableColumn.setText(Messages.InspectorView_Value);
+        tableColumn.addSelectionListener(new ColumnSelectionListener(viewer::refresh));
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(60, 250, true));
 
         table.setHeaderVisible(true);
@@ -668,7 +798,6 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             InspectorContextProvider contextProvider = new InspectorContextProvider(snapshot);
             final IContextObject firstElement = contextProvider.getContext(selection.getFirstElement());
 
-            IStructuredSelection editorSelection = (IStructuredSelection) editor.getSelection();
             final Object currentElement = current;
             // Has the actual object changed?
             boolean isObject = firstElement != null && currentElement instanceof IContextObject && (firstElement
