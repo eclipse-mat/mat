@@ -100,7 +100,13 @@ public class Messages extends NLS
     public static String ExportActions_ExportToTxt;
     public static String ExportActions_PlainText;
     public static String ExportActions_ZippedWebPage;
+    public static String FieldsContentProvider_CustomExpand;
     public static String FieldsContentProvider_Displayed;
+    public static String FieldsContentProvider_EnterNumber;
+    public static String FieldsContentProvider_ExpandAll;
+    public static String FieldsContentProvider_ExpandToLimit;
+    public static String FieldsContentProvider_Next25;
+    public static String FieldsContentProvider_notValidNumber;
     public static String FileOpenDialogEditor_CannotWrite;
     public static String FileOpenDialogEditor_ChooseFile;
     public static String FileOpenDialogEditor_FileNotFound;
