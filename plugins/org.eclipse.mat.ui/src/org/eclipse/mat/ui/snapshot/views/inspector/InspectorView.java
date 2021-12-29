@@ -72,6 +72,7 @@ import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.ui.snapshot.views.inspector.FieldsContentProvider.MoreNode;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
@@ -715,6 +716,13 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             QueryContextMenu contextMenu = new QueryContextMenu(editor, contextProvider);
             contextMenu.addContextActions(manager, selection, viewer.getControl());
+        }
+
+        Object firstElement = selection.getFirstElement();
+        if (firstElement instanceof MoreNode)
+        {
+            manager.addSeparator();
+            ((MoreNode) firstElement).getActions().forEach(manager::add);
         }
     }
 
