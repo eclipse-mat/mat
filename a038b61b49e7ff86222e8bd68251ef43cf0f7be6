@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6d48eca_73372be3",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/InspectorView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-02T13:52:33Z",
+      "side": 1,
+      "message": "SpotBugs warning:\nShould org.eclipse.mat.ui.snapshot.views.inspector.InspectorView$CollatorComparator be a _static_ inner class? [Of Concern(18), Normal confidence]\nIf I make this static then I get this warning instead:\norg.eclipse.mat.ui.snapshot.views.inspector.InspectorView$CollatorComparator implements Comparator but not Serializable [Of Concern(20), Low confidence]",
+      "revId": "a038b61b49e7ff86222e8bd68251ef43cf0f7be6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44d1aa35_d24a8473",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/InspectorView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-02T13:52:33Z",
+      "side": 1,
+      "message": "SpotBugs warning: \nThe class org.eclipse.mat.ui.snapshot.views.inspector.InspectorView$FieldsViewerComparator could be refactored into a _static_ inner class [Of Concern(20), Low confidence]",
+      "revId": "a038b61b49e7ff86222e8bd68251ef43cf0f7be6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0430eda_5a27f367",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/InspectorView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-02T13:52:33Z",
+      "side": 1,
+      "message": "SpotBugs warning:\nShould org.eclipse.mat.ui.snapshot.views.inspector.InspectorView$ColumnSelectionListener be a _static_ inner class? [Of Concern(18), Normal confidence]",
+      "revId": "a038b61b49e7ff86222e8bd68251ef43cf0f7be6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
