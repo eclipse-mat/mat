@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d5f382b_0865b140",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-05T17:20:11Z",
+      "side": 1,
+      "message": "We should give a warning dialog about a blocked UI if more than 5000 extra elements are to be shown - rather like the RefinedResultViewer.",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0035b89_9404cc97",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-05T17:20:11Z",
+      "side": 1,
+      "message": "If the number supplied is ridiculously large (2147483647) then a java.lang.NegativeArraySizeException is generated as the result overflows.\n[RefinedResultViewer has a similar problem with numbers up to 2147483646.]\n\nI think it better to treat this as expand all. The alternative is to limit\nthe value in isValid() so that limit + number does not overflow, so then\nthe maximum value which can be supplied will vary, which might be less\nunderstandable to the user.",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664a42a0_51f72ee7",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-05T17:20:11Z",
+      "side": 1,
+      "message": "We should give a warning dialog about a blocked UI if more than 5000 extra elements are to be shown - rather like the RefinedResultViewer.",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
