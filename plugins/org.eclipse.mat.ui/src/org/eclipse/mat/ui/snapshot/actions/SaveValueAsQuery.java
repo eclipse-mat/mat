@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public class SaveValueAsQuery implements IQuery
                 public void run()
                 {
                     MessageBox box = new MessageBox(display.getActiveShell(), //
-                                    SWT.YES | SWT.NO);
+                                    SWT.ICON_WARNING | SWT.YES | SWT.NO);
                     box.setText(Messages.SaveValueAsQuery_Overwrite);
                     box.setMessage(MessageUtil.format(Messages.SaveValueAsQuery_FileExists, file.getAbsolutePath()));
 

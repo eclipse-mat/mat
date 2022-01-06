@@ -960,6 +960,9 @@ public abstract class RefinedResultViewer
             return;
         int visible = number == Integer.MAX_VALUE ? ctrl.totals.getNumberOfItems() : //
                         Math.min(ctrl.totals.getVisibleItems() + number, ctrl.totals.getNumberOfItems());
+        /* Handle overflow */
+        if (visible < 0)
+            visible = ctrl.totals.getNumberOfItems();
 
         if (visible - ctrl.totals.getVisibleItems() > 5000)
         {

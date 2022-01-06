@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM) - add icon
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.panes;
 
@@ -143,13 +144,13 @@ public class TableResultPane extends QueryResultPane
                         if (filters[index].isActive())
                         {
                             buf.append("\n").append( //$NON-NLS-1$
-                            		MessageUtil.format(Messages.TableResultPane_onColumn,
-                            				filters[index].getCriteria(),
-                            				columns[index].getLabel()));
+                                    MessageUtil.format(Messages.TableResultPane_onColumn,
+                                            filters[index].getCriteria(),
+                                            columns[index].getLabel()));
                         }
                     }
 
-                    MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.OK | SWT.CANCEL);
+                    MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.ICON_INFORMATION | SWT.OK | SWT.CANCEL);
                     msg.setText(Messages.TableResultPane_Info);
                     msg.setMessage(buf.toString());
 
