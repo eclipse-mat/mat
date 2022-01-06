@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ab2d7afa_e95f4c06",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-06T07:08:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d5f382b_0865b140",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0035b89_9404cc97",
         "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "52129013_5284c2f0",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-06T07:08:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0035b89_9404cc97",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "664a42a0_51f72ee7",
         "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
         "patchSetId": 2
@@ -50,6 +86,24 @@
       "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec8ed82a_3a8711f9",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/views/inspector/FieldsContentProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-01-06T07:08:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "664a42a0_51f72ee7",
+      "revId": "d4a5cd6cab9da76420f63fe622b5e00ad3c6e088",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
