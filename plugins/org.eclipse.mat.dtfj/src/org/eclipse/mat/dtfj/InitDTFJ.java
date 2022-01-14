@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2021 IBM Corporation.
+ * Copyright (c) 2009,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ package org.eclipse.mat.dtfj;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     private static final String DTFJ_NAMESPACE = "com.ibm.dtfj.api"; //$NON-NLS-1$
     private static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
 
-    private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
+    private static final Map<String, Map<String, String>> allexts = new LinkedHashMap<String, Map<String, String>>(16, 0.75f, true);
     private static int updateCount = 0;
 
     private static InitDTFJ plugin;
@@ -256,6 +257,23 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         catch (UnsupportedEncodingException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Note that this parser was used, so bring it
+     * to the front of the list.
+     * @param parser
+     */
+    void used(String parser)
+    {
+        for (Map.Entry<String, Map<String,String>>es : allexts.entrySet())
+        {
+            if (parser.equals(es.getValue().get("id")))
+            {
+                allexts.get(es.getKey());
+                break;
+            }
         }
     }
 
