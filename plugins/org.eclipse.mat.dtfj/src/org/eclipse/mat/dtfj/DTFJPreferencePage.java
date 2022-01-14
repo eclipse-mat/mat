@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2019 IBM Corporation.
+ * Copyright (c) 2011,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,28 @@
  *******************************************************************************/
 package org.eclipse.mat.dtfj;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
+import org.eclipse.mat.dtfj.InitDTFJ.DynamicInfo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -62,6 +75,85 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                         getFieldEditorParent(), true));
         addField(new BooleanFieldEditor(PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, Messages.DTFJPreferencePage_SuppressClassNativeSizes,
                         getFieldEditorParent()));
+        addField(new ListEditor(PreferenceConstants.INCOMPATIBLE_DTFJ_VERSIONS, Messages.DTFJPreferencePage_IncompatibleDTFJVersionsLabel, getFieldEditorParent()) {
+
+            List l;
+            static final String defaultPattern = "JRE 1[0-9].*"; //$NON-NLS-1$
+
+            @Override
+            protected String createList(String[] items)
+            {
+                return String.join(DTFJIndexBuilder.DTFJ_PATTERN_SEPARATOR, items);
+            }
+
+            @Override
+            public
+            List getListControl(Composite parent)
+            {
+                l = super.getListControl(parent);
+                return l;
+            }
+
+            @Override
+            protected String getNewInputObject()
+            {
+                // Use first selected item as an initial value
+                String sel[] = l.getSelection();
+                if (sel.length == 0)
+                {
+                    // No selection so allow the user to choose from an implementation
+                    java.util.List<String>l2 = new ArrayList<String>();
+                    DynamicInfo di = new DynamicInfo();
+                    for (Map<String,String>m : di.values())
+                    {
+                        l2.add(m.get("id")); //$NON-NLS-1$
+                    }
+                    ElementListSelectionDialog esd = new ElementListSelectionDialog(getShell(), new LabelProvider());
+                    esd.setTitle(Messages.DTFJPreferencePage_ChooseDTFJImplementation);
+                    esd.setMessage(Messages.DTFJPreferencePage_ChooseDTFJImplementationMsg);
+                    esd.setElements(l2.toArray());
+                    if (esd.open() == Window.OK)
+                    {
+                        Object r = esd.getFirstResult();
+                        if (r != null)
+                        {
+                            sel = new String[] {r.toString() + ":" + defaultPattern}; //$NON-NLS-1$
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                InputDialog id = new InputDialog(getShell(), Messages.DTFJPreferencePage_IncompatibleDTFJVersionsTitle, Messages.DTFJPreferencePage_IncompatibleDTFJVersionsInput, sel.length == 0 ? "" : sel[0], new IInputValidator() { //$NON-NLS-1$
+
+                    public String isValid(String newText) {
+                        try
+                        {
+                            Pattern.compile(newText);
+                        }
+                        catch (PatternSyntaxException e)
+                        {
+                            return e.getDescription();
+                        }
+                        return null;
+                    }
+                });
+
+                if (id.open() == Window.OK) {
+                    return id.getValue();
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            protected String[] parseString(String stringList)
+            {
+                return stringList.split(DTFJIndexBuilder.DTFJ_PATTERN_SEPARATOR);
+            }
+
+        });
    }
 
     /*
