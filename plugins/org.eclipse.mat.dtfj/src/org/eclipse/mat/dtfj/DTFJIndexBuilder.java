@@ -1164,7 +1164,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClasses, jcl))
                     continue;
                 JavaClass j2 = (JavaClass) next2;
-                rememberClass(j2, allClasses, listener);
+                rememberClass(j2, allClasses, listener, null);
             }
         }
 
@@ -1237,7 +1237,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaCachedList, j2), e);
                     }
-                    rememberClass(j2, allClasses, listener);
+                    rememberClass(j2, allClasses, listener, null);
                 }
             }
         }
@@ -1507,7 +1507,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                 Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaSuperclassList, sup), e);
             }
-            rememberClass(sup, allClasses, listener);
+            rememberClass(sup, allClasses, listener, null);
         }
         extraSuperclasses.clear();
 
@@ -3407,7 +3407,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             JavaClass cls = jo.getJavaClass();
-            rememberClass(cls, allClasses, listener);
+            rememberClass(cls, allClasses, listener, jo);
         }
         catch (CorruptDataException e)
         {
@@ -3421,8 +3421,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param cls
      * @param allClasses
      * @param listener
+     * @param jo
      */
-    private void rememberClass(JavaClass cls, Set<JavaClass> allClasses, IProgressListener listener)
+    private void rememberClass(JavaClass cls, Set<JavaClass> allClasses, IProgressListener listener, JavaObject jo)
     {
         while (allClasses.add(cls))
         {
@@ -3454,6 +3455,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_ProblemFindingComponentClass,
                                     format(getClassAddress(cls, listener))), e);
+
+                if (debugInfo && jo != null)
+                {
+                    try
+                    {
+                        debugPrint("Problem finding component class for class of object " + format(jo.getID().getAddress())); //$NON-NLS-1$
+                    }
+                    catch (Throwable t)
+                    {
+                        debugPrint("Could not introspect java object during Problem finding component class");
+                    }
+                }
             }
         }
     }
