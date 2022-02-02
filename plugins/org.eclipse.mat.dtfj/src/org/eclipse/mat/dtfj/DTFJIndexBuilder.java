@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2021 IBM Corporation.
+ * Copyright (c) 2009,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -152,6 +152,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final String PLUGIN_ID = InitDTFJ.getDefault().getBundle().getSymbolicName();
     /** The key to store the runtime id out of the dump */
     static final String RUNTIME_ID_KEY = "$runtimeId"; //$NON-NLS-1$
+    /** How the different patterns are separated */
+    static final String DTFJ_PATTERN_SEPARATOR = ","; //$NON-NLS-1$
     /** How many elements in an object array to examine at once */
     private static final int ARRAY_PIECE_SIZE = 100000;
     /** How many bytes to scan in a native stack frame when looking for GC roots */
@@ -213,6 +215,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** Whether to represent stack frames and methods as objects and classes */
     private final boolean getExtraInfo = getExtraInfo2 || getExtraInfo3
                     || PreferenceConstants.RUNNING_METHODS_AS_CLASSES.equals(methodsAsClassesPref);
+    /** Which DTFJ implementations are incompatible with which dumps based on JVM version */
+    private final String excludedDTFJ = Platform.getPreferencesService().getString(PLUGIN_ID,
+                    "incompatibleDTFJVersions", "", null); //$NON-NLS-1$
     /** name of java.lang.Class */
     private static final String JAVA_LANG_CLASS ="java/lang/Class"; //$NON-NLS-1$
     /** name of java.lang.ClassLoader */
@@ -967,6 +972,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             String version = dtfjInfo.getJavaRuntime().getVersion();
             ifo.setJvmInfo(version);
+            /*
+             * See if this DTFJ implementation is compatible with this Java runtime.
+             */
+            for (String exclude : excludedDTFJ.split(DTFJ_PATTERN_SEPARATOR))
+            {
+                if ((dumpType + ":" + version).matches(exclude)) //$NON-NLS-1$
+                {
+                    throw new DTFJParserMismatchException(MessageFormat.format(
+                                    Messages.DTFJIndexBuilder_IncompatibleDTFJVersion, dumpType, version, exclude));
+                }
+            }
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_JVMVersion, ifo
                             .getJvmInfo()), null);
         }
@@ -2503,6 +2519,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             Messages.DTFJIndexBuilder_RepeatedMessagesSuppressed, skippedMessages), null);
         }
 
+        /*
+         * Note that this DTFJ implementation was used so make it
+         * go to the front of the list.
+         */
+        InitDTFJ.getDefault().used(dumpType.toString());
         long now2 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_TookmsToParseFile,
                         (now2 - now1), dump), null);
@@ -9201,6 +9222,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
         else if (softRefCleared)
         {
             System.runFinalization();
+        }
+    }
+
+    static class DTFJParserMismatchException extends IOException
+    {
+        public DTFJParserMismatchException(String msg)
+        {
+            super(msg);
+        }
+        public DTFJParserMismatchException(String msg, Throwable cause)
+        {
+            super(msg, cause);
+        }
+        public DTFJParserMismatchException(Throwable cause)
+        {
+            super(cause);
         }
     }
 
