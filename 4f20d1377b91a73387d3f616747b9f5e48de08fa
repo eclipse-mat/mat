@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5be4a982_962bd5ba",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3465,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-02-02T08:04:01Z",
+      "side": 1,
+      "message": "I don\u0027t like the catch (Throwable t) as that catches errors,\neven ThreadDeath.\nWhat problems do we actually expect from jo.getID().getAddress() ?\nDo we even need a catch?",
+      "revId": "4f20d1377b91a73387d3f616747b9f5e48de08fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
