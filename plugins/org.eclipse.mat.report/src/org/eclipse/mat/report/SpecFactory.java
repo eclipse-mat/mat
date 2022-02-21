@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -116,7 +116,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         try
         {
             in = url.openStream();
-            return read(in, Platform.getBundle(report.configElement.getNamespaceIdentifier()));
+            return read(in, Platform.getBundle(report.configElement.getNamespaceIdentifier()), url);
         }
         finally
         {
@@ -141,7 +141,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 
         try
         {
-            return read(in, null);
+            return read(in, null, specFile);
         }
         finally
         {
@@ -178,7 +178,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
     // XML reading
     // //////////////////////////////////////////////////////////////
 
-    private static final Spec read(InputStream input, Bundle bundle) throws IOException
+    private static final Spec read(InputStream input, Bundle bundle, Object source) throws IOException
     {
         try
         {
@@ -196,7 +196,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         }
         catch (SAXException e)
         {
-            IOException ioe = new IOException();
+            IOException ioe = new IOException(source.toString());
             ioe.initCause(e);
             throw ioe;
         }
