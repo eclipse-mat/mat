@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -150,6 +150,32 @@ public class EquinoxBundleReader2 implements IBundleReader
         return bundleDescriptors;
     }
 
+    /**
+     * Find the capabilities for a bundle.
+     * Copes with <= 2021-03, using regular collection, 
+     * or >= 2021-06 using org.eclipse.osgi.internal.container.NamespaceList
+     * @param rev
+     * @return a collection extractor
+     * @throws SnapshotException
+     */
+    private ExtractedCollection getCapabilities(IObject rev) throws SnapshotException
+    {
+        ExtractedCollection extractedList = null;
+        IObject caps = (IObject) rev.resolveValue("capabilities");//$NON-NLS-1$
+        if (caps == null)
+            return null;
+        extractedList = CollectionExtractionUtils.extractList(caps);
+        if (extractedList == null)
+        {
+            // Try Eclipse 2021-06 using org.eclipse.osgi.internal.container.NamespaceList
+            caps = (IObject)caps.resolveValue("elements"); //$NON-NLS-1$
+            if (caps == null)
+                return null;
+            extractedList = CollectionExtractionUtils.extractList(caps);
+        }
+        return extractedList;
+    }
+
     private boolean isFragment(IObject bundleHostObject) throws SnapshotException
     {
         IObject revs = (IObject) bundleHostObject.resolveValue("module.revisions.revisions");//$NON-NLS-1$
@@ -159,10 +185,10 @@ public class EquinoxBundleReader2 implements IBundleReader
         if (!it1.hasNext())
             return false;
         IObject rev = it1.next();
-        IObject caps = (IObject) rev.resolveValue("capabilities");//$NON-NLS-1$
-        if (caps == null)
+        ExtractedCollection extractedList = getCapabilities(rev);
+        if (extractedList == null)
             return false;
-        for (IObject o : CollectionExtractionUtils.extractList(caps))
+        for (IObject o : extractedList)
         {
             if ("equinox.fragment".equals(((IObject)(o.resolveValue("namespace"))).getClassSpecificName()))//$NON-NLS-1$ //$NON-NLS-2$
             {
@@ -474,25 +500,28 @@ public class EquinoxBundleReader2 implements IBundleReader
     {
         IObject revs = (IObject) bundleFragmentObject.resolveValue("module.revisions.revisions");//$NON-NLS-1$
         IObject rev = CollectionExtractionUtils.extractList(revs).iterator().next();
-        IObject caps = (IObject) rev.resolveValue("capabilities");//$NON-NLS-1$
-        for (IObject o : CollectionExtractionUtils.extractList(caps))
+        ExtractedCollection extractedList = getCapabilities(rev);
+        if (extractedList != null)
         {
-            if ("equinox.fragment".equals(((IObject)(o.resolveValue("namespace"))).getClassSpecificName())) //$NON-NLS-1$ //$NON-NLS-2$
+            for (IObject o : extractedList)
             {
-                IObject attribs = (IObject)o.resolveValue("attributes"); //$NON-NLS-1$
-                ExtractedMap kvs = CollectionExtractionUtils.extractMap(attribs);
-                for (Entry<IObject,IObject> et : kvs)
+                if ("equinox.fragment".equals(((IObject)(o.resolveValue("namespace"))).getClassSpecificName())) //$NON-NLS-1$ //$NON-NLS-2$
                 {
-                    if ("equinox.fragment".equals(et.getKey().getClassSpecificName())) //$NON-NLS-1$
+                    IObject attribs = (IObject)o.resolveValue("attributes"); //$NON-NLS-1$
+                    ExtractedMap kvs = CollectionExtractionUtils.extractMap(attribs);
+                    for (Entry<IObject,IObject> et : kvs)
                     {
-                        String hostName = et.getValue().getClassSpecificName();
-                        if (hostName != null)
+                        if ("equinox.fragment".equals(et.getKey().getClassSpecificName())) //$NON-NLS-1$
                         {
-                            for (BundleDescriptor bd : bundleDescriptors.values())
+                            String hostName = et.getValue().getClassSpecificName();
+                            if (hostName != null)
                             {
-                                if (bd.getBundleName().equals(hostName) || bd.getBundleName().startsWith(hostName + " (")) //$NON-NLS-1$
+                                for (BundleDescriptor bd : bundleDescriptors.values())
                                 {
-                                    return bd;
+                                    if (bd.getBundleName().equals(hostName) || bd.getBundleName().startsWith(hostName + " (")) //$NON-NLS-1$
+                                    {
+                                        return bd;
+                                    }
                                 }
                             }
                         }
