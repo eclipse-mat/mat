@@ -1,101 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="FROM Clause"/>
-<meta name="abstract" content=""/>
-<meta name="description" content=""/>
-<meta name="DC.Relation" scheme="URI" content="../reference/oqlsyntax.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_oqlsyntaxfrom"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="FROM Clause" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta name="DC.relation" scheme="URI" content="../reference/oqlsyntax.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_oqlsyntaxfrom" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>FROM Clause</title>
 </head>
 <body id="ref_oqlsyntaxfrom">
 
-
-	<h1 class="title topictitle1">FROM Clause</h1>
-
-	
+	<h1 class="title topictitle1" id="ariaid-title1">FROM Clause</h1>
 
 	
 
-	<div class="body refbody"><p class="shortdesc"/>
+	
+
+	<div class="body refbody"><p class="shortdesc"></p>
 
 		<div class="section"><h2 class="title sectiontitle">Specify the class</h2>
 			
 			<p class="p">
-				The <samp class="ph codeph">FROM</samp> clause defines the classes on which to operate.
+				The <code class="ph codeph">FROM</code> clause defines the classes on which to operate.
 				Specify the class by one of the following means:
 			</p>
 
 			<strong class="ph b">by class name:</strong>
-			<pre class="pre codeblock">SELECT * FROM java.lang.String</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM java.lang.String</code></pre>
 			<strong class="ph b">by a regular expression matching the class name:</strong>
-			<pre class="pre codeblock">SELECT * FROM "java\.lang\..*"</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM "java\.lang\..*"</code></pre>
 			<strong class="ph b">by the object address of the class:</strong>
-			<pre class="pre codeblock">SELECT * FROM 0x2b7468c8</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM 0x2b7468c8</code></pre>
 			<strong class="ph b">by the object addresses of more than one class:</strong>
-			<pre class="pre codeblock">SELECT * FROM 0x2b7468c8,0x2b74aee0</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM 0x2b7468c8,0x2b74aee0</code></pre>
 			<strong class="ph b">by the object id of the class:</strong>
-			<pre class="pre codeblock">SELECT * FROM 20815</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM 20815</code></pre>
 			<strong class="ph b">by the object ids of more than one class:</strong>
-			<pre class="pre codeblock">SELECT * FROM 20815,20975</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM 20815,20975</code></pre>
 			<strong class="ph b">by a sub select:</strong>
-			<pre class="pre codeblock">SELECT * FROM ( SELECT *
+			<pre class="pre codeblock"><code>SELECT * FROM ( SELECT *
                 FROM java.lang.Class c
-                WHERE c implements org.eclipse.mat.snapshot.model.IClass )</pre>
-
+                WHERE c implements org.eclipse.mat.snapshot.model.IClass )</code></pre>
 			<p class="p">
 				The statement returns all objects in the heap. The
-				<samp class="ph codeph">implements</samp>
+				<code class="ph codeph">implements</code>
 				check is necessary, as the heap dump can contain
-				<samp class="ph codeph">java.lang.Class</samp>
+				<code class="ph codeph">java.lang.Class</code>
 				instances caused by proxy classes or classes representing
 				primitive types such as
-				<samp class="ph codeph">int.class</samp> or <samp class="ph codeph">Integer.TYPE</samp>.
+				<code class="ph codeph">int.class</code> or <code class="ph codeph">Integer.TYPE</code>.
 				The following query has
 				the same effect, which calls a method directly on
 				the ISnapshot object:
 			</p>
 
-			<pre class="pre codeblock">SELECT * FROM ${snapshot}.getClasses()</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM ${snapshot}.getClasses()</code></pre>
 		</div>
 
 		<div class="section"><h2 class="title sectiontitle">Include sub classes</h2>
 			
 			<p class="p">
 				Use the
-				<samp class="ph codeph">INSTANCEOF</samp>
+				<code class="ph codeph">INSTANCEOF</code>
 				keyword to include objects of sub-classes into the
 				query:
 			</p>
 
-			<pre class="pre codeblock">SELECT * FROM INSTANCEOF java.lang.ref.Reference</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM INSTANCEOF java.lang.ref.Reference</code></pre>
 			<p class="p">
 				The resulting table contains, amongst others,
 				WeakReference and SoftReference objects because both
 				classes extend from
-				<samp class="ph codeph">java.lang.ref.Reference</samp>
+				<code class="ph codeph">java.lang.ref.Reference</code>
 				. By the way, the same result has the following query
 			</p>
 
-			<pre class="pre codeblock">SELECT * FROM ${snapshot}.getClassesByName("java.lang.ref.Reference", true)</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM ${snapshot}.getClassesByName("java.lang.ref.Reference", true)</code></pre>
 		</div>
 
 		<div class="section"><h2 class="title sectiontitle">
@@ -109,38 +98,30 @@
 			</p>
 
 			<strong class="ph b">by class name:</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS java.lang.String</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS java.lang.String</code></pre>
 			<p class="p">
 				The result is just one object, the java.lang.String
 				class object.
 			</p>
 
 			<strong class="ph b">by the object address of the particular object:</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS 0x2b7468c8</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS 0x2b7468c8</code></pre>
 			<strong class="ph b">by the object addresses of particular objects:</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS 0x2b7468c8,0x2b746868</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS 0x2b7468c8,0x2b746868</code></pre>
 			<strong class="ph b">by the object id of the particular object:</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS 20815</code></pre>
 			<strong class="ph b">by the object ids of particular objects:</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815,20814</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS 20815,20814</code></pre>
 			<strong class="ph b">by a sub expression (Memory Analyzer 1.4 or later):</strong>
-			<pre class="pre codeblock">SELECT * FROM OBJECTS (1 + ${snapshot}.GCRoots.length)</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS (1 + ${snapshot}.GCRoots.length)</code></pre>
 			<strong class="ph b">by a sub select returning an object list</strong>
-			<pre class="pre codeblock">SELECT v, v.@length FROM OBJECTS ( SELECT OBJECTS s.value FROM java.lang.String s  ) v</pre>
-
+			<pre class="pre codeblock"><code>SELECT v, v.@length FROM OBJECTS ( SELECT OBJECTS s.value FROM java.lang.String s  ) v</code></pre>
 			<strong class="ph b">In Memory Analyzer 1.10 and later, sub-selects are now also permitted which have select items.</strong>
-			<pre class="pre codeblock">SELECT v,v.s,v.val FROM OBJECTS ( SELECT s,s.value as val FROM java.lang.String s  ) v</pre>
-
+			<pre class="pre codeblock"><code>SELECT v,v.s,v.val FROM OBJECTS ( SELECT s,s.value as val FROM java.lang.String s  ) v</code></pre>
 			See <a class="xref" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#Sub_SELECT_with_select_items">Wiki Sub select with select items</a>
 			for more details.
-			<div class="note note"><span class="notetitle">Note:</span> 
-				Please note, that currently the <samp class="ph codeph">FROM OBJECTS</samp> term is in
+			<div class="note"><span class="notetitle">Note:</span> 
+				Please note, that currently the <code class="ph codeph">FROM OBJECTS</code> term is in
 				the test phase!
 			</div>
 
@@ -157,8 +138,7 @@
 			either because they are unreachable, or because of the discard option
 			then sometimes they can still be accessed in OQL.
 			If you know the object address, then a query such as
-			<pre class="pre codeblock">SELECT * FROM OBJECTS 0x2b7468c8</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM OBJECTS 0x2b7468c8</code></pre>
 			will retrieve it.
 			The result of the query is different however. Instead of the
 			object being processed as an object id and displayed in a 
@@ -168,37 +148,37 @@
 
 			<div class="p">Unindexed objects will not be returned as a result of
 			<ul class="ul">
-				<li class="li"><samp class="ph codeph">outbound()</samp>
+				<li class="li"><code class="ph codeph">outbound()</code>
 				</li>
 
-				<li class="li"><samp class="ph codeph">inbound()</samp>
+				<li class="li"><code class="ph codeph">inbound()</code>
 				</li>
 
-				<li class="li"><samp class="ph codeph">dominators()</samp>
+				<li class="li"><code class="ph codeph">dominators()</code>
 				</li>
 
-				<li class="li"><samp class="ph codeph">dominatorof()</samp>
+				<li class="li"><code class="ph codeph">dominatorof()</code>
 				</li>
 
 			</ul>
 
 			and will cause an error if supplied as an argument to those
 			functions.
-			The built-in function <samp class="ph codeph">classof()</samp> does work
+			The built-in function <code class="ph codeph">classof()</code> does work
 			with unindexed objects.
 			</div>
 
 			<p class="p">See how unindexed objects appear in the inspector view when
 			retrieved by OQL. Note the 
-			<img class="image" src="../mimes/message_warning.png" alt="yellow warning triangle icon"/>
+			<img class="image" src="../mimes/message_warning.png" alt="yellow warning triangle icon" />
 			 warning triangle and the <samp class="ph msgph">Unindexed</samp>
 			in the inspector view top panel, and the <samp class="ph msgph">Unindexed</samp> suffix
 			in the object view. The retained size is 0 as the retained size is not
 			calculated for unindexed objects.
-			<img class="image" src="../mimes/inspector_unindexed.png" height="682" width="1267" alt="Inspector View with unindexed object&#34;"/>
+			<img class="image" src="../mimes/inspector_unindexed.png" height="682" width="1267" alt="Inspector View with unindexed object&#34;" />
 			</p>
 
-			<div class="note note"><span class="notetitle">Note:</span> 
+			<div class="note"><span class="notetitle">Note:</span> 
 				Please note, that currently the unindexed objects facility is in
 				the test phase!
 			</div>
@@ -223,7 +203,5 @@
 <div class="familylinks">
 <div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
-</div>
-
-</body>
+</div></body>
 </html>

@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Finding Memory Leak"/>
-<meta name="abstract" content=""/>
-<meta name="description" content=""/>
-<meta name="DC.Relation" scheme="URI" content="../reference/querymatrix.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_findingmemoryleak"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Finding Memory Leak" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta name="DC.relation" scheme="URI" content="../reference/querymatrix.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_findingmemoryleak" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Finding Memory Leak</title>
 </head>
 <body id="ref_findingmemoryleak">
 
-
-	<h1 class="title topictitle1">Finding Memory Leak</h1>
-
-	
+	<h1 class="title topictitle1" id="ariaid-title1">Finding Memory Leak</h1>
 
 	
 
+	
 
-	<div class="body refbody"><p class="shortdesc"/>
+
+	<div class="body refbody"><p class="shortdesc"></p>
 
 		<div class="section">
 			<p class="p">
@@ -64,10 +63,10 @@
 				most helpful in analyzing memory leak issues.
 			</p>
 
-			<table cellpadding="4" cellspacing="0" summary="" id="ref_findingmemoryleak__findingmemoryleak" border="1" class="simpletable"><tr id="ref_findingmemoryleak__dominator_tree" class="strow">
-					<td valign="top" class="stentry" width="40%">Dominator Tree</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_findingmemoryleak__findingmemoryleak" border="1" class="simpletable"><col style="width:40%" /><col style="width:60%" /><thead></thead><tbody><tr id="ref_findingmemoryleak__dominator_tree" class="strow">
+					<td style="vertical-align:top;" class="stentry">Dominator Tree</td>
 
-					<td valign="top" class="stentry" width="60%">
+					<td style="vertical-align:top;" class="stentry">
 						In Dominator Tree every node is responsible for
 						keeping its children alive. The tree is sorted
 						by the retained size, so you find single big
@@ -79,9 +78,9 @@
 
 				</tr>
 <tr id="ref_findingmemoryleak__top_consumers" class="strow">
-					<td valign="top" class="stentry">Top Consumers</td>
+					<td style="vertical-align:top;" class="stentry">Top Consumers</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						Top Consumers query returns information about
 						the biggest objects grouped by class, class
 						loader, and package.
@@ -89,9 +88,9 @@
 
 				</tr>
 <tr id="ref_findingmemoryleak__path_to_GC_roots" class="strow">
-					<td valign="top" class="stentry">Paths to GC Roots</td>
+					<td style="vertical-align:top;" class="stentry">Paths to GC Roots</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						Paths to GC Roots query helps to identify who is
 						responsible for keeping a single object in the
 						heap. It is reasonably to run this query on a
@@ -104,30 +103,30 @@
 
 				</tr>
 <tr id="ref_findingmemoryleak__duplicate_classes" class="strow">
-				    <td valign="top" class="stentry">Duplicate Classes</td>
+				    <td style="vertical-align:top;" class="stentry">Duplicate Classes</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
 					</td>
 
 				</tr>
 <tr id="ref_findingmemoryleak__big_drops" class="strow">
-				    <td valign="top" class="stentry">Big Drops in Dominator Tree Query</td>
+				    <td style="vertical-align:top;" class="stentry">Big Drops in Dominator Tree Query</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						Displays memory accumulation points in the dominator tree. Displayed are objects with a big difference between the retained size of the parent and the children and the first "interesting" dominator of the accumulation point. These are places where the memory of many small objects is accumulated under one object. 
 					</td>
 
 				</tr>
 <tr id="ref_findingmemoryleak__leak_suspects" class="strow">
-				    <td valign="top" class="stentry">Leak Suspects Report</td>
+				    <td style="vertical-align:top;" class="stentry">Leak Suspects Report</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						The Leak Suspects query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
 					</td>
 
 				</tr>
-</table>
+</tbody></table>
 
 		</div>
 
@@ -137,7 +136,5 @@
 <div class="familylinks">
 <div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
 </div>
-</div>
-
-</body>
+</div></body>
 </html>

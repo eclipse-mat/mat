@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Analyzing Memory Consumption"/>
-<meta name="abstract" content=""/>
-<meta name="description" content=""/>
-<meta name="DC.Relation" scheme="URI" content="../reference/querymatrix.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_analyzingmemoryconsumption"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Analyzing Memory Consumption" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta name="DC.relation" scheme="URI" content="../reference/querymatrix.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_analyzingmemoryconsumption" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Analyzing Memory Consumption</title>
 </head>
 <body id="ref_analyzingmemoryconsumption">
 
-
-	<h1 class="title topictitle1">Analyzing Memory Consumption</h1>
-
-	
+	<h1 class="title topictitle1" id="ariaid-title1">Analyzing Memory Consumption</h1>
 
 	
 
+	
 
-	<div class="body refbody"><p class="shortdesc"/>
+
+	<div class="body refbody"><p class="shortdesc"></p>
 
 		<div class="section">
 			<p class="p">
@@ -35,31 +34,31 @@
 				Additionally, the following queries may be useful to perform the analysis manually: 
 			</p>
 
-			<table cellpadding="4" cellspacing="0" summary="" id="ref_analyzingmemoryconsumption__analyzingmemoryconsumptiontable" border="1" class="simpletable"><tr class="strow">
-					<td valign="top" class="stentry" width="40%">Class Histogram</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_analyzingmemoryconsumption__analyzingmemoryconsumptiontable" border="1" class="simpletable"><col style="width:40%" /><col style="width:60%" /><thead></thead><tbody><tr class="strow">
+					<td style="vertical-align:top;" class="stentry">Class Histogram</td>
 
-					<td valign="top" class="stentry" width="60%">
+					<td style="vertical-align:top;" class="stentry">
 							Memory Analyzer provides a developer with a
 							possibility to focus on a particular piece
 							of code by using filters in the Class
 							Histogram:
-							<br/><div class="imageleft"><img class="image imageleft" src="../mimes/7507ab60.png" alt="Filter of java.util.* in top row of histogram"/></div><br/>
+							<br /><div class="imageleft"><img class="image imageleft" src="../mimes/7507ab60.png" alt="Filter of java.util.* in top row of histogram" /></div><br />
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">Retained Set</td>
+					<td style="vertical-align:top;" class="stentry">Retained Set</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 							Looking what a set of objects retains (how much memory and what types of
 							objects) may give some ideas where to optimize. 
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">Collections query group</td>
+					<td style="vertical-align:top;" class="stentry">Collections query group</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 							A number of queries provided under the <strong class="ph b">Collections</strong> query group give the opportunity
 							to analyze the ways collections are used e.g. how much they are filled, what the sizes are,
 							what the collision ratio (for hash maps) is, etc... See <a class="xref" href="../tasks/analyzingjavacollectionusage.html">Analyzing Java Collection Usage</a>. 
@@ -67,9 +66,9 @@
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">Group by Value</td>
+					<td style="vertical-align:top;" class="stentry">Group by Value</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						The Group by Value query provides the possibility to group a set of objects 
 						by the value of a certain field. It is very useful for searching redundant 
 						data.
@@ -77,9 +76,9 @@
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">Immediate Dominators</td>
+					<td style="vertical-align:top;" class="stentry">Immediate Dominators</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 							When you have found a suspect, that consumes
 							a lot of memory, you can use the dominators
 							query to find out what keeps this suspect in
@@ -89,14 +88,14 @@
 							<span class="keyword cmdname">java.*</span>
 							packages:
 
-						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/m317da505.png" alt="skip parameter in query wizard for immediate dominators query"/></div><br/>image&gt;
+						<br /><div class="imageleft"><img class="image imageleft" src="../mimes/m317da505.png" alt="skip parameter in query wizard for immediate dominators query" /></div><br />image&gt;
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" class="stentry">OQL</td>
+					<td style="vertical-align:top;" class="stentry">OQL</td>
 
-					<td valign="top" class="stentry">
+					<td style="vertical-align:top;" class="stentry">
 						<p class="p">
 							The two most common ways to "waste" memory
 							are:
@@ -109,8 +108,7 @@
 								HashMaps. With OQL you can easily find
 								e.g. all instances of ArrayList which
 								are empty and have never been modified:
-								<pre class="pre codeblock">SELECT * FROM java.util.ArrayList WHERE size=0 AND modCount=0</pre>
-
+								<pre class="pre codeblock"><code>SELECT * FROM java.util.ArrayList WHERE size=0 AND modCount=0</code></pre>
 							</li>
 
 							<li class="li">
@@ -120,10 +118,8 @@
 								<span class="keyword cmdname">char[]</span>
 								. Below you can find two examples of OQL
 								queries to operate with Strings:
-								<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
-
-								<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
-
+								<pre class="pre codeblock"><code>SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</code></pre>
+								<pre class="pre codeblock"><code>SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</code></pre>
 							</li>
 
 						</ul>
@@ -131,7 +127,7 @@
 					</td>
 
 				</tr>
-</table>
+</tbody></table>
 
 		</div>
 
@@ -141,7 +137,5 @@
 <div class="familylinks">
 <div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
 </div>
-</div>
-
-</body>
+</div></body>
 </html>

@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Batch mode"/>
-<meta name="copyright" content="Copyright (c) 2019,2021 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ 2019 2021" type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2019,2021 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ 2019 2021" type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_batch"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Batch mode" />
+<meta name="copyright" content="Copyright (c) 2019,2022 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ 2019 2022" type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2019,2022 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ 2019 2022" type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_batch" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Batch mode</title>
 </head>
 <body id="task_batch">
 
-
-	<h1 class="title topictitle1">Batch mode</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Batch mode</h1>
 
 	
 
@@ -29,7 +28,7 @@
 		</div>
 
 		<ol class="ol steps"><li class="li step stepexpand">
-				<div class="note note"><span class="notetitle">Note:</span> On Windows, use <span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span> instead of <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span></div>
+				<div class="note"><span class="notetitle">Note:</span> On Windows, use <span class="ph filepath"><span class="keyword cmdname">.\mat\ParseHeapDump.bat</span></span> instead of <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span></div>
 
 				<span class="ph cmd">Run <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span> <span class="keyword parmname">org.eclipse.mat.api:suspects</span>
 				</span>
@@ -64,19 +63,18 @@
 					See <a class="xref" href="runningleaksuspectreport.html#task_runningleaksuspectreport__compare">running leak suspect report by snapshot comparison</a> for more details.</li>
 
 					<li class="li choice">To export a new copy of the heap dump with redactions use a command like
-					<pre class="pre codeblock">
+					<pre class="pre codeblock"><code>
 <span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span>
 <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span>
 <span class="keyword option">-output=</span><span class="ph filepath"><var class="keyword varname">myheapdump2.hprof</var></span>
 <span class="keyword option">-redact=</span><span class="keyword parmname">BASIC</span>
 <span class="keyword option">-map=</span><span class="ph filepath"><var class="keyword varname">myheapdump2.map</var></span>
 <span class="keyword parmname">org.eclipse.mat.hprof:export</span>
-					</pre>
-
+					</code></pre>
 					See <a class="xref" href="exportdump.html">export heap dump</a> for more details.
 					</li>
 
-					<li class="li choice">To run a single query on a heap dump and produce an HTML report use <samp class="ph codeph"><span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span> <span class="keyword option">-command=</span><var class="keyword varname">histogram</var> <span class="keyword parmname">org.eclipse.mat.api:query</span></samp>
+					<li class="li choice">To run a single query on a heap dump and produce an HTML report use <code class="ph codeph"><span class="ph filepath"><span class="keyword cmdname">./mat/ParseHeapDump.sh</span></span> <span class="ph filepath"><var class="keyword varname">myheapdump.hprof</var></span> <span class="keyword option">-command=</span><var class="keyword varname">histogram</var> <span class="keyword parmname">org.eclipse.mat.api:query</span></code>
 					See <a class="xref" href="../reference/inspections/query_report.html" title="Run a single query to produce a report in batch mode.">Query Report</a> for more details.</li>
 
 				</ul>
@@ -114,7 +112,7 @@
 				</li>
 
 				<li class="li substep substepexpand" id="task_batch__discard">
-				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
+				<div class="note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><span class="keyword option">-discard_ratio=</span><var class="keyword varname">percentage</var>.
 					Option to discard a fraction of the objects from huge dumps.
@@ -124,7 +122,7 @@
 				</li>
 
 				<li class="li substep substepexpand">
-				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
+				<div class="note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><span class="keyword option">-discard_pattern=</span><var class="keyword varname">regex</var>.
 					A regular expression matching the class names of objects to be discarded.
@@ -132,7 +130,7 @@
 				</li>
 
 				<li class="li substep substepexpand">
-				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
+				<div class="note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><span class="keyword option">-discard_offset=</span><var class="keyword varname">offset value</var>.
 					Controls which particular objects are discarded.
@@ -140,7 +138,7 @@
 				</li>
 
 				<li class="li substep substepexpand">
-				<div class="note note"><span class="notetitle">Note:</span> Experimental</div>
+				<div class="note"><span class="notetitle">Note:</span> Experimental</div>
 
 				<span class="ph cmd"><span class="keyword option">-discard_seed=</span><var class="keyword varname">random number generator seed</var>.
 					Controls which particular objects are discarded.
@@ -152,45 +150,45 @@
 					<div class="itemgroup stepxmp">
 						<p class="p">Other parameters controlling output include the following:</p>
 
-						<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-								<th valign="bottom" align="left" id="d19916e345" class="stentry">Argument</th>
+						<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
+								<th style="vertical-align:bottom;text-align:left;" id="d7108e349" class="stentry">Argument</th>
 
-								<th valign="bottom" align="left" id="d19916e348" class="stentry">Description</th>
+								<th style="vertical-align:bottom;text-align:left;" id="d7108e352" class="stentry">Description</th>
 
 							</tr>
-<tr class="strow">
-								<td valign="top" headers="d19916e345" class="stentry"><span class="keyword option">-limit=</span><var class="keyword varname">number of entries</var></td>
+</thead><tbody><tr class="strow">
+								<td style="vertical-align:top;" headers="d7108e349" class="stentry"><span class="keyword option">-limit=</span><var class="keyword varname">number of entries</var></td>
 
-								<td valign="top" headers="d19916e348" class="stentry">Controls the number of entries generated in an output table.
+								<td style="vertical-align:top;" headers="d7108e352" class="stentry">Controls the number of entries generated in an output table.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT"><span class="keyword apiname">org.eclipse.mat.report.Params.Rendering.LIMIT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d19916e345" class="stentry"><span class="keyword option">-format=</span><var class="keyword varname">type of output</var></td>
+								<td style="vertical-align:top;" headers="d7108e349" class="stentry"><span class="keyword option">-format=</span><var class="keyword varname">type of output</var></td>
 
-								<td valign="top" headers="d19916e348" class="stentry">Controls the type of the output (HTML, CSV, or TXT).
+								<td style="vertical-align:top;" headers="d7108e352" class="stentry">Controls the type of the output (HTML, CSV, or TXT).
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.html#FORMAT"><span class="keyword apiname">org.eclipse.mat.report.Params.FORMAT</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d19916e345" class="stentry"><span class="keyword option">-html.show_table_headings</span></td>
+								<td style="vertical-align:top;" headers="d7108e349" class="stentry"><span class="keyword option">-html.show_table_headings</span></td>
 
-								<td valign="top" headers="d19916e348" class="stentry">Controls whether table headings should be shown for tables.
+								<td style="vertical-align:top;" headers="d7108e352" class="stentry">Controls whether table headings should be shown for tables.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TABLE_HEADER"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TABLE_HEADER</span></a>
 								</td>
 
 							</tr>
 <tr class="strow">
-								<td valign="top" headers="d19916e345" class="stentry"><span class="keyword option">-html.show_totals</span></td>
+								<td style="vertical-align:top;" headers="d7108e349" class="stentry"><span class="keyword option">-html.show_totals</span></td>
 
-								<td valign="top" headers="d19916e348" class="stentry">Controls whether totals should be shown for tables.
+								<td style="vertical-align:top;" headers="d7108e352" class="stentry">Controls whether totals should be shown for tables.
 								See <a class="xref" href="../doc/org/eclipse/mat/report/Params.Html.html#SHOW_TOTALS"><span class="keyword apiname">org.eclipse.mat.report.Params.Html.SHOW_TOTALS</span></a>
 								</td>
 
 							</tr>
-</table>
+</tbody></table>
 
 					</div>
 				</li>
@@ -341,7 +339,6 @@ Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
 		</div>
 
 	</div>
-
 
 </body>
 </html>

@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Basic Tutorial"/>
-<meta name="DC.Relation" scheme="URI" content="../concepts/dominatortree.html"/>
-<meta name="DC.Relation" scheme="URI" content="../concepts/gcroots.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_basictutorial"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Basic Tutorial" />
+<meta name="DC.relation" scheme="URI" content="../concepts/dominatortree.html" />
+<meta name="DC.relation" scheme="URI" content="../concepts/gcroots.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_basictutorial" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Basic Tutorial</title>
 </head>
 <body id="task_basictutorial">
 
-
-	<h1 class="title topictitle1">Basic Tutorial</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Basic Tutorial</h1>
 
 	
 
@@ -30,7 +29,7 @@
 				a stand-alone Memory Analyzer,
 				first open the 'Memory Analysis'
 				perspective using:
-				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Perspective</span> &gt; <span class="ph uicontrol">Open Perspective</span> &gt; <span class="ph uicontrol">Other ...</span> &gt; <span class="ph uicontrol">Memory Analysis</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Window</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Perspective</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Open Perspective</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Other ...</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Memory Analysis</span></span>
 			</p>
 
 		</div>
@@ -67,7 +66,7 @@
 					<li class="li substep substepexpand">
 						<span class="ph cmd">
 							Open
-							<img class="image" src="../mimes/me76fc4.png" alt=""/>
+							<img class="image" src="../mimes/me76fc4.png" alt="" />
 							<a class="xref" href="javascript:liveAction(%22org.eclipse.mat.ui%22,%22org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction%22,%22org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof%22)">
 								a sample heap dump
 							</a>
@@ -90,11 +89,11 @@
 					<li class="li substep substepexpand">
 						<span class="ph cmd">
 							Start
-							<samp class="ph codeph">&lt;jre6&gt;/bin/jconsole.exe</samp>
+							<code class="ph codeph">&lt;jre6&gt;/bin/jconsole.exe</code>
 							and select the running application (in this case Eclipse):
 						</span>
 						<div class="itemgroup stepresult">
-							<img class="image" src="basictutorial_jconsole_open.png" alt="JConsole dialog to open a connection to a Virtual Machine."/>
+							<img class="image" src="basictutorial_jconsole_open.png" alt="JConsole dialog to open a connection to a Virtual Machine." />
 						</div>
 					</li>
 
@@ -115,7 +114,7 @@
 							should be left at true as we are only interested in live objects.
 						</div>
 						<div class="itemgroup stepresult">
-							<img class="image" src="basictutorial_jconsole_mbean.png" alt="Select the dumpHeap method of the HotspotDiagnostics mbean."/>
+							<img class="image" src="basictutorial_jconsole_mbean.png" alt="Select the dumpHeap method of the HotspotDiagnostics mbean." />
 						</div>
 					</li>
 
@@ -148,14 +147,14 @@
 				</span>
 				<div class="itemgroup info">
 					Open the heap dump via
-					<span class="ph menucascade"><span class="ph uicontrol">File</span> &gt; <span class="ph uicontrol">
-							<img class="image" src="../mimes/i-openhd.png" alt=""/>
+					<span class="ph menucascade"><span class="ph uicontrol">File</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">
+							<img class="image" src="../mimes/i-openhd.png" alt="" />
 							Open Heap Dump...
 						</span></span>
 					to see the overview page.
 				</div>
 				<div class="itemgroup stepresult">
-					<img class="image" src="basictutorial_overview.png" alt="Memory Analyzer's overview page for a heap dump"/>
+					<img class="image" src="basictutorial_overview.png" alt="Memory Analyzer's overview page for a heap dump" />
 
 					<p class="p">
 						On the right, you'll find the size of the dump and the number of
@@ -193,7 +192,7 @@
 				<div class="itemgroup info">
 					Select the
 					<span class="ph uicontrol">
-						<img class="image" src="../mimes/i-histogram.png" alt="histogram icon"/>
+						<img class="image" src="../mimes/i-histogram.png" alt="histogram icon" />
 						histogram
 					</span>
 					icon
@@ -205,7 +204,7 @@
 					.
 				</div>
 				<div class="itemgroup stepresult">
-					<img class="image" src="basictutorial_histogram.png" alt="Histogram"/>
+					<img class="image" src="basictutorial_histogram.png" alt="Histogram" />
 
 					<p class="p">
 						The Memory Analyzer displays by default the retained size of
@@ -218,7 +217,7 @@
 
 					<p class="p">
 						To approximate the retained sizes for all rows, pick
-						<img class="image" src="../mimes/i-calcrs.png" alt="Calculate retained size"/>
+						<img class="image" src="../mimes/i-calcrs.png" alt="Calculate retained size" />
 						icon
 						from the tool bar. Alternatively, select a couple rows and use
 						the
@@ -226,7 +225,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_calc_retained.png" alt="Select calculate retained sizes from the tool bar"/>
+					<img class="image" src="basictutorial_calc_retained.png" alt="Select calculate retained sizes from the tool bar" />
 
 					<p class="p">
 						Using the
@@ -249,7 +248,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_context_menu.png" alt="Drill down via the context menu"/>
+					<img class="image" src="basictutorial_context_menu.png" alt="Drill down via the context menu" />
 
 					<p class="p">
 						Another important feature is the facility to
@@ -258,7 +257,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the tool bar"/>
+					<img class="image" src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the tool bar" />
 
 					<p class="p">
 						Any decent application loads different components by different
@@ -276,7 +275,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorail_by_classloader.png" alt="Histogram grouped by class loader"/>
+					<img class="image" src="basictutorail_by_classloader.png" alt="Histogram grouped by class loader" />
 
 					<p class="p">
 						Grouping the histogram by packages allows to drill-down along
@@ -285,7 +284,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorail_by_package.png" alt="Histogram grouped by packages"/>
+					<img class="image" src="basictutorail_by_package.png" alt="Histogram grouped by packages" />
 
 					<p class="p">
 						Grouping the histogram by superclass provides an easy way to
@@ -295,7 +294,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_by_superclass.png" alt="Histogram grouped by superclass"/>
+					<img class="image" src="basictutorial_by_superclass.png" alt="Histogram grouped by superclass" />
 				</div>
 			</li>
 <li class="li step stepexpand">
@@ -324,7 +323,7 @@
 
 				</div>
 				<div class="itemgroup stepresult">
-					<img class="image" src="basictutorial_dominator_tree.png" alt="Dominator Tree"/>
+					<img class="image" src="basictutorial_dominator_tree.png" alt="Dominator Tree" />
 				</div>
 			</li>
 <li class="li step stepexpand">
@@ -355,7 +354,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_path_menu.png" alt="Select path to GC roots from the context menu"/>
+					<img class="image" src="basictutorial_path_menu.png" alt="Select path to GC roots from the context menu" />
 				</div>
 				<div class="itemgroup stepresult">
 
@@ -364,7 +363,7 @@
 					</p>
 
 
-					<img class="image" src="basictutorial_path.png" alt="Path to GC roots"/>
+					<img class="image" src="basictutorial_path.png" alt="Path to GC roots" />
 				</div>
 			</li>
 <li class="li step stepexpand">
@@ -377,7 +376,7 @@
 						e.g. objects or set of objects which are suspiciously big.
 					</p>
 
-					<img class="image" src="basictutorial_run_leak_suspects.png" alt="Run the leak report"/>
+					<img class="image" src="basictutorial_run_leak_suspects.png" alt="Run the leak report" />
 
 					<p class="p">
 						Learn more in this blog posting:
@@ -398,11 +397,11 @@
 
 	</div>
 
-	<div class="related-links"><div class="relinfo relconcepts"><strong>Related concepts</strong><br/>
-<div><a class="link" href="../concepts/dominatortree.html">Dominator Tree</a></div>
-<div><a class="link" href="../concepts/gcroots.html">Garbage Collection Roots</a></div>
+	<div class="related-links">
+<div class="linklist relinfo relconcepts" xml:lang="en-us" lang="en-us"><strong>Related concepts</strong><br />
+<ul class="linklist">
+<li class="linklist"><a class="link" href="../concepts/dominatortree.html">Dominator Tree</a></li>
+<li class="linklist"><a class="link" href="../concepts/gcroots.html">Garbage Collection Roots</a></li></ul></div>
 </div>
-</div>
-
 </body>
 </html>

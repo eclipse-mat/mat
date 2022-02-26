@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Analyzing Threads"/>
-<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_analyzingthreads"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Analyzing Threads" />
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_analyzingthreads" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Analyzing Threads</title>
 </head>
 <body id="task_analyzingthreads">
 
-
-	<h1 class="title topictitle1">Analyzing Threads</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Analyzing Threads</h1>
 
 	
 
@@ -33,11 +32,11 @@
 			<p class="p">
 				To get an overview of all the threads in the heap dump, use the "Thread Overview" button
 				in the toolbar, as shown on the image below. Alternatively one could use the 
-				<span class="ph menucascade"><span class="ph uicontrol">Query Browser</span> &gt; <span class="ph uicontrol">Thread Overview and Stacks</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Query Browser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Thread Overview and Stacks</span></span>
 				query:
 			</p>
 
-			<img class="image" src="../mimes/threads_overview.png" alt="screen shot of thread overview"/>
+			<img class="image" src="../mimes/threads_overview.png" alt="screen shot of thread overview" />
 			<p class="p">
 				The query provide some properties like thread name, thread object, Context Classloader, and more
 				for each of the threads.
@@ -92,7 +91,7 @@
 			
 			<p class="p">
 				You can proceed with the analysis of a single thread by using the
-				<span class="ph menucascade"><span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol">Thread Details</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Java Basics</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Thread Details</span></span>
 				context menu. Memory Analyzer provides an extension point such that extensions can
 				provide semantic information about the thread's activity. The result of the Thread Details 
 				query will contain such information (if available), some overview information, and 
@@ -105,7 +104,7 @@
 			</p>
 
 			<p class="p">
-				<img class="image" src="../mimes/thread_details.png" alt="Thread details from a DTFJ dump showing DTFJ Name, JNIEnv, Priority, State and Native id."/>
+				<img class="image" src="../mimes/thread_details.png" alt="Thread details from a DTFJ dump showing DTFJ Name, JNIEnv, Priority, State and Native id." />
 			</p>
 
 
@@ -162,29 +161,29 @@
 			<p class="p"><strong class="ph b">Normal operation with stack frames not considered as objects.</strong></p>
 
 			<p class="p">
-			<img class="image" src="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects"/>
+			<img class="image" src="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects" />
 			</p>
 
 			<p class="p"><strong class="ph b">Stack frames as pseudo-objects.</strong></p>
 
-			<p class="p">Note that the type of the stack frame is <samp class="ph codeph">&lt;stack frame&gt;</samp>.</p>
+			<p class="p">Note that the type of the stack frame is <code class="ph codeph">&lt;stack frame&gt;</code>.</p>
 
 			<p class="p">
-			<img class="image" src="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects"/>
+			<img class="image" src="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects" />
 			</p>
 
 			<p class="p"><strong class="ph b">Stack frames as pseudo-objects and running methods as pseudo-classes.</strong></p>
 
-			<p class="p">Note the different types for the stack frame such as <samp class="ph codeph">java.io.FileStream.getBytes([BIII)I;</samp>.</p>
+			<p class="p">Note the different types for the stack frame such as <code class="ph codeph">java.io.FileStream.getBytes([BIII)I;</code>.</p>
 
 			<p class="p">
-			<img class="image" src="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes"/>
+			<img class="image" src="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes" />
 			</p>
 
 			<p class="p">The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.</p>
 
 			<p class="p">
-			<img class="image" src="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes"/>
+			<img class="image" src="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes" />
 			</p>
 
 			<p class="p"><strong class="ph b">Stack frames as pseudo-objects and all methods as pseudo-classes.</strong></p>
@@ -192,13 +191,12 @@
 			<p class="p">The outbound references tree looks the same,
 			but the class histogram has a lot more pseudo-classes with 0 instances (i.e. with no running methods), and the 
 			pseudo-class objects have a non-zero size.
-			<img class="image" src="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes"/>
+			<img class="image" src="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes" />
 			</p>
 
 		</div>
 
 	</div>
-
 
 </body>
 </html>

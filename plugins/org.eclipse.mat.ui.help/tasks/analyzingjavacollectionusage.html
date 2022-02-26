@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Analyzing Java Collection Usage"/>
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_analyzingjavacollectionusage"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Analyzing Java Collection Usage" />
+<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_analyzingjavacollectionusage" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Analyzing Java Collection Usage</title>
 </head>
 <body id="task_analyzingjavacollectionusage">
 
-
-	<h1 class="title topictitle1">Analyzing Java Collection Usage</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Analyzing Java Collection Usage</h1>
 
 	
 
@@ -28,14 +27,13 @@
 				analyze java collections:</p>
 
 			
-<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
-					<tbody class="tbody">
+<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all"><colgroup><col /><col /></colgroup><tbody class="tbody">
 						<tr id="task_analyzingjavacollectionusage__arrayfillratio" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Array Fill Ratio</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">Prints a frequency distribution of fill ratios of
+							<td class="entry cellrowborder" style="vertical-align:top;">Prints a frequency distribution of fill ratios of
 								non-primitive arrays. The fill ratio is the proportion of
 								non-null elements in the array. The arrays are then accumulated
 								into as many segments as parameterized. Primitive arrays cannot
@@ -45,254 +43,208 @@
 						</tr>
 
 						<tr id="task_analyzingjavacollectionusage__arraybysize" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Arrays Grouped by Size</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">Distribution histogram of given arrays grouped
+							<td class="entry cellrowborder" style="vertical-align:top;">Distribution histogram of given arrays grouped
 								by the size.</td>
 
 						</tr>
 
 						<tr id="task_analyzingjavacollectionusage__collectionfillratio" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Collection Fill Ratio</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Prints a frequency distribution of fill ratios of given
 									collections. The following collections can be used for the
 									query:</p>
 
 								<ul class="ul">
 									<li class="li">
-										<pre class="pre codeblock">java.awt.RenderingHints</pre>
-
+										<pre class="pre codeblock"><code>java.awt.RenderingHints</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.beans.beancontext.BeanContextSupport</pre>
-
+										<pre class="pre codeblock"><code>java.beans.beancontext.BeanContextSupport</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.lang.ThreadLocal$ThreadLocalMap</pre>
-
+										<pre class="pre codeblock"><code>java.lang.ThreadLocal$ThreadLocalMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ArrayDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.ArrayDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.ArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Arrays$ArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Arrays$ArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptyList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptyList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptyMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptyMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptySet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptySet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SetFromMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SetFromMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SingletonList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SingletonList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SingletonSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SingletonSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ArrayBlockingQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ArrayBlockingQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentLinkedDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentLinkedDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentLinkedQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentLinkedQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentSkipListMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentSkipListMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.CopyOnWriteArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.CopyOnWriteArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.DelayQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.DelayQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedBlockingDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedBlockingDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedBlockingQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedBlockingQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedTransferQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedTransferQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.SynchronousQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.SynchronousQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.EnumMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.EnumMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.EnumSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.EnumSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Hashtable</pre>
-
+										<pre class="pre codeblock"><code>java.util.Hashtable</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.IdentityHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.IdentityHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$List0</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$List0</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$Set1</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$Set1</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedHashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedHashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedList</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.PriorityQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.PriorityQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Properties</pre>
-
+										<pre class="pre codeblock"><code>java.util.Properties</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.TreeSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.TreeSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.WeakHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.WeakHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.jar.Attributes</pre>
-
+										<pre class="pre codeblock"><code>java.util.jar.Attributes</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">javax.script.SimpleBindings</pre>
-
+										<pre class="pre codeblock"><code>javax.script.SimpleBindings</code></pre>
 									</li>
 
 								</ul>
@@ -306,324 +258,262 @@
 						</tr>
 
 						<tr id="task_analyzingjavacollectionusage__collectionsbysize" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Collections Grouped By Size</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Distribution histogram of given collections by
 									their size. The following collections can be used for the
 									query. Known collections:</p>
 
 								<ul class="ul">
 									<li class="li">
-										<pre class="pre codeblock">java.awt.RenderingHints</pre>
-
+										<pre class="pre codeblock"><code>java.awt.RenderingHints</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.beans.beancontext.BeanContextSupport</pre>
-
+										<pre class="pre codeblock"><code>java.beans.beancontext.BeanContextSupport</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.lang.ThreadLocal$ThreadLocalMap</pre>
-
+										<pre class="pre codeblock"><code>java.lang.ThreadLocal$ThreadLocalMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ArrayDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.ArrayDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.ArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Arrays$ArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Arrays$ArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptyList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptyList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptyMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptyMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$EmptySet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$EmptySet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SetFromMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SetFromMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SingletonList</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SingletonList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SingletonMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SingletonMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SingletonSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SingletonSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableCollection</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableCollection</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ArrayBlockingQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ArrayBlockingQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentLinkedDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentLinkedDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentLinkedQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentLinkedQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentSkipListMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentSkipListMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentSkipListSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentSkipListSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.CopyOnWriteArrayList</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.CopyOnWriteArrayList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.CopyOnWriteArraySet</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.CopyOnWriteArraySet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.DelayQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.DelayQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedBlockingDeque</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedBlockingDeque</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedBlockingQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedBlockingQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.LinkedTransferQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.LinkedTransferQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.SynchronousQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.SynchronousQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.EnumMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.EnumMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.EnumSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.EnumSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Hashtable</pre>
-
+										<pre class="pre codeblock"><code>java.util.Hashtable</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.IdentityHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.IdentityHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$List0</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$List0</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$List1</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$List1</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$List2</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$List2</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$ListN</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$ListN</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$MapN</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$MapN</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$Set0</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$Set0</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$Set1</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$Set1</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$Set2</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$Set2</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$SetN</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$SetN</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.jar.Attributes</pre>
-
+										<pre class="pre codeblock"><code>java.util.jar.Attributes</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedHashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedHashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedList</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedList</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.PriorityQueue</pre>
-
+										<pre class="pre codeblock"><code>java.util.PriorityQueue</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Properties</pre>
-
+										<pre class="pre codeblock"><code>java.util.Properties</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.TreeMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.TreeMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.TreeSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.TreeSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Vector</pre>
-
+										<pre class="pre codeblock"><code>java.util.Vector</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.WeakHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.WeakHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">javax.script.SimpleBindings</pre>
-
+										<pre class="pre codeblock"><code>javax.script.SimpleBindings</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">javax.swing.UIDefaults</pre>
-
+										<pre class="pre codeblock"><code>javax.swing.UIDefaults</code></pre>
 									</li>
 
 								</ul>
@@ -637,11 +527,11 @@
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Extract List Values</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Lists elements of a single LinkedList, ArrayList, Vector, 
 								CopyOnWriteArrayList, PriorityQueue, ArrayDeque
 									object.</p>
@@ -652,11 +542,11 @@
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Hash Entries</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Extracts the key-value pairs from hash maps and
 									hashtables.</p>
 
@@ -665,11 +555,11 @@
 						</tr>
 
 						<tr class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Extract Hash Set Values</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Lists elements of a single HashSet.</p>
 
 							</td>
@@ -677,134 +567,110 @@
 						</tr>
 
 						<tr id="task_analyzingjavacollectionusage__mapcollision" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Map Collision Ratio</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<p class="p">Prints a frequency distribution of the collision ratios
 									of map-like collections. The following map-like collections can
 									be used for the query.</p>
 
 								<ul class="ul">
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Properties</pre>
-
+										<pre class="pre codeblock"><code>java.util.Properties</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Hashtable</pre>
-
+										<pre class="pre codeblock"><code>java.util.Hashtable</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.WeakHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.WeakHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentHashMap$Segment</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.HashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.HashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentSkipListMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentSkipListMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.concurrent.ConcurrentSkipListSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.concurrent.ConcurrentSkipListSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$CheckedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$CheckedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$SynchronizedSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$SynchronizedSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.Collections$UnmodifiableSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.Collections$UnmodifiableSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedHashMap</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedHashMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.LinkedHashSet</pre>
-
+										<pre class="pre codeblock"><code>java.util.LinkedHashSet</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.ImmutableCollections$MapN</pre>
-
+										<pre class="pre codeblock"><code>java.util.ImmutableCollections$MapN</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.util.jar.Attributes</pre>
-
+										<pre class="pre codeblock"><code>java.util.jar.Attributes</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.awt.RenderingHints</pre>
-
+										<pre class="pre codeblock"><code>java.awt.RenderingHints</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.beans.beancontext.BeanContextSupport</pre>
-
+										<pre class="pre codeblock"><code>java.beans.beancontext.BeanContextSupport</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">java.lang.ThreadLocal$ThreadLocalMap</pre>
-
+										<pre class="pre codeblock"><code>java.lang.ThreadLocal$ThreadLocalMap</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">javax.script.SimpleBindings</pre>
-
+										<pre class="pre codeblock"><code>javax.script.SimpleBindings</code></pre>
 									</li>
 
 									<li class="li">
-										<pre class="pre codeblock">javax.swing.UIDefaults</pre>
-
+										<pre class="pre codeblock"><code>javax.swing.UIDefaults</code></pre>
 									</li>
 
 								</ul>
@@ -818,11 +684,11 @@
 						</tr>
 
 						<tr id="task_analyzingjavacollectionusage__primitivearrayconstvalue" class="row">
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								<strong class="ph b"><span class="keyword cmdname">Primitive Arrays with a Constant Value</span> Query</strong>
 							</td>
 
-							<td class="entry" valign="top">
+							<td class="entry cellrowborder" style="vertical-align:top;">
 								Lists a summary of all primitive arrays (from a selection) which are filled with one and the
 								same value.
 								Arrays with the same length and constant value are grouped together.
@@ -831,28 +697,26 @@
 						</tr>
 
 					</tbody>
-
-				</table>
+</table>
 </div>
 
 			<p class="p">
 				All these queries are accessible from the toolbar drop-down menu:
-				<span class="ph menucascade"><span class="ph uicontrol">Open Query Browser</span> &gt; <span class="ph uicontrol">Java Collections</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Open Query Browser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Java Collections</span></span>
 			</p>
 
 			<p class="p">
 				There are also available from the pop-up context menu using mouse button 2 on a selection of objects from a previous query.
 				Unsuitable queries for the selection are filtered out and are not shown, so for example a <span class="keyword cmdname">Hash Entries</span> query
-				would not be offered for a selection of <samp class="ph codeph">ArrayList</samp> objects.
+				would not be offered for a selection of <code class="ph codeph">ArrayList</code> objects.
 				All the collection queries can be seen from the pop-up context menu using:
-				<span class="ph menucascade"><span class="ph uicontrol">Search Queries...</span> &gt; <span class="ph uicontrol">Java Collections</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Search Queries...</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Java Collections</span></span>
 				Any query can then be selected and run.
 			</p>
 
 		</div>
 
 	</div>
-
 
 </body>
 </html>

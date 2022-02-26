@@ -1,44 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="SELECT Clause"/>
-<meta name="abstract" content=""/>
-<meta name="description" content=""/>
-<meta name="DC.Relation" scheme="URI" content="../reference/oqlsyntax.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_oqlsyntaxselect"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="SELECT Clause" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta name="DC.relation" scheme="URI" content="../reference/oqlsyntax.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_oqlsyntaxselect" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>SELECT Clause</title>
 </head>
 <body id="ref_oqlsyntaxselect">
 
-
-	<h1 class="title topictitle1">SELECT Clause</h1>
-
-	
+	<h1 class="title topictitle1" id="ariaid-title1">SELECT Clause</h1>
 
 	
 
-	<div class="body refbody"><p class="shortdesc"/>
+	
+
+	<div class="body refbody"><p class="shortdesc"></p>
 
 		<div class="section">
 			<p class="p">
-				The <samp class="ph codeph">SELECT</samp> clause determines what to extract from the
+				The <code class="ph codeph">SELECT</code> clause determines what to extract from the
 				heap dump. To display objects and be able to browse the
 				outgoing references, use the
-				<samp class="ph codeph">*</samp>
+				<code class="ph codeph">*</code>
 				symbol:
 			</p>
 
-			<pre class="pre codeblock">SELECT * FROM java.lang.String</pre>
-
+			<pre class="pre codeblock"><code>SELECT * FROM java.lang.String</code></pre>
 
 			<p class="p"><strong class="ph b">Select specific columns</strong></p>
 
@@ -47,20 +45,18 @@
 				displayed:
 			</p>
 
-			<pre class="pre codeblock">SELECT toString(s), s.count, s.value FROM java.lang.String s</pre>
-
+			<pre class="pre codeblock"><code>SELECT toString(s), s.count, s.value FROM java.lang.String s</code></pre>
 			<p class="p">
 				The resulting table knows about the underlying object.
 				So you can use the context menu to open further views on
-				the object at hand. Use the <samp class="ph codeph">@</samp> symbol to access Java
+				the object at hand. Use the <code class="ph codeph">@</code> symbol to access Java
 				attributes and methods of the objects. There are also a
 				number of built-in functions available to extract common
 				information:
 			</p>
 
-			<pre class="pre codeblock">SELECT toString(s), s.@usedHeapSize,
-    s.@retainedHeapSize FROM java.lang.String s</pre>
-
+			<pre class="pre codeblock"><code>SELECT toString(s), s.@usedHeapSize,
+    s.@retainedHeapSize FROM java.lang.String s</code></pre>
 			<p class="p">
 				The section on
 				<a class="xref" href="propertyaccessors.html">
@@ -73,39 +69,36 @@
 
 			<p class="p">Use the AS keyword to name the columns:</p>
 
-			<pre class="pre codeblock">SELECT toString(s) AS Value,
+			<pre class="pre codeblock"><code>SELECT toString(s) AS Value,
     s.@usedHeapSize AS "Shallow Size",
     s.@retainedHeapSize AS "Retained Size"
-			FROM java.lang.String s</pre>
-
+			FROM java.lang.String s</code></pre>
 			<p class="p">
 				Use the
-				<samp class="ph codeph">AS RETAINED SET</samp>
+				<code class="ph codeph">AS RETAINED SET</code>
 				keyword to get the set of objects retained by your
 				selection:
 			</p>
 
-			<pre class="pre codeblock">SELECT AS RETAINED SET * FROM java.lang.String</pre>
-
+			<pre class="pre codeblock"><code>SELECT AS RETAINED SET * FROM java.lang.String</code></pre>
 			<p class="p"><strong class="ph b">Flatten select items into an object list</strong></p>
 
 			<p class="p">
 				Use the
-				<samp class="ph codeph">OBJECTS</samp>
+				<code class="ph codeph">OBJECTS</code>
 				to interpret the items in the
-				<samp class="ph codeph">SELECT</samp>
+				<code class="ph codeph">SELECT</code>
 				clause as objects:
 			</p>
 
-			<pre class="pre codeblock">SELECT OBJECTS dominators(s) FROM java.lang.String s</pre>
-
+			<pre class="pre codeblock"><code>SELECT OBJECTS dominators(s) FROM java.lang.String s</code></pre>
 			<p class="p">
 				The function
-				<samp class="ph codeph">dominators()</samp>
+				<code class="ph codeph">dominators()</code>
 				returns an array of objects. Therefore the query returns
 				a list of object lists, i.e. arrays. By using the
 				keyword
-				<samp class="ph codeph">OBJECTS</samp>
+				<code class="ph codeph">OBJECTS</code>
 				, we force the OQL to reduce this into a single list of
 				objects.
 			</p>
@@ -114,34 +107,32 @@
 
 			<p class="p">
 				Use the
-				<samp class="ph codeph">DISTINCT</samp>
+				<code class="ph codeph">DISTINCT</code>
 				keyword to only select unique objects:
 			</p>
 
-			<pre class="pre codeblock">SELECT DISTINCT * FROM OBJECTS 0,1,1,2</pre>
-
+			<pre class="pre codeblock"><code>SELECT DISTINCT * FROM OBJECTS 0,1,1,2</code></pre>
 			<p class="p">
 				Use the
-				<samp class="ph codeph">DISTINCT OBJECTS</samp>
+				<code class="ph codeph">DISTINCT OBJECTS</code>
 				keyword to only select unique objects from the result of the selected clause:
 			</p>
 
-			<pre class="pre codeblock">SELECT DISTINCT OBJECTS classof(s) FROM java.lang.String s</pre>
-
+			<pre class="pre codeblock"><code>SELECT DISTINCT OBJECTS classof(s) FROM java.lang.String s</code></pre>
 			<p class="p">
 				The function
-				<samp class="ph codeph">classof</samp>
+				<code class="ph codeph">classof</code>
 				returns the class object. Of course, all Strings have
-				the same class. The <samp class="ph codeph">OBJECTS</samp> converts the underlying row with a String object
+				the same class. The <code class="ph codeph">OBJECTS</code> converts the underlying row with a String object
 				and a displayed value of the class object
-				to the object represented by the result of the <samp class="ph codeph">classof</samp> function.
-				Without the <samp class="ph codeph">DISTINCT OBJECTS</samp>
+				to the object represented by the result of the <code class="ph codeph">classof</code> function.
+				Without the <code class="ph codeph">DISTINCT OBJECTS</code>
 				keywords, the query would result in a list with as many
 				rows with the same class as there are Strings.
 			</p>
 
-			<p class="p">With Memory Analyzer 1.10 or later, <samp class="ph codeph">DISTINCT</samp> also operates without
-			<samp class="ph codeph">OBJECTS</samp> to find items which are distinct.
+			<p class="p">With Memory Analyzer 1.10 or later, <code class="ph codeph">DISTINCT</code> also operates without
+			<code class="ph codeph">OBJECTS</code> to find items which are distinct.
 			See <a class="xref" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</a>
 			for further details.</p>
 
@@ -151,8 +142,7 @@
 				Use the expressions for the select item, including string concatenation:
 			</p>
 
-			<pre class="pre codeblock">SELECT s.@objectId, s.@objectId * 2, "The object ID is "+@objectId FROM OBJECTS 0,1,1,2 s</pre>
-
+			<pre class="pre codeblock"><code>SELECT s.@objectId, s.@objectId * 2, "The object ID is "+@objectId FROM OBJECTS 0,1,1,2 s</code></pre>
 			<p class="p">
 				With Memory Analyzer 1.4 or later expressions and sub-selects are allowed for select items. More complex
 				expressions may need to be parenthesized. This is currently in the test phase.
@@ -166,7 +156,5 @@
 <div class="familylinks">
 <div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
-</div>
-
-</body>
+</div></body>
 </html>

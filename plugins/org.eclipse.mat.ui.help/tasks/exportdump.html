@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Export Heap Dump"/>
-<meta name="copyright" content="Copyright (c) 2018,2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2018,2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_exportdump"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Export Heap Dump" />
+<meta name="copyright" content="Copyright (c) 2018,2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2018,2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_exportdump" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Export Heap Dump</title>
 </head>
 <body id="task_exportdump">
 
-
-	<h1 class="title topictitle1">Export Heap Dump</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Export Heap Dump</h1>
 
 	
 
@@ -133,34 +132,25 @@
 						
 					</dl>
 
-					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
-						<ul class="ul messagepanel">
-							<li class="li typeofhazard">
+					<table role="presentation" border="1" class="note hazardstatement"><tr><th colspan="2" class="hazardstatement--notice">Notice</th></tr><tr><td><img class="image hazardsymbol" src="../mimes/message_warning.png" /></td><td><div class="messagepanel">
+							<div class="typeofhazard">
 								Information disclosure
-							</li>
-
-							<li class="li consequence">
+							</div>
+							<div class="consequence">
 								Incorrect use of these options may leave sensitive data in the new dump.
 								If this dump is then given to an unauthorised person the
 								sensitive data may
 								be extracted and disclosed.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Review the correct use of these options.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Examine the newly generated HPROF file, for example with Memory
 								Analyzer, to
 								confirm that no sensitive data is visible.
-							</li>
-
-						</ul>
-
-						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
-					</div>
-
+							</div>
+						</div></td></tr></table>
 				</li>
 
 				<li class="li">
@@ -220,66 +210,47 @@
 						mapped HPROF file and the mapping file are available.
 					</p>
 
-					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
-						<ul class="ul messagepanel">
-							<li class="li typeofhazard">
+					<table role="presentation" border="1" class="note hazardstatement"><tr><th colspan="2" class="hazardstatement--notice">Notice</th></tr><tr><td><img class="image hazardsymbol" src="../mimes/message_warning.png" /></td><td><div class="messagepanel">
+							<div class="typeofhazard">
 								Information disclosure
-							</li>
-
-							<li class="li consequence">
+							</div>
+							<div class="consequence">
 								Incorrect use of these options may leave sensitive information about the
 								application design in the new dump.
 								If this dump is then given to an unauthorised person, sensitive
 								information about the application may
 								be extracted and disclosed.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Review the correct use of these options.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Examine the newly generated HPROF file, for example with Memory
 								Analyzer, to
 								confirm that no sensitive data is visible.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Do not pass the mapping file to an unauthorised person as it contains
 								the true names of classes, fields and methods of the application.
-							</li>
-
-						</ul>
-
-						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
-					</div>
-
-					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
-						<ul class="ul messagepanel">
-							<li class="li typeofhazard">
+							</div>
+						</div></td></tr></table>
+					<table role="presentation" border="1" class="note hazardstatement"><tr><th colspan="2" class="hazardstatement--notice">Notice</th></tr><tr><td><img class="image hazardsymbol" src="../mimes/message_warning.png" /></td><td><div class="messagepanel">
+							<div class="typeofhazard">
 								Offensive content
-							</li>
-
-							<li class="li consequence">
+							</div>
+							<div class="consequence">
 								As the class, method and field names are randomly generated there is the
 								possibility of offensive words occuring in the names.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Use the <span class="keyword parmname">avoid</span> option to filter out words.
-							</li>
-
-							<li class="li howtoavoid">
+							</div>
+							<div class="howtoavoid">
 								Examine the generated mapping file to confirm that no offensive words
 								have been generated. If they have, delete the mapping file and
 								export the dump again. 
-							</li>
-
-						</ul>
-
-						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
-					</div>
-
+							</div>
+						</div></td></tr></table>
 				</li>
 
 				<li class="li">
@@ -347,7 +318,6 @@
 		</div>
 
 	</div>
-
 
 </body>
 </html>

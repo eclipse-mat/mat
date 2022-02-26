@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Memory Analyzer Configuration"/>
-<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_configure_mat"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Memory Analyzer Configuration" />
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_configure_mat" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Memory Analyzer Configuration</title>
 </head>
 <body id="task_configure_mat">
 
-
-	<h1 class="title topictitle1">Memory Analyzer Configuration</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Memory Analyzer Configuration</h1>
 
 	
 
@@ -30,16 +29,15 @@
 			</p>
 
 
-			<samp class="ph codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
+			<code class="ph codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</code>
 
 			<p class="p">Alternatively, edit the MemoryAnalyzer.ini to
 				contain:</p>
 
 
 			<div class="p">
-				<pre class="pre codeblock">-vmargs
--Xmx4g</pre>
-
+				<pre class="pre codeblock"><code>-vmargs
+-Xmx4g</code></pre>
 			</div>
 
 
@@ -55,7 +53,7 @@
 				you need to edit the eclipse.ini file.</p>
 
 
-			<div class="p">The memory intensive parts are the parsing of the dump and building
+			<p class="p">The memory intensive parts are the parsing of the dump and building
 				of the dominator tree. Try parsing the heap
 				dump from the command line, perhaps on a bigger machine. The dumps
 				and index files can then be copied to a more convenient machine. 
@@ -72,7 +70,7 @@
 				Memory Analyzer uses additional memory for caching index files, so
 				performance will be better if there is more memory available than the minimum
 				required to parse a dump.
-				</div>
+				</p>
 
 				<p class="p">Memory Analyzer has an architectural limit of 2<sup class="ph sup">31</sup> - 3 objects,
 				a current limit of 2<sup class="ph sup">31</sup> - 9 = 2,147,483,639 objects, but has not been
@@ -86,13 +84,13 @@
 
 				
 			<p class="p">The preference page is opened via a menu option.
-				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Preferences</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Window</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Preferences</span></span>
 			</p>
 
 			<div class="p" id="task_configure_mat__preferences">The preferences page allows various aspects of Memory Analyzer to be controlled.
 			Some of the preferences can also be controlled from the command line in
 			<a class="xref" href="batch.html">batch mode</a>.
-			<img class="image" src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage"/>
+			<img class="image" src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage" />
 			<dl class="dl">
 			
 				<dt class="dt dlterm">Keep unreachable objects</dt>
@@ -123,7 +121,7 @@
 				Selecting this option means that when Memory Analyzer is started the workbench is displayed
 				first. 
 				The welcome page can be reopened from the workbench by:
-					<span class="ph menucascade"><span class="ph uicontrol">Help</span> &gt; <span class="ph uicontrol">Welcome</span></span>
+					<span class="ph menucascade"><span class="ph uicontrol">Help</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Welcome</span></span>
 				</dd>
 
 			
@@ -137,7 +135,7 @@
 						The option can be changed in the Eclipse preference dialog or using <span class="keyword option">-Dbytes_display=(bytes|kilobytes|megabytes|gigabytes|smart)</span>.
 					</p>
 
-					<img class="image" src="../mimes/size_units_cfg.png" alt="Preferences dialog to configure size units"/>
+					<img class="image" src="../mimes/size_units_cfg.png" alt="Preferences dialog to configure size units" />
 					<dl class="dl">
 						
 							<dt class="dt dlterm">Bytes (B)</dt>
@@ -167,7 +165,7 @@
 							<dt class="dt dlterm">Smart</dt>
 
 							<dd class="dd">In Smart mode, if the value is a gigabyte or more, display in gigabytes; similarly for megabytes and kilobytes; otherwise, display in bytes.
-								<img class="image" src="../mimes/size_units_sample.png" alt="A histogram showing entries with different size units"/>
+								<img class="image" src="../mimes/size_units_sample.png" alt="A histogram showing entries with different size units" />
 							</dd>
 
 						
@@ -177,7 +175,7 @@
 
 			
 			
-				<dt class="dt dlterm"><a name="task_configure_mat__discard"><!-- --></a>Enable discard (experimental)</dt>
+				<dt class="dt dlterm" id="task_configure_mat__discard">Enable discard (experimental)</dt>
 
 				<dd class="dd">
 					<p class="p">
@@ -206,7 +204,7 @@
 					'Go Back' to the previous object.
 					Unindexed objects do not have GC root information, so in that
 					position in the inspector view is displayed a 
-					<img class="image" src="../mimes/message_warning.png" alt="yellow warning triangle icon"/>
+					<img class="image" src="../mimes/message_warning.png" alt="yellow warning triangle icon" />
 					warning triangle
 					and the message <samp class="ph msgph">Unindexed</samp>.
 					Names resolvers can use the values of unindexed objects to find a displayable
@@ -248,7 +246,7 @@
 					OQL FROM clauses</a> for how to use OQL with unindexed objects. 
 					</div>
 
-					<div class="note note"><span class="notetitle">Note:</span> This feature is experimental and is subject to change
+					<div class="note"><span class="notetitle">Note:</span> This feature is experimental and is subject to change
 					or removal. Please respond on the 
 					<a class="xref" href="http://www.eclipse.org/forums/index.php/f/186/">
 					Memory Analyzer forum</a> if you try it and
@@ -325,8 +323,8 @@
 
 			
 			
-				<dt class="dt dlterm"><a name="task_configure_mat__dtfj_preferences"><!-- --></a>
-					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Stack frames</span></span>
+				<dt class="dt dlterm" id="task_configure_mat__dtfj_preferences">
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">DTFJ Parser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Stack frames</span></span>
 				</dt>
 
 				<dd class="dd">
@@ -346,7 +344,7 @@
 					</dt>
 
 					<dd class="dd">
-					Stack frames are of type <samp class="ph codeph">&lt;stack frame&gt;</samp>, size 0, with method names and source file
+					Stack frames are of type <code class="ph codeph">&lt;stack frame&gt;</code>, size 0, with method names and source file
 and line numbers via fields and a name resolver.
 					<p class="p">This is useful when looking at paths to and from objects via local variables as the stack frames are visible in
 					the paths to GC roots queries.</p>
@@ -358,9 +356,9 @@ and line numbers via fields and a name resolver.
 					<dt class="dt dlterm">Stack frames as pseudo-objects and running methods as pseudo-classes
 					</dt>
 
-					<dd class="dd">Stack frames of are of type <samp class="ph codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="ph codeph">&lt;method&gt;</samp> representing the method being executed,
+					<dd class="dd">Stack frames of are of type <code class="ph codeph">packageName.className.methodName(Signature)ReturnType</code> extending <code class="ph codeph">&lt;method&gt;</code> representing the method being executed,
 of size the stack frame size, with source file and line number via fields and a name resolver,
-and those methods are pseudo-classes of type <samp class="ph codeph">&lt;method type&gt;</samp> of size 0.
+and those methods are pseudo-classes of type <code class="ph codeph">&lt;method type&gt;</code> of size 0.
 					<p class="p">This can be useful to find out which methods are currently running and how much stack space they take up.
 					To examine running methods then take the histogram view, filter by '\(', then sort by instances or instance size.
 					</p>
@@ -372,11 +370,11 @@ and those methods are pseudo-classes of type <samp class="ph codeph">&lt;method 
 					<dt class="dt dlterm">Stack frames as pseudo-objects and all methods as pseudo-classes
 					</dt>
 
-					<dd class="dd">Stack frames of are of type <samp class="ph codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="ph codeph">&lt;method&gt;</samp>codeph&gt; representing the method being executed,
+					<dd class="dd">Stack frames of are of type <code class="ph codeph">packageName.className.methodName(Signature)ReturnType</code> extending <code class="ph codeph">&lt;method&gt;</code>codeph&gt; representing the method being executed,
 of size the stack frame size, with source file and line number via fields and a name resolver,
-and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method type&gt;</samp> of size based on the JITted and byte code sizes. The method sizes are then not part of the class size.
+and all methods are pseudo-classes of type <code class="ph codeph">&lt;method type&gt;</code> of size based on the JITted and byte code sizes. The method sizes are then not part of the class size.
 					<p class="p">This can be useful to find out which methods have large JITted or byte code sizes. They can be viewed by going to the histogram view,
-					then selecting <samp class="ph codeph">&lt;method type&gt;</samp> and listing objects.
+					then selecting <code class="ph codeph">&lt;method type&gt;</code> and listing objects.
 					</p>
 
 					</dd>
@@ -390,7 +388,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 			
 			
 				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Suppress Class native memory size calculations (IBM system dumps)</span></span>
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">DTFJ Parser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Suppress Class native memory size calculations (IBM system dumps)</span></span>
 				</dt>
 
 				<dd class="dd">
@@ -399,8 +397,8 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 
 			
 					
-						<dt class="dt dlterm"><a name="task_configure_mat__hprof_preferences"><!-- --></a>
-							<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">HPROF Parser</span> &gt; <span class="ph uicontrol">Parser Strictness</span></span>
+						<dt class="dt dlterm" id="task_configure_mat__hprof_preferences">
+							<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">HPROF Parser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Parser Strictness</span></span>
 						</dt>
 
 						<dd class="dd">
@@ -466,7 +464,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 					
 			
 				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">HPROF Parser</span> &gt; <span class="ph uicontrol">Include additional references from class objects 
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">HPROF Parser</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Include additional references from class objects 
 						found in a HPROF file.</span></span>
 				</dt>
 
@@ -482,7 +480,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 			
 			
 				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">General</span> &gt; <span class="ph uicontrol">Appearance</span> &gt; <span class="ph uicontrol">Colors and Fonts</span> &gt; <span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">OQL comment color</span></span>
+					<span class="ph menucascade"><span class="ph uicontrol">General</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Appearance</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Colors and Fonts</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">OQL comment color</span></span>
 				</dt>
 
 				<dd class="dd">Modify the color of comments in the Object Query Language (OQL) studio.</dd>
@@ -490,7 +488,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 			
 			
 				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">General</span> &gt; <span class="ph uicontrol">Appearance</span> &gt; <span class="ph uicontrol">Colors and Fonts</span> &gt; <span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">OQL keyword color</span></span>
+					<span class="ph menucascade"><span class="ph uicontrol">General</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Appearance</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Colors and Fonts</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Memory Analyzer</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">OQL keyword color</span></span>
 				</dt>
 
 				<dd class="dd">Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
@@ -503,7 +501,6 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 		</div>
 
 	</div>
-
 
 </body>
 </html>

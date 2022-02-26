@@ -1,382 +1,285 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="BNF for the Object Query Language"/>
-<meta name="DC.Relation" scheme="URI" content="../reference/oqlsyntax.html"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_bnfofoql"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="BNF for the Object Query Language" />
+<meta name="DC.relation" scheme="URI" content="../reference/oqlsyntax.html" />
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_bnfofoql" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>BNF for the Object Query Language</title>
 </head>
 <body id="ref_bnfofoql">
 
-
-	<h1 class="title topictitle1">BNF for the Object Query Language</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">BNF for the Object Query Language</h1>
 
 	
 
 	<div class="body refbody">
 		<div class="section">
-		<table cellpadding="4" cellspacing="0" summary="" id="ref_bnfofoql__oql_table" border="1" class="simpletable"><tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">SelectStatement</pre>
-</td>
+		<table cellpadding="4" cellspacing="0" summary="" id="ref_bnfofoql__oql_table" border="1" class="simpletable"><col style="width:33.33333333333333%" /><col style="width:33.33333333333333%" /><col style="width:33.33333333333333%" /><thead></thead><tbody><tr class="strow">
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SelectStatement</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"SELECT" SelectList FromClause ( WhereClause )? ( UnionClause )?</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"SELECT" SelectList FromClause ( WhereClause )? ( UnionClause )?</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">SelectList</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SelectList</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">(( "DISTINCT" | "AS RETAINED SET" )? ( "*" | "OBJECTS" SelectItem | SelectItem ( "," SelectItem )* ))</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>(( "DISTINCT" | "AS RETAINED SET" )? ( "*" | "OBJECTS" SelectItem | SelectItem ( "," SelectItem )* ))</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">SelectItem</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SelectItem</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">PathExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>PathExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">EnvVarPathExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>EnvVarPathExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ObjectFacet</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ObjectFacet</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ( "@" )? &lt;IDENTIFIER&gt; ( ParameterList )? )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( ( "@" )? &lt;IDENTIFIER&gt; ( ParameterList )? )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ParameterList</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ParameterList</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"(" ( ( SimpleExpression ( "," SimpleExpression )* ) )? ")"</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"(" ( ( SimpleExpression ( "," SimpleExpression )* ) )? ")"</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">FromClause</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>FromClause</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &lt;IDENTIFIER&gt; )?</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &lt;IDENTIFIER&gt; )?</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">FromItem</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>FromItem</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ClassName | &lt;STRING_LITERAL&gt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( ClassName | &lt;STRING_LITERAL&gt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ClassName</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ClassName</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( &lt;IDENTIFIER&gt; ( "." &lt;IDENTIFIER&gt; )* ( "[]" )* )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( &lt;IDENTIFIER&gt; ( "." &lt;IDENTIFIER&gt; )* ( "[]" )* )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ObjectAddress</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ObjectAddress</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">&lt;HEX_LITERAL&gt;</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>&lt;HEX_LITERAL&gt;</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ObjectId</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ObjectId</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">&lt;INTEGER_LITERAL&gt;</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>&lt;INTEGER_LITERAL&gt;</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">WhereClause</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>WhereClause</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"WHERE" ConditionalOrExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"WHERE" ConditionalOrExpression</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ConditionalOrExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ConditionalOrExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">ConditionalAndExpression ( "or" ConditionalAndExpression )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ConditionalAndExpression ( "or" ConditionalAndExpression )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">ConditionalAndExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>ConditionalAndExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">EqualityExpression ( "and" EqualityExpression )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>EqualityExpression ( "and" EqualityExpression )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">EqualityExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>EqualityExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">RelationalExpression ( ( "=" RelationalExpression | "!=" RelationalExpression ) )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>RelationalExpression ( ( "=" RelationalExpression | "!=" RelationalExpression ) )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">RelationalExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>RelationalExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( SimpleExpression ( ( "&lt;" SimpleExpression | "&gt;" SimpleExpression | "&lt;=" SimpleExpression | "&gt;=" SimpleExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( SimpleExpression ( ( "&lt;" SimpleExpression | "&gt;" SimpleExpression | "&lt;=" SimpleExpression | "&gt;=" SimpleExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">LikeClause</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>LikeClause</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "NOT" )? "LIKE" &lt;STRING_LITERAL&gt;</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( "NOT" )? "LIKE" &lt;STRING_LITERAL&gt;</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">InClause</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>InClause</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "NOT" )? "IN" SimpleExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( "NOT" )? "IN" SimpleExpression</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">SimpleExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SimpleExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">MultiplicativeExpression ( "+" MultiplicativeExpression | "-" MultiplicativeExpression )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>MultiplicativeExpression ( "+" MultiplicativeExpression | "-" MultiplicativeExpression )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">MultiplicativeExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>MultiplicativeExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">PrimaryExpression ( "*" PrimaryExpression | "/" PrimaryExpression )*</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>PrimaryExpression ( "*" PrimaryExpression | "/" PrimaryExpression )*</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">PrimaryExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>PrimaryExpression</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">Literal</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>Literal</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock"> </pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code> </code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">|</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>|</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"(" ( ConditionalOrExpression | SubQuery ) ")</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"(" ( ConditionalOrExpression | SubQuery ) ")</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock"> </pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code> </code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">|</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>|</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">PathExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>PathExpression</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock"> </pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code> </code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">|</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>|</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">EnvVarPathExpression</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>EnvVarPathExpression</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">SubQuery</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SubQuery</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">SelectStatement</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>SelectStatement</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">Function</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>Function</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ( "toHex" | "toString" | "dominators" | "outbounds" | "inbounds" | "classof" | "dominatorof" ) "(" ConditionalOrExpression ")" )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( ( "toHex" | "toString" | "dominators" | "outbounds" | "inbounds" | "classof" | "dominatorof" ) "(" ConditionalOrExpression ")" )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">Literal</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>Literal</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( &lt;INTEGER_LITERAL&gt; | &lt;LONG_LITERAL&gt; | &lt;FLOATING_POINT_LITERAL&gt; | &lt;CHARACTER_LITERAL&gt; | &lt;STRING_LITERAL&gt; | BooleanLiteral | NullLiteral )</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( &lt;INTEGER_LITERAL&gt; | &lt;LONG_LITERAL&gt; | &lt;FLOATING_POINT_LITERAL&gt; | &lt;CHARACTER_LITERAL&gt; | &lt;STRING_LITERAL&gt; | BooleanLiteral | NullLiteral )</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">BooleanLiteral</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>BooleanLiteral</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"true"</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"true"</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock"> </pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code> </code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">|</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>|</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"false"</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>"false"</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">NullLiteral</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>NullLiteral</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">&lt;NULL&gt;</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>&lt;NULL&gt;</code></pre></td>
 
             </tr>
 <tr class="strow">
-               <td valign="top" class="stentry"><pre class="pre codeblock">UnionClause</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>UnionClause</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>::=</code></pre></td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "UNION" "(" SelectStatement ")" )+</pre>
-</td>
+               <td style="vertical-align:top;" class="stentry"><pre class="pre codeblock"><code>( "UNION" "(" SelectStatement ")" )+</code></pre></td>
 
             </tr>
-</table>
+</tbody></table>
 
 		</div>
 
@@ -386,7 +289,5 @@
 <div class="familylinks">
 <div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
-</div>
-
-</body>
+</div></body>
 </html>

@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Reference Leak"/>
-<meta name="abstract" content="Find incorrect uses of soft or weak references."/>
-<meta name="description" content="Find incorrect uses of soft or weak references."/>
-<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_inspections_group_by_value"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Reference Leak" />
+<meta name="abstract" content="Find incorrect uses of soft or weak references." />
+<meta name="description" content="Find incorrect uses of soft or weak references." />
+<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_inspections_group_by_value" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css" />
 <title>Reference Leak</title>
 </head>
 <body id="ref_inspections_group_by_value">
 
-
-	<h1 class="title topictitle1">Reference Leak</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Reference Leak</h1>
 
 	
 	
@@ -28,8 +27,8 @@
 
 		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
 			
-			<p class="p">Soft references <samp class="ph codeph">java.lang.ref.SoftReference</samp> and
-			weak references <samp class="ph codeph">java.lang.ref.WeakReference</samp> are used
+			<p class="p">Soft references <code class="ph codeph">java.lang.ref.SoftReference</code> and
+			weak references <code class="ph codeph">java.lang.ref.WeakReference</code> are used
 			to keep references to objects which can be cleared by garbage collection
 			if there are no other strong references.</p>
 
@@ -39,7 +38,7 @@
 			object. Next time it is needed then the application program can
 			regenerate the object.</p>
 
-			<p class="p">Weak references can be used in a weak hash map <samp class="ph codeph">java.util.WeakHashMap</samp> to hold information associated with
+			<p class="p">Weak references can be used in a weak hash map <code class="ph codeph">java.util.WeakHashMap</code> to hold information associated with
 			another object, but if that object is no longer available
 			then the associated information can be freed too.</p>
 
@@ -86,44 +85,44 @@
 
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
-			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
-					<th valign="bottom" align="left" id="d6640e94" class="stentry">Argument</th>
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
+					<th style="vertical-align:bottom;text-align:left;" id="d6870e98" class="stentry">Argument</th>
 
-					<th valign="bottom" align="left" id="d6640e97" class="stentry">Description</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d6870e101" class="stentry">Description</th>
+
+				</tr>
+</thead><tbody><tr class="strow">
+					<td style="vertical-align:top;" headers="d6870e98" class="stentry">objects</td>
+
+					<td style="vertical-align:top;" headers="d6870e101" class="stentry">Reference objects for which the reference leaks query should be run.</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d6640e94" class="stentry">objects</td>
+					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
 
-					<td valign="top" headers="d6640e97" class="stentry">Reference objects for which the reference leaks query should be run.</td>
-
-				</tr>
-<tr class="strow">
-					<td valign="top" headers="d6640e94" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
-
-					<td valign="top" headers="d6640e97" class="stentry">The referent field name for the reference objects.
-					The default is <samp class="ph codeph">referent</samp></td>
+					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The referent field name for the reference objects.
+					The default is <code class="ph codeph">referent</code></td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d6640e94" class="stentry"><span class="keyword parmname">-maxresults</span></td>
+					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-maxresults</span></td>
 
-					<td valign="top" headers="d6640e97" class="stentry">The maximum number of objects for which a tree should be shown.</td>
-
-				</tr>
-<tr class="strow">
-					<td valign="top" headers="d6640e94" class="stentry"><span class="keyword parmname">-maxobjs</span></td>
-
-					<td valign="top" headers="d6640e97" class="stentry">The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</td>
+					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The maximum number of objects for which a tree should be shown.</td>
 
 				</tr>
 <tr class="strow">
-					<td valign="top" headers="d6640e94" class="stentry"><span class="keyword parmname">-factor</span></td>
+					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-maxobjs</span></td>
 
-					<td valign="top" headers="d6640e97" class="stentry">For common paths, how much to truncate the path as the number of objects reduces.</td>
+					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</td>
 
 				</tr>
-</table>
+<tr class="strow">
+					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-factor</span></td>
+
+					<td style="vertical-align:top;" headers="d6870e101" class="stentry">For common paths, how much to truncate the path as the number of objects reduces.</td>
+
+				</tr>
+</tbody></table>
 
 		</div>
 
@@ -132,7 +131,6 @@
 		</div>
 
 	</div>
-
 
 </body>
 </html>

@@ -1,37 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Running Leak Suspect Report"/>
-<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_runningleaksuspectreport"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="task" />
+<meta name="DC.title" content="Running Leak Suspect Report" />
+<meta name="copyright" content="Copyright (c) 2008, 2022 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2022 SAP AG and IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="task_runningleaksuspectreport" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
 <title>Running Leak Suspect Report</title>
 </head>
 <body id="task_runningleaksuspectreport">
 
-
-	<h1 class="title topictitle1">Running Leak Suspect Report</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Running Leak Suspect Report</h1>
 
 	
 
 	<div class="body taskbody">
 		<div class="section context">
 			In the toolbar select the drop-down menu
-			<span class="ph menucascade"><span class="ph uicontrol">Run Expert System Test</span> &gt; <span class="ph uicontrol">Leak Suspects</span></span>
+			<span class="ph menucascade"><span class="ph uicontrol">Run Expert System Test</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Leak Suspects</span></span>
 			.
-			<br/><img class="image" src="../mimes/leak_report.png" alt="screen shot of starting to run a leak suspect report"/><br/>
+			<br /><img class="image" src="../mimes/leak_report.png" alt="screen shot of starting to run a leak suspect report" /><br />
 			<p class="p">As a result an HTML report will be opened. It contains an overview
 				of the heap dump and leak suspect info.
 			</p>
 
-			<br/><img class="image" src="../mimes/leaksuspects.png" alt="screen shot of leak suspects"/><br/>
+			<br /><img class="image" src="../mimes/leaksuspects.png" alt="screen shot of leak suspects" /><br />
 			<p class="p">This report will be stored together with the heap dump and can be
 				displayed when you open the heap dump again.
 			</p>
@@ -44,7 +43,7 @@
 				for links from pie charts.
 			</p>
 
-			<br/><img class="image" src="../mimes/leaksuspects1.png" alt="screen shot of leak suspect details showing links"/><br/>
+			<br /><img class="image" src="../mimes/leaksuspects1.png" alt="screen shot of leak suspect details showing links" /><br />
 			<p class="p">The standard leak suspects report operates just using the heap
 				dump data,
 				which is a snapshot from a particular moment. It does not
@@ -168,7 +167,7 @@
 				find an
 				<em class="ph i">interesting</em>
 				(not a standard Java class
-				<samp class="ph codeph">java.</samp>
+				<code class="ph codeph">java.</code>
 				) object which indirectly refers to all of those
 				objects. This is
 				also called an
@@ -197,11 +196,11 @@
 				.
 			</p>
 
-			<p class="p" id="task_runningleaksuspectreport__compare">
+			<div class="note" id="task_runningleaksuspectreport__compare"><span class="notetitle">Note:</span> 
 				There is also a leak suspects report made by comparing two
 				snapshots.
 				This is available via
-				<span class="ph menucascade"><span class="ph uicontrol">Leak Identification</span> &gt; <span class="ph uicontrol">Compare Snapshots Leak Report</span></span>
+				<span class="ph menucascade"><span class="ph uicontrol">Leak Identification</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Compare Snapshots Leak Report</span></span>
 				or from the
 				<span class="keyword wintitle">Overview</span>
 				panel as
@@ -214,117 +213,116 @@
 				big changes in the size of items in the
 				dominator tree as possible
 				leaks.
-			</p>
-
-		</div>
-
-		<div class="section result">
-			<div class="p">
-				Examples of summaries of leak suspects:
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 1</span><br/>
-One instance of "org.eclipse.mat.ui.compare.CompareBasketView$ComparePolicy" <br/>
-loaded by "org.eclipse.mat.ui" occupies 487,234,584 (28.60%) bytes. <br/>
-The memory is accumulated in one instance of "java.lang.Object[]", <br/>
-loaded by "&lt;system class loader&gt;", which occupies 487,234,328 (28.60%) bytes.<br/>
-<br/>
-Keywords<br/>
-org.eclipse.mat.ui.compare.CompareBasketView$ComparePolicy<br/>
-org.eclipse.mat.ui<br/>
-java.lang.Object[]<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 2</span><br/>
-The thread java.lang.Thread @ 0xe0c2ac98 main keeps local variables with total size 5,394,048 (68.41%) bytes.<br/>
-The memory is accumulated in one instance of "org.eclipse.mat.tests.CreateCollectionDump", loaded by "jdk.internal.loader.ClassLoaders$AppClassLoader @ 0xe0c137a0", which occupies 5,393,416 (68.40%) bytes.<br/>
-The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.<br/>
-<br/>
-Keywords<br/>
-org.eclipse.mat.tests.CreateCollectionDump<br/>
-jdk.internal.loader.ClassLoaders$AppClassLoader @ 0xe0c137a0<br/>
-org.eclipse.mat.tests.CreateCollectionDump.main([Ljava/lang/String;)V<br/>
-CreateCollectionDump.java:174<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 3</span><br/>
-The classloader/component "com.ibm.dtfj.j9" occupies 551,743,560 (55.09%) bytes. <br/>
-The memory is accumulated in one instance of "com.ibm.j9ddr.corereaders.minidump.WindowsProcessAddressSpace", <br/>
-loaded by "com.ibm.dtfj.j9", which occupies 540,840,744 (54.00%) bytes.<br/>
-<br/>
-Keywords<br/>
-com.ibm.dtfj.j9<br/>
-com.ibm.j9ddr.corereaders.minidump.WindowsProcessAddressSpace<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 4</span><br/>
-The class "java.lang.ref.Finalizer", loaded by "&lt;system class loader&gt;",<br/>
-occupies 188,628,792 (18.83%) bytes. <br/>
-The memory is accumulated in one instance of "com.ibm.dtfj.java.j9.JavaRuntime", <br/>
-loaded by "com.ibm.dtfj.j9", which occupies 186,736,528 (18.64%) bytes.<br/>
-<br/>
-Keywords<br/>
-java.lang.ref.Finalizer<br/>
-com.ibm.dtfj.java.j9.JavaRuntime<br/>
-com.ibm.dtfj.j9<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 5</span><br/>
-19,414,929 instances of "int[]", <br/>
-loaded by "&lt;system class loader&gt;" occupy 716,412,176 (42.05%) bytes. <br/>
-These instances are referenced from one instance of "java.lang.Object[]", <br/>
-loaded by "&lt;system class loader&gt;", which occupies 77,659,616 (4.56%) bytes.<br/>
-<br/>
-Keywords<br/>
-int[]<br/>
-java.lang.Object[]<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 6</span><br/>
-2 instances of "org.eclipse.mat.parser.internal.SnapshotImpl", <br/>
-loaded by "org.eclipse.mat.parser" occupy 261,910,656 (15.37%) bytes. <br/>
-<br/>
-Biggest instances:<br/>
-  org.eclipse.mat.parser.internal.SnapshotImpl @ 0x6ff5af620 - 136,622,272 (8.02%) bytes. <br/>
-  org.eclipse.mat.parser.internal.SnapshotImpl @ 0x6c2f6ce38 - 125,288,384 (7.35%) bytes. <br/>
-These instances are referenced from one instance of "org.eclipse.swt.widgets.Display", <br/>
-loaded by "org.eclipse.swt", which occupies 20,104 (0.00%) bytes.<br/>
-<br/>
-Keywords<br/>
-org.eclipse.mat.parser.internal.SnapshotImpl<br/>
-org.eclipse.mat.parser<br/>
-org.eclipse.swt.widgets.Display<br/>
-org.eclipse.swt<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 7</span><br/>
-1,868 instances of "java.lang.Class", <br/>
-loaded by "&lt;system class loader&gt;" occupy 1,000,176 (12.68%) bytes. <br/>
-<br/>
-Biggest instances:<br/>
- class sun.util.calendar.ZoneInfoFile @ 0xffe065a0 - 151,368 (1.92%) bytes. <br/>
-<br/>
-Keywords<br/>
-java.lang.Class<br/>
-				</samp></p>
-
-				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 8</span><br/>
-One instance of "java.util.concurrent.ForkJoinTask[]" loaded by "&lt;system class loader&gt;" occupies 279.27 MB (40.12%) bytes. The instance is referenced by java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 , loaded by "&lt;system class loader&gt;". <br/>
-<br/>
-The thread java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 keeps local variables with total size 120.71 KB (0.02%) bytes.<br/>
-The memory is accumulated in one instance of "java.util.concurrent.ForkJoinTask[]", loaded by "&lt;system class loader&gt;", which occupies 279.27 MB (40.12%) bytes.<br/>
-The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.<br/>
-<br/>
-Keywords<br/>
-java.util.concurrent.ForkJoinTask[]<br/>
-java.util.concurrent.ForkJoinPool$WorkQueue.execLocalTasks()V<br/>
-ForkJoinPool.java:1040<br/>
-				</samp></p>
-
 			</div>
 
 		</div>
 
-	</div>
+		<div class="section result">
+			<p class="p">
+				Examples of summaries of leak suspects:
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 1</span><br />
+One instance of "org.eclipse.mat.ui.compare.CompareBasketView$ComparePolicy" <br />
+loaded by "org.eclipse.mat.ui" occupies 487,234,584 (28.60%) bytes. <br />
+The memory is accumulated in one instance of "java.lang.Object[]", <br />
+loaded by "&lt;system class loader&gt;", which occupies 487,234,328 (28.60%) bytes.<br />
+<br />
+Keywords<br />
+org.eclipse.mat.ui.compare.CompareBasketView$ComparePolicy<br />
+org.eclipse.mat.ui<br />
+java.lang.Object[]<br />
+				</samp></p>
 
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 2</span><br />
+The thread java.lang.Thread @ 0xe0c2ac98 main keeps local variables with total size 5,394,048 (68.41%) bytes.<br />
+The memory is accumulated in one instance of "org.eclipse.mat.tests.CreateCollectionDump", loaded by "jdk.internal.loader.ClassLoaders$AppClassLoader @ 0xe0c137a0", which occupies 5,393,416 (68.40%) bytes.<br />
+The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.<br />
+<br />
+Keywords<br />
+org.eclipse.mat.tests.CreateCollectionDump<br />
+jdk.internal.loader.ClassLoaders$AppClassLoader @ 0xe0c137a0<br />
+org.eclipse.mat.tests.CreateCollectionDump.main([Ljava/lang/String;)V<br />
+CreateCollectionDump.java:174<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 3</span><br />
+The classloader/component "com.ibm.dtfj.j9" occupies 551,743,560 (55.09%) bytes. <br />
+The memory is accumulated in one instance of "com.ibm.j9ddr.corereaders.minidump.WindowsProcessAddressSpace", <br />
+loaded by "com.ibm.dtfj.j9", which occupies 540,840,744 (54.00%) bytes.<br />
+<br />
+Keywords<br />
+com.ibm.dtfj.j9<br />
+com.ibm.j9ddr.corereaders.minidump.WindowsProcessAddressSpace<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 4</span><br />
+The class "java.lang.ref.Finalizer", loaded by "&lt;system class loader&gt;",<br />
+occupies 188,628,792 (18.83%) bytes. <br />
+The memory is accumulated in one instance of "com.ibm.dtfj.java.j9.JavaRuntime", <br />
+loaded by "com.ibm.dtfj.j9", which occupies 186,736,528 (18.64%) bytes.<br />
+<br />
+Keywords<br />
+java.lang.ref.Finalizer<br />
+com.ibm.dtfj.java.j9.JavaRuntime<br />
+com.ibm.dtfj.j9<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 5</span><br />
+19,414,929 instances of "int[]", <br />
+loaded by "&lt;system class loader&gt;" occupy 716,412,176 (42.05%) bytes. <br />
+These instances are referenced from one instance of "java.lang.Object[]", <br />
+loaded by "&lt;system class loader&gt;", which occupies 77,659,616 (4.56%) bytes.<br />
+<br />
+Keywords<br />
+int[]<br />
+java.lang.Object[]<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 6</span><br />
+2 instances of "org.eclipse.mat.parser.internal.SnapshotImpl", <br />
+loaded by "org.eclipse.mat.parser" occupy 261,910,656 (15.37%) bytes. <br />
+<br />
+Biggest instances:<br />
+  org.eclipse.mat.parser.internal.SnapshotImpl @ 0x6ff5af620 - 136,622,272 (8.02%) bytes. <br />
+  org.eclipse.mat.parser.internal.SnapshotImpl @ 0x6c2f6ce38 - 125,288,384 (7.35%) bytes. <br />
+These instances are referenced from one instance of "org.eclipse.swt.widgets.Display", <br />
+loaded by "org.eclipse.swt", which occupies 20,104 (0.00%) bytes.<br />
+<br />
+Keywords<br />
+org.eclipse.mat.parser.internal.SnapshotImpl<br />
+org.eclipse.mat.parser<br />
+org.eclipse.swt.widgets.Display<br />
+org.eclipse.swt<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 7</span><br />
+1,868 instances of "java.lang.Class", <br />
+loaded by "&lt;system class loader&gt;" occupy 1,000,176 (12.68%) bytes. <br />
+<br />
+Biggest instances:<br />
+ class sun.util.calendar.ZoneInfoFile @ 0xffe065a0 - 151,368 (1.92%) bytes. <br />
+<br />
+Keywords<br />
+java.lang.Class<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 8</span><br />
+One instance of "java.util.concurrent.ForkJoinTask[]" loaded by "&lt;system class loader&gt;" occupies 279.27 MB (40.12%) bytes. The instance is referenced by java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 , loaded by "&lt;system class loader&gt;". <br />
+<br />
+The thread java.util.concurrent.ForkJoinWorkerThread @ 0xd53a1bf0 ForkJoinPool.commonPool-worker-0 keeps local variables with total size 120.71 KB (0.02%) bytes.<br />
+The memory is accumulated in one instance of "java.util.concurrent.ForkJoinTask[]", loaded by "&lt;system class loader&gt;", which occupies 279.27 MB (40.12%) bytes.<br />
+The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.<br />
+<br />
+Keywords<br />
+java.util.concurrent.ForkJoinTask[]<br />
+java.util.concurrent.ForkJoinPool$WorkQueue.execLocalTasks()V<br />
+ForkJoinPool.java:1040<br />
+				</samp></p>
+
+			</p>
+
+		</div>
+
+	</div>
 
 </body>
 </html>

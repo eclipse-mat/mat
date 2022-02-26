@@ -78,7 +78,7 @@
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()" format="html">objectAddress</xref></stentry>
+					<stentry><xref format="html" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">objectAddress</xref></stentry>
 					<stentry>address of snapshot object</stentry>
 				</strow>
 				<strow>
@@ -98,7 +98,7 @@
 					<stentry />
 					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getOutboundReferences()" format="html">outboundReferences</xref></stentry>
 					<stentry>The outbound references as a list of 
-					<xref href="../doc/org/eclipse/mat/snapshot/model/NamedReference.html">NamedReference</xref> objects
+					<xref format="html" href="../doc/org/eclipse/mat/snapshot/model/NamedReference.html">NamedReference</xref> objects
 					from this object: the type as IClass of this object; the fields; the array entries.
 					This is retrieved from the heap dump, not an index, so could contain references
 					to unindexed objects.
@@ -107,25 +107,25 @@
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize()" format="html">usedHeapSize</xref></stentry>
+					<stentry><xref format="html" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize()">usedHeapSize</xref></stentry>
 					<stentry>shallow heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize()" format="html">retainedHeapSize</xref></stentry>
+					<stentry><xref format="html" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize()">retainedHeapSize</xref></stentry>
 					<stentry>retained heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getTechnicalName()" format="html">technicalName</xref></stentry>
+					<stentry><xref format="html" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getTechnicalName()">technicalName</xref></stentry>
 					<stentry>the technical name (a combination of the class name and the object address)</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClassSpecificName()" format="html">classSpecificName</xref></stentry>
+					<stentry><xref format="html" scope="external" href="../doc/org/eclipse/mat/snapshot/model/IObject.html#getClassSpecificName()">classSpecificName</xref></stentry>
 					<stentry>the value from a name resolver, if available, for example a readable value of a String</stentry>
 				</strow>
 				<strow>
@@ -168,7 +168,7 @@
 				</strow>
 				<strow>
 					<stentry>Class loader object</stentry>
-					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClassloader.html#method.summary" format="html">IClassLoader</xref></stentry>
+					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClassLoader.html#method.summary" format="html">IClassLoader</xref></stentry>
 					<stentry><xref href="../doc/org/eclipse/mat/snapshot/model/IClassLoader.html#getClassLoaderId()" format="html">definedClasses</xref></stentry>
 					<stentry>the classes defined by the class loader</stentry>
 				</strow>

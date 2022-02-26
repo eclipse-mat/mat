@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Component Report"/>
-<meta name="abstract" content="Analyze a component for possible memory waste and other inefficiencies."/>
-<meta name="description" content="Analyze a component for possible memory waste and other inefficiencies."/>
-<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_inspections_component_report"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Component Report" />
+<meta name="abstract" content="Analyze a component for possible memory waste and other inefficiencies." />
+<meta name="description" content="Analyze a component for possible memory waste and other inefficiencies." />
+<meta name="copyright" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2021 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_inspections_component_report" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css" />
 <title>Component Report</title>
 </head>
 <body id="ref_inspections_component_report">
 
-
-	<h1 class="title topictitle1">Component Report</h1>
+	<h1 class="title topictitle1" id="ariaid-title1">Component Report</h1>
 
 	
 	
@@ -60,12 +59,12 @@
 				report from the tool bar and provide a regular expression to match
 				the package:</p>
 
-			<img class="image" src="component_report_package.png" alt="Regular expression to match common root package to be used for the component report."/>
+			<img class="image" src="component_report_package.png" alt="Regular expression to match common root package to be used for the component report." />
 			<p class="p"> Alternatively, one can group the class histogram by class loader
 				and then right-click the appropriate class loader and select the
 				component report:</p>
 
-			<img class="image" src="component_report_classloader.png" alt="Group histogram by class loader."/>
+			<img class="image" src="component_report_classloader.png" alt="Group histogram by class loader." />
 		</div>
 
 		<div class="section" id="ref_inspections_component_report__overview"><h2 class="title sectiontitle">Overview</h2>
@@ -73,7 +72,7 @@
 			<p class="p">The component report is rendered as HTML. It is stored in a ZIP
 				file next to the heap dump file.</p>
 
-			<img class="image" src="component_report_overview.png" alt="Overview section of the component report."/>
+			<img class="image" src="component_report_overview.png" alt="Overview section of the component report." />
 			<div class="p">
 				<ol class="ol arrows">
 					<li class="li">Details about the size, the number of classes, the
@@ -131,9 +130,9 @@
 						It turned out that the heap was littered with many 'L's for
 						references, 'B's for bytes, and 'Z's for booleans, etc. By
 						replacing the
-						<samp class="ph codeph">char</samp>
+						<code class="ph codeph">char</code>
 						with an
-						<samp class="ph codeph">int</samp>
+						<code class="ph codeph">int</code>
 						, MAT could save some of the precious memory. Alternatively,
 						Enumerations could do the same trick.
 					</li>
@@ -142,7 +141,7 @@
 						When reading
 						<strong class="ph b">XML documents</strong>
 						, fragments like
-						<samp class="ph codeph">UTF-8</samp>
+						<code class="ph codeph">UTF-8</code>
 						, tag names or tag content remains in memory. Again, think about
 						using Enumerations for the repetitive content.
 					</li>
@@ -152,7 +151,7 @@
 						<a class="xref" href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#intern--" target="_blank">interning</a>
 						the String. This adds the string to a pool of strings which is
 						maintained privately by the class
-						<samp class="ph codeph">String</samp>
+						<code class="ph codeph">String</code>
 						. For each unique string, the pool will keep on instance alive.
 						However, if you are interning, make sure do it
 						<strong class="ph b">responsibly</strong>
@@ -240,7 +239,7 @@
 				size of array to use. The remedy depends on whether other code
 				refers to entries by index, in which case it might be possible
 				just to reallocate an array up to the last occupied index,
-				using for example <samp class="ph codeph">Arrays.copyOf()</samp>
+				using for example <code class="ph codeph">Arrays.copyOf()</code>
 				or whether the code just walks through the array, and the array
 				could be replaced by a copy with just the non-null entries.</p>
 
@@ -259,21 +258,21 @@
 			
 				<div class="p">Sometimes an instance of primitive array:
 					<ul class="ul">
-						<li class="li"><samp class="ph codeph">boolean[]</samp></li>
+						<li class="li"><code class="ph codeph">boolean[]</code></li>
 
-						<li class="li"><samp class="ph codeph">byte[]</samp></li>
+						<li class="li"><code class="ph codeph">byte[]</code></li>
 
-						<li class="li"><samp class="ph codeph">char[]</samp></li>
+						<li class="li"><code class="ph codeph">char[]</code></li>
 
-						<li class="li"><samp class="ph codeph">short[]</samp></li>
+						<li class="li"><code class="ph codeph">short[]</code></li>
 
-						<li class="li"><samp class="ph codeph">int[]</samp></li>
+						<li class="li"><code class="ph codeph">int[]</code></li>
 
-						<li class="li"><samp class="ph codeph">float[]</samp></li>
+						<li class="li"><code class="ph codeph">float[]</code></li>
 
-						<li class="li"><samp class="ph codeph">long[]</samp></li>
+						<li class="li"><code class="ph codeph">long[]</code></li>
 
-						<li class="li"><samp class="ph codeph">double[]</samp></li>
+						<li class="li"><code class="ph codeph">double[]</code></li>
 
 					</ul>
 
@@ -281,7 +280,7 @@
 					This could be wasted space, and indicate the array is not needed yet.
 					If the entry is
 					the default value for the type
-					<samp class="ph codeph">0</samp>, <samp class="ph codeph">false</samp> or <samp class="ph codeph">nul</samp>
+					<code class="ph codeph">0</code>, <code class="ph codeph">false</code> or <code class="ph codeph">nul</code>
 					then perhaps the array has not been used yet.
 					If the array is a fixed non-default value then perhaps the array could be
 					replaced by a reference to that value.
@@ -327,15 +326,15 @@
 				<ul class="ul">
 					<li class="li"><span class="keyword wintitle">Comment</span>
 					An example is the following:
-						<p class="lines"><samp class="ph systemoutput">A total of 217,035 java.lang.ref.SoftReference objects have been found, which softly reference 38,874 objects.<br/>
-77,745 objects totalling 20.8 MB are retained (kept alive) only via soft references.<br/>
-No objects totalling 0 B are softly referenced and also strongly retained (kept alive) via soft references.<br/>
+						<p class="lines"><samp class="ph systemoutput">A total of 217,035 java.lang.ref.SoftReference objects have been found, which softly reference 38,874 objects.<br />
+77,745 objects totalling 20.8 MB are retained (kept alive) only via soft references.<br />
+No objects totalling 0 B are softly referenced and also strongly retained (kept alive) via soft references.<br />
 						</samp></p>
 
 					</li>
 
 					<li class="li"><span class="keyword wintitle">Histogram of Soft References</span>
-					These are the reference objects which are instances of a type or subclass of <samp class="ph codeph">java.lang.ref.SoftReference</samp></li>
+					These are the reference objects which are instances of a type or subclass of <code class="ph codeph">java.lang.ref.SoftReference</code></li>
 
 					<li class="li"><span class="keyword wintitle">Histogram of Softly Referenced</span>
 					These are the objects which the referent fields point to.</li>
@@ -353,7 +352,7 @@ No objects totalling 0 B are softly referenced and also strongly retained (kept 
 					<li class="li">If there are objects in the <span class="keyword wintitle">Referents strongly retained by soft reference</span>
 					table then the <a class="xref" href="reference_leak.html" title="Find incorrect uses of soft or weak references."><span class="keyword cmdname">Reference Leak</span></a>
 					is run to examine the possible leaks in more detail.
-					<div class="note note"><span class="notetitle">Note:</span> 
+					<div class="note"><span class="notetitle">Note:</span> 
 					This might not show the same problems because the initial report 
 					<span class="keyword wintitle">Referents strongly retained by soft reference</span> is done for
 					all references of a particular type whereas the <span class="keyword cmdname">Reference Leak</span>
@@ -374,20 +373,20 @@ No objects totalling 0 B are softly referenced and also strongly retained (kept 
 				or softly reachable
 				via another path. 
 				Usually, weak references are used to retain extra data associated
-				with an object in a <samp class="ph codeph">java.util.WeakHashMap</samp>
+				with an object in a <code class="ph codeph">java.util.WeakHashMap</code>
 				or to maintain a canonical mapping as the canonical object can
 				be retrieved if it is in use anywhere, but if no longer in use
 				then the mapping table will not keep it alive.
 			</p>
 
-			<div class="p">The report follows the format of the <a class="xref" href="#ref_inspections_component_report__softref">Soft Reference</a>
+			<p class="p">The report follows the format of the <a class="xref" href="#ref_inspections_component_report__softref">Soft Reference</a>
 			section above. An example of the comment is
-				<p class="lines"><samp class="ph systemoutput">A total of 620 java.lang.ref.WeakReference objects have been found, which weakly reference 436 objects.<br/>
-No objects totalling 0 B are retained (kept alive) only via weak references.<br/>
-Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also strongly retained (kept alive) via weak references.<br/>
+				<p class="lines"><samp class="ph systemoutput">A total of 620 java.lang.ref.WeakReference objects have been found, which weakly reference 436 objects.<br />
+No objects totalling 0 B are retained (kept alive) only via weak references.<br />
+Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also strongly retained (kept alive) via weak references.<br />
 				</samp></p>
 
-			</div>
+			</p>
 
 		</div>
 
@@ -395,14 +394,14 @@ Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also
 			
 			<div class="p">
 				Objects which implement the
-				<samp class="ph codeph">finalize</samp>
+				<code class="ph codeph">finalize</code>
 				method are included in the component report, because those objects
 				can have serious implications for the memory of a Java Virtual
 				Machine:
 				<ul class="ul">
 					<li class="li">
 						Whenever an object with finalizer is created, a corresponding
-						<samp class="ph codeph">java.lang.ref.Finalizer</samp>
+						<code class="ph codeph">java.lang.ref.Finalizer</code>
 						object is created. If the object is only reachable via its
 						finalizer, it is placed in the queue of the finalizer thread and
 						processed. Only then the next garbage collection will actually
@@ -456,7 +455,6 @@ Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also
 		</div>
 
 	</div>
-
 
 </body>
 </html>
