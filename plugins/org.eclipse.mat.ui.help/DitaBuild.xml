@@ -22,6 +22,10 @@
 	</condition>
 	<property name="dita.dir" value="TODO_DITA_HOME"/>
 	
+	<condition property="old.path" value="${env.Path}" else="${env.PATH}">
+		<isset property="env.Path"/>
+	</condition>
+	
 	<target name="all" depends="eclipsehelp,eclipseapidoc"/>
 	<target name="all2" depends="eclipsehelp2,eclipseapidoc2"/>
 	
@@ -55,6 +59,7 @@
 			<os family="windows" />
 		</condition>
 		<exec executable="${dita.dir}${file.separator}bin${file.separator}${dita.command}">
+			<env key="PATH" path="${dita.dir}/bin:${old.path}"/>
 			<arg value="--input=${basedir}/toc.ditamap"/>
 			<arg value="--format=eclipsehelp"/>
 			<arg value="--propertyfile=DitaBuild.properties"/>
@@ -97,9 +102,11 @@
 			</fileset>
 		</replaceregexp>
 		<!-- Make a copy of the old html files -->
+		<!-- Just for testing to see the effect of replacement before deletion
 		<copy todir="${basedir}/outnew2">
 			<fileset dir="${basedir}/outnew"/>
 		</copy>
+		-->
 		<!-- Delete the marker new html files without IDs if they are the same as the old -->
 		<delete>
 			<fileset dir="${basedir}/outnew" includes="**/*.html">
@@ -121,11 +128,9 @@
 			</fileset>
 		</copy>
 		<!-- tidy up -->
-		<!--
 		<delete dir="out"/>
 		<delete dir="outnew"/>
 		<delete dir="outorig"/>
-		-->
 	</target>
 
 	<target name="copyall" unless="justnew">
@@ -166,6 +171,7 @@
 			<os family="windows" />
 		</condition>
 		<exec executable="${dita.dir}${file.separator}bin${file.separator}${dita.command}">
+			<env key="PATH" path="${dita.dir}/bin:${old.path}"/>
 			<arg value="--input=${basedir}/apidoc.ditamap"/>
 			<arg value="--format=eclipsehelp"/>
 			<arg value="--propertyfile=DitaBuild.properties"/>
