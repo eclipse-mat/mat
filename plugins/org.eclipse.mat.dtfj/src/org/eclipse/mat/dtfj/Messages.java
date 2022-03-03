@@ -116,6 +116,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_IgnoringJavaStackFrame;
     public static String DTFJIndexBuilder_IgnoringManagedRuntime;
     public static String DTFJIndexBuilder_ImageAddressSpaceEqualsBroken;
+    public static String DTFJIndexBuilder_IncompatibleDTFJVersion;
     public static String DTFJIndexBuilder_InterfaceShouldNotHaveASuperclass;
     public static String DTFJIndexBuilder_InvalidArrayElement;
     public static String DTFJIndexBuilder_InvalidField;
@@ -233,7 +234,12 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UsingDTFJRoots;
     public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
     public static String DTFJPreferencePage_AllMethods;
+    public static String DTFJPreferencePage_ChooseDTFJImplementation;
+    public static String DTFJPreferencePage_ChooseDTFJImplementationMsg;
     public static String DTFJPreferencePage_Description;
+    public static String DTFJPreferencePage_IncompatibleDTFJVersionsInput;
+    public static String DTFJPreferencePage_IncompatibleDTFJVersionsLabel;
+    public static String DTFJPreferencePage_IncompatibleDTFJVersionsTitle;
     public static String DTFJPreferencePage_MethodsAsClasses;
     public static String DTFJPreferencePage_NoMethods;
     public static String DTFJPreferencePage_OnlyStackFrames;
