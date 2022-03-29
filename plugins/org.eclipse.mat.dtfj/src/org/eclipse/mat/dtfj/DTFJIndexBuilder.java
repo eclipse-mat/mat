@@ -885,7 +885,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     public void fill(IPreliminaryIndex index, IProgressListener listener) throws SnapshotException, IOException
     {
-
+        if (debugInfo) debugPrint("Phase: Fill started"); //$NON-NLS-1$
         long then1 = System.currentTimeMillis();
 
         // This is 100% on the progress bar
@@ -1033,6 +1033,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         boolean foundBootLoader = false;
         HashMap<JavaObject, JavaClassLoader> loaders = new HashMap<JavaObject, JavaClassLoader>();
         HashSet<JavaClass> loaderTypes = new HashSet<JavaClass>();
+        
+        if (debugInfo) debugPrint("Phase: Find bootstrap loader"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
@@ -1152,6 +1155,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClasses);
+        
+        if (debugInfo) debugPrint("Phase: Find classes"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
@@ -1174,6 +1180,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.subTask(Messages.DTFJIndexBuilder_FindingObjects);
         int objProgress = 0;
         final int s2 = indexToAddress0.size();
+        
+        if (debugInfo) debugPrint("Phase: Find objects"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
@@ -1211,6 +1220,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClassesCachedByClassLoaders);
+        
+        if (debugInfo) debugPrint("Phase: Check cached classes"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
@@ -1260,6 +1272,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap);
+        
+        if (debugInfo) debugPrint("Phase: Find missing objects from threads"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
         {
             Object next = i.next();
@@ -1380,6 +1395,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingMonitorObjects);
+        
+        if (debugInfo) debugPrint("Phase: Find monitors"); //$NON-NLS-1$
+
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getMonitors(); i.hasNext();)
         {
             Object next = i.next();
@@ -1417,6 +1435,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClassLoaderObjects);
+        
+        if (debugInfo) debugPrint("Phase: Fix boot loader address"); //$NON-NLS-1$
+
         for (Iterator<JavaObject> i = loaders.keySet().iterator(); i.hasNext();)
         {
             JavaObject obj = i.next();
@@ -1462,6 +1483,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_AddingMissingObjects);
+        
+        if (debugInfo) debugPrint("Phase: Process missing objects"); //$NON-NLS-1$
+
         for (Iterator<HashMapLongObject.Entry<JavaObject>> it = missingObjects.entries(); it.hasNext(); )
         {
             HashMapLongObject.Entry<JavaObject> entry = it.next();
@@ -1478,6 +1502,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // check for superclasses in case the classloader list is incomplete
+        
+        if (debugInfo) debugPrint("Phase: Check superclasses"); //$NON-NLS-1$
+
         Set<JavaClass>extraSuperclasses = new LinkedHashSet<JavaClass>();
         for (JavaClass cls : allClasses)
         {
@@ -1600,6 +1627,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         //
         JavaClass clsJavaLangClassLoader = null;
         JavaClass clsJavaLangClass = null;
+        
+        if (debugInfo) debugPrint("Phase: Process all classes1"); //$NON-NLS-1$
+
         for (JavaClass j2 : allClasses)
         {
             // First find the class obj for java.lang.Class
@@ -1634,6 +1664,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             allClasses.add(clsJavaLangClass);
         }
         // Total all the classes and remember the addresses for mapping to IDs
+        
+        if (debugInfo) debugPrint("Phase: Process all classes2"); //$NON-NLS-1$
+
         for (JavaClass cls : allClasses)
         {
             String clsName = null;
@@ -1672,6 +1705,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 + " as the associated object is already on the identifier list"); //$NON-NLS-1$
             }
         }
+                
+        if (debugInfo) debugPrint("Phase: Check for corrupt dump"); //$NON-NLS-1$
+
         // Check for very corrupt dumps
         if (clsJavaLangClass == null)
         {
@@ -1779,6 +1815,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Now do java.lang.ClassLoader - clsJavaLangClassLoader is non null
         ClassImpl jlcl = genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener);
         genClass2(clsJavaLangClassLoader, jlcl, jlc, pointerSize, listener);
+        
+        if (debugInfo) debugPrint("Phase: Process all classes3"); //$NON-NLS-1$
 
         boolean foundFields = false;
         for (JavaClass j2 : allClasses)
@@ -1874,6 +1912,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
+        
+        if (debugInfo) debugPrint("Phase: Fix subclasses"); //$NON-NLS-1$
 
         // fix up the subclasses for MAT
         int maxClsId = 0;
@@ -1896,6 +1936,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         index.setClassesById(idToClass);
 
         // See which classes would have finalizable objects
+        
+        if (debugInfo) debugPrint("Phase: Check finalizable"); //$NON-NLS-1$
+
         SetLong finalizableClass;
         if (guessFinalizables)
         {
@@ -1940,6 +1983,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         final int work2 = (workCount - workCountSoFar) * workObjectsStep2 / (classFrac * allClasses.size() + 1);
         // Classes processed in address order (via TreeSet) so PHD reading is
         // cache friendly.
+        
+        if (debugInfo) debugPrint("Phase: Process all classes4"); //$NON-NLS-1$
+
         for (JavaClass j2 : allClasses)
         {
             if (++objProgress % workObjectsStep2 == 0)
@@ -2019,6 +2065,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Java 1.4.2 has bootLoader as null and the address of the Java stack
         // frame at the lower memory address
         boolean scanUp = bootLoaderAddress == 0;
+
+        if (debugInfo) debugPrint("Phase: Process roots"); //$NON-NLS-1$
 
         boolean goodDTFJRoots = processDTFJRoots(pointerSize, scanUp, listener);
 
@@ -2106,6 +2154,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.subTask(Messages.DTFJIndexBuilder_FindingOutboundReferencesForObjects);
 
         loaderClassCache = initLoaderClassesCache();
+        
+        if (debugInfo) debugPrint("Phase: Process all objects"); //$NON-NLS-1$
 
         int objProgress2 = 0;
         // Find all the objects
@@ -3428,7 +3478,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         while (allClasses.add(cls))
         {
             if (debugInfo)
-                debugPrint("Adding extra class " + getClassName(cls, listener)); //$NON-NLS-1$
+                debugPrint("Adding extra class " + getClassName(cls, listener, jo)); //$NON-NLS-1$
             try
             {
                 // Check if component classes are not in class loader list.
@@ -3439,7 +3489,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (allClasses.add(cls))
                     {
                         if (debugInfo)
-                            debugPrint("Adding extra array component class " + getClassName(cls, listener)); //$NON-NLS-1$
+                            debugPrint("Adding extra array component class " + getClassName(cls, listener, jo)); //$NON-NLS-1$
                     }
                     else
                     {
@@ -8209,6 +8259,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private String getClassName(JavaClass javaClass, IProgressListener listen)
     {
+        return getClassName(javaClass, listen, null);
+    }
+    
+    /**
+     * Get the name for a class, but handle errors
+     * @param javaClass
+     * @param listen
+     * @param javaObject
+     * @return
+     */
+    private String getClassName(JavaClass javaClass, IProgressListener listen, JavaObject javaObject)
+    {
         String name;
         try
         {
@@ -8240,6 +8302,24 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             catch (CorruptDataException e2)
             {
+            }
+            
+            if (debugInfo)
+            {
+                if (javaObject != null)
+                {
+                    long objectAddress = javaObject.getID().getAddress();
+                    debugPrint("Corrupt class JavaObject context is " + format(objectAddress)); //$NON-NLS-1$
+                }
+                debugPrint("Corrupt class name for JavaClass " + format(id)); //$NON-NLS-1$
+                try
+                {
+                    javaClass.getName();
+                }
+                catch (CorruptDataException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         return name;
