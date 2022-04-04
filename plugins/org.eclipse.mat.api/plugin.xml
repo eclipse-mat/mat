@@ -147,6 +147,9 @@
 		<!-- jetty -->
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$JasperLoaderResolver"/>
+
+		<!-- Wildfly / JBoss Enterprise Application Platform -->
+		<resolver impl="org.eclipse.mat.inspections.wildfly.WildflyJbossNameResolvers$ModuleClassLoaderResolver"/>
 	</extension>
 
 	<extension point="org.eclipse.mat.api.requestResolver">
