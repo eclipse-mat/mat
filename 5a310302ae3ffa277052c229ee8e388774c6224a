@@ -35,6 +35,24 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12db29c2_69daab1b",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/wildfly/WildflyJbossNameResolvers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 69496
+      },
+      "writtenOn": "2022-04-05T17:55:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80c8bb9c_70f2fde0",
+      "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2824be32_08d4184c",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-04-05T16:29:31Z",
       "side": 1,
       "message": "Although the package is not exported it will show up in the JavaDoc so it is useful to indicate to adopters that this package cannot be used from other plugins.\nSo this should probably also have the comment:\n * Not intended as an Application Programming Interface (API).",
+      "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f22e427c_25b629ea",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/wildfly/package-info.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 69496
+      },
+      "writtenOn": "2022-04-05T17:55:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2824be32_08d4184c",
       "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
