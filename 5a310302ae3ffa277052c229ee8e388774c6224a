@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8c038e_2d014304",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-05T16:29:31Z",
+      "side": 1,
+      "message": "Generally looks good, some minor comments below.",
+      "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80c8bb9c_70f2fde0",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/wildfly/WildflyJbossNameResolvers.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-05T16:29:31Z",
+      "side": 1,
+      "message": "The MAT code style format https://wiki.eclipse.org/MemoryAnalyzer/Contributor_Reference#Contributing_code has an open brace on a new line.\nIt\u0027s not very compact, but the rest of the product is formatted that way, so ideally this would match. It\u0027s not a big deal though, so we can live with this code as is.",
+      "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2824be32_08d4184c",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/wildfly/package-info.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-05T16:29:31Z",
+      "side": 1,
+      "message": "Although the package is not exported it will show up in the JavaDoc so it is useful to indicate to adopters that this package cannot be used from other plugins.\nSo this should probably also have the comment:\n * Not intended as an Application Programming Interface (API).",
+      "revId": "5a310302ae3ffa277052c229ee8e388774c6224a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
