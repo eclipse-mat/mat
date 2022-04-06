@@ -16,6 +16,23 @@
       "message": "Thank you. I\u0027ve updated the changes.",
       "revId": "c0221a2ef688d0962a8e4f7cfde6280c931dde64",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8888562_033d8a5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-06T12:26:38Z",
+      "side": 1,
+      "message": "Looks good. Thank you.",
+      "revId": "c0221a2ef688d0962a8e4f7cfde6280c931dde64",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
