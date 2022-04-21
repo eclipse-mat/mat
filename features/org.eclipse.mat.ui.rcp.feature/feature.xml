@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and others
+    Copyright (c) 2008, 2022 SAP AG and others
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
 <feature
       id="org.eclipse.mat.ui.rcp.feature"
       label="%featureName"
-      version="1.12.0.qualifier"
+      version="1.13.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.mat.ui.rcp">
 
@@ -56,85 +56,85 @@
 
    <plugin
          id="org.eclipse.mat.ui.rcp"
-         download-size="69"
-         install-size="69"
+         download-size="113"
+         install-size="113"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.mat.report"
-         download-size="286"
-         install-size="286"
+         download-size="392"
+         install-size="392"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.api"
-         download-size="625"
-         install-size="625"
+         download-size="1100"
+         install-size="1100"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.hprof"
-         download-size="62"
-         install-size="62"
+         download-size="213"
+         install-size="213"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.parser"
-         download-size="299"
-         install-size="299"
+         download-size="446"
+         install-size="446"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ui"
-         download-size="724"
-         install-size="724"
+         download-size="958"
+         install-size="958"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ui.help"
-         download-size="5842"
-         install-size="5842"
+         download-size="9500"
+         install-size="9500"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.dtfj"
-         download-size="88"
-         install-size="88"
+         download-size="138"
+         install-size="138"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ibmdumps"
-         download-size="35"
-         install-size="35"
+         download-size="71"
+         install-size="71"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.jruby.resolver"
-         download-size="35"
-         install-size="35"
+         download-size="23"
+         install-size="23"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.mat.chart"
-         download-size="12"
-         install-size="12"
+         download-size="33"
+         install-size="33"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.chart.ui"
-         download-size="13"
-         install-size="13"
+         download-size="30"
+         install-size="30"
          version="0.0.0"
          unpack="false"/>
 
