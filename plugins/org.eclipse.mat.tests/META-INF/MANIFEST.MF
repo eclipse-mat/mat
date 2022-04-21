@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Memory Analyzer Tests
 Bundle-SymbolicName: org.eclipse.mat.tests;singleton:=true
-Bundle-Version: 1.12.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.mat.api;bundle-version="1.0.0",
- org.eclipse.mat.parser;bundle-version="1.12.0",
+ org.eclipse.mat.parser;bundle-version="1.13.0",
  org.eclipse.core.runtime;bundle-version="3.4",
  org.apache.ant;bundle-version="1.7.0",
- org.eclipse.mat.ui;bundle-version="1.12.0",
+ org.eclipse.mat.ui;bundle-version="1.13.0",
  org.hamcrest.core,
  org.hamcrest.library 
 Bundle-ActivationPolicy: lazy
@@ -36,7 +36,7 @@ Export-Package: org.eclipse.mat.tests,
  org.eclipse.mat.tests.regression.comparator,
  org.eclipse.mat.tests.regression.query,
  org.eclipse.mat.tests.snapshot
-Bundle-Copyright: Copyright (c) 2008, 2021 SAP AG and IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2008, 2022 SAP AG and IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
  are made available under the terms of the Eclipse Public License 2.0 
  which accompanies this distribution, and is available at 

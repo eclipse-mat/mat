@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.mat.dtfj;singleton:=true
 Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
-Bundle-Version: 1.12.0.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.mat.parser;bundle-version="1.0.0",
+Require-Bundle: org.eclipse.mat.parser;bundle-version="1.2.0",
  org.eclipse.core.runtime;bundle-version="3.4",
  org.eclipse.core.commands;bundle-version="3.3.100"
 Bundle-Activator: org.eclipse.mat.dtfj.InitDTFJ
@@ -22,7 +22,7 @@ Import-Package: com.ibm.icu.text;version="3.6.1",
  org.eclipse.ui.help;resolution:=optional,
  org.eclipse.ui.preferences;resolution:=optional
 Bundle-Localization: plugin
-Bundle-Copyright: Copyright (c) 2009, 2021 IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2009, 2022 IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
  are made available under the terms of the Eclipse Public License 2.0 
  which accompanies this distribution, and is available at 

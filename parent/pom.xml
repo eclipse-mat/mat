@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2009, 2021 SAP AG and others
+    Copyright (c) 2009, 2022 SAP AG and others
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 
 	<groupId>org.eclipse.mat</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.12.0-SNAPSHOT</version>
+	<version>1.13.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MAT Parent</name>
@@ -36,7 +36,7 @@
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
-		<p2.mirrorsPrefix>/mat/1.12.0/update-site/</p2.mirrorsPrefix>
+		<p2.mirrorsPrefix>/mat/1.13.0/update-site/</p2.mirrorsPrefix>
 		<p2.statsURI>https://download.eclipse.org/stats/mat</p2.statsURI>
 		<p2.mirrorsURL>https://www.eclipse.org/downloads/download.php?format=xml&amp;file=${p2.mirrorsPrefix}</p2.mirrorsURL>
 		<!--  Track the branding plugin for each feature. Current doesn't work and all artifacts tracked. -->
@@ -311,6 +311,18 @@
 							<ws>gtk</ws>
 							<arch>ppc64le</arch>
 						</environment>
+						<!--
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>aarch64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>aarch64</arch>
+						</environment>
+						-->
 					</environments>
 				</configuration>
 			</plugin>
