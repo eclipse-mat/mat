@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4c808bc_f3d6f4a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-21T15:34:25Z",
+      "side": 1,
+      "message": "Looks okay from inspection, test with a build.",
+      "revId": "5c142bc3e29695245d1fcdeaded5e3bbe6304c4f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
