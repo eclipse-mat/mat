@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and others.
+				Copyright (c) 2008, 2022 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -75,9 +75,9 @@
 				</p>
 				<p>Memory Analyzer has an architectural limit of 2<sup>31</sup> - 3 objects,
 				a current limit of 2<sup>31</sup> - 9 = 2,147,483,639 objects, but has not been
-				tested with that many objects. The current record is a heap dump file of 70Gbytes
-				containing 1,160,000,000 objects, which was opened with Memory Analyzer running
-				with a 64Gbyte heap. 
+				tested with that many objects. The current record is a heap dump file of 159Gbytes
+				containing 2,041,300,061 objects, which was opened with Memory Analyzer running
+				with a 172Gbyte heap.
 				Exceeding the limit can result in an exception such as
 				<systemoutput>java.lang.OutOfMemoryError: Requested length of new long[2,147,483,640] exceeds limit of 2,147,483,639</systemoutput>.
 				See <xref format="dita" href="#task_configure_mat/discard">enable discard</xref>
