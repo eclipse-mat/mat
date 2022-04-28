@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -62,23 +62,36 @@ import org.eclipse.mat.parser.io.BitOutputStream;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * Base implementations to write index files.
+ */
 public abstract class IndexWriter
 {
+    /** Number of entries in a page of ints */
     public static final int PAGE_SIZE_INT = 1000000;
+    /** Number of entries in a page of longs */
     public static final int PAGE_SIZE_LONG = 500000;
-    // Set this to true to test more code paths with smaller indices
+    /** Set this to true to test more code paths with smaller indices */
     private static final boolean TEST = false;
-    // How much to resize break points for large formats to make testing easier
+    /** How much to resize break points for large formats to make testing easier */
     private static final int TESTSCALE = TEST ? 18 : 0;
-    // Switch point from plain size to encoded size for 1 to 1 index
+    /** Switch point from plain size to encoded size for 1 to 1 index */
     private static final int FORMAT1_MAX_SIZE = Integer.MAX_VALUE >>> TESTSCALE;
-    // Switch point for using a long valued header index
+    /** Switch point for using a long valued header index */
     private static final long MAX_OLD_HEADER_VALUE = 0xffffffffL >>> TESTSCALE;
-    // Switch point for inbound key to using longs
+    /** Switch point for inbound key to using longs */
     private static final long INBOUND_MAX_KEY1 = Integer.MAX_VALUE >>> TESTSCALE;
 
+    /**
+     * Used to write out a key for an index.
+     */
     public interface KeyWriter
     {
+        /**
+         * Store the key in a file
+         * @param index the index
+         * @param key the corresponding key to another index
+         */
         public void storeKey(int index, Serializable key);
     }
 
@@ -86,12 +99,19 @@ public abstract class IndexWriter
     // integer based indices
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Used to collect the objects by address.
+     */
     public static class Identifier implements IIndexReader.IOne2LongIndex
     {
         long[] identifiers;
         int size;
         ArrayLongBig collect;
 
+        /**
+         * Add an object.
+         * @param id the object address
+         */
         public void add(long id)
         {
             if (collect == null)
@@ -107,6 +127,11 @@ public abstract class IndexWriter
             collect.add(id);
         }
 
+        /**
+         * Sort the addresses of the objects in order.
+         * Also puts all of the added addresses into an array.
+         * Makes a reverse lookup easier.
+         */
         public void sort()
         {
             if (collect == null)
@@ -149,7 +174,7 @@ public abstract class IndexWriter
             if (index < 0 || index >= size())
                 throw new IndexOutOfBoundsException("Index: "+index+", Size: "+size()); //$NON-NLS-1$//$NON-NLS-2$
 
-            return index < size ? identifiers[index] : collect.get(index - size);
+            return index < size || collect == null ? identifiers[index] : collect.get(index - size);
         }
 
         public int reverse(long val)
@@ -177,6 +202,10 @@ public abstract class IndexWriter
             return -1 - a;
         }
 
+        /**
+         * Iterate through the object addresses.
+         * @return the iterator
+         */
         public IteratorLong iterator()
         {
             return new IteratorLong()
@@ -220,25 +249,48 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * Collect a mapping of int to int.
+     */
     public static class IntIndexCollectorUncompressed
     {
         int[] dataElements;
 
+        /**
+         * Create an IntIndexCollectorUncompressed of the given size.
+         * @param size the requiredsize
+         */
         public IntIndexCollectorUncompressed(int size)
         {
             dataElements = new int[size];
         }
 
+        /**
+         * Set a particular entry.
+         * @param index the index into the array
+         * @param value the value
+         */
         public void set(int index, int value)
         {
             dataElements[index] = value;
         }
 
+        /**
+         * Retrieve an entry.
+         * @param index the index
+         * @return the value
+         */
         public int get(int index)
         {
             return dataElements[index];
         }
 
+        /**
+         * Store the collector to a file.
+         * @param indexFile the file
+         * @return an index which holds the same values as the collector
+         * @throws IOException if a problem occurred with the write
+         */
         public IIndexReader.IOne2OneIndex writeTo(File indexFile) throws IOException
         {
             return new IntIndexStreamer().writeTo(indexFile, dataElements);
@@ -253,13 +305,17 @@ public abstract class IndexWriter
     public static class SizeIndexCollectorUncompressed extends IntIndexCollectorUncompressed
     {
 
+        /**
+         * Create a collector of the required size.
+         * @param size the number of entries
+         */
         public SizeIndexCollectorUncompressed(int size)
         {
             super(size);
         }
 
         /**
-         * Cope with objects bigger than Integer.MAX_VALUE.
+         * Cope with objects of size in bytes bigger than Integer.MAX_VALUE.
          * E.g. double[Integer.MAX_VALUE]
          * The original problem was that the array to size mapping had an integer as the size (IntIndexCollectorUncompressed).
          * This array would be approximately 0x18 + 0x8 * 0x7fffffff = 0x400000010 bytes, too big for an int.
@@ -303,11 +359,21 @@ public abstract class IndexWriter
             return ret;
         }
 
+        /**
+         * Set the size for an object.
+         * @param index the object ID
+         * @param value the size
+         */
         public void set(int index, long value)
         {
             set(index, compress(value));
         }
 
+        /**
+         * Get the expanded size.
+         * @param index the object ID
+         * @return the size
+         */
         public long getSize(int index)
         {
             int v = get(index);
@@ -555,7 +621,9 @@ public abstract class IndexWriter
         }
     }
 
-
+    /**
+     * A collector of ArrayIntCompressed.
+     */
     public static class IntIndexCollector extends IntIndex<ArrayIntCompressed> implements IOne2OneIndex
     {
         final int mostSignificantBit;
@@ -563,6 +631,12 @@ public abstract class IndexWriter
         final int pageSize = IndexWriter.PAGE_SIZE_INT;
         final ConcurrentHashMap<Integer, ArrayIntCompressed> pages = new ConcurrentHashMap<Integer, ArrayIntCompressed>();
 
+        /**
+         * Construct a collector of the required size, holding int
+         * values up to the specified size.
+         * @param size the number of entries
+         * @param mostSignificantBit the most significant bit set of any entry
+         */
         public IntIndexCollector(int size, int mostSignificantBit)
         {
             this.size = size;
@@ -580,6 +654,12 @@ public abstract class IndexWriter
             return (existing != null) ? existing : newArray;
         }
 
+        /**
+         * Write the collector to a file.
+         * @param indexFile the file
+         * @return an index which holds the same values as the collector
+         * @throws IOException if a problem occurred with the write
+         */
         public IIndexReader.IOne2OneIndex writeTo(File indexFile) throws IOException
         {
             // needed to re-compress
@@ -667,6 +747,9 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * A helper to write out an index to a file.
+     */
     public static class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>>
     {
         DataOutputStream out;
@@ -684,8 +767,8 @@ public abstract class IndexWriter
 
         // Writer _must_ be single thread to ensure page update logic stays correct. Compressor
         // could be, but generally not limited by compression speed, so one is enough.
-        final ExecutorService compressor = singleThreadedExecutor("IntIndexStreamer-Compressor");
-        final ExecutorService writer = singleThreadedExecutor("IntIndexStreamer-Writer");
+        final ExecutorService compressor = singleThreadedExecutor("IntIndexStreamer-Compressor"); //$NON-NLS-1$
+        final ExecutorService writer = singleThreadedExecutor("IntIndexStreamer-Writer"); //$NON-NLS-1$
 
         public IIndexReader.IOne2OneIndex writeTo(File indexFile, IteratorInt iterator) throws IOException
         {
@@ -700,6 +783,13 @@ public abstract class IndexWriter
             return getReader(indexFile);
         }
 
+        /**
+         * Write an array to a file and return an index reader.
+         * @param indexFile the file
+         * @param array the array to write out
+         * @return the index reader
+         * @throws IOException if a problem occurs with the write
+         */
         public IIndexReader.IOne2OneIndex writeTo(File indexFile, int[] array) throws IOException
         {
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
@@ -713,6 +803,14 @@ public abstract class IndexWriter
             return getReader(indexFile);
         }
 
+        /**
+         * Write out a page at a particular position.
+         * @param out the output stream
+         * @param position the position of the data
+         * @param iterator where the data comes from
+         * @return a reader for the data written so far
+         * @throws IOException if the is a problem with the write
+         */
         public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position, IteratorInt iterator)
                         throws IOException
         {
@@ -723,6 +821,14 @@ public abstract class IndexWriter
             return getReader(null);
         }
 
+        /**
+         * Write out a page at a particular position.
+         * @param out the output stream
+         * @param position the position of the data
+         * @param array where the data comes from
+         * @return a reader for the data written so far
+         * @throws IOException if the is a problem with the write
+         */
         public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position, int[] array) throws IOException
         {
             openStream(out, position);
@@ -798,7 +904,7 @@ public abstract class IndexWriter
 
             this.out = null;
 
-            return this.pageStart.lastElement() + (8 * pageStart.size()) + 8 - this.pageStart.firstElement();
+            return this.pageStart.lastElement() + (8L * pageStart.size()) + 8 - this.pageStart.firstElement();
         }
 
         IndexReader.IntIndexReader getReader(File indexFile)
@@ -935,9 +1041,12 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * Write out a mapping of ints to int arrays.
+     */
     public static class IntArray1NWriter
     {
-        // length of set() queue to buffer before writing to output as a batch
+        /** length of set() queue to buffer before writing to output as a batch */
         private static final int TASK_BUFFER_SIZE = 1024;
         /** Number of ints to write out in the buffer */
         private static final int TASK_BUFFER_MAX_OBJECTS = 10000;
@@ -963,6 +1072,12 @@ public abstract class IndexWriter
             }
         });
 
+        /**
+         * Construct a writer of the required size.
+         * @param size the number of entries
+         * @param indexFile the file to be written to
+         * @throws IOException if there is a problem writing the file
+         */
         public IntArray1NWriter(int size, File indexFile) throws IOException
         {
             this.header = new int[size];
@@ -974,12 +1089,26 @@ public abstract class IndexWriter
             this.body.openStream(this.out, 0);
         }
 
+        /**
+         * Used to record the addresses as IDs.
+         * @param identifier used to map references to IDs
+         * @param index the index associated with these references
+         * @param references the references (should be in identifier otherwise ignored)
+         * @throws IOException if there is a problem writing the data
+         */
         public void log(Identifier identifier, int index, ArrayLong references) throws IOException
         {
             log((IIndexReader.IOne2LongIndex)identifier, index, references);
         }
 
         /**
+         * Used to record the addresses as IDs.
+         * Sorts the references in order (except the first) and
+         * removes duplicates.
+         * @param identifier used to map references to IDs
+         * @param index the index associated with these references
+         * @param references the references (should be in identifier otherwise ignored)
+         * @throws IOException if there is a problem writing the data
          * @since 1.2
          */
         public void log(IIndexReader.IOne2LongIndex identifier, int index, ArrayLong references) throws IOException
@@ -1024,6 +1153,9 @@ public abstract class IndexWriter
             this.set(index, references.toArray(), 0, references.size());
         }
 
+        /**
+         * must not contain duplicates!
+         */
         public void log(int index, int[] values) throws IOException
         {
             this.set(index, values, 0, values.length);
@@ -1066,6 +1198,11 @@ public abstract class IndexWriter
             }
         }
 
+        /**
+         * Finishes writing out everything
+         * @return a reader for the data
+         * @throws IOException if there is a problem writing the data
+         */
         public IIndexReader.IOne2ManyIndex flush() throws IOException
         {
             synchronized(body)
@@ -1122,7 +1259,8 @@ public abstract class IndexWriter
         }
 
         /**
-         * @throws IOException
+         * Creates a reader to read the written data.
+         * @throws IOException if there is a problem
          */
         protected IIndexReader.IOne2ManyIndex createReader(IIndexReader.IOne2OneIndex headerIndex,
                         IIndexReader.IOne2OneIndex bodyIndex) throws IOException
@@ -1130,6 +1268,11 @@ public abstract class IndexWriter
             return new IndexReader.IntIndex1NReader(this.indexFile, headerIndex, bodyIndex);
         }
 
+        /**
+         * Terminate the IntArray1NWriter and 
+         * delete any file which has been written so far.
+         * Use to cancel part way through.
+         */
         public void cancel()
         {
             try
@@ -1152,6 +1295,10 @@ public abstract class IndexWriter
             }
         }
 
+        /**
+         * Get the index file.
+         * @return the file
+         */
         public File getIndexFile()
         {
             return indexFile;
@@ -1195,8 +1342,17 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * Used to write out a sorted array of ints.
+     */
     public static class IntArray1NSortedWriter extends IntArray1NWriter
     {
+        /**
+         * Construct a IntArray1NSortedWriter of the required size.
+         * @param size number of entries
+         * @param indexFile the output file
+         * @throws IOException if there is a problem with file
+         */
         public IntArray1NSortedWriter(int size, File indexFile) throws IOException
         {
             super(size, indexFile);
@@ -1218,6 +1374,13 @@ public abstract class IndexWriter
 
     }
 
+    /**
+     * A writer for inbound references.
+     * The object and the inbound reference are stored in a
+     * segment based on the object ID. Later the segments
+     * are sorted by object ID and then by reference ID
+     * before being written out.
+     */
     public static class InboundWriter
     {
         int size;
@@ -1232,7 +1395,10 @@ public abstract class IndexWriter
         long[] segmentSizes;
 
         /**
-         * @throws IOException
+         * Construct an inbound writer.
+         * @param size the number of entries
+         * @param indexFile the index file to be written to
+         * @throws IOException if there is a problem writing the file
          */
         public InboundWriter(int size, File indexFile) throws IOException
         {
@@ -1251,6 +1417,14 @@ public abstract class IndexWriter
             this.segmentSizes = new long[segments];
         }
 
+        /**
+         * Record an inbound reference.
+         * @param objectIndex the object has a reference from ref
+         * @param refIndex the reference
+         * @param isPseudo is this a pseudo reference, 
+         *        first entry of the outbounds (e.g. class ID)
+         * @throws IOException if there is a problem with the write
+         */
         public void log(int objectIndex, int refIndex, boolean isPseudo) throws IOException
         {
             int segment = objectIndex / pageSize;
@@ -1283,6 +1457,13 @@ public abstract class IndexWriter
             return (header2 != null ? (header2[index] & 0xffL) << 32 : 0) | (header[index] & 0xffffffffL);
         }
 
+        /**
+         * Write out all the data as one big file.
+         * @param monitor to show progress, report errors
+         * @param keyWriter to write out the keys
+         * @return a reader
+         * @throws IOException if there is a problem reading or writing files
+         */
         public IIndexReader.IOne2ManyObjectsIndex flush(IProgressListener monitor, KeyWriter keyWriter)
                         throws IOException
         {
@@ -1292,8 +1473,6 @@ public abstract class IndexWriter
 
             DataOutputStream index = new DataOutputStream(new BufferedOutputStream(
                             new FileOutputStream(this.indexFile), 1024 * 256));
-
-            BitInputStream segmentIn = null;
 
             IntIndexStreamer body = new IntIndexStreamer();
             body.openStream(index, 0);
@@ -1359,14 +1538,6 @@ public abstract class IndexWriter
                         index.close();
                     if (bodyopen)
                         body.closeStream();
-                }
-                catch (IOException ignore)
-                {}
-
-                try
-                {
-                    if (segmentIn != null)
-                        segmentIn.close();
                 }
                 catch (IOException ignore)
                 {}
@@ -1689,6 +1860,11 @@ public abstract class IndexWriter
             }
         }
 
+        /**
+         * Terminate the InboundWriter and 
+         * delete any files which have been written so far.
+         * Use to cancel part way through.
+         */
         public synchronized void cancel()
         {
             try
@@ -1734,13 +1910,18 @@ public abstract class IndexWriter
 
     }
 
+    /**
+     * Build index for mapping int to int array. 
+     */
     public static class IntArray1NUncompressedCollector
     {
         int[][] elements;
         File indexFile;
 
         /**
-         * @throws IOException
+         * Constructor for index of given size
+         * @param size number of entries
+         * @throws IOException if a problem occurs with the write
          */
         public IntArray1NUncompressedCollector(int size, File indexFile) throws IOException
         {
@@ -1748,6 +1929,11 @@ public abstract class IndexWriter
             this.indexFile = indexFile;
         }
 
+        /**
+         * Add entry for classid
+         * @param classId the class id
+         * @param methodId the method id to be added to the array
+         */
         public void log(int classId, int methodId)
         {
             if (elements[classId] == null)
@@ -1763,11 +1949,21 @@ public abstract class IndexWriter
             }
         }
 
+        /**
+         * Get the backing file
+         * @return the backing file
+         */
         public File getIndexFile()
         {
             return indexFile;
         }
 
+        /**
+         * Write the in memory version to disk
+         * and return the reader.
+         * @return the new reader
+         * @throws IOException if a write error occurs
+         */
         public IIndexReader.IOne2ManyIndex flush() throws IOException
         {
             IntArray1NSortedWriter writer = new IntArray1NSortedWriter(elements.length, indexFile);
@@ -1785,25 +1981,49 @@ public abstract class IndexWriter
     // long based indices
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Build a int to long index.
+     */
     public static class LongIndexCollectorUncompressed
     {
         long[] dataElements;
 
+        /**
+         * Construct a collector of the given size.
+         * @param size the number of entries
+         */
         public LongIndexCollectorUncompressed(int size)
         {
             dataElements = new long[size];
         }
 
+        /**
+         * Add one entry.
+         * @param index the int value
+         * @param value the corresponding long
+         */
         public void set(int index, long value)
         {
             dataElements[index] = value;
         }
 
+        /**
+         * Retrieve an entry.
+         * @param index the int key
+         * @return the long value
+         */
         public long get(int index)
         {
             return dataElements[index];
         }
 
+        /**
+         * Write the in-memory mapping to disk and
+         * return a reader.
+         * @param indexFile the output file
+         * @return a reader for the index
+         * @throws IOException if a problem occurs with the write
+         */
         public IIndexReader.IOne2LongIndex writeTo(File indexFile) throws IOException
         {
             return new LongIndexStreamer().writeTo(indexFile, dataElements);
@@ -1960,6 +2180,10 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * A collector for a int to long mapping.
+     * Compressed with a maximum range of bits.
+     */
     public static class LongIndexCollector extends LongIndex
     {
         final int mostSignificantBit;
@@ -1967,6 +2191,11 @@ public abstract class IndexWriter
         final int pageSize = IndexWriter.PAGE_SIZE_LONG;
         final ConcurrentHashMap<Integer, ArrayLongCompressed> pages = new ConcurrentHashMap<Integer, ArrayLongCompressed>();
 
+        /**
+         * Create the collector.
+         * @param size the number of elements
+         * @param mostSignificantBit the MSB of the long values
+         */
         public LongIndexCollector(int size, int mostSignificantBit)
         {
             this.size = size;
@@ -2006,6 +2235,9 @@ public abstract class IndexWriter
         }
     }
 
+    /**
+     * A helper class to output a list of longs.
+     */
     public static class LongIndexStreamer extends LongIndex
     {
         DataOutputStream out;
@@ -2026,15 +2258,27 @@ public abstract class IndexWriter
         final ExecutorService compressor = singleThreadedExecutor("LongIndexStreamer-Compressor");
         final ExecutorService writer = singleThreadedExecutor("LongIndexStreamer-Writer");
 
+        /**
+         * A simple constructor.
+         */
         public LongIndexStreamer()
         {}
 
+        /**
+         * Construct a streamer which outputs to a file
+         * @param indexFile the output file
+         * @throws IOException if a problem occurs with a write
+         */
         public LongIndexStreamer(File indexFile) throws IOException
         {
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
             openStream(out, 0);
         }
 
+        /**
+         * Close the backing file.
+         * @throws IOException if a problem occurs with the write or close.
+         */
         public void close() throws IOException
         {
             DataOutputStream out = this.out;
@@ -2070,6 +2314,13 @@ public abstract class IndexWriter
             return getReader(indexFile);
         }
 
+        /**
+         * Output a whole long array
+         * @param indexFile the output file
+         * @param array the source data
+         * @return a reader for the data
+         * @throws IOException if a problem occurred with the write
+         */
         public IOne2LongIndex writeTo(File indexFile, long[] array) throws IOException
         {
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
@@ -2083,6 +2334,13 @@ public abstract class IndexWriter
             return getReader(indexFile);
         }
 
+        /**
+         * Output a whole long iterator
+         * @param indexFile the output file
+         * @param iterator the source data
+         * @return a reader for the data
+         * @throws IOException if a problem occurred with the write
+         */
         public IOne2LongIndex writeTo(File indexFile, IteratorLong iterator) throws IOException
         {
             FileOutputStream fos = new FileOutputStream(indexFile);
@@ -2109,6 +2367,13 @@ public abstract class IndexWriter
             }
         }
 
+        /**
+         * Output a whole ArrayLong
+         * @param indexFile the output file
+         * @param array the source data
+         * @return a reader for the data
+         * @throws IOException if a problem occurred with the write
+         */
         public IOne2LongIndex writeTo(File indexFile, ArrayLong array) throws IOException
         {
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
@@ -2196,7 +2461,7 @@ public abstract class IndexWriter
 
             this.out = null;
 
-            return this.pageStart.lastElement() + (8 * pageStart.size()) + 8 - this.pageStart.firstElement();
+            return this.pageStart.lastElement() + (8L * pageStart.size()) + 8 - this.pageStart.firstElement();
         }
 
         IndexReader.LongIndexReader getReader(File indexFile) throws IOException
@@ -2433,6 +2698,11 @@ public abstract class IndexWriter
             out = null;
         }
 
+        /**
+         * Terminate the LongArray1NWriter and 
+         * delete any files which have been written so far.
+         * Use to cancel part way through.
+         */
         public void cancel()
         {
             try
