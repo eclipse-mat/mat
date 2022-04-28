@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,9 @@ import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
  */
 public abstract class IndexReader
 {
+    /**
+     * Debug flag for use by developers of MAT
+     */
     public static final boolean DEBUG = false;
 
     /**
@@ -65,9 +68,15 @@ public abstract class IndexReader
     public static class IntIndexReader extends IndexWriter.IntIndex<SoftReference<ArrayIntCompressed>> implements
                     IIndexReader.IOne2OneIndex
     {
+        /**
+         * The lock to protect the read from concurrent access
+         */
         public Object LOCK = new Object();
 
         File indexFile;
+        /**
+         * For use reading the actual index file
+         */
         public SimpleBufferedRandomAccessInputStream in;
         long[] pageStart;
 
@@ -213,7 +222,13 @@ public abstract class IndexReader
             close();
 
             if (indexFile != null)
-                indexFile.delete();
+            {
+                //TODO Consider logging a failure to delete
+                if (indexFile.delete())
+                {
+                    indexFile = null;
+                }
+            }
         }
 
     }
@@ -285,8 +300,8 @@ public abstract class IndexReader
 
         /**
          * Constructor used when reopening a dump
-         * @param indexFile
-         * @throws IOException
+         * @param indexFile the file holding the index
+         * @throws IOException if there was a problem reading the file
          */
         public SizeIndexReader(File indexFile) throws IOException
         {
@@ -295,7 +310,7 @@ public abstract class IndexReader
         
         /**
          * Construct a size index reader based on a int index holding the compressed data
-         * @param idx
+         * @param idx the source index
          */
         public SizeIndexReader(IIndexReader.IOne2OneIndex idx)
         {
@@ -304,6 +319,8 @@ public abstract class IndexReader
         
         /**
          * Expand the compressed size.
+         * @param index the encoded compressed size
+         * @return the actual size in bytes 
          */
         public long getSize(int index)
         {
@@ -313,6 +330,8 @@ public abstract class IndexReader
         /**
          * Get the (compressed) size.
          * Delegate to the int index.
+         * @param index the index of the object
+         * @return the encoded compressed size 
          */
         public int get(int index)
         {
@@ -321,6 +340,7 @@ public abstract class IndexReader
 
         /**
          * Delegate to the int index.
+         * Gets the encoded sizes for a list of object IDs
          */
         public int[] getAll(int[] index)
         {
@@ -329,6 +349,10 @@ public abstract class IndexReader
 
         /**
          * Delegate to the int index.
+         * Gets the encoded sizes for a consecutive list of object IDs
+         * @param index the starting index
+         * @param length the number to read
+         * @return an array of compressed sizes 
          */
         public int[] getNext(int index, int length)
         {
@@ -353,6 +377,7 @@ public abstract class IndexReader
 
         /**
          * Delegate to the int index.
+         * @return the number of entries
          */
         public int size()
         {
@@ -444,8 +469,10 @@ public abstract class IndexReader
 
         public synchronized void close()
         {
-            header.unload();
-            body.unload();
+            if (header != null)
+                header.unload();
+            if (body != null)
+                body.unload();
 
             if (in != null)
             {
@@ -484,7 +511,13 @@ public abstract class IndexReader
             close();
 
             if (indexFile != null)
-                indexFile.delete();
+            {
+                //TODO Consider logging a failure to delete
+                if (indexFile.delete())
+                {
+                    indexFile = null;
+                }
+            }
         }
     }
 
@@ -733,7 +766,13 @@ public abstract class IndexReader
             close();
 
             if (indexFile != null)
-                indexFile.delete();
+            {
+                //TODO Consider logging a failure to delete
+                if (indexFile.delete())
+                {
+                    indexFile = null;
+                }
+            }
         }
 
     }
@@ -832,7 +871,13 @@ public abstract class IndexReader
             close();
 
             if (indexFile != null)
-                indexFile.delete();
+            {
+                //TODO Consider logging a failure to delete
+                if (indexFile.delete())
+                {
+                    indexFile = null;
+                }
+            }
         }
     }
 }

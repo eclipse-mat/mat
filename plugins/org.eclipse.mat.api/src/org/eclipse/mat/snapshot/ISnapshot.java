@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -229,7 +229,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return objects referencing the given objects - current implementations can return null if the operation is cancelled
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public int[] getInboundRefererIds(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
 
@@ -250,7 +250,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return objects referenced by the given objects - current implementations can return null if the operation is cancelled
-     * @throws SnapshotException
+     * @throws SnapshotException should not normally occur
      */
     public int[] getOutboundReferentIds(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
 
@@ -277,7 +277,7 @@ public interface ISnapshot
      *            IClass the value (Set&lt;String&gt;) null is specified, then paths
      *            through any of the fields will be avoided
      * @return interactive computer for paths from GC roots to the given object
-     * @throws SnapshotException
+     * @throws SnapshotException if a problem occurs creating the paths computer
      */
     public IPathsFromGCRootsComputer getPathsFromGCRoots(int objectId, Map<IClass, Set<String>> excludeMap)
                     throws SnapshotException;
@@ -299,7 +299,7 @@ public interface ISnapshot
      *            through any of the fields will be avoided
      * @return IMultiplePathsFromGCRootsComputer The object which can be used to
      *         carry out the actual computation and
-     * @throws SnapshotException
+     * @throws SnapshotException if a problem occurs creating the paths computer
      */
     public IMultiplePathsFromGCRootsComputer getMultiplePathsFromGCRoots(int[] objectIds,
                     Map<IClass, Set<String>> excludeMap) throws SnapshotException;
@@ -322,7 +322,8 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return retained set of objects for the given objects
-     * @throws SnapshotException
+     * @throws SnapshotException if a problem occurs, for example if the operation was
+     *            interrupted
      */
     public int[] getRetainedSet(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
 
@@ -341,6 +342,7 @@ public interface ISnapshot
      * @param objectIds
      *            objects on which the retained set should be determined
      * @param fieldNames
+     *            the names of the fields which could retain the objects
      * @param progressMonitor
      *            progress listener informing about the current state of
      *            execution
@@ -592,6 +594,11 @@ public interface ISnapshot
      * Returns true if the object by this id is a class.
      * <p>
      * Performance: Very fast.
+     *
+     * @param objectId
+     *            id of object to test for being a class (and so an {@link IClass}).
+     * @return
+     *            true if it is a class
      */
     boolean isClass(int objectId);
 
@@ -599,6 +606,12 @@ public interface ISnapshot
      * Returns true if the object by this id is a class loader.
      * <p>
      * Performance: Very fast.
+     *
+     * @param objectId
+     *            id of object to test for being a class loader 
+     *            (and so an {@link org.eclipse.mat.snapshot.model.IClassLoader}).
+     * @return
+     *            true if it is a class
      */
     boolean isClassLoader(int objectId);
 
@@ -606,6 +619,12 @@ public interface ISnapshot
      * Returns true if the object by this id is an array.
      * <p>
      * Performance: Very fast.
+     *
+     * @param objectId
+     *            id of object to test for being an array
+     *            (and so an {@link org.eclipse.mat.snapshot.model.IArray}).
+     * @return
+     *            true if it is an array
      */
     boolean isArray(int objectId);
 
@@ -613,6 +632,11 @@ public interface ISnapshot
      * Returns true if the object by this id is a garbage collection root.
      * <p>
      * Performance: Very fast.
+     *
+     * @param objectId
+     *            id of object to test for being a GC root
+     * @return
+     *            true if it is a GC root
      */
     boolean isGCRoot(int objectId);
 
@@ -625,6 +649,7 @@ public interface ISnapshot
      * @param objectId
      *            id of object you want the address for
      * @return object address
+     *            address of object with that id
      * @throws SnapshotException shouldn't normally happen as often
      *             a {@link RuntimeException} would be thrown if the object ID is invalid.
      */
