@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3931aad3_2b5e8e90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-28T16:43:01Z",
+      "side": 1,
+      "message": "Small build change, try it out.",
+      "revId": "24792994bbc7f86f4a3abcfaeaaa9b0f4e2d7b02",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
