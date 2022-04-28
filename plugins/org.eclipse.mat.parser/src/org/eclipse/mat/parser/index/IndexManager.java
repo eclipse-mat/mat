@@ -62,7 +62,13 @@ public class IndexManager
          * index - master index
          */
 
+        /**
+         * The file name for the index reader
+         */
         public String filename;
+        /**
+         * The index reader for the index and file name
+         */
         Class<? extends IIndexReader> impl;
 
         private Index(String filename, Class<? extends IIndexReader> impl)
@@ -71,6 +77,11 @@ public class IndexManager
             this.impl = impl;
         }
 
+        /**
+         * Create a {@link File} descriptor based on the prefix and filename 
+         * @param prefix the prefix based on the snapshot name
+         * @return the file to use
+         */
         public File getFile(String prefix)
         {
             return new File(new StringBuilder(prefix).append(filename).append(".index").toString());//$NON-NLS-1$
@@ -78,17 +89,49 @@ public class IndexManager
 
     }
 
+    /**
+     * The index for objects which refer to each object
+     */
     public IIndexReader.IOne2ManyObjectsIndex inbound;
+    /**
+     * The index for objects showing what they refer to 
+     */
     public IIndexReader.IOne2ManyIndex outbound;
+    /**
+     * The index from object ID to the type as a class ID
+     */
     public IIndexReader.IOne2OneIndex o2c;
+    /**
+     * The index from object ID to its address
+     */
     public IIndexReader.IOne2LongIndex idx;
+    /**
+     * The index from object ID to its size, for arrays and variable sized objects
+     */
     public IIndexReader.IOne2SizeIndex a2s;
+    /**
+     * The dominator tree index from an object to the objects it dominates
+     */
     public IIndexReader.IOne2ManyIndex domOut;
+    /**
+     * Index from object ID to its retained size
+     */
     public IIndexReader.IOne2LongIndex o2ret;
+    /** The dominator tree index from an object to the object which dominates it.
+     * 
+     */
     public IIndexReader.IOne2OneIndex domIn;
-    /** @noreference This field is not intended to be referenced by clients. */
+    /**
+     * The cache for the retained size from the object ID
+     * @noreference This field is not intended to be referenced by clients.
+     */
     public RetainedSizeCache i2sv2;
 
+    /**
+     * Add index reader corresponding to the index to the index manager
+     * @param index the index to set
+     * @param reader the source for the index
+     */
     public void setReader(final Index index, final IIndexReader reader)
     {
         try
@@ -105,6 +148,11 @@ public class IndexManager
         }
     }
 
+    /**
+     * Get the reader corresponding to the index
+     * @param index the index
+     * @return the reader
+     */
     public IIndexReader getReader(final Index index)
     {
         try
@@ -121,6 +169,11 @@ public class IndexManager
         }
     }
 
+    /**
+     * Populate all the index readers
+     * @param prefix the prefix of the snapshot
+     * @throws IOException if a problem occurred reading the indices
+     */
     public void init(final String prefix) throws IOException
     {
         new Visitor()
@@ -175,32 +228,53 @@ public class IndexManager
         }.doIt();
     }
 
+    /**
+     * The inbounds index for each object to its inbound references.
+     * @return the index reader
+     */
     public IIndexReader.IOne2ManyIndex inbound()
     {
         return inbound;
     }
 
+    /**
+     * The inbounds index for each object to its outbound references.
+     * @return the index reader
+     */
     public IIndexReader.IOne2ManyIndex outbound()
     {
         return outbound;
     }
 
+    /**
+     * The index for each object to class.
+     * @return the index reader
+     */
     public IIndexReader.IOne2OneIndex o2class()
     {
         return o2c;
     }
 
+    /**
+     * The index from a class to its instances
+     * @return the index reader
+     */
     public IIndexReader.IOne2ManyObjectsIndex c2objects()
     {
         return inbound;
     }
 
+    /**
+     * The index from object ID to the object address
+     * @return the index reader for the object address
+     */
     public IIndexReader.IOne2LongIndex o2address()
     {
         return idx;
     }
 
     /**
+     * The index from array object ID and variable sized objects to the size in bytes.
 	 * @since 1.0
 	 */
     public IIndexReader.IOne2SizeIndex a2size()
@@ -208,21 +282,37 @@ public class IndexManager
         return a2s;
     }
 
+    /**
+     * The index reader from each object to the objects it dominates
+     * @return the index reader
+     */
     public IIndexReader.IOne2ManyIndex dominated()
     {
         return domOut;
     }
 
+    /**
+     * The index reader for each object to its retained size
+     * @return the index reader
+     */
     public IIndexReader.IOne2LongIndex o2retained()
     {
         return o2ret;
     }
 
+    /**
+     * The index reader for each object to the object which dominates it
+     * @return the index reader
+     */
     public IIndexReader.IOne2OneIndex dominator()
     {
         return domIn;
     }
 
+    /**
+     * Closes all the index reader files
+     * @throws IOException if there is a problem closing the files
+     */
     public void close() throws IOException
     {
         new Visitor()
@@ -241,6 +331,10 @@ public class IndexManager
         }.doIt();
     }
 
+    /**
+     * Delete all the index files
+     * @throws IOException if there is a problem deleting the files
+     */
     public void delete() throws IOException
     {
         new Visitor()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public interface IObjectReader
 
     /**
      * Get detailed information about a object array
-     * @param array
+     * @param array the array
      * @param offset where in the array to start
      * @param length how much to read
      * @return an array of object addresses, with 0 for nulls 
@@ -73,8 +73,9 @@ public interface IObjectReader
     /**
      * Get additional information about the snapshot
      * @param addon type of the additional information
-     * @return the additional information
-     * @throws SnapshotException
+     * @param <A> used to set the return type
+     * @return the additional information or null if none available
+     * @throws SnapshotException an IO problem or unexpected data in the dump
      */
     <A> A getAddon(Class<A> addon) //
                     throws SnapshotException;
