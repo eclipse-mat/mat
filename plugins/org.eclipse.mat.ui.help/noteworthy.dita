@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,19 +10,19 @@
    
     Contributors:
         SAP AG - initial API and implementation
-        IBM Corporation - 1.4, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12 updates
+        IBM Corporation - 1.4, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13 updates
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.12 release.
+		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.13.0 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -34,29 +34,27 @@
 		<section>
 			<title>Enhancements and fixes</title>
 			<ul>
-			<li>Compressed HPROF dumps created by OpenJDK 15 and later VMs are now read by Memory Analyzer.
-			Also, the performance of Memory Analyzer reading HPROF dumps compressed by Gzip has been improved.</li>
-			<li>Huge heap dumps can be handled in Memory Analyzer by discarding some of the objects from the heap dump.
-			Users of Memory Analyzer can now examine some of those unindexed and discarded objects through the inspector view and OQL.</li>
-			<li>The Leaks Suspects Report and the Component Report have been improved with 
-			additional sections and details. The reports are now more accessible with a screen reader.</li>
+			<li>The inspector view now allows sorting on the type, name or value in the
+			statics and attributes tab. If there are many statics or attributes
+			there is now an option to expand 25 more, or all the entries.</li>
 			<li>Other bugs have been fixed. See <xref format="html" scope="external" 
-					href="https://projects.eclipse.org/projects/tools.mat/releases/1.12.0/bugs">Memory Analyzer 1.12 issue list</xref>
+					href="https://projects.eclipse.org/projects/tools.mat/releases/1.13.0/bugs">Memory Analyzer 1.13.0 issue list</xref>
 			</li>
 			</ul>
 		</section>
 
 		<section>
 			<title>Security fixes</title>
-			Memory Analyzer 1.12 includes the security fixes first included in Memory Analyzer 1.9.2.
-			We highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.12.0 or subsequent versions.
+			Memory Analyzer 1.13.0 includes the security fixes first included in Memory Analyzer 1.9.2.
+			We recommend users of stand-alone Eclipse Memory Analyzer version 1.12.0 or earlier and
+			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.13.0 or subsequent versions.
 			<dl>
 				<dlentry>
-					<dt><xref format="html" scope="external" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17634">CVE-2019-17634</xref></dt>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2019-17634">CVE-2019-17634</xref></dt>
 						<dd><dl>
 							<dlentry>
-								<dt>PROBLEMTYPE</dt>
-								<dd>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</dd>
+								<dt>PROBLEMTYPE CWE-79</dt>
+								<dd>Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</dd>
 							</dlentry>
 							<dlentry>
 								<dt>DESCRIPTION</dt>
@@ -65,11 +63,11 @@
 						</dl></dd>
 				</dlentry>
 				<dlentry>
-					<dt><xref format="html" scope="external" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17635">CVE-2019-17635</xref></dt>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2019-17635">CVE-2019-17635</xref></dt>
 						<dd><dl>
 							<dlentry>
-								<dt>PROBLEMTYPE</dt>
-								<dd>CWE-502: Deserialization of Untrusted Data</dd>
+								<dt>PROBLEMTYPE CWE-502</dt>
+								<dd>Deserialization of Untrusted Data</dd>
 							</dlentry>
 							<dlentry>
 								<dt>DESCRIPTION</dt>
@@ -78,10 +76,40 @@
 						</dl></dd>
 				</dlentry>
 			</dl>
-			The stand-alone Memory Analyzer 1.12 also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			The stand-alone Memory Analyzer 1.13.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
 			<dl>
 				<dlentry>
-					<dt><xref format="html" scope="external" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-27225">CVE-2020-27225</xref></dt>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2021-34429">CVE-2021-34429</xref></dt>
+					<dd>
+						<dl>
+							<dlentry>
+								<dt>PROBLEMTYPE CWE-863</dt>
+								<dd>Incorrect Authorization</dd>
+							</dlentry>
+							<dlentry>
+								<dt>PROBLEMTYPE CWE-200</dt>
+								<dd>Exposure of Sensitive Information to an Unauthorized Actor</dd>
+							</dlentry>
+							<dlentry>
+								<dt>PROBLEMTYPE CWE-551</dt>
+								<dd>Incorrect Behavior Order: Authorization Before Parsing and Canonicalization</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>Stand-alone Eclipse Memory Analyzer version 1.12.0 and earlier includes a copy of Jetty subject to CVE-2021-34429.
+								For Eclipse Jetty versions 9.4.37-9.4.42, 10.0.1-10.0.5 &amp; 11.0.1-11.0.5, URIs can be crafted using some encoded characters to access the content of the WEB-INF directory and/or bypass some security constraints. This is a variation of the vulnerability reported in CVE-2021-28164/GHSA-v7ff-8wcx-gmc5.
+								Eclipse Memory Analyzer just uses Jetty as a web server to display help.
+								If Eclipse Memory Analyzer is installed into an existing Eclipse installation it 
+								uses the copy of Jetty in that installation.</dd>
+							</dlentry>
+						</dl>
+					</dd>
+				</dlentry>
+			</dl>
+			The stand-alone Memory Analyzer 1.12.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			<dl>
+				<dlentry>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2020-27225">CVE-2020-27225</xref></dt>
 						<dd><dl>
 							<dlentry>
 								<dt>PROBLEMTYPE</dt>
@@ -89,8 +117,8 @@
 							</dlentry>
 							<dlentry>
 								<dt>DESCRIPTION</dt>
-								<dd>In versions 4.18 and earlier of the Eclipse Platform, the Help Subsystem does not authenticate active help requests 
-								to the local help web server, allowing an unauthenticated local attacker to issue active help commands to the associated 
+								<dd>In versions 4.18 and earlier of the Eclipse Platform, the Help Subsystem does not authenticate active help requests
+								to the local help web server, allowing an unauthenticated local attacker to issue active help commands to the associated
 								Eclipse Platform process or Eclipse Rich Client Platform process.</dd>
 							</dlentry>
 						</dl></dd>
@@ -98,16 +126,23 @@
 			</dl>
 		</section>
 		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.12</title>
+			<title>New and Noteworthy for Memory Analyzer 1.13.0</title>
 			<p>
-				The latest New and Noteworthy document for version 1.12 is available 
+				The latest New and Noteworthy document for version 1.13.0 is available 
+				<xref format="html" scope="peer" href="http://www.eclipse.org/mat/1.13.0/noteworthy.html">here</xref>.
+			</p>
+		</section>
+		<section>
+			<title>New and Noteworthy for Memory Analyzer 1.12.0</title>
+			<p>
+				The New and Noteworthy document for version 1.12.0 is available 
 				<xref format="html" scope="peer" href="http://www.eclipse.org/mat/1.12.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
 		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.11</title>
+			<title>New and Noteworthy for Memory Analyzer 1.11.0</title>
 			<p>
-				The New and Noteworthy document for version 1.11 is available 
+				The New and Noteworthy document for version 1.11.0 is available 
 				<xref format="html" scope="peer" href="http://www.eclipse.org/mat/1.11.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
