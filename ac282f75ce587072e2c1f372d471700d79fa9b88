@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30d68c29_5f5d5fa8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-04-29T09:20:38Z",
+      "side": 1,
+      "message": "Have to test on CI",
+      "revId": "ac282f75ce587072e2c1f372d471700d79fa9b88",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
