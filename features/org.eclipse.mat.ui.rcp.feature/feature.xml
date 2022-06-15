@@ -52,6 +52,7 @@
       <import plugin="org.eclipse.birt.chart.device.swt" version="2.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.birt.chart.engine.extension" version="2.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.birt.core" version="2.3.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.core" version="0.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
