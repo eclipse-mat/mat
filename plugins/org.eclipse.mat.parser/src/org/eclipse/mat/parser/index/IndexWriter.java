@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -47,7 +46,6 @@ import org.eclipse.mat.collect.ArrayLongBig;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.BitField;
-import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapIntObject.Entry;
 import org.eclipse.mat.collect.IteratorInt;
@@ -2032,14 +2030,24 @@ public abstract class IndexWriter
 
     abstract static class LongIndex
     {
-        private static final int DEPTH = 10;
+        /**
+         * The number of calls to the cache for {@link #reverse()}.
+         * Make this >= log2(2^31 / PAGE_SIZE_LONG)
+         * so that reverse() nearly always uses the cache before getting to the
+         * required page, rather than having to access other pages.
+         */
+        private static final int DEPTH = 13;
 
         int pageSize;
         int size;
         // pages are either IntArrayCompressed or
         // SoftReference<IntArrayCompressed>
         HashMapIntObject<Object> pages;
-        HashMapIntLong binarySearchCache = new HashMapIntLong(1 << DEPTH);
+        /*
+         * Scale up the capacity so size doesn't exceed 75% and 
+         * isn't ever resized.
+         */
+        ConcurrentHashMap<Integer,Long>binarySearchCache = new ConcurrentHashMap<Integer,Long>((1 << DEPTH)* 4 / 3); 
 
         protected LongIndex()
         {}
@@ -2100,11 +2108,12 @@ public abstract class IndexWriter
 
                 if (depth++ < DEPTH)
                 {
-                    try
+                    Long midValO = binarySearchCache.get(mid); 
+                    if (midValO != null)
                     {
-                        midVal = binarySearchCache.get(mid);
+                        midVal = midValO;
                     }
-                    catch (NoSuchElementException e)
+                    else
                     {
                         int p = mid / pageSize;
                         if (p != page)
@@ -2145,7 +2154,7 @@ public abstract class IndexWriter
         public synchronized void unload()
         {
             pages = new HashMapIntObject<Object>(size / pageSize + 1);
-            binarySearchCache = new HashMapIntLong(1 << DEPTH);
+            binarySearchCache = new ConcurrentHashMap<Integer,Long>((1 << DEPTH) * 4 / 3); 
         }
 
         public int size()
@@ -2198,6 +2207,9 @@ public abstract class IndexWriter
          */
         public LongIndexCollector(int size, int mostSignificantBit)
         {
+            // Needed for reverse()
+            super.size = size;
+            super.pageSize = pageSize;
             this.size = size;
             this.mostSignificantBit = mostSignificantBit;
         }
