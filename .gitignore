@@ -1,3 +1,5 @@
 bin/
 target/
 doc/
+.DS_Store
+/parent/mat.app
