@@ -2198,6 +2198,9 @@ public abstract class IndexWriter
          */
         public LongIndexCollector(int size, int mostSignificantBit)
         {
+            // Needed for reverse()
+            super.size = size;
+            super.pageSize = pageSize;
             this.size = size;
             this.mostSignificantBit = mostSignificantBit;
         }

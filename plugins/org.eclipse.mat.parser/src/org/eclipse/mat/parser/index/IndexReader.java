@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntCompressed;
@@ -79,6 +81,8 @@ public abstract class IndexReader
          */
         public SimpleBufferedRandomAccessInputStream in;
         long[] pageStart;
+        /** Thread-safe page cache */
+        final ConcurrentHashMap<Integer,SoftReference<ArrayIntCompressed>> pages2 = new ConcurrentHashMap<Integer,SoftReference<ArrayIntCompressed>>();
 
         IntIndexReader(File indexFile, IndexWriter.Pages<SoftReference<ArrayIntCompressed>> pages, long size,
                         int pageSize, long[] pageStart)
@@ -86,6 +90,12 @@ public abstract class IndexReader
             this.size = size;
             this.pageSize = pageSize;
             this.pages = pages;
+            for (int i = 0; i < pages.size(); ++i)
+            {
+                  SoftReference<ArrayIntCompressed> o = pages.get(i);
+                  if (o != null)
+                      pages2.put(i, o);
+            }
 
             this.indexFile = indexFile;
             this.pageStart = pageStart;
@@ -133,7 +143,7 @@ public abstract class IndexReader
 
             pageStart = new long[pages];
 
-            this.in.seek(start + length - 8 - (pageStart.length * 8));
+            this.in.seek(start + length - 8 - (pageStart.length * 8L));
             this.in.readLongArray(pageStart);
         }
 
@@ -153,6 +163,12 @@ public abstract class IndexReader
             {
                 throw new RuntimeException(e);
             }
+        }
+
+        public void unload()
+        {
+            pages2.clear();
+            super.unload();
         }
 
         public synchronized void close()
@@ -179,13 +195,13 @@ public abstract class IndexReader
         @Override
         protected ArrayIntCompressed getPage(int page)
         {
-            SoftReference<ArrayIntCompressed> ref = pages.get(page);
+            SoftReference<ArrayIntCompressed> ref = pages2.get(page);
             ArrayIntCompressed array = ref == null ? null : ref.get();
             if (array == null)
             {
                 synchronized (LOCK)
                 {
-                    ref = pages.get(page);
+                    ref = pages2.get(page);
                     array = ref == null ? null : ref.get();
 
                     if (array == null)
@@ -202,10 +218,7 @@ public abstract class IndexReader
 
                             array = new ArrayIntCompressed(buffer);
 
-                            synchronized (pages)
-                            {
-                                pages.put(page, new SoftReference<ArrayIntCompressed>(array));
-                            }
+                            pages2.put(page, new SoftReference<ArrayIntCompressed>(array));
                         }
                         catch (IOException e)
                         {
@@ -266,7 +279,7 @@ public abstract class IndexReader
         @Override
         protected ArrayIntLongCompressed getPage(int page)
         {
-            SoftReference<ArrayIntCompressed> ref = pages.get(page);
+            SoftReference<ArrayIntCompressed> ref = pages2.get(page);
             ArrayIntCompressed array = ref == null ? null : ref.get();
             if (array instanceof ArrayIntLongCompressed)
             {
@@ -279,10 +292,7 @@ public abstract class IndexReader
                     if (array == null)
                         array = super.getPage(page);
                     ArrayIntLongCompressed ret = new ArrayIntLongCompressed(array);
-                    synchronized (pages)
-                    {
-                        pages.put(page, new SoftReference<ArrayIntCompressed>(ret));
-                    }
+                    pages2.put(page, new SoftReference<ArrayIntCompressed>(ret));
                     return ret;
                 }
             }
@@ -647,13 +657,28 @@ public abstract class IndexReader
         File indexFile;
         SimpleBufferedRandomAccessInputStream in;
         long[] pageStart;
+        /**
+         * Thread-safe search cache.
+         * Scale up the capacity so size doesn't exceed 75% capacity and 
+         * so isn't ever resized.
+         */
+        ConcurrentHashMap<Integer,Long>binarySearchCache2 = new ConcurrentHashMap<Integer,Long>((1 << DEPTH)* 4 / 3);
+        /** Thread-safe page cache */
+        final ConcurrentHashMap<Integer,SoftReference<ArrayLongCompressed>> pages2 = new ConcurrentHashMap<Integer,SoftReference<ArrayLongCompressed>>();
 
+        @SuppressWarnings("unchecked")
         public LongIndexReader(File indexFile, HashMapIntObject<Object> pages, int size, int pageSize, long[] pageStart)
                         throws IOException
         {
             this.size = size;
             this.pageSize = pageSize;
             this.pages = pages;
+            for (Iterator<HashMapIntObject.Entry<Object>> it = pages.entries(); it.hasNext();)
+            {
+                HashMapIntObject.Entry<Object> e = it.next();
+                if (e.getValue() instanceof SoftReference<?>)
+                    pages2.put(e.getKey(), (SoftReference<ArrayLongCompressed>)e.getValue());
+            }
 
             this.indexFile = indexFile;
             this.pageStart = pageStart;
@@ -683,7 +708,7 @@ public abstract class IndexReader
 
             pageStart = new long[pages];
 
-            this.in.seek(start + length - 8 - (pageStart.length * 8));
+            this.in.seek(start + length - 8 - (pageStart.length * 8L));
             this.in.readLongArray(pageStart);
         }
 
@@ -719,17 +744,86 @@ public abstract class IndexReader
             }
         }
 
-        @SuppressWarnings("unchecked")
+        /**
+         * The number of calls to the cache for {@link #reverse()}.
+         * Make this >= log2(2^31 / PAGE_SIZE_LONG)
+         * so that reverse() nearly always uses the cache before getting to the
+         * required page, rather than having to access other pages.
+         */
+        private static final int DEPTH = 13;
+
+        @Override
+        public int reverse(long value)
+        {
+            int low = 0;
+            int high = size - 1;
+
+            int depth = 0;
+            int page = -1;
+            ArrayLongCompressed array = null;
+
+            while (low <= high)
+            {
+                // Avoid overflow problems by using unsigned divide by 2
+                int mid = (low + high) >>> 1;
+
+                long midVal;
+
+                if (depth++ < DEPTH)
+                {
+                    Long midValO = binarySearchCache2.get(mid); 
+                    if (midValO != null)
+                    {
+                        midVal = midValO;
+                    }
+                    else
+                    {
+                        int p = mid / pageSize;
+                        if (p != page)
+                            array = getPage(page = p);
+
+                        midVal = array.get(mid % pageSize);
+
+                        binarySearchCache2.put(mid, midVal);
+                    }
+                }
+                else
+                {
+                    int p = mid / pageSize;
+                    if (p != page)
+                        array = getPage(page = p);
+
+                    midVal = array.get(mid % pageSize);
+                }
+
+                if (midVal < value)
+                    low = mid + 1;
+                else if (midVal > value)
+                    high = mid - 1;
+                else
+                    return mid; // key found
+            }
+            return -(low + 1); // key not found.
+        }
+
+        @Override
+        public synchronized void unload()
+        {
+            binarySearchCache2 = new ConcurrentHashMap<Integer,Long>((1 << DEPTH) * 4 / 3);
+            pages2.clear();
+            super.unload();
+        }
+
         @Override
         protected ArrayLongCompressed getPage(int page)
         {
-            SoftReference<ArrayLongCompressed> ref = (SoftReference<ArrayLongCompressed>) pages.get(page);
+            SoftReference<ArrayLongCompressed> ref = pages2.get(page);
             ArrayLongCompressed array = ref == null ? null : ref.get();
             if (array == null)
             {
                 synchronized (LOCK)
                 {
-                    ref = (SoftReference<ArrayLongCompressed>) pages.get(page);
+                    ref = pages2.get(page);
                     array = ref == null ? null : ref.get();
 
                     if (array == null)
@@ -746,10 +840,7 @@ public abstract class IndexReader
 
                             array = new ArrayLongCompressed(buffer);
 
-                            synchronized (pages)
-                            {
-                                pages.put(page, new SoftReference<ArrayLongCompressed>(array));
-                            }
+                            pages2.put(page, new SoftReference<ArrayLongCompressed>(array));
                         }
                         catch (IOException e)
                         {

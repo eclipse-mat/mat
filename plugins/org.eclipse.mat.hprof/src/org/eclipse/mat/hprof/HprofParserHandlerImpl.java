@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IPreliminaryIndex;
+import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexWriter;
@@ -68,7 +69,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private HashMapLongObject<List<XGCRootInfo>> gcRoots = new HashMapLongObject<List<XGCRootInfo>>(200);
 
-    private IndexWriter.Identifier identifiers = null;
+    private IndexWriter.Identifier identifiers0 = null;
+    private IIndexReader.IOne2LongIndex identifiers = null;
     private IntArray1NWriter outbound = null;
     private IntIndexCollector object2classId = null;
     private LongIndexCollector object2position = null;
@@ -113,7 +115,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     public void beforePass1(XSnapshotInfo snapshotInfo) throws IOException
     {
         this.info = snapshotInfo;
-        this.identifiers = new IndexWriter.Identifier();
+        this.identifiers0 = new IndexWriter.Identifier();
         if (info.getProperty("discard_ratio") instanceof Integer) //$NON-NLS-1$
         {
             discardRatio = (Integer)info.getProperty("discard_ratio") / 100.0; //$NON-NLS-1$
@@ -148,10 +150,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     public void beforePass2(IProgressListener monitor) throws IOException, SnapshotException
     {
         // add dummy address for system class loader object
-        identifiers.add(0);
+        identifiers0.add(0);
 
         // sort and assign preliminary object ids
-        identifiers.sort();
+        identifiers0.sort();
 
         // See what the actual object alignment is
         calculateAlignment();
@@ -167,7 +169,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // informational messages to the user
         monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                        Messages.HprofParserHandlerImpl_HeapContainsObjects, info.getPath(), identifiers.size()), null);
+                        Messages.HprofParserHandlerImpl_HeapContainsObjects, info.getPath(), identifiers0.size()), null);
 
         // if instance dumps for classes are present, then fix up the classes
         addTypesAndDummyStatics();
@@ -178,7 +180,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         for (Iterator<?> e = classesByAddress.values(); e.hasNext();)
         {
             ClassImpl clazz = (ClassImpl) e.next();
-            int index = identifiers.reverse(clazz.getObjectAddress());
+            int index = identifiers0.reverse(clazz.getObjectAddress());
             clazz.setObjectId(index);
 
             maxClassId = Math.max(maxClassId, index);
@@ -186,6 +188,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             clazz.setHeapSizePerInstance(calculateInstanceSize(clazz));
             clazz.setUsedHeapSize(calculateClassSize(clazz));
         }
+
+        // Compress the identifiers index to disk
+        identifiers = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(info.getPrefix() + "temp."), identifiers0.iterator()); //$NON-NLS-1$);
+        identifiers0.delete();
+        identifiers0 = null;
 
         // create index writers
         outbound = new IntArray1NWriter(this.identifiers.size(), Index.OUTBOUND.getFile(info.getPrefix()
@@ -337,7 +344,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         final int maxAlign = 256;
         long prev = 0;
         long align = 0;
-        for (IteratorLong it = identifiers.iterator(); it.hasNext(); )
+        for (IteratorLong it = identifiers0.iterator(); it.hasNext(); )
         {
             long next = it.next();
             if (next == 0)
@@ -482,7 +489,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
         requiredClassIDs = null;
 
-        identifiers.sort();
+        identifiers0.sort();
     }
 
     private int calculateInstanceSize(ClassImpl clazz)
@@ -630,7 +637,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
         index.setThread2objects2roots(thread2objects2roots);
 
-        index.setIdentifiers((new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(info.getPrefix() + "temp."), identifiers.iterator())); //$NON-NLS-1$);
+        index.setIdentifiers(identifiers);
 
         index.setArray2size(array2size.writeTo(Index.A2SIZE.getFile(info.getPrefix() + "temp."))); //$NON-NLS-1$
 
@@ -744,7 +751,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private void addFakeClass(ClassImpl clazz, long filePosition) throws IOException
     {
-        this.identifiers.add(clazz.getObjectAddress());
+        this.identifiers0.add(clazz.getObjectAddress());
         this.classesByAddress.put(clazz.getObjectAddress(), clazz);
 
         List<ClassImpl> list = classesByName.get(clazz.getName());
@@ -755,7 +762,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public void addClass(ClassImpl clazz, long filePosition, int idSize, int instsize) throws IOException
     {
-        this.identifiers.add(clazz.getObjectAddress());
+        this.identifiers0.add(clazz.getObjectAddress());
         this.classesByAddress.put(clazz.getObjectAddress(), clazz);
 
         List<ClassImpl> list = classesByName.get(clazz.getName());
@@ -985,7 +992,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (discardRatio <= 0.0)
             return false;
         // Always accept the first object to give a start to the heap
-        if (identifiers.size() == 0)
+        if (identifiers0.size() == 0)
             return false;
         double d = rand.nextDouble();
         double top = discardRatio + discardOffset;
@@ -1029,7 +1036,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private void reportInstance(long id, long filePosition)
     {
-        this.identifiers.add(id);
+        this.identifiers0.add(id);
         reportFilePosition(filePosition);
     }
 
