@@ -16,6 +16,23 @@
       "message": "Please review when you have a chance",
       "revId": "5f26794e0428329b9f8a86b2538d983c17b3e8a9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8e31bff_bac59bbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-07-01T05:10:04Z",
+      "side": 1,
+      "message": "Looks, fine, and you have already tested it, so ready for you to submit.\nAlso saves 382KiB of space by using png, which is useful.",
+      "revId": "5f26794e0428329b9f8a86b2538d983c17b3e8a9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
