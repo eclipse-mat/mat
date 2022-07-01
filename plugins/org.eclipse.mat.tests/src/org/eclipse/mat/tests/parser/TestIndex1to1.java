@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 IBM Corporation.
+ * Copyright (c) 2012, 2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -25,9 +26,13 @@ import java.util.Random;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.index.IIndexReader;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.Identifier;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexCollector;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -355,7 +360,6 @@ public class TestIndex1to1
         {
             long l1 = r.nextLong();
             id.add(l1);
-            
         }
         id.sort();
         r = new Random(N);
@@ -368,6 +372,271 @@ public class TestIndex1to1
                 assertTrue(id.get(i - 1) <= l1);
             if (i < id.size() - 1)
                 assertTrue(l1 <= id.get(i + 1));
+        }
+    }
+
+    /**
+     * test sorting twice
+     */
+    @Test
+    public void intIdentifier5()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        assumeTrue(N > 0);
+        Identifier id = new Identifier();
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            long l1 = r.nextLong();
+            id.add(l1);
+        }
+        id.sort();
+        id.sort();
+        r = new Random(N);
+        for (IteratorLong l = id.iterator(); l.hasNext(); l.next())
+        {
+            long l1 = r.nextLong();
+            int i = id.reverse(l1);
+            assertEquals(l1, id.get(i));
+            if (i > 0)
+                assertTrue(id.get(i - 1) <= l1);
+            if (i < id.size() - 1)
+                assertTrue(l1 <= id.get(i + 1));
+        }
+    }
+
+    @Test
+    public void longIndexCollector1()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        LongIndexCollector id = new LongIndexCollector((int)N, 63-Long.numberOfLeadingZeros(N-1));
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.set(i, i + 0l);
+        }
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            assertEquals(i + 0l, id.get(i));
+        }
+    }
+
+    @Test
+    public void longIndexCollector2()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        LongIndexCollector id = new LongIndexCollector((int)N, 63);
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.set(i, r.nextLong());
+        }
+        r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            long l1 = r.nextLong();
+            assertEquals(l1, id.get(i));
+            assertEquals(l1, id.getNext(i, 1)[0]);
+        }
+    }
+
+    @Test
+    public void longIndexCollector3()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        LongIndexCollector id = new LongIndexCollector((int)N, 63);
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.set(i, r.nextLong());
+        }
+        r = new Random(N);
+        for (IteratorLong l = id.iterator(); l.hasNext(); )
+        {
+            assertEquals(r.nextLong(), l.next());
+        }
+    }
+
+    @Test
+    public void longIndexCollector4()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        assumeTrue(N > 0);
+        LongIndexCollector id = new LongIndexCollector((int)N, 63);
+        Random r = new Random(N);
+        long l1 = 0;
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+            id.set(i, l1);
+        }
+        //id.sort();
+        r = new Random(N);
+        l1 = 0;
+        for (IteratorLong l = id.iterator(); l.hasNext(); l.next())
+        {
+            l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+            int i = id.reverse(l1);
+            assertEquals(l1, id.get(i));
+            if (i > 0)
+                assertTrue(id.get(i - 1) <= l1);
+            if (i < id.size() - 1)
+                assertTrue(l1 <= id.get(i + 1));
+        }
+    }
+
+    /**
+     * Multi-threaded reverse() test
+     * Ignore as thread-safe reverse() not yet implemented for this class
+     * @throws InterruptedException hardly ever
+     * @throws Exception
+     */
+    @Ignore
+    @Test
+    public void longIndexCollector5() throws InterruptedException, Exception
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        assumeTrue(N > 0);
+        final LongIndexCollector id = new LongIndexCollector((int) N, 63);
+        Random r = new Random(N);
+        // Create in ascending order
+        long l1 = 0;
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+            id.set(i, l1);
+        }
+        // Can't sort
+        // id.sort();
+        try
+        {
+            Runnable rn = new Runnable()
+            {
+                public void run()
+                {
+                    Random r = new Random(N);
+                    long l1 = 0;
+                    for (IteratorLong l = id.iterator(); l.hasNext(); l.next())
+                    {
+                        l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+                        int i = id.reverse(l1);
+                        assertEquals(l1, id.get(i));
+                        if (i > 0)
+                            assertTrue(id.get(i - 1) <= l1);
+                        if (i < id.size() - 1)
+                            assertTrue(l1 <= id.get(i + 1));
+                    }
+                }
+            };
+            int n = 16;
+            Thread t[] = new Thread[n];
+            final Throwable th[] = new Throwable[n];
+            for (int i = 0; i < n; ++i)
+            {
+                t[i] = new Thread(rn);
+                final int j = i;
+                t[i].setUncaughtExceptionHandler(new UncaughtExceptionHandler()
+                {
+                    public void uncaughtException(Thread thread, Throwable throwable)
+                    {
+                        th[j] = throwable;
+                    }
+                });
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                t[i].start();
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                t[i].join();
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                if (th[i] instanceof Exception)
+                    throw (Exception) th[i];
+            }
+        }
+        finally
+        {
+            id.unload();
+        }
+    }
+
+    /**
+     * Multi-threaded reverse() test
+     * @throws InterruptedException when something strange happens
+     * @throws Exception when it fails
+     */
+    @Test
+    public void longIndex1NReader() throws InterruptedException, Exception
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        assumeTrue(N > 0);
+        final Identifier id = new Identifier();
+        Random r = new Random(N);
+        // Create in ascending order
+        long l1 = 0;
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+            id.add(l1);
+        }
+        id.sort();
+        File f = File.createTempFile("longIndex1NReader", ".tmp"); //$NON-NLS-1$ //$NON-NLS-2$
+        final IOne2LongIndex lis = (new LongIndexStreamer()).writeTo(f, id.iterator());
+        try
+        {
+            Runnable rn = new Runnable()
+            {
+                public void run()
+                {
+                    Random r = new Random(N);
+                    long l1 = 0;
+                    for (IteratorLong l = id.iterator(); l.hasNext(); l.next())
+                    {
+                        l1 += r.nextInt(Integer.MAX_VALUE) + 1L;
+                        int i = lis.reverse(l1);
+                        assertEquals(l1, lis.get(i));
+                        if (i > 0)
+                            assertTrue(lis.get(i - 1) <= l1);
+                        if (i < lis.size() - 1)
+                            assertTrue(l1 <= lis.get(i + 1));
+                    }
+                }
+            };
+            int n = 16;
+            Thread t[] = new Thread[n];
+            final Throwable th[] = new Throwable[n];
+            for (int i = 0; i < n; ++i)
+            {
+                t[i] = new Thread(rn);
+                final int j = i;
+                t[i].setUncaughtExceptionHandler(new UncaughtExceptionHandler()
+                {
+                    public void uncaughtException(Thread thread, Throwable throwable)
+                    {
+                        th[j] = throwable;
+                    }
+                });
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                t[i].start();
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                t[i].join();
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                if (th[i] instanceof Exception)
+                    throw (Exception) th[i];
+            }
+        }
+        finally
+        {
+            lis.close();
+            assertTrue(f.delete());
         }
     }
 }
