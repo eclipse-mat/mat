@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2021 IBM Corporation
+ * Copyright (c) 2018, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -92,6 +93,7 @@ import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SilentProgressListener;
 
@@ -190,6 +192,9 @@ public class ExportHprof implements IQuery
 
     /** keep track for totals */
     SetInt classloaders = new SetInt();
+
+    /** Speed up first pass */
+    boolean skipData = false;
 
     /**
      * Stream which discards the output.
@@ -366,10 +371,14 @@ public class ExportHprof implements IQuery
         long startTime;
         OutputStream outstream = new BufferedOutputStream(new FileOutputStream(output), 1024 * 64);
         if (compress)
+        {
             if (chunked)
                 outstream = new ChunkedGZIPRandomAccessFile.ChunkedGZIPOutputStream(outstream);
             else
                 outstream = new GZIPOutputStream(outstream);
+            // Speeds up compression
+            outstream = new BufferedOutputStream(outstream);
+        }
         DataOutputStream3 os = new DataOutputStream3(outstream);
         try
         {
@@ -450,7 +459,10 @@ public class ExportHprof implements IQuery
                 DataOutputStream3 os3 = new DataOutputStream3(new NullStream());
                 long m1 = os2.size();
                 listener.subTask(MessageUtil.format(Messages.ExportHprof_PrepareObjects, segnum));
+                boolean saveSkip = skipData;
+                skipData = true;
                 int end = dumpObjects(os2, os3, st, maxObjects, true, listener);
+                skipData = saveSkip;
                 long m2 = os2.size();
                 long s2 = m2 - m1;
                 os3.close();
@@ -1187,55 +1199,55 @@ public class ExportHprof implements IQuery
             case IObject.Type.BOOLEAN:
                 if (addType)
                     os.writeByte(IObject.Type.BOOLEAN);
-                int booleanValue = redact == RedactType.FULL ? 0 : ((Boolean) fld.getValue()).booleanValue() ? 1 : 0;
+                int booleanValue = skipData || redact == RedactType.FULL ? 0 : ((Boolean) fld.getValue()).booleanValue() ? 1 : 0;
                 os.writeByte(booleanValue);
                 break;
             case IObject.Type.BYTE:
                 if (addType)
                     os.writeByte(IObject.Type.BYTE);
-                byte byteValue = redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((Byte) fld.getValue()).byteValue();
+                byte byteValue = skipData || redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((Byte) fld.getValue()).byteValue();
                 os.writeByte(byteValue);
                 break;
             case IObject.Type.CHAR:
                 if (addType)
                     os.writeByte(IObject.Type.CHAR);
-                char charValue = redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((Character) fld.getValue()).charValue();
+                char charValue = skipData || redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((Character) fld.getValue()).charValue();
                 os.writeChar(charValue);
                 break;
             case IObject.Type.SHORT:
                 if (addType)
                     os.writeByte(IObject.Type.SHORT);
-                short shortValue = redact == RedactType.FULL ? 0 : ((Short) fld.getValue()).shortValue();
+                short shortValue = skipData || redact == RedactType.FULL ? 0 : ((Short) fld.getValue()).shortValue();
                 os.writeShort(shortValue);
                 break;
             case IObject.Type.INT:
                 if (addType)
                     os.writeByte(IObject.Type.INT);
-                int intValue = redact == RedactType.FULL ? 0 : ((Integer) fld.getValue()).intValue();
+                int intValue = skipData || redact == RedactType.FULL ? 0 : ((Integer) fld.getValue()).intValue();
                 os.writeInt(intValue);
                 break;
             case IObject.Type.FLOAT:
                 if (addType)
                     os.writeByte(IObject.Type.FLOAT);
-                float floatValue = redact == RedactType.FULL ? 0.0f : ((Float) fld.getValue()).floatValue();
+                float floatValue = skipData || redact == RedactType.FULL ? 0.0f : ((Float) fld.getValue()).floatValue();
                 os.writeFloat(floatValue);
                 break;
             case IObject.Type.LONG:
                 if (addType)
                     os.writeByte(IObject.Type.LONG);
-                long longValue = redact == RedactType.FULL ? 0L : ((Long) fld.getValue()).longValue();
+                long longValue = skipData || redact == RedactType.FULL ? 0L : ((Long) fld.getValue()).longValue();
                 os.writeLong(longValue);
                 break;
             case IObject.Type.DOUBLE:
                 if (addType)
                     os.writeByte(IObject.Type.DOUBLE);
-                double doubleValue = redact == RedactType.FULL ? 0.0 : ((Double) fld.getValue()).doubleValue();
+                double doubleValue = skipData || redact == RedactType.FULL ? 0.0 : ((Double) fld.getValue()).doubleValue();
                 os.writeDouble(doubleValue);
                 break;
             case IObject.Type.OBJECT:
                 if (addType)
                     os.writeByte(IObject.Type.OBJECT);
-                ObjectReference value = (ObjectReference) fld.getValue();
+                ObjectReference value = skipData ? null : (ObjectReference) fld.getValue();
                 if (value != null)
                     writeID(os, value.getObjectAddress());
                 else
@@ -1288,9 +1300,44 @@ public class ExportHprof implements IQuery
         }
         else
         {
-            for (IClass cls : snapshot.getClasses())
+            // Whether to output every object in address order or to go by classes
+            boolean sequential = true;
+            int count;
+            int step;
+            int st;
+            Iterator<IClass> it;
+            if (sequential)
             {
-                int objs[] = cls.getObjectIds();
+                count = snapshot.getSnapshotInfo().getNumberOfObjects();
+                step = 10000;
+                // Advance directly to the start point
+                st = start;
+                i = start;
+                it = null;
+            }
+            else
+            {
+                count = snapshot.getClasses().size();
+                step = 1;
+                st = 0;
+                it = snapshot.getClasses().iterator();
+            }
+            for (int j = st; j < count; j += step)
+            {
+                int objs[];
+                if (sequential)
+                {
+                    int n = Math.min(step,  count - j);
+                    objs = new int[n];
+                    for (int k = 0; k < n; ++k)
+                    {
+                        objs[k] = j + k;
+                    }
+                }
+                else
+                {
+                    objs = it.next().getObjectIds();
+                }
                 i = dumpObjects(os, os2, start, end, i, objs, check, listener);
                 if (end >= 0 && i >= end)
                     return i;
@@ -1697,7 +1744,7 @@ public class ExportHprof implements IQuery
         os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         os.writeInt(ii.getLength());
         writeID(os, ii.getClazz().getObjectAddress());
-        long l[] = ii.getReferenceArray();
+        long l[] = skipData ? new long[ii.getLength()] : ii.getReferenceArray();
         for (int i = 0; i < ii.getLength(); ++i)
         {
             writeID(os, l[i]);
@@ -1729,18 +1776,18 @@ public class ExportHprof implements IQuery
         os.writeInt(ii.getLength());
         os.writeByte(ii.getType());
         // For safety, don't even read value for full redaction
-        Object a = redact == RedactType.FULL ? null : ii.getValueArray();
+        Object a = skipData || redact == RedactType.FULL ? null : ii.getValueArray();
         if (ii.getType() == IObject.Type.BOOLEAN)
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                int booleanValue = redact == RedactType.FULL ? 0 : ((boolean[]) a)[i] ? 1 : 0;
+                int booleanValue = skipData || redact == RedactType.FULL ? 0 : ((boolean[]) a)[i] ? 1 : 0;
                 os.writeByte(booleanValue);
             }
         }
         else if (ii.getType() == IObject.Type.BYTE)
         {
-            if (redact == RedactType.NAMES)
+            if (!skipData && redact == RedactType.NAMES)
             {
                 String s = new String((byte[])a, UTF8);
                 String newstr = remap.mapClass(s);
@@ -1769,7 +1816,7 @@ public class ExportHprof implements IQuery
                     }
                 }
             }
-            else if (redact != RedactType.NONE)
+            else if (skipData || redact != RedactType.NONE)
             {
                 a = new byte[ii.getLength()];
             }
@@ -1779,13 +1826,13 @@ public class ExportHprof implements IQuery
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                short shortValue = redact == RedactType.FULL ? 0 : ((short[]) a)[i];
+                short shortValue = skipData || redact == RedactType.FULL ? 0 : ((short[]) a)[i];
                 os.writeShort(shortValue);
             }
         }
         else if (ii.getType() == IObject.Type.CHAR)
         {
-            if (redact == RedactType.NAMES)
+            if (!skipData && redact == RedactType.NAMES)
             {
                 String s = new String((char[])a);
                 String newstr = remap.mapClass(s);
@@ -1816,7 +1863,7 @@ public class ExportHprof implements IQuery
             }
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                char shortValue = redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((char[]) a)[i];
+                char shortValue = skipData || redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((char[]) a)[i];
                 os.writeChar(shortValue);
             }
         }
@@ -1824,7 +1871,7 @@ public class ExportHprof implements IQuery
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                int intValue = redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((int[]) a)[i];
+                int intValue = skipData || redact != RedactType.NONE && redact != RedactType.NAMES ? 0 : ((int[]) a)[i];
                 os.writeInt(intValue);
             }
         }
@@ -1832,7 +1879,7 @@ public class ExportHprof implements IQuery
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                long longValue = redact == RedactType.FULL ? 0L : ((long[]) a)[i];
+                long longValue = skipData || redact == RedactType.FULL ? 0L : ((long[]) a)[i];
                 os.writeLong(longValue);
             }
         }
@@ -1840,7 +1887,7 @@ public class ExportHprof implements IQuery
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                float floatValue = redact == RedactType.FULL ? 0.0f : ((float[]) a)[i];
+                float floatValue = skipData || redact == RedactType.FULL ? 0.0f : ((float[]) a)[i];
                 os.writeFloat(floatValue);
             }
         }
@@ -1848,7 +1895,7 @@ public class ExportHprof implements IQuery
         {
             for (int i = 0; i < ii.getLength(); ++i)
             {
-                double doubleValue = redact == RedactType.FULL ? 0.0 : ((double[]) a)[i];
+                double doubleValue = skipData || redact == RedactType.FULL ? 0.0 : ((double[]) a)[i];
                 os.writeDouble(doubleValue);
             }
         }
@@ -1870,7 +1917,10 @@ public class ExportHprof implements IQuery
         }
         IClass cls = ii.getClazz();
         long mark1 = os2.size();
+        boolean saveSkip = skipData;
+        skipData = true;
         dumpInstanceFields(os2, cls, ii);
+        skipData = saveSkip;
         long mark2 = os2.size();
         long size = mark2 - mark1;
 
