@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.util.IProgressListener;
@@ -134,8 +135,38 @@ public abstract class CopyActions implements IQuery
         }
     }
 
+    static abstract class CopyActions2 extends CopyActions
+    {
+        protected void appendValue(StringBuilder buf, IContextObject ctx) throws SnapshotException
+        {
+            if (ctx instanceof IContextObjectSet)
+            {
+                IContextObjectSet ctxs = (IContextObjectSet)ctx;
+                String oql = ctxs.getOQL();
+                if (oql != null && ctxs.getObjectIds().length == 0)
+                {
+                    String dummy = OQL.forAddress(0x0);
+                    if (oql.startsWith(dummy.substring(0, dummy.length() - 3)))
+                    {
+                        // Special OQL indicating unindexed object
+                        String addr = oql.substring(dummy.length() - 3);
+                        if (addr.matches("0[xX][0-9A-Fa-f]+")) //$NON-NLS-1$
+                        {
+                            long l = Long.parseUnsignedLong(addr.substring(2), 16);
+                            ObjectReference ref = new ObjectReference(snapshot, l);
+                            IObject obj = ref.getObject();
+                            if (buf.length() > 0)
+                                buf.append(System.lineSeparator());
+                            appendValue(buf, obj);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Icon("/icons/copy.gif")
-    public static class FQClassName extends CopyActions
+    public static class FQClassName extends CopyActions2
     {
         protected void appendValue(StringBuilder buf, IObject object)
         {
@@ -147,7 +178,7 @@ public abstract class CopyActions implements IQuery
     }
 
     @Icon("/icons/copy.gif")
-    public static class Value extends CopyActions
+    public static class Value extends CopyActions2
     {
         protected void appendValue(StringBuilder buf, IObject object) throws SnapshotException
         {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,6 @@ import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -3039,6 +3038,26 @@ public class OQLTest
         StringBuilder sb = new StringBuilder("SELECT s FROM java.lang.String s UNION (SELECT DISTINCT @outboundReferences FROM OBJECTS ");
         buildAddr(sb, dups);
         sb.append(" s)");
+        IResultTable result = (IResultTable)execute(sb.toString());
+        System.out.println(sb.toString());
+        checkGetOQL(result);
+    }
+
+    /**
+     * Test unindexed objects
+     * with duplicates and a union the other way round
+     */
+    @Test
+    public void testUnindexed20() throws SnapshotException
+    {
+        int dups = 4;
+        StringBuilder sb = new StringBuilder("SELECT s FROM OBJECTS ");
+        buildAddr(sb, dups);
+        sb.append(" s");
+        String s1 = sb.toString();
+        OQL.union(sb, "SELECT s FROM OBJECTS 1 s");
+        OQL.union(sb, s1);
+        OQL.union(sb, "SELECT s FROM OBJECTS 2 s");
         IResultTable result = (IResultTable)execute(sb.toString());
         System.out.println(sb.toString());
         checkGetOQL(result);

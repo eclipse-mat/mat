@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,10 @@ import org.eclipse.mat.snapshot.ISnapshot;
 
 /**
  * The value of a field if it is an object reference.
+ * Also can be used to retrieve an IObject from its address
+ * even if the object has not been indexed provided that the 
+ * snapshot parser supports the reading of unindexed or
+ * discarded objects.
  */
 public class ObjectReference implements Serializable
 {
@@ -53,7 +57,9 @@ public class ObjectReference implements Serializable
     /**
      * The id of the object
      * @return the object id
-     * @throws SnapshotException
+     * @throws SnapshotException if the object has not been
+     * indexed, for example if it is unreachable or has been
+     * discarded.
      */
     public int getObjectId() throws SnapshotException
     {
@@ -61,7 +67,9 @@ public class ObjectReference implements Serializable
     }
 
     /**
-     * Get a detailed view of the object
+     * Get a detailed view of the object.
+     * Can be used to find an unindexed object by its addresss
+     * if the snapshot parser supports that.
      * @return the object detail
      * @throws SnapshotException
      */

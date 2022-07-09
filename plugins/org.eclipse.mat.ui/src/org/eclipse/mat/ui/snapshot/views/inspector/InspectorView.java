@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1355,8 +1355,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         ISnapshot snapshot = palette.getSnapshot();
                         for (int ii = 0; ii < refs.length; ii++)
                         {
-                            int id = snapshot.mapAddressToId(refs[ii]);
-                            IObject obj = snapshot.getObject(id);
+                            // Also works for unindexed objects
+                            ObjectReference ref = new ObjectReference(snapshot, refs[ii]);
+                            IObject obj = ref.getObject();
                             if (obj == null)
                                 return null;
 

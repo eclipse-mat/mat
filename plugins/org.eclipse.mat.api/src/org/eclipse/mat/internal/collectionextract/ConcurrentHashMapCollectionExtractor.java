@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 
 public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExtractorBase
 {
@@ -48,8 +49,9 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
         {
             if (addr != 0)
             {
-                int segmentId = snapshot.mapAddressToId(addr);
-                size += segmentInfo.getSize(snapshot.getObject(segmentId));
+                // Also works for unindexed objects
+                ObjectReference ref = new ObjectReference(snapshot, addr);
+                size += segmentInfo.getSize(ref.getObject());
             }
         }
 
@@ -77,8 +79,9 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
         {
             if (addr != 0)
             {
-                int segmentId = snapshot.mapAddressToId(addr);
-                IObject segment = snapshot.getObject(segmentId);
+                // Also works for unindexed objects
+                ObjectReference ref = new ObjectReference(snapshot, addr);
+                IObject segment = ref.getObject();
                 Integer cap = extractor.getCapacity(segment);
                 if (cap != null && extractor.hasSize())
                 {
@@ -121,7 +124,9 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
         {
             if (addr != 0)
             {
-                int[] segmentEntries = segmentInfo.extractEntryIds(snapshot.getObject(snapshot.mapAddressToId(addr)));
+                // Also works for unindexed objects
+                ObjectReference ref = new ObjectReference(snapshot, addr);
+                int[] segmentEntries = segmentInfo.extractEntryIds(ref.getObject());
                 result.addAll(segmentEntries);
             }
         }
@@ -143,8 +148,9 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
         {
             if (addr != 0)
             {
-                int segmentId = snapshot.mapAddressToId(addr);
-                result += segmentInfo.getNumberOfNotNullElements(snapshot.getObject(segmentId));
+                // Also works for unindexed objects
+                ObjectReference ref = new ObjectReference(snapshot, addr);
+                result += segmentInfo.getNumberOfNotNullElements(ref.getObject());
             }
         }
         return result;

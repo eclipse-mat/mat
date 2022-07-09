@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others
+ * Copyright (c) 2019,2022 IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 
 public class FieldSizeArrayMapExtractor extends FieldSizeArrayCollectionExtractor implements IMapExtractor
 {
@@ -69,8 +70,9 @@ public class FieldSizeArrayMapExtractor extends FieldSizeArrayCollectionExtracto
                     long keyaddr = keyArray.getReferenceArray(ix2, 1)[0];
                     try
                     {
-                        int keyid = snapshot.mapAddressToId(keyaddr);
-                        key = snapshot.getObject(keyid);
+                        // Also works for unindexed objects
+                        ObjectReference ref = new ObjectReference(snapshot, keyaddr);
+                        key = ref.getObject();
                     }
                     catch (SnapshotException e)
                     {
@@ -82,8 +84,9 @@ public class FieldSizeArrayMapExtractor extends FieldSizeArrayCollectionExtracto
                     long valueaddr = valueArray.getReferenceArray(ix2, 1)[0];
                     try
                     {
-                        int valueid = snapshot.mapAddressToId(valueaddr);
-                        value = snapshot.getObject(valueid);
+                        // Also works for unindexed objects
+                        ObjectReference ref = new ObjectReference(snapshot, valueaddr);
+                        value = ref.getObject();
                     }
                     catch (SnapshotException e)
                     {

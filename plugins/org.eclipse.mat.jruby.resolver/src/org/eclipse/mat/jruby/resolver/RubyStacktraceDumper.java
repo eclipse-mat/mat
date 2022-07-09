@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2010, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.osgi.util.NLS;
@@ -146,7 +147,9 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
                     // This is pretty much identical to ThreadContext#buildTrace(RubyStackTraceElement[])
                     long[] addresses = frames.getReferenceArray();
                     for (int i = 0; i <= frameIndex; i++) {
-                        IObject frameObject = model.getObject(model.mapAddressToId(addresses[i]));
+                        // Also works for unindexed objects
+                        ObjectReference ref = new ObjectReference(model, addresses[i]);
+                        IObject frameObject = ref.getObject();
                         FrameModel frame = new FrameModel(frameObject);
                         backtraceFrames[traceSize - 1 - i] = frame;
                     }

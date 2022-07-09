@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.mat.internal.collectionextract.HashMapCollectionExtractor;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
@@ -39,6 +40,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -90,17 +92,19 @@ public class HashEntriesQuery implements IQuery
 
     static class Entry
     {
-        public Entry(int collectionId, String collectionName, int keyId, int valueId)
+        public Entry(int collectionId, String collectionName, int keyId, int valueId, Map.Entry<IObject, IObject> entry)
         {
             this.collectionId = collectionId;
             this.collectionName = collectionName;
             this.keyId = keyId;
             this.valueId = valueId;
+            this.entry = entry;
         }
 
         int collectionId;
         int keyId;
         int valueId;
+        Map.Entry<IObject, IObject> entry;
 
         String collectionName;
         String keyValue;
@@ -160,15 +164,37 @@ public class HashEntriesQuery implements IQuery
                     return entry.collectionName;
                 case 1:
                     if (entry.keyValue == null)
-                        entry.keyValue = resolve(entry.keyId);
+                    {
+                        if (entry.entry != null)
+                            entry.keyValue = resolve(entry.entry.getKey());
+                        else
+                            entry.keyValue = resolve(entry.keyId);
+                    }
                     return entry.keyValue;
                 case 2:
                     if (entry.valueValue == null)
-                        entry.valueValue = resolve(entry.valueId);
+                    {
+                        if (entry.entry != null)
+                            entry.valueValue = resolve(entry.entry.getValue());
+                        else
+                            entry.valueValue = resolve(entry.valueId);
+                    }
                     return entry.valueValue;
             }
 
             return null;
+        }
+
+        private String resolve(IObject object)
+        {
+            if (object == null)
+                return null;
+            String name = object.getClassSpecificName();
+
+            if (name == null)
+                name = object.getTechnicalName();
+
+            return name;
         }
 
         private String resolve(int objectId)
@@ -179,11 +205,7 @@ public class HashEntriesQuery implements IQuery
                     return NULL;
 
                 IObject object = snapshot.getObject(objectId);
-                String name = object.getClassSpecificName();
-
-                if (name == null)
-                    name = object.getTechnicalName();
-
+                String name = resolve(object);
                 return name;
             }
             catch (SnapshotException e)
@@ -228,7 +250,34 @@ public class HashEntriesQuery implements IQuery
             }
             else
             {
-                return null;
+                if (((Entry) row).entry == null || (((Entry) row).entry).getKey() == null)
+                    return null;
+                return new IContextObjectSet() {
+
+                    @Override
+                    public int getObjectId()
+                    {
+                        return -1;
+                    }
+
+                    @Override
+                    public int[] getObjectIds()
+                    {
+                        return new int[0];
+                    }
+
+                    @Override
+                    public String getOQL()
+                    {
+                        java.util.Map.Entry<IObject, IObject> entry = ((Entry) row).entry;
+                        if (entry != null)
+                        {
+                            if (entry.getKey() != null)
+                                return OQL.forAddress(entry.getKey().getObjectAddress());
+                        }
+                        return null;
+                    }
+                };
             }
         }
 
@@ -247,7 +296,34 @@ public class HashEntriesQuery implements IQuery
             }
             else
             {
-                return null;
+                if (((Entry) row).entry == null || (((Entry) row).entry).getValue() == null)
+                    return null;
+                return new IContextObjectSet() {
+
+                    @Override
+                    public int getObjectId()
+                    {
+                        return -1;
+                    }
+
+                    @Override
+                    public int[] getObjectIds()
+                    {
+                        return new int[0];
+                    }
+
+                    @Override
+                    public String getOQL()
+                    {
+                        java.util.Map.Entry<IObject, IObject> entry = ((Entry) row).entry;
+                        if (entry != null)
+                        {
+                            if (entry.getValue() != null)
+                                return OQL.forAddress(entry.getValue().getObjectAddress());
+                        }
+                        return null;
+                    }
+                };
             }
         }
 
@@ -356,6 +432,7 @@ public class HashEntriesQuery implements IQuery
                     {
                         Entry e;
                         int keyId,valueId;
+                        Map.Entry<IObject, IObject> me2 = null;
                         try
                         {
                             keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
@@ -363,6 +440,7 @@ public class HashEntriesQuery implements IQuery
                         catch (RuntimeException e1)
                         {
                             keyId = -1;
+                            me2 = me;
                         }
                         try
                         {
@@ -371,15 +449,16 @@ public class HashEntriesQuery implements IQuery
                         catch (RuntimeException e1)
                         {
                             valueId = -1;
+                            me2 = me;
                         }
                         if (me instanceof IObject)
                         {
                             IObject meObject = (IObject) me;
-                            e = new Entry(obj.getObjectId(), obj.getDisplayName(), keyId, valueId);
+                            e = new Entry(obj.getObjectId(), obj.getDisplayName(), keyId, valueId, me2);
                         }
                         else
                         {
-                            e = new Entry(objectId, obj.getDisplayName(), keyId, valueId);
+                            e = new Entry(objectId, obj.getDisplayName(), keyId, valueId, me2);
                         }
                         hashEntries1.add(e);
                     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -229,7 +229,10 @@ public final class OQL
             CharSequence num2 = matchObjs(other, other.length() - id2.length());
             int s1 = end - id1.length() - num1.length();
             int s2 = other.length() - id2.length() - num2.length();
+            // Can't mix addresses and IDs: 0x12345678 and 12345
             if (num1.length() > 0 && num2.length() > 0 &&
+                (num1.toString().contains("0x") || num1.toString().contains("0X")) ==  //$NON-NLS-1$ //$NON-NLS-2$
+                (num2.toString().contains("0x") || num2.toString().contains("0X")) && //$NON-NLS-1$ //$NON-NLS-2$
                             query.subSequence(start, s1).equals(
                                             other.subSequence(0, s2)))
             {

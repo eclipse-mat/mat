@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation
+ * Copyright (c) 2015,2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 
 public class TreeMapArrayCollectionExtractor extends TreeMapCollectionExtractor
 {
@@ -84,8 +85,11 @@ public class TreeMapArrayCollectionExtractor extends TreeMapCollectionExtractor
                         ++i;
                         if (keyAddress != 0 && valueAddress != 0)
                         {
-                            ret = new EntryObject(coll, snapshot.getObject(snapshot.mapAddressToId(keyAddress)),
-                                            snapshot.getObject(snapshot.mapAddressToId(valueAddress)));
+                            // Also works for unindexed objects
+                            ObjectReference keyRef = new ObjectReference(snapshot, keyAddress);
+                            ObjectReference valueRef = new ObjectReference(snapshot, valueAddress);
+                            ret = new EntryObject(coll, keyRef.getObject(), 
+                                            valueRef.getObject());
                             return ret;
                         }
                     }

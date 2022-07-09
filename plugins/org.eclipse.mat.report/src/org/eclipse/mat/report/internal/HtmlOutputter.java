@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -577,12 +577,28 @@ public class HtmlOutputter implements IOutputter
         if (ctx != null)
             objectId = ctx.getObjectId();
 
-        if (objectId >= 0)
+        if (objectId >= 0 
+                        || ctx instanceof IContextObjectSet
+                        && ((IContextObjectSet)ctx).getObjectIds().length == 0
+                        && ((IContextObjectSet)ctx).getOQL() != null
+                        && ((IContextObjectSet)ctx).getOQL().matches("SELECT . FROM OBJECTS 0x[0-9A-Za-z]+"))
         {
             try
             {
-                String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objectId);
-                artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">");
+                if (objectId >= 0)
+                {
+                    String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objectId);
+                    artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">");
+                }
+                else
+                {
+                    String oqlCommand = ((IContextObjectSet)ctx).getOQL(); 
+                    StringBuilder sb = new StringBuilder("oql");
+                    sb.append(" ");
+                    String escapedCommand = Converters.convertAndEscape(String.class, oqlCommand);
+                    sb.append(escapedCommand);
+                    artefact.append("<a href=\"").append(QueryObjectLink.forQuery(sb.toString())).append("\">");
+                }
                 if (iconURL != null)
                 {
                     String alt = altText(url);
