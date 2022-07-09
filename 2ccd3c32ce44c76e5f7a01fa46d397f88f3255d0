@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de5b285a_e0aaae33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-07-09T13:50:24Z",
+      "side": 1,
+      "message": "Looks okay, manual testing shows readable system properties even when some String/char[] discarded.",
+      "revId": "2ccd3c32ce44c76e5f7a01fa46d397f88f3255d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
