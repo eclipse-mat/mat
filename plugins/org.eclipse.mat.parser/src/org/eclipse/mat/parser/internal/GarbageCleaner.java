@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
@@ -580,8 +581,22 @@ import org.eclipse.mat.util.SilentProgressListener;
 
         final HashMap<Integer, Record> histogram = new HashMap<Integer, Record>(reachable.length);
 
-        for(Future<HashMap<Integer, Record>> subhistogram : results) {
-            histogram.putAll(subhistogram.get());
+        for (Future<HashMap<Integer, Record>> subhistogram : results)
+        {
+            for (Map.Entry<Integer, GarbageCleaner.Record> e : subhistogram.get().entrySet())
+            {
+                histogram.merge(e.getKey(), e.getValue(),
+                                new BiFunction<GarbageCleaner.Record, GarbageCleaner.Record, GarbageCleaner.Record>()
+                                {
+                                    @Override
+                                    public Record apply(Record t, Record u)
+                                    {
+                                        t.objectCount += u.objectCount;
+                                        t.size += u.size;
+                                        return t;
+                                    }
+                                });
+            }
         }
 
         /*
