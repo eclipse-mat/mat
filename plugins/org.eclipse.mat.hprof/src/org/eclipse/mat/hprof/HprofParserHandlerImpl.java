@@ -393,7 +393,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             List<ClassImpl>jlcs = classesByName.get(cls);
             if (jlcs == null || jlcs.isEmpty())
             {
-                while (identifiers.reverse(++nextObjectAddress) >= 0)
+                while (identifiers0.reverse(nextObjectAddress += objectAlign) >= 0)
                 {}
                 IClass type = new ClassImpl(nextObjectAddress, cls, jlo, 0, new Field[0], new FieldDescriptor[0]);
                 addFakeClass((ClassImpl) type, -1);
@@ -433,7 +433,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 IClass clazz = lookupClassByName(name, true);
                 if (clazz == null)
                 {
-                    while (identifiers.reverse(++nextObjectAddress) >= 0)
+                    while (identifiers0.reverse(nextObjectAddress += objectAlign) >= 0)
                     {}
 
                     clazz = new ClassImpl(nextObjectAddress, name, jlo, 0, new Field[0], new FieldDescriptor[0]);
