@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
+import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
@@ -37,11 +39,14 @@ import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
+import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.IntArray1NWriter;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexCollector;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
+import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -74,7 +79,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private IntArray1NWriter outbound = null;
     private IntIndexCollector object2classId = null;
     private LongIndexCollector object2position = null;
-    private IndexWriter.SizeIndexCollectorUncompressed array2size = null;
+    private ObjectToSize array2size = null;
 
     private HashMap<Long, Boolean> requiredArrayClassIDs = new HashMap<Long, Boolean>();
     private HashMap<Long, Integer> requiredClassIDs = new HashMap<Long, Integer>();
@@ -107,6 +112,88 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private long discardSeed = 1;
     /** Random number generator to choose what to discard */
     private Random rand = new Random(discardSeed);
+
+    /**
+     * Use to see how much memory is used by arrays.
+     * Smaller than {@link IndexWriter.SizeIndexCollectorUncompressed}.
+     * Compare with {@link org.eclipse.mat.dtfj.DTFJIndexBuilder.ObjectToSize}
+     * which is not thread-safe.
+     */
+    private static class ObjectToSize
+    {
+        /** For small objects */
+        private byte objectToSize[];
+        /** For large objects */
+        private ConcurrentHashMap<Integer,Long> bigObjs = new ConcurrentHashMap<Integer,Long>();
+        private static final int SHIFT = 3;
+        private static final int MASK = 0xff;
+
+        ObjectToSize(int size)
+        {
+            objectToSize = new byte[size];
+        }
+
+        long get(int index)
+        {
+            if (bigObjs.containsKey(index))
+            {
+                long size = bigObjs.get(index);
+                return size;
+            }
+            else
+            {
+                return (objectToSize[index] & MASK) << SHIFT;
+            }
+        }
+
+        long getSize(int index)
+        {
+            return get(index);
+        }
+
+        /**
+         * Rely on most object sizes being small, and having the lower 3 bits
+         * zero. Some classes will have sizes with lower 3 bits not zero, but
+         * there are a limited number of these. It is better to use expand the
+         * range for ordinary objects.
+         *
+         * @param index object ID
+         * @param size in bytes
+         */
+        void set(int index, long size)
+        {
+            if ((size & ~(MASK << SHIFT)) == 0)
+            {
+                objectToSize[index] = (byte) (size >>> SHIFT);
+            }
+            else
+            {
+                bigObjs.put(index, size);
+            }
+        }
+
+        public IIndexReader.IOne2SizeIndex writeTo(File indexFile) throws IOException
+        {
+            final int size = objectToSize.length;
+            return new SizeIndexReader(new IntIndexStreamer().writeTo(indexFile, new IteratorInt()
+            {
+                int i;
+
+                public boolean hasNext()
+                {
+                    return i < size;
+                }
+
+                public int next()
+                {
+                    if (!hasNext())
+                        throw new NoSuchElementException();
+                    return SizeIndexCollectorUncompressed.compress(getSize(i++));
+                }
+
+            }));
+        }
+    }
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -201,7 +288,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         .mostSignificantBit(maxClassId));
         object2position = new LongIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(maxFilePosition));
-        array2size = new IndexWriter.SizeIndexCollectorUncompressed(this.identifiers.size());
+        array2size = new ObjectToSize(this.identifiers.size());
 
         // java.lang.Class needs some special treatment so that object2classId
         // is written correctly
