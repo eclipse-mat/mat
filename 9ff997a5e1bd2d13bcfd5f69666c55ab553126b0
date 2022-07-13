@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96837e1e_e671943c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-07-13T15:04:58Z",
+      "side": 1,
+      "message": "Smallish change, should save some memory.",
+      "revId": "9ff997a5e1bd2d13bcfd5f69666c55ab553126b0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
