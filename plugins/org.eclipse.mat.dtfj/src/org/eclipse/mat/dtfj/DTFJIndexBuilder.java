@@ -12,16 +12,19 @@
  *******************************************************************************/
 package org.eclipse.mat.dtfj;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,6 +118,7 @@ import com.ibm.dtfj.java.JavaStackFrame;
 import com.ibm.dtfj.java.JavaThread;
 import com.ibm.dtfj.java.JavaVMOption;
 import com.ibm.dtfj.runtime.ManagedRuntime;
+import com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive;
 
 /**
  * Reads and parses a DTFJ dump, building indexes which are then used by MAT to create a snapshot.
@@ -934,6 +938,42 @@ public class DTFJIndexBuilder implements IIndexBuilder
         long now1 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                         Messages.DTFJIndexBuilder_TookmsToGetImageFromFile, (now1 - then1), dump, dumpType), null);
+        
+        String reliabilityCheck = System.getProperty("reliabilityCheck");
+        if (reliabilityCheck == null)
+        {
+            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
+                            PreferenceConstants.P_RELIABILITY_CHECK, "", null);
+        }
+
+        // Set a default preference value
+        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
+        }
+
+        if (!PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            DumpReliability reliability = checkDumpReliability(listener);
+            
+            if (reliability == DumpReliability.DURING_GARBAGE_COLLECTION)
+            {
+                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+                {
+                    throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_DuringGC));
+                }
+                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+                {
+                    listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_DuringGC, null);
+                }
+            }
+            else if (reliability == DumpReliability.NON_EXCLUSIVE_ACCESS)
+            {
+                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NonExclusive, null);
+            }
+        }
 
         // Basic information
         try
@@ -2566,6 +2606,90 @@ public class DTFJIndexBuilder implements IIndexBuilder
         methodAddresses = null;
         loaderClassCache = null;
         listener.done();
+    }
+    
+    enum DumpReliability
+    {
+        UNKNOWN, NON_EXCLUSIVE_ACCESS, DURING_GARBAGE_COLLECTION,
+    }
+
+    private DumpReliability checkDumpReliability(IProgressListener listener) throws SnapshotException
+    {
+        // This is a best-effort check so it's okay to use known class names:
+        // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
+        String imageClassName = dtfjInfo.getImage().getClass().getName();
+        if (imageClassName.endsWith("J9DDRImage"))
+        {
+            // This is a core dump
+            try
+            {
+                // Get the j9javavm context of the image
+                String context = executeJdmpviewCommand("!context").trim();
+                context = context.substring(context.indexOf("!j9javavm"));
+
+                // Execute the context and extract out the exclusiveAccessState
+                String j9javavm = executeJdmpviewCommand(context);
+                j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26);
+                j9javavm = j9javavm.substring(0, j9javavm.indexOf(' ')).trim();
+
+                // https://github.com/eclipse/openj9/blob/v0.22.0-release/runtime/oti/j9consts.h#L785
+                long exclusiveAccessState = Long.parseLong(j9javavm, 16);
+                if (exclusiveAccessState == 0)
+                {
+                    return DumpReliability.NON_EXCLUSIVE_ACCESS;
+                }
+                else if (exclusiveAccessState == 2)
+                {
+                    // Something has exclusive access, so figure out what it is
+
+                    // Find the j9vmthread that has exclusive access
+                    String threads = executeJdmpviewCommand("!threads flags");
+                    threads = threads.substring(0, threads.indexOf("20 privateFlags"));
+                    threads = threads.substring(threads.lastIndexOf("!j9vmthread "));
+                    threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
+
+                    // Get the omrVMThread for the j9vmthread
+                    String omrVMThread = executeJdmpviewCommand(threads);
+                    omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15);
+                    omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
+
+                    // Get the vmState of the omrVMThread
+                    String vmStateStr = executeJdmpviewCommand(omrVMThread);
+                    vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13);
+                    vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
+                    long vmState = Long.parseLong(vmStateStr, 16);
+                    if ((vmState & 0x20000) != 0)
+                    {
+                        // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
+                        return DumpReliability.DURING_GARBAGE_COLLECTION;
+                    }
+                }
+            }
+            catch (RuntimeException e)
+            {
+                // This will probably be caused by a change in the undocumented
+                // format of the various jdmpview commands, so we just
+                // print a warning about it.
+                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability, e);
+            }
+        }
+        return DumpReliability.UNKNOWN;
+    }
+    
+    private String executeJdmpviewCommand(String command) throws SnapshotException
+    {
+        try
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
+            DDRInteractive jdmpview = new DDRInteractive(dtfjInfo.getImage(), ps);
+            jdmpview.processLine(command);
+            return baos.toString(StandardCharsets.UTF_8.name());
+        }
+        catch (Exception e)
+        {
+            throw new SnapshotException(e);
+        }
     }
 
     private void findMissingReferences(HashMapLongObject<JavaObject> missingObjects, Iterator<?> it,
