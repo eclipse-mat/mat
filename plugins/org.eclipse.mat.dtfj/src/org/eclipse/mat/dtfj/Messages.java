@@ -79,6 +79,8 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_DTFJJavaRuntime;
     public static String DTFJIndexBuilder_DTFJRootsDisabled;
     public static String DTFJIndexBuilder_DuplicateJavaStackFrame;
+    public static String DTFJIndexBuilder_DuringGC;
+    public static String DTFJIndexBuilder_ErrorCheckingReliability;
     public static String DTFJIndexBuilder_ErrorGettingOutboundReferences;
     public static String DTFJIndexBuilder_ErrorReadingProcessID;
     public static String DTFJIndexBuilder_ExceptionGettingOutboundReferences;
@@ -131,6 +133,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_NoClassLoader;
     public static String DTFJIndexBuilder_NoDateInImage;
     public static String DTFJIndexBuilder_NoDTFJRootsFound;
+    public static String DTFJIndexBuilder_NonExclusive;
     public static String DTFJIndexBuilder_NoRuntimeFullVersionFound;
     public static String DTFJIndexBuilder_NoRuntimeVersionFound;
     public static String DTFJIndexBuilder_NoSuperclassForArray;
@@ -235,6 +238,10 @@ public class Messages extends NLS
     public static String DTFJPreferencePage_OnlyStackFrames;
     public static String DTFJPreferencePage_RunningMethods;
     public static String DTFJPreferencePage_SuppressClassNativeSizes;
+    public static String DTFJPreferencePage_ReliabilityCheck;
+    public static String DTFJPreferencePage_ReliabilityCheck_Fatal;
+    public static String DTFJPreferencePage_ReliabilityCheck_Warning;
+    public static String DTFJPreferencePage_ReliabilityCheck_Skip;
     public static String InitDTFJ_FailedToCreate;
     public static String InitDTFJ_UpdatingBundle;
     public static String InitDTFJ_UpdatedBundle;

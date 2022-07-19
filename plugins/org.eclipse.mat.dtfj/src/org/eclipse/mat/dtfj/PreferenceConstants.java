@@ -20,9 +20,14 @@ public class PreferenceConstants
 	/** Whether to treat stack frames as psuedo-objects and methods as pseudo-classes */
     public static final String P_METHODS = "methodsAsClasses"; //$NON-NLS-1$
     public static final String P_SUPPRESS_CLASS_NATIVE_SIZES = "suppressClassNativeSizes"; //$NON-NLS-1$
+    public static final String P_RELIABILITY_CHECK = "reliabilityCheck"; //$NON-NLS-1$
 
     public static final String NO_METHODS_AS_CLASSES = "none"; //$NON-NLS-1$
     public static final String RUNNING_METHODS_AS_CLASSES = "running"; //$NON-NLS-1$
     public static final String ALL_METHODS_AS_CLASSES = "all"; //$NON-NLS-1$
     public static final String FRAMES_ONLY = "frames"; //$NON-NLS-1$
+    
+    public static final String RELIABILITY_FATAL = "fatal"; //$NON-NLS-1$
+    public static final String RELIABILITY_WARNING = "warning"; //$NON-NLS-1$
+    public static final String RELIABILITY_SKIP = "skip"; //$NON-NLS-1$
 }
