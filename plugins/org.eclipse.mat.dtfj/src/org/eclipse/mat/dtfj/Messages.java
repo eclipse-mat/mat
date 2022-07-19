@@ -165,6 +165,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemGettingClassID;
     public static String DTFJIndexBuilder_ProblemGettingClassIDType;
     public static String DTFJIndexBuilder_ProblemGettingObjectClass;
+    public static String DTFJIndexBuilder_ProblemGettingObjectNotArray;
     public static String DTFJIndexBuilder_ProblemGettingObjectSize;
     public static String DTFJIndexBuilder_ProblemGettingOutboundReferences;
     public static String DTFJIndexBuilder_ProblemGettingRoots;

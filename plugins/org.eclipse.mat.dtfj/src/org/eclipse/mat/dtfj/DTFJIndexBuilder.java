@@ -3690,6 +3690,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 cls.addInstance(size);
                 if (cls.isArrayType())
                 {
+                    if (!jo.isArray())
+                    {
+                        listener.sendUserMessage(Severity.ERROR,
+                                        MessageFormat.format(Messages.DTFJIndexBuilder_ProblemGettingObjectNotArray,
+                                                        format(objAddr), format(clsAddr)),
+                                        null);
+                        return;
+                    }
                     int arrayLen = jo.getArraySize();
                     // Bytes, not elements
                     indexToSize.set(objId, size);
