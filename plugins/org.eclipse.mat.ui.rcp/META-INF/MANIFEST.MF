@@ -37,7 +37,7 @@ Import-Package: org.eclipse.core.commands.common,
  org.eclipse.ui.views
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: org.eclipse.mat.ui.rcp.RCPPlugin
 Bundle-Localization: plugin
 Bundle-Copyright: Copyright (c) 2008, 2022 SAP AG and IBM Corporation. 
