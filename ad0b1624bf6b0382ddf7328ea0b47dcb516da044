@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61dd8674_61f77957",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-07-24T13:01:54Z",
+      "side": 1,
+      "message": "When this code detects this array problem it causes the indexes to be invalid and to fail the debug index check, with messages such as the following:\n\norg.eclipse.mat.ui\nError\nSun Jul 24 13:52:48 BST 2022\nObject at index 973,319 address 0x12eed430 type java.lang.String[] 0x3010af0 has first outbound index 0 address 0x3010000 which is not its class index 35 address 0x3010af0\n",
+      "revId": "ad0b1624bf6b0382ddf7328ea0b47dcb516da044",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
