@@ -3688,7 +3688,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (size < 0) size = 0;
                 }
                 cls.addInstance(size);
-                if (cls.isArrayType())
+                if (cls.isArrayType() && jo.isArray())
                 {
                     int arrayLen = jo.getArraySize();
                     // Bytes, not elements
@@ -3723,6 +3723,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 else
                 {
+                    if (cls.isArrayType() && !jo.isArray())
+                    {
+                        listener.sendUserMessage(Severity.ERROR,
+                                        MessageFormat.format(Messages.DTFJIndexBuilder_ProblemGettingObjectNotArray,
+                                                        format(objAddr), format(clsAddr)),
+                                        null);
+                    }
                     // Allow for objects of the same type with different sizes
                     long oldSize = cls.getHeapSizePerInstance();
                     if (oldSize < 0)
