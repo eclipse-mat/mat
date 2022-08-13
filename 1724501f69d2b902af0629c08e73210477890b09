@@ -33,6 +33,23 @@
       "message": "Moved the array check",
       "revId": "1724501f69d2b902af0629c08e73210477890b09",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a33d12d7_c05958c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-08-13T14:33:31Z",
+      "side": 1,
+      "message": "This looks reasonable to me - go ahead and submit.\nThere might be some problems from DTFJ when actually retrieving details of the object as part of a query - but that is to be expected.",
+      "revId": "1724501f69d2b902af0629c08e73210477890b09",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
