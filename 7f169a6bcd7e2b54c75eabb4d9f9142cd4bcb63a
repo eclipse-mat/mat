@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "945f78cb_4f6e0eb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2022-09-06T15:47:02Z",
+      "side": 1,
+      "message": "Clarify the warning that core dumps without exclusive access might have various corruption of objects, classes, and stack frame locals even if they are not as unreliable as when the dump is taken during, for example, a garbage collection.",
+      "revId": "7f169a6bcd7e2b54c75eabb4d9f9142cd4bcb63a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
