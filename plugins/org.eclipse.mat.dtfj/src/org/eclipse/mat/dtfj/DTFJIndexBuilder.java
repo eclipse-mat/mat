@@ -2621,14 +2621,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (imageClassName.endsWith("J9DDRImage"))
         {
             // This is a core dump
+            StringBuilder sb = new StringBuilder();
             try
             {
                 // Get the j9javavm context of the image
                 String context = executeJdmpviewCommand("!context").trim();
+                sb.append(context);
                 context = context.substring(context.indexOf("!j9javavm"));
 
                 // Execute the context and extract out the exclusiveAccessState
                 String j9javavm = executeJdmpviewCommand(context);
+                sb.append("\n\n" + j9javavm);
                 j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26);
                 j9javavm = j9javavm.substring(0, j9javavm.indexOf(' ')).trim();
 
@@ -2644,17 +2647,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
                     // Find the j9vmthread that has exclusive access
                     String threads = executeJdmpviewCommand("!threads flags");
+                    sb.append("\n\n" + threads);
                     threads = threads.substring(0, threads.indexOf("20 privateFlags"));
                     threads = threads.substring(threads.lastIndexOf("!j9vmthread "));
                     threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
 
                     // Get the omrVMThread for the j9vmthread
                     String omrVMThread = executeJdmpviewCommand(threads);
+                    sb.append("\n\n" + omrVMThread);
                     omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15);
                     omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
 
                     // Get the vmState of the omrVMThread
                     String vmStateStr = executeJdmpviewCommand(omrVMThread);
+                    sb.append("\n\n" + vmStateStr);
                     vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13);
                     vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
                     long vmState = Long.parseLong(vmStateStr, 16);
@@ -2671,6 +2677,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // format of the various jdmpview commands, so we just
                 // print a warning about it.
                 listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability, e);
+                System.out.println(sb.toString());
             }
         }
         return DumpReliability.UNKNOWN;
