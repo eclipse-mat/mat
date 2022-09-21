@@ -410,6 +410,50 @@ public class ThreadOverviewQuery implements IQuery
                                 }
 
                             }) //
+                            .addDetailResult(new DetailResultProvider(Messages.ThreadOverviewQuery_ThreadStack)
+                            {
+                                @Override
+                                public boolean hasResult(Object row)
+                                {
+                                    if (!(row instanceof ThreadOverviewNode))
+                                        return false;
+                                    try
+                                    {
+                                        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
+                                        return true;
+                                    }
+                                    catch (UnsupportedOperationException e)
+                                    {
+                                        return false;
+                                    }
+                                }
+
+                                @Override
+                                public URL getIcon()
+                                {
+                                    try
+                                    {
+                                        return SnapshotQuery
+                                                        .lookup("thread_stack", snapshot).getDescriptor().getIcon(); //$NON-NLS-1$
+                                    }
+                                    catch (SnapshotException e)
+                                    {
+                                        return null;
+                                    }
+                                }
+
+                                @Override
+                                public IResult getResult(Object row, IProgressListener listener)
+                                                throws SnapshotException
+                                {
+                                    int threadId = ((ThreadOverviewNode) row).threadInfo.getThreadId();
+
+                                    return SnapshotQuery.lookup("thread_stack", snapshot) //$NON-NLS-1$
+                                                    .setArgument("threadIds", threadId) //$NON-NLS-1$
+                                                    .execute(listener);
+                                }
+
+                            }) //
                             .build();
         }
 

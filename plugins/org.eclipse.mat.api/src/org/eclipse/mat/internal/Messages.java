@@ -625,6 +625,7 @@ public class Messages extends NLS
     public static String ThreadOverviewQuery_SearchingThreads;
     public static String ThreadOverviewQuery_StackFrameLocalIssue;
     public static String ThreadOverviewQuery_ThreadDetails;
+    public static String ThreadOverviewQuery_ThreadStack;
 
     public static String ThreadStackQuery_Column_ObjectStackFrame;
     public static String ThreadStackQuery_Label_Local;

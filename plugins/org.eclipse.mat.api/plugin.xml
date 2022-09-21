@@ -69,6 +69,7 @@
 		<!-- Threads -->
 		<query impl="org.eclipse.mat.inspections.threads.ThreadOverviewQuery"/>
 		<query impl="org.eclipse.mat.inspections.threads.ThreadInfoQuery"/>
+		<query impl="org.eclipse.mat.inspections.threads.ThreadStackQuery"/>
 		
 		<!-- Collections -->
 		<query impl="org.eclipse.mat.inspections.collections.ArrayFillRatioQuery"/>
