@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections.threads;
 
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -27,6 +28,7 @@ import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("thread_stack")
 @Icon("/META-INF/icons/stack_frame.gif")
@@ -51,7 +53,10 @@ public class ThreadStackQuery implements IQuery
             {
                 IThreadStack stack = snapshot.getThreadStack(threadId);
                 if (stack == null)
-                    return null;
+                {
+                    return new TextResult(MessageUtil.format(Messages.ThreadStackQuery_No_Stack, "0x" //$NON-NLS-1$
+                                    + Long.toHexString(snapshot.getObject(threadId).getObjectAddress())), false);
+                }
 
                 IObject threadObject = snapshot.getObject(threadId);
                 builder.append(threadObject.getTechnicalName()).append(" : ") //$NON-NLS-1$
