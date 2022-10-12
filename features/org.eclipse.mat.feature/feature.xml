@@ -32,8 +32,8 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/mat/latest/update-site/"/>
-      <discovery label="%IBMDTFJSiteName" url="http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/"/>
+      <update label="%updateSiteName" url="https://download.eclipse.org/mat/latest/update-site/"/>
+      <discovery label="%IBMDTFJSiteName" url="https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/"/>
    </url>
 
    <requires>
