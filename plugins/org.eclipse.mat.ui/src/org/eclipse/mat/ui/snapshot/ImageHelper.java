@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -161,22 +161,27 @@ public class ImageHelper
         return new OverlayImageDescriptor(base, overlay);
     }
 
+    /**
+     * Builds an icon out of two parts.
+     * Used by the icon assist window.
+     *
+     */
     static class OverlayImageDescriptor extends CompositeImageDescriptor
     {
-        ImageData base;
-        ImageData overlay;
+        CachedImageDataProvider base;
+        CachedImageDataProvider overlay;
 
         public OverlayImageDescriptor(Image base, Image overlay)
         {
-            this.base = base.getImageData();
-            this.overlay = overlay.getImageData();
+            this.base = createCachedImageDataProvider(base);
+            this.overlay = createCachedImageDataProvider(overlay);
         }
 
         @Override
         protected void drawCompositeImage(int width, int height)
         {
             drawImage(base, 0, 0);
-            drawImage(overlay, 0, height - overlay.height);
+            drawImage(overlay, 0, height - overlay.getHeight());
         }
 
         @Override
