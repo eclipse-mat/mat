@@ -2556,7 +2556,7 @@ public class OQLTest
     @Test
     public void testMethodCallClassLoader() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.ClassLoader\").getSystemClassLoader() FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2568,7 +2568,7 @@ public class OQLTest
     @Test
     public void testMethodCallCompiler() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.Compiler\").disable() FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2580,7 +2580,7 @@ public class OQLTest
     @Test
     public void testMethodCallProcess() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.ProcessBuilder\").getConstructor(s.@class.forName(\"[Ljava.lang.String;\")).newInstance(\"calc\") FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2592,7 +2592,7 @@ public class OQLTest
     @Test
     public void testMethodCallRuntime() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.Runtime\").getRuntime() FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2604,7 +2604,7 @@ public class OQLTest
     @Test
     public void testMethodCallSecurityManager() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.SecurityManager\").newInstance().checkExec(\"calc\") FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2616,7 +2616,7 @@ public class OQLTest
     @Test
     public void testMethodCallSystem() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.System\").currentTimeMillis() FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2628,7 +2628,7 @@ public class OQLTest
     @Test
     public void testMethodCallThread() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@class.forName(\"java.lang.Thread\").activeCount() FROM OBJECTS 1 s");
         assertNull(o);
     }
@@ -2641,7 +2641,7 @@ public class OQLTest
     @Test
     public void testMethodArrayInfo() throws SnapshotException
     {
-        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        expectedException.expectCause(isA(java.lang.SecurityException.class));
         Object o = execute("SELECT s.@info FROM java.lang.String[] s");
         assertNull(o);
     }
