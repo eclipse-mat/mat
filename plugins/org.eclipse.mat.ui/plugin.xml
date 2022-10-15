@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?><!--
-    Copyright (c) 2008, 2020 SAP AG and others.
+    Copyright (c) 2008, 2022 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -129,65 +129,6 @@
 			class="org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions"
 			editorClass="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
 			sequenceNr="1" />
-	</extension>
-
-	<extension point="org.eclipse.ui.actionSets">
-		<actionSet
-			id="org.eclipse.mat.ui.actionSet.openIconAssist"
-			label="%actionSet.label.Icon_Assist___" visible="false">
-			<action
-				class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction"
-				definitionId="org.eclipse.mat.ui.actions.IconAssist"
-				helpContextId="org.eclipse.mat.ui.help.icon_assist"
-				id="org.eclipse.mat.ui.openIconAssist"
-				label="%action.label.Icon_Assist___"
-				menubarPath="help/additions"
-				style="push"
-				tooltip="%action.tooltip.Open_Icon_Assist"/>
-		</actionSet>
-		<actionSet label="%actionSet.label.Open_Heap_Dump" visible="false"
-			id="org.eclipse.mat.ui.actionSet.openExternalFile">
-			<action icon="$nl$/icons/open_snapshot.gif"
-				label="%action.label.Open_Heap_DUMP___"
-				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
-				helpContextId="org.eclipse.mat.ui.help.open_heapdump"
-				tooltip="%action.tooltip.Open_Heap_Dump" menubarPath="file/new.ext" style="push"
-				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
-				id="org.eclipse.mat.ui.openExternalFile">
-			</action>
-		</actionSet>
-		<actionSet
-			id="org.eclipse.mat.ui.actionSet.openAcquireDialog"
-			label="%actionSet.label.Acquire" visible="false">
-			<action
-				class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction"
-				helpContextId="org.eclipse.mat.ui.help.acquire_arguments"
-				icon="$nl$/icons/acquire.gif"
-				id="org.eclipse.mat.ui.openAcquireDialog"
-				label="%action.label.Acquire"
-				menubarPath="file/new.ext"
-				style="push"
-				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
-				tooltip="%action.tooltip.Acquire"/>
-		</actionSet>
-	</extension>
-	
-	<extension point="org.eclipse.ui.perspectiveExtensions">
-		<perspectiveExtension
-			targetID="org.eclipse.mat.ui.perspective">
-			<actionSet
-				id="org.eclipse.mat.ui.actionSet.openExternalFile">
-			</actionSet>
-			<actionSet
-				id="org.eclipse.mat.ui.actionSet.openIconAssist">
-			</actionSet>
-		</perspectiveExtension>
-		<perspectiveExtension
-			targetID="org.eclipse.mat.ui.perspective">
-			<actionSet
-				id="org.eclipse.mat.ui.actionSet.openAcquireDialog">
-			</actionSet>
-		</perspectiveExtension>
 	</extension>
 
 	<extension point="org.eclipse.ui.commands">
@@ -473,6 +414,66 @@
             isEditable="true"
             label="%font.notes_label">
       </fontDefinition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:help?before=additions">
+         <separator
+               name="org.eclipse.mat.ui.helpseparator"
+               visible="true">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:help?after=org.eclipse.mat.ui.helpseparator">
+         <command
+               commandId="org.eclipse.mat.ui.actions.IconAssist"
+               helpContextId="org.eclipse.mat.ui.help.icon_assist"
+               label="%menu.label.Icon_Assist"
+               tooltip="%menu.tooltip.Open_Icon_Assist">
+            <visibleWhen checkEnabled="true">
+               <with variable="activeWorkbenchWindow.activePerspective">
+                  <equals value="org.eclipse.mat.ui.perspective"/>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?before=additions">
+         <command
+               commandId="org.eclipse.mat.ui.acquire.HeapDump"
+               helpContextId="org.eclipse.mat.ui.help.acquire_arguments"
+               icon="$nl$/icons/acquire.gif"
+               id="org.eclipse.mat.ui.openAcquireDialog"
+               label="%menu.label.Acquire"
+               style="push"
+               tooltip="%menu.tooltip.Acquire">
+            <visibleWhen checkEnabled="true">
+               <with variable="activeWorkbenchWindow.activePerspective">
+                  <equals value="org.eclipse.mat.ui.perspective"/>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?after=org.eclipse.mat.ui.openAcquireDialog">
+         <command
+               commandId="org.eclipse.mat.ui.actions.openHeapDump"
+               helpContextId="org.eclipse.mat.ui.help.open_heapdump"
+               icon="$nl$/icons/open_snapshot.gif"
+               id="org.eclipse.mat.ui.openHeapDump"
+               label="%menu.label.Open_Heap_DUMP___"
+               style="push"
+               tooltip="%menu.tooltip.Open_Heap_Dump">
+            <visibleWhen checkEnabled="true">
+               <with variable="activeWorkbenchWindow.activePerspective">
+                  <equals value="org.eclipse.mat.ui.perspective"/>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
 
 </plugin>

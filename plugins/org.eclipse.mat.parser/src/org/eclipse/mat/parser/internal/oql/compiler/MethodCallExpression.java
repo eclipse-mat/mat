@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -366,6 +365,16 @@ class MethodCallExpression extends Expression
                         parameterType == double.class || parameterType == Double.class))
             return true;
         return false;
+    }
+
+    static class AccessControlException extends SecurityException
+    {
+        private static final long serialVersionUID = 1L;
+
+        public AccessControlException(String reason)
+        {
+            super(reason);
+        }
     }
 
     /**

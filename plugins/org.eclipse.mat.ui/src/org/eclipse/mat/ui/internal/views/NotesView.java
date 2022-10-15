@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
@@ -87,7 +85,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.part.ViewPart;
 
-public class NotesView extends ViewPart implements IPartListener, Observer, ISaveablePart, ISaveablePart2
+public class NotesView extends ViewPart implements IPartListener, ISaveablePart, ISaveablePart2
 {
     private static final String NOTES_ENCODING = "UTF8"; //$NON-NLS-1$
 
@@ -127,7 +125,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
         getSite().getPage().addPartListener(this);
 
-        int undolevel = Platform.getPreferencesService().getInt("org.eclipse.ui.editors", "undoHistorySize", UNDO_LEVEL, null);
+        int undolevel = Platform.getPreferencesService().getInt("org.eclipse.ui.editors", "undoHistorySize", UNDO_LEVEL, null); //$NON-NLS-1$ //$NON-NLS-2$
         undoManager = new TextViewerUndoManager(undolevel);
         undoManager.connect(textViewer);
         textViewer.setUndoManager(undoManager);
@@ -312,16 +310,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
             return textViewer.getDocument().get().hashCode();
         }
         return crc.getValue();
-    }
-    
-    public void update(Observable o, Object arg)
-    {
-        String path = (String) arg;
-
-        if (path == null || new File(path).equals(this.resource))
-        {
-            updateTextViewer();
-        }
     }
 
     private void updateTextViewer()
