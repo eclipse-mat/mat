@@ -16,6 +16,23 @@
       "message": "Works on my machine - is this good enough?",
       "revId": "93291ff39918c70637eb9dbe1cdcb5cec7dbcc6f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8da726d8_da535da1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2022-11-03T14:15:07Z",
+      "side": 1,
+      "message": "Looks good, thanks!",
+      "revId": "93291ff39918c70637eb9dbe1cdcb5cec7dbcc6f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
