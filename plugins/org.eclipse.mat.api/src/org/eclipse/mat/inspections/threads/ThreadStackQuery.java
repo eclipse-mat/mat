@@ -18,7 +18,9 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -31,7 +33,9 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("thread_stack")
+@Category(Category.HIDDEN)
 @Icon("/META-INF/icons/stack_frame.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingthreads.html")
 @Subject("java.lang.Thread")
 public class ThreadStackQuery implements IQuery
 {
