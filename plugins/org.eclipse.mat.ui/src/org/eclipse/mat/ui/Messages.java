@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2010, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -311,6 +311,7 @@ public class Messages extends NLS
     public static String RefinedResultViewer_RetrieveViewElements;
     public static String RefinedResultViewer_Sort_By;
 	public static String RefinedResultViewer_Sorting;
+	public static String RefinedResultViewer_UpdateDecorator;
     public static String RefinedResultViewer_updating;
     public static String RefinedTreeViewer_CalculateTotals;
     public static String RunExternalReportAction_OpenReportDefinition;

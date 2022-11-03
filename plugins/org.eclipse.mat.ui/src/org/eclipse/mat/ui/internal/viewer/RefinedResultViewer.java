@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -399,18 +401,36 @@ public abstract class RefinedResultViewer
 
         for (int ii = 0; ii < columns.length; ii++)
         {
-            if (!result.isDecorated(ii))
+            String formatted = result.getFormattedColumnValue(element, ii);
+			if (!result.isDecorated(ii))
             {
-                adapter.apply(item, ii, result.getFormattedColumnValue(element, ii));
+                adapter.apply(item, ii, formatted);
             }
             else
             {
-                String[] texts = new String[3];
-                texts[0] = result.getColumns()[ii].getDecorator().prefix(element);
-                texts[1] = result.getFormattedColumnValue(element, ii);
-                texts[2] = result.getColumns()[ii].getDecorator().suffix(element);
-                item.setData(String.valueOf(ii), texts);
-                adapter.apply(item, ii, asString(texts));
+            	final int ii2 = ii;
+            	// Do without decoration initially
+            	adapter.apply(item, ii, formatted);
+            	// Getting the prefix can be slow for arrays
+            	Job job = Job.create(Messages.RefinedResultViewer_UpdateDecorator, (ICoreRunnable) monitor ->
+            	{
+            		if (item.isDisposed())
+            			return;
+            		// Do the slow running part in the job
+        			String[] texts = new String[3];
+        			texts[0] = result.getColumns()[ii2].getDecorator().prefix(element);
+        			texts[1] = formatted;
+        			texts[2] = result.getColumns()[ii2].getDecorator().suffix(element);
+            		item.getDisplay().asyncExec(() ->
+            		{
+            			if (item.isDisposed())
+            				return;
+            			item.setData(String.valueOf(ii2), texts);
+            			adapter.apply(item, ii2, asString(texts));
+            		});
+            	});
+            	job.setPriority(Job.DECORATE);
+            	job.schedule();
             }
         }
     }
