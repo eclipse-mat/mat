@@ -17,7 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -412,23 +411,27 @@ public abstract class RefinedResultViewer
             	// Do without decoration initially
             	adapter.apply(item, ii, formatted);
             	// Getting the prefix can be slow for arrays
-            	Job job = Job.create(Messages.RefinedResultViewer_UpdateDecorator, (ICoreRunnable) monitor ->
+            	Job job = new AbstractPaneJob(Messages.RefinedResultViewer_UpdateDecorator, this.pane)
             	{
-            		if (item.isDisposed())
-            			return;
-            		// Do the slow running part in the job
-        			String[] texts = new String[3];
-        			texts[0] = result.getColumns()[ii2].getDecorator().prefix(element);
-        			texts[1] = formatted;
-        			texts[2] = result.getColumns()[ii2].getDecorator().suffix(element);
-            		item.getDisplay().asyncExec(() ->
+            		protected IStatus doRun(IProgressMonitor monitor)
             		{
             			if (item.isDisposed())
-            				return;
-            			item.setData(String.valueOf(ii2), texts);
-            			adapter.apply(item, ii2, asString(texts));
-            		});
-            	});
+            				return Status.OK_STATUS;
+            			// Do the slow running part in the job
+            			String[] texts = new String[3];
+            			texts[0] = result.getColumns()[ii2].getDecorator().prefix(element);
+            			texts[1] = formatted;
+            			texts[2] = result.getColumns()[ii2].getDecorator().suffix(element);
+            			item.getDisplay().asyncExec(() ->
+            			{
+            				if (item.isDisposed())
+            					return;
+            				item.setData(String.valueOf(ii2), texts);
+            				adapter.apply(item, ii2, asString(texts));
+            			});
+            			return Status.OK_STATUS;
+            		}
+            	};
             	job.setPriority(Job.DECORATE);
             	job.schedule();
             }
