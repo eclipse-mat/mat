@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 IBM Corporation
+ * Copyright (c) 2010, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class DumpAgent {
     public static final String JAVA = "java"; //$NON-NLS-1$
     public static final String HPROF = "hprof"; //$NON-NLS-1$
 
-    public static final String INFO_SEPARATOR = File.pathSeparator; //$NON-NLS-1$
+    public static final String INFO_SEPARATOR = File.pathSeparator;
 
     /**
      * Generate a dump on this machine
@@ -63,7 +63,7 @@ public class DumpAgent {
         Class<? extends Object>dumpcls;
         try
         {
-            dumpcls = Class.forName("com.ibm.jvm.Dump");
+            dumpcls = Class.forName("com.ibm.jvm.Dump"); //$NON-NLS-1$
             if (live)
             {
                 System.gc();
@@ -73,7 +73,7 @@ public class DumpAgent {
         {
             try
             {
-                dumpcls = Class.forName("sun.management.HotSpotDiagnostic");
+                dumpcls = Class.forName("sun.management.HotSpotDiagnostic"); //$NON-NLS-1$
             }
             catch (ClassNotFoundException e2)
             {
@@ -91,13 +91,13 @@ public class DumpAgent {
                 {
                     // IBM Java 7.1 and later
                     // com.ibm.jvm.Dump.JavaDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("javaDumpToFile", String.class);
+                    Method m = dumpcls.getMethod("javaDumpToFile", String.class); //$NON-NLS-1$
                     m.invoke(null, filename);
                 }
                 catch (NoSuchMethodException e)
                 {
                     // com.ibm.jvm.Dump.JavaDump();
-                    Method m = dumpcls.getMethod("JavaDump");
+                    Method m = dumpcls.getMethod("JavaDump"); //$NON-NLS-1$
                     m.invoke(null);
                 }
             }
@@ -107,13 +107,13 @@ public class DumpAgent {
                 {
                     // IBM Java 7.1 and later
                     // com.ibm.jvm.Dump.HeapDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("heapDumpToFile", String.class);
+                    Method m = dumpcls.getMethod("heapDumpToFile", String.class); //$NON-NLS-1$
                     m.invoke(null, filename);
                 }
                 catch (NoSuchMethodException e)
                 {
                     //com.ibm.jvm.Dump.HeapDump();
-                    Method m = dumpcls.getMethod("HeapDump");
+                    Method m = dumpcls.getMethod("HeapDump"); //$NON-NLS-1$
                     m.invoke(null);
                 }
             }
@@ -123,31 +123,51 @@ public class DumpAgent {
                 {
                     // IBM Java 7.1 and later
                     // com.ibm.jvm.Dump.SystemDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("systemDumpToFile", String.class);
+                    Method m = dumpcls.getMethod("systemDumpToFile", String.class); //$NON-NLS-1$
                     m.invoke(null, filename);
                 }
                 catch (NoSuchMethodException e)
                 {
                     //com.ibm.jvm.Dump.SystemDump();
-                    Method m = dumpcls.getMethod("SystemDump");
+                    Method m = dumpcls.getMethod("SystemDump"); //$NON-NLS-1$
                     m.invoke(null);
                 }
             }
             else if (HPROF.equals(a))
             {
                 MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-                String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
+                String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic"; //$NON-NLS-1$
                 ObjectName objn = new ObjectName(HOTSPOT_BEAN_NAME);
-                server.invoke(objn,  "dumpHeap",  new Object[] {filename,  Boolean.valueOf(live)}, 
-                                new String[] {"java.lang.String", "boolean"});
+                
+                /*
+                 * Fix up filename as JVM won't dump if extension is not .hprof
+                 */
+                String hprofExt = ".hprof"; //$NON-NLS-1$
+                File file = new File(filename);
+                String name = file.getName();
+                if (!name.endsWith(hprofExt))
+                {
+                    int i = name.lastIndexOf(hprofExt);
+                    if (i >= 0)
+                    {
+                        name = name.substring(0, i + hprofExt.length());
+                    }
+                    else
+                    {
+                        name = name + hprofExt;
+                    }
+                    filename = (new File(file.getParentFile(), name)).getPath();
+                }
+                server.invoke(objn,  "dumpHeap",  new Object[] {filename,  Boolean.valueOf(live)},  //$NON-NLS-1$
+                                new String[] {"java.lang.String", "boolean"}); //$NON-NLS-1$ //$NON-NLS-2$
 
             }
-            else if ("hprof".equals(a))
+            else if ("hprof".equals(a)) //$NON-NLS-1$
             {
                 Object hsd = dumpcls.getConstructor().newInstance();
                 //sun.management.HotSpotDiagnostic.dumpHeap(String filename, boolean live);
                 // fails with linkage error on dumpHeap0()
-                Method m = dumpcls.getMethod("dumpHeap", String.class, Boolean.TYPE);
+                Method m = dumpcls.getMethod("dumpHeap", String.class, Boolean.TYPE); //$NON-NLS-1$
                 m.invoke(hsd, filename, live);
             }
         }
