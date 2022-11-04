@@ -395,7 +395,11 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             menu.dispose();
         if (label != null && !label.isDisposed())
             label.dispose();
-        if (canvas != null && !canvas.isDisposed())
+        /*
+         * Canvas can have isDisposed() true but still need
+         * to call dispose() to tidy it up.
+         */
+        if (canvas != null)
             canvas.dispose();
         super.dispose();
     }
