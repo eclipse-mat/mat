@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG and others.
+    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -39,14 +39,19 @@
 			<p> In the menu you can also access the list of already executed queries via the
 				<cmdname>History</cmdname> entry. The Query Selector which can be
 				quickly accessed with the
-				<cmdname>Ctrl+Q</cmdname> key combination. </p>
+				<cmdname>Ctrl+Q</cmdname> key combination.</p>
 			<image href="../mimes/select_queries.png" align="left" placement="break"/>
 			<p> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by
 				their category. When a query is marked, a detailed description of the query
 				is displayed at the bottom. This description contains also the information
-				about the arguments for this query. </p>
+				about the arguments for this query.
+				Try the <xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.query.browser.QueryBrowser%22)">
+			<b>Query Browser</b></xref>
+				or the <xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.query.browser.QueryHistory%22)">
+			<b>Query History Browser</b></xref> now.
+			</p>
 			<p>
 				The query browser (&quot;Search Queries...&quot;) is also available in the context menu.
 				The query browser is easier to use as it can display

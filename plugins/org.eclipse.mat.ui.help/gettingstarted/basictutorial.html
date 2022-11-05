@@ -8,8 +8,8 @@
 <meta name="DC.title" content="Basic Tutorial" />
 <meta name="DC.relation" scheme="URI" content="../concepts/dominatortree.html" />
 <meta name="DC.relation" scheme="URI" content="../concepts/gcroots.html" />
-<meta name="copyright" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
-<meta name="DC.rights.owner" content="Copyright (c) 2008, 2020 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="copyright" content="Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
 <meta name="DC.identifier" content="task_basictutorial" />
 <meta name="DC.language" content="en-us" />
@@ -152,6 +152,8 @@
 							Open Heap Dump...
 						</span></span>
 					to see the overview page.
+					If you have a heap dump available, try <a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.openHeapDump%22)">
+					<strong class="ph b">Open Heap Dump</strong></a> now.
 				</div>
 				<div class="itemgroup stepresult">
 					<img class="image" src="basictutorial_overview.png" alt="Memory Analyzer's overview page for a heap dump" />
@@ -191,11 +193,13 @@
 				</span>
 				<div class="itemgroup info">
 					Select the
-					<span class="ph uicontrol">
-						<img class="image" src="../mimes/i-histogram.png" alt="histogram icon" />
-						histogram
-					</span>
+					<a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=histogram)%22)">
+						<span class="ph uicontrol">
+							<img class="image" src="../mimes/i-histogram.png" alt="histogram icon" />
+							histogram
+						</span>
 					icon
+					</a>
 					from the tool bar to list the number of instances per class,
 					the
 					<a class="xref" href="../concepts/shallowretainedheap.html">shallow size</a>
@@ -303,6 +307,15 @@
 				</span>
 				<div class="itemgroup info">
 					<p class="p">
+						Select the
+						<a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=dominator_tree)%22)">
+							<span class="ph uicontrol">
+							<img class="image" src="../mimes/i-dominatortree.png" alt="dominator tree icon" />
+							dominator tree
+							</span>
+							icon
+						</a>
+						from the tool bar to display the dominator tree.
 						The
 						<a class="xref" href="../concepts/dominatortree.html">dominator tree</a>
 						displays the biggest objects in the heap dump. The next level of

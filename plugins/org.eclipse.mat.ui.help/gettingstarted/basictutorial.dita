@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <!--
-    Copyright (c) 2008, 2020 SAP AG and others.
+    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -167,6 +167,8 @@
 						</uicontrol>
 					</menucascade>
 					to see the overview page.
+					If you have a heap dump available, try <xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.openHeapDump%22)">
+					<b>Open Heap Dump</b></xref> now.
 				</info>
 				<stepresult>
 					<image href="basictutorial_overview.png">
@@ -206,13 +208,15 @@
 				</cmd>
 				<info>
 					Select the
-					<uicontrol>
-						<image href="../mimes/i-histogram.png">
-							<alt>histogram icon</alt>
-						</image>
-						histogram
-					</uicontrol>
+					<xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=histogram)%22)">
+						<uicontrol>
+							<image href="../mimes/i-histogram.png">
+								<alt>histogram icon</alt>
+							</image>
+							histogram
+						</uicontrol>
 					icon
+					</xref>
 					from the tool bar to list the number of instances per class,
 					the
 					<xref href="../concepts/shallowretainedheap.dita">shallow size</xref>
@@ -329,6 +333,17 @@
 				</cmd>
 				<info>
 					<p>
+						Select the
+						<xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=dominator_tree)%22)">
+							<uicontrol>
+							<image href="../mimes/i-dominatortree.png">
+								<alt>dominator tree icon</alt>
+							</image>
+							dominator tree
+							</uicontrol>
+							icon
+						</xref>
+						from the tool bar to display the dominator tree.
 						The
 						<xref href="../concepts/dominatortree.dita">dominator tree</xref>
 						displays the biggest objects in the heap dump. The next level of

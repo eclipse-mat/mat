@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -227,6 +227,8 @@
 			<uicontrol>Acquire Heap Dump...</uicontrol>
 		</menucascade>
 		menu item.
+		Try <xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.acquire.HeapDump%22)">
+			<b>Acquire Heap Dump</b></xref> now.
 	</p>
 
 	<p>Depending on the concrete execution environment the pre-installed
