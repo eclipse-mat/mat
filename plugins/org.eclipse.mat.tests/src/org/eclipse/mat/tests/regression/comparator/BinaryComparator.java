@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,8 +37,6 @@ public class BinaryComparator implements IComparator
 
         List<Difference> differences = new ArrayList<Difference>();
 
-        InputStream baselineStream = null;
-        InputStream testStream = null;
         if (baseline.length() != testFile.length())
         {
             String errorMessage = MessageUtil.format(
@@ -49,10 +47,10 @@ public class BinaryComparator implements IComparator
             return differences;
         }
 
-        try
+        try (
+            InputStream baselineStream = new FileInputStream(baseline);
+            InputStream testStream = new FileInputStream(testFile);)
         {
-            baselineStream = new FileInputStream(baseline);
-            testStream = new FileInputStream(testFile);
 
             if (inputStreamEquals(testName, baselineStream, testStream))
             {
@@ -71,18 +69,6 @@ public class BinaryComparator implements IComparator
             System.err.println(MessageUtil.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
                             .getMessage()));
             return null;
-        }
-        finally
-        {
-            try
-            {
-                if (baselineStream != null)
-                    baselineStream.close();
-                if (testStream != null)
-                    testStream.close();
-            }
-            catch (Exception ex)
-            {}
         }
     }
 

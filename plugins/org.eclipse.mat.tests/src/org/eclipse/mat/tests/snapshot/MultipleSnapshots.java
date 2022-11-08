@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation.
+ * Copyright (c) 2013, 2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -42,7 +44,7 @@ public class MultipleSnapshots
         catch (RuntimeException e)
         {
             Throwable f = e.getCause();
-            assertTrue(f instanceof MultipleSnapshotsException);
+            assertThat(f, instanceOf(MultipleSnapshotsException.class));
             MultipleSnapshotsException s = (MultipleSnapshotsException)f;
             assertEquals(2, s.getRuntimes().size());
             List<MultipleSnapshotsException.Context>ctxs = s.getRuntimes();

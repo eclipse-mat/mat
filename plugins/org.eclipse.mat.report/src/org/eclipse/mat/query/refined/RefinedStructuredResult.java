@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -103,6 +104,28 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
         public void setFilteredCount(int filteredCount)
         {
             this.filteredCount = filteredCount;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(filteredCount);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            FilteredList<E> other = (FilteredList<E>) obj;
+            return filteredCount == other.filteredCount;
         }
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,13 +22,12 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.Filter;
-import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
 
 import com.ibm.icu.text.DecimalFormatSymbols;
 
 @Renderer(target = "csv", result = { IResultTree.class, IResultTable.class })
-public class CSVOutputter extends OutputterBase implements IOutputter
+public class CSVOutputter extends OutputterBase
 {
     private static final char SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ';' : ',';
 

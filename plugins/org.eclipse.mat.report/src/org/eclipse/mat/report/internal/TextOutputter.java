@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 SAP AG and IBM Corporation
+ * Copyright (c) 2021, 2022 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,13 +30,12 @@ import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.results.TextResult;
-import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
 @Renderer(target = "txt", result = { IResultTree.class, IResultTable.class, TextResult.class, IResultPie.class })
-public class TextOutputter extends OutputterBase implements IOutputter
+public class TextOutputter extends OutputterBase
 {
     @Override
     public void process(Context context, IResult result, Writer writer) throws IOException

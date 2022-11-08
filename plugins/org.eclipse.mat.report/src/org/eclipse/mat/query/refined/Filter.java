@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -511,11 +511,11 @@ public abstract class Filter
                     /// otherwise report the failure from the percent formatter
                     if (nresult != null)
                     {
-                        if (p2.getIndex() < string.length() && string.charAt(p2.getIndex()) == '%' && nresult instanceof Number)
+                        if (p2.getIndex() < string.length() && string.charAt(p2.getIndex()) == '%')
                         {
                             // Old way with trailing % (no space)
                             // - some locale formatters just parse "12.34 %" with a non-breaking space
-                            nresult = ((Number)nresult).doubleValue() / 100;
+                            nresult = nresult.doubleValue() / 100;
                             p2.setIndex(p2.getIndex() + 1);
                         }
                         pos = p2;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ public class CSVComparator implements IComparator
             {
                 if (!(baseLine).equals(testLine = testFileReader.readLine()))
                 {
-                    differences.add(new Difference(Integer.valueOf(lineNumber).toString(), baseLine, testLine));
+                    differences.add(new Difference(String.valueOf(lineNumber), baseLine, testLine));
                 }
                 if (differences.size() == 10) // add only first 10 differences
                     break;
