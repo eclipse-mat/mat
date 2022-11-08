@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a8c81a7_98cfc523",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-08T09:30:53Z",
+      "side": 1,
+      "message": "Minor Eclipse config change - shouldn\u0027t affect the build",
+      "revId": "adbcf585b37b4a8c7b8cb11cb01b35731830dca9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
