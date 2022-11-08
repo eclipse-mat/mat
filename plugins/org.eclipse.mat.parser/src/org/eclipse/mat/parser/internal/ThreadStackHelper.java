@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,10 +44,9 @@ import org.eclipse.mat.util.MessageUtil;
 
         HashMapIntObject<IThreadStack> threadId2stack = new HashMapIntObject<IThreadStack>();
 
-        BufferedReader in = null;
-        try
+        try (
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));) //$NON-NLS-1$
         {
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8")); //$NON-NLS-1$
             String line = in.readLine();
 
             while (line != null)
@@ -123,20 +122,6 @@ import org.eclipse.mat.util.MessageUtil;
         catch (IOException e)
         {
             throw new SnapshotException(e);
-        }
-        finally
-        {
-            if (in != null)
-            {
-                try
-                {
-                    in.close();
-                }
-                catch (Exception ignore)
-                {
-                    // $JL-EXC$
-                }
-            }
         }
 
         return threadId2stack;

@@ -39,6 +39,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntCompressed;
@@ -57,6 +59,7 @@ import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.internal.Messages;
+import org.eclipse.mat.parser.internal.snapshot.RetainedSizeCache;
 import org.eclipse.mat.parser.io.BitInputStream;
 import org.eclipse.mat.parser.io.BitOutputStream;
 import org.eclipse.mat.util.IProgressListener;
@@ -81,6 +84,8 @@ public abstract class IndexWriter
     private static final long MAX_OLD_HEADER_VALUE = 0xffffffffL >>> TESTSCALE;
     /** Switch point for inbound key to using longs */
     private static final long INBOUND_MAX_KEY1 = Integer.MAX_VALUE >>> TESTSCALE;
+
+    private static final Logger logger = Logger.getLogger(RetainedSizeCache.class.getName());
 
     /**
      * Used to write out a key for an index.
@@ -1291,7 +1296,12 @@ public abstract class IndexWriter
             finally
             {
                 if (indexFile.exists())
-                    indexFile.delete();
+                {
+                    if (!indexFile.delete())
+                    {
+                        logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
+                    }
+                }
             }
         }
 
@@ -1660,7 +1670,10 @@ public abstract class IndexWriter
                 }
 
                 // delete segment log
-                segmentFile.delete();
+                if (!segmentFile.delete())
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, segmentFile.toString());
+                }
                 segmentFile = null;
 
                 // Process the subsegments
@@ -1678,7 +1691,12 @@ public abstract class IndexWriter
                 {
                     File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$ //$NON-NLS-2$
                     if (subsegmentFile.exists())
-                        subsegmentFile.delete();
+                    {
+                        if (!subsegmentFile.delete())
+                        {
+                            logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, subsegmentFile.toString());
+                        }
+                    }
                 }
             }
         }
@@ -1720,7 +1738,10 @@ public abstract class IndexWriter
                 throw new IProgressListener.OperationCanceledException();
 
             // delete segment log
-            segmentFile.delete();
+            if (!segmentFile.delete())
+            {
+                logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, segmentFile.toString());
+            }
             segmentFile = null;
 
             processSegment(monitor, keyWriter, body, objIndex, refIndex);
@@ -1875,7 +1896,11 @@ public abstract class IndexWriter
                 {
                     for (int ii = 0; ii < segments.length; ii++)
                     {
-                        new File(this.indexFile.getAbsolutePath() + ii + ".log").delete();//$NON-NLS-1$
+                        File file = new File(this.indexFile.getAbsolutePath() + ii + ".log"); //$NON-NLS-1$
+                        if (!file.delete())
+                        {
+                            logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, file.toString());
+                        }
                     }
                 }
             }
@@ -1883,7 +1908,10 @@ public abstract class IndexWriter
             {}
             finally
             {
-                indexFile.delete();
+                if (!indexFile.delete())
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
+                }
             }
         }
 
@@ -2724,7 +2752,12 @@ public abstract class IndexWriter
             finally
             {
                 if (indexFile.exists())
-                    indexFile.delete();
+                {
+                    if (!indexFile.delete())
+                    {
+                        logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
+                    }
+                }
             }
         }
 

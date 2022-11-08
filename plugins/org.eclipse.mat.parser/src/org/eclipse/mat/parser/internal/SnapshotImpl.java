@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -100,15 +100,10 @@ public final class SnapshotImpl implements ISnapshot
     public static SnapshotImpl readFromFile(File file, String prefix, IProgressListener listener)
                     throws SnapshotException, IOException
     {
-        FileInputStream fis = null;
-
         listener.beginTask(Messages.SnapshotImpl_ReopeningParsedHeapDumpFile, 9);
 
-        try
-        {
-            File indexFile = new File(prefix + "index"); //$NON-NLS-1$
-            fis = new FileInputStream(indexFile);
-            listener.worked(1);
+        File indexFile = new File(prefix + "index"); //$NON-NLS-1$
+        try (FileInputStream fis = new FileInputStream(indexFile);
             /**
              * Classes deserialized:
              * org.eclipse.mat.parser.model.XSnapshotInfo
@@ -177,7 +172,9 @@ public final class SnapshotImpl implements ISnapshot
                     }
                     return super.resolveClass(desc);
                 }
-            };
+            };)
+         {
+            listener.worked(1);
 
             String version = in.readUTF();
             if (!VERSION.equals(version))
@@ -265,8 +262,6 @@ public final class SnapshotImpl implements ISnapshot
         }
         finally
         {
-            if (fis != null)
-                fis.close();
             listener.done();
         }
     }
@@ -286,13 +281,10 @@ public final class SnapshotImpl implements ISnapshot
 
         answer.calculateLoaderLabels();
 
-        FileOutputStream fos = null;
-        ObjectOutputStream out = null;
-
-        try
+        try (
+            FileOutputStream fos = new FileOutputStream(snapshotInfo.getPrefix() + "index");//$NON-NLS-1$
+            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(fos));)
         {
-            fos = new FileOutputStream(snapshotInfo.getPrefix() + "index");//$NON-NLS-1$
-            out = new ObjectOutputStream(new BufferedOutputStream(fos));
             out.writeUTF(VERSION);
             out.writeUTF(objectReaderUniqueIdentifier);
             out.writeObject(answer.snapshotInfo);
@@ -309,14 +301,6 @@ public final class SnapshotImpl implements ISnapshot
 
             out.writeObject(answer.loaderLabels);
             out.writeObject(answer.arrayObjects);
-        }
-        finally
-        {
-            if (out != null)
-                out.close();
-
-            if (fos != null)
-                fos.close();
         }
 
         return answer;
