@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -257,6 +258,8 @@ public class OQLQueryImpl implements IOQLQuery
                             @Override
                             public Entry<String, Object> next()
                             {
+                                if (col >= size())
+                                    throw new NoSuchElementException(Integer.toString(col));
                                 return new ColEntry(col++);
                             }
                         };

@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntCompressed;
@@ -38,6 +40,7 @@ public abstract class IndexReader
      * Debug flag for use by developers of MAT
      */
     public static final boolean DEBUG = false;
+    private static final Logger logger = Logger.getLogger(IndexReader.class.getName());
 
     /**
      * An int to int index reader.
@@ -236,8 +239,11 @@ public abstract class IndexReader
 
             if (indexFile != null)
             {
-                //TODO Consider logging a failure to delete
-                if (indexFile.delete())
+                if (!indexFile.delete())
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
+                }
+                else
                 {
                     indexFile = null;
                 }
@@ -522,10 +528,13 @@ public abstract class IndexReader
 
             if (indexFile != null)
             {
-                //TODO Consider logging a failure to delete
                 if (indexFile.delete())
                 {
                     indexFile = null;
+                }
+                else
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
                 }
             }
         }
@@ -858,10 +867,13 @@ public abstract class IndexReader
 
             if (indexFile != null)
             {
-                //TODO Consider logging a failure to delete
                 if (indexFile.delete())
                 {
                     indexFile = null;
+                }
+                else
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
                 }
             }
         }
@@ -963,10 +975,13 @@ public abstract class IndexReader
 
             if (indexFile != null)
             {
-                //TODO Consider logging a failure to delete
                 if (indexFile.delete())
                 {
                     indexFile = null;
+                }
+                else
+                {
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, indexFile.toString());
                 }
             }
         }

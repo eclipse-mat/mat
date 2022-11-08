@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ public class RetainedSizeCache implements IIndexReader
     private String filename;
     private HashMapIntLong id2size;
     private boolean isDirty = false;
+    private static final Logger logger = Logger.getLogger(RetainedSizeCache.class.getName());
     
     /**
      * File is expected to exist, and is read in the new format.
@@ -80,12 +81,10 @@ public class RetainedSizeCache implements IIndexReader
         if (!isDirty)
             return;
 
-        try
+        File file = new File(filename);
+        try (FileOutputStream fos = new FileOutputStream(file);
+             DataOutputStream out = new DataOutputStream(fos);)
         {
-            File file = new File(filename);
-
-            DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
-
             for (int key : id2size.getAllKeys())
             {
                 out.writeInt(key);
@@ -98,24 +97,20 @@ public class RetainedSizeCache implements IIndexReader
         }
         catch (IOException e)
         {
-            Logger.getLogger(RetainedSizeCache.class.getName()).log(Level.WARNING,
-                            Messages.RetainedSizeCache_Warning_IgnoreError, e);
+            logger.log(Level.WARNING, Messages.RetainedSizeCache_Warning_IgnoreError, e);
         }
     }
 
     private void doRead(File file, boolean readOldFormat)
     {
-        DataInputStream in = null;
         boolean delete = false;
 
-        try
+        // Cope with large numbers, entries = size / 12, scale up for hashing 
+        int initialCapacity = (int) Math.min(file.length() / 8, Integer.MAX_VALUE - 20);
+        id2size = new HashMapIntLong(initialCapacity);
+        try (
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));)
         {
-            // Cope with large numbers, entries = size / 12, scale up for hashing 
-            int initialCapacity = (int) Math.min(file.length() / 8, Integer.MAX_VALUE - 20);
-            id2size = new HashMapIntLong(initialCapacity);
-
-            in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-
             while (in.available() > 0)
             {
                 int key = in.readInt();
@@ -127,8 +122,7 @@ public class RetainedSizeCache implements IIndexReader
         }
         catch (IOException e)
         {
-            Logger.getLogger(RetainedSizeCache.class.getName()).log(Level.WARNING,
-                            Messages.RetainedSizeCache_ErrorReadingRetainedSizes, e);
+            logger.log(Level.WARNING, Messages.RetainedSizeCache_ErrorReadingRetainedSizes, e);
 
             // might have read corrupt data
             id2size.clear();
@@ -136,27 +130,12 @@ public class RetainedSizeCache implements IIndexReader
         }
         finally
         {
-            try
+            if (delete)
             {
-                if (in != null)
+                if (!file.delete())
                 {
-                    in.close();
+                    logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, file.toString());
                 }
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
-            try
-            {
-                if (delete)
-                {
-                    file.delete();
-                }
-            }
-            catch (RuntimeException ignore)
-            {
-                // $JL-EXC$
             }
         }
     }
@@ -197,7 +176,10 @@ public class RetainedSizeCache implements IIndexReader
         close();
 
         File file = new File(filename);
-        file.delete();
+        if (!file.delete())
+        {
+            logger.log(Level.WARNING, Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, file.toString());
+        }
     }
 
 }
