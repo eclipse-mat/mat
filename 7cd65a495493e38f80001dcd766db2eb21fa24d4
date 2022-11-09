@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "289f16e8_01bd3d52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-09T13:43:19Z",
+      "side": 1,
+      "message": "Mainly javadoc changes with some parameter checking and OQL tests",
+      "revId": "7cd65a495493e38f80001dcd766db2eb21fa24d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
