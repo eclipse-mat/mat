@@ -36,8 +36,8 @@ public class ObjectReference implements Serializable
     /**
      * Create a reference to an object based on its address but in a form
      * where the object id can be found.
-     * @param snapshot
-     * @param address
+     * @param snapshot the snapshot
+     * @param address the address of the object
      */
     public ObjectReference(ISnapshot snapshot, long address)
     {
@@ -71,7 +71,7 @@ public class ObjectReference implements Serializable
      * Can be used to find an unindexed object by its addresss
      * if the snapshot parser supports that.
      * @return the object detail
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem retrieving the object
      */
     public IObject getObject() throws SnapshotException
     {

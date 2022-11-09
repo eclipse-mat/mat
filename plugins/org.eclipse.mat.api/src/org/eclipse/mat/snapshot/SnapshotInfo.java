@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,8 @@ public class SnapshotInfo implements Serializable
      * 
      * @param path
      *            path from where the snapshot was acquired
+     * @param prefix
+     *            the base of the path for all indexes
      * @param jvmInfo
      *            version of the JVM from which it was acquired
      * @param identifierSize
@@ -112,8 +114,8 @@ public class SnapshotInfo implements Serializable
 
     /**
      * Store extra information about the snapshot
-     * @param name
-     * @param value
+     * @param name the name/key for the property
+     * @param value the object to be associated with the name
      * keep_unreachable_objects - mark as {@link Type}
      * hprof.version
      * org.eclipse.mat.snapshot.UnreachableObjectsHistogram

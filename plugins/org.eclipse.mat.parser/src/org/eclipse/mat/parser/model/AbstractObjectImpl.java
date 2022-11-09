@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -55,11 +55,13 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         this.classInstance = classInstance;
     }
 
+    @Override
     public long getObjectAddress()
     {
         return address;
     }
 
+    @Override
     public int getObjectId()
     {
         return objectId;
@@ -67,7 +69,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
 
     /**
      * Used to set the address, for example after reconstructing an object from a file.
-     * @param address
+     * @param address the actual address
      */
     public void setObjectAddress(long address)
     {
@@ -83,6 +85,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         this.objectId = objectId;
     }
 
+    @Override
     public ClassImpl getClazz()
     {
         return classInstance;
@@ -109,7 +112,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     /**
      * Changes the type of the object.
      * Used when constructing a ClassImpl for java.lang.Class.
-     * @param classInstance
+     * @param classInstance the type
      */
     public void setClassInstance(ClassImpl classInstance)
     {
@@ -126,6 +129,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         this.source = (SnapshotImpl) dump;
     }
 
+    @Override
     public ISnapshot getSnapshot()
     {
         return this.source;
@@ -134,8 +138,10 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     /**
 	 * @since 1.0
 	 */
+    @Override
     abstract public long getUsedHeapSize();
 
+    @Override
     public long getRetainedHeapSize()
     {
         try
@@ -188,11 +194,13 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         return buf.append("id=0x").append(Long.toHexString(getObjectAddress()));//$NON-NLS-1$
     }
 
+    @Override
     public String getClassSpecificName()
     {
         return ClassSpecificNameResolverRegistry.resolve(this);
     }
 
+    @Override
     public String getTechnicalName()
     {
         StringBuilder builder = new StringBuilder(256);
@@ -202,6 +210,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         return builder.toString();
     }
 
+    @Override
     public String getDisplayName()
     {
         String label = getClassSpecificName();
@@ -225,6 +234,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
 
     // If the name is in the form <FIELD>{.<FIELD>}
     // the fields are transiently followed
+    @Override
     public final Object resolveValue(String name) throws SnapshotException
     {
         int p = name.indexOf('.');
@@ -301,6 +311,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
      */
     protected abstract Field internalGetField(String name);
 
+    @Override
     public GCRootInfo[] getGCRootInfo() throws SnapshotException
     {
         int objId;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -62,12 +62,14 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         return COMPONENT_TYPE[type];
     }
 
+    @Override
     public Object getValueAt(int index)
     {
         Object data = getValueArray(index, 1);
         return data != null ? Array.get(data, 0) : null;
     }
 
+    @Override
     public Object getValueArray()
     {
         try
@@ -84,6 +86,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
     }
 
+    @Override
     public Object getValueArray(int offset, int length)
     {
         try
@@ -100,6 +103,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
     }
 
+    @Override
     protected Field internalGetField(String name)
     {
         return null;
@@ -113,6 +117,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         return references;
     }
 
+    @Override
     public List<NamedReference> getOutboundReferences()
     {
         List<NamedReference> references = new ArrayList<NamedReference>(1);

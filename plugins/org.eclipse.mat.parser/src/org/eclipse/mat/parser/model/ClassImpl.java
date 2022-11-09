@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     private static final transient AtomicLongFieldUpdater<ClassImpl> totalSizeUpdater =
                     AtomicLongFieldUpdater.newUpdater(ClassImpl.class, "totalSize"); //$NON-NLS-1$
 
+    /** Shortcut for java.lang.Class */
     public static final String JAVA_LANG_CLASS = IClass.JAVA_LANG_CLASS;
 
     protected String name;
@@ -194,6 +195,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return usedHeapSize;
     }
 
+    @Override
     public ArrayLong getReferences()
     {
         ArrayLong answer = new ArrayLong(staticFields.length);
@@ -239,21 +241,28 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return answer;
     }
 
+    @Override
     public long getClassLoaderAddress()
     {
         return classLoaderAddress;
     }
 
+    /**
+     * Sets the class loader for this class.
+     * @param address the address of the loader
+     */
     public void setClassLoaderAddress(long address)
     {
         this.classLoaderAddress = address;
     }
 
+    @Override
     public List<FieldDescriptor> getFieldDescriptors()
     {
         return Arrays.asList(fields);
     }
 
+    @Override
     public int getNumberOfObjects()
     {
         return instanceCount;
@@ -262,44 +271,59 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     /**
 	 * @since 1.0
 	 */
+    @Override
     public long getHeapSizePerInstance()
     {
         return instanceSize;
     }
 
     /**
-	 * @since 1.0
+     * Sets the size per instance for the class
+	 * @param size the size in bytes
+     * @since 1.0
 	 */
     public void setHeapSizePerInstance(long size)
     {
         instanceSize = (int)Math.min(size, Integer.MAX_VALUE);
     }
 
+    @Override
     public String getName()
     {
         return name;
     }
 
+    /**
+     * Sets the class name.
+     * @param name the class name
+     */
     public void setName(String name)
     {
         this.name = name;
     }
 
+    @Override
     public List<Field> getStaticFields()
     {
         return Arrays.asList(staticFields);
     }
 
+    /**
+     * Gets the address of the superclass.
+     * @return the superclass address
+     */
     public long getSuperClassAddress()
     {
         return superClassAddress;
     }
 
+    @Override
     public int getSuperClassId()
     {
         return superClassId;
     }
 
+    @Override
     public ClassImpl getSuperClass()
     {
         try
@@ -312,16 +336,22 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         }
     }
 
+    /**
+     * The size of all the instances of this class.
+     * @return the size in bytes
+     */
     public long getTotalSize()
     {
         return totalSize;
     }
 
+    @Override
     public boolean hasSuperClass()
     {
         return this.superClassAddress != 0;
     }
 
+    @Override
     public int compareTo(ClassImpl other)
     {
         final long myAddress = getObjectAddress();
@@ -330,7 +360,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     }
 
     /**
-	 * @since 1.0
+     * Note another instance to this class.
+	 * @param usedHeapSize the size in bytes of this instance
+     * @since 1.0
 	 */
     public void addInstance(long usedHeapSize)
     {
@@ -339,7 +371,10 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     }
 
     /**
-	 * @since 1.0
+     * Remove an instance of this class.
+     * Reverses the effect of {@link #addInstance(long)}
+	 * @param heapSizePerInstance the size in bytes of this instance
+     * @since 1.0
 	 */
     public void removeInstance(long heapSizePerInstance)
     {
@@ -353,12 +388,14 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         totalSizeUpdater.getAndAdd(this, heapSize);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List<IClass> getSubclasses()
     {
         return subClasses != null ? subClasses : Collections.EMPTY_LIST;
     }
 
+    @Override
     public List<IClass> getAllSubclasses()
     {
         if (subClasses == null || subClasses.isEmpty())
@@ -377,11 +414,13 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return super.appendFields(buf).append(";name=").append(getName());//$NON-NLS-1$
     }
 
+    @Override
     public boolean isArrayType()
     {
         return isArrayType;
     }
 
+    @Override
     public String getTechnicalName()
     {
         StringBuilder builder = new StringBuilder(256);
@@ -401,11 +440,16 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return null;
     }
 
+    @Override
     public int getClassLoaderId()
     {
         return classLoaderId;
     }
 
+    /**
+     * Add a subclass of this class.
+     * @param clazz the subclass
+     */
     public void addSubClass(ClassImpl clazz)
     {
         if (subClasses == null)
@@ -413,19 +457,28 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         subClasses.add(clazz);
     }
 
+    /**
+     * Remove a subclass of this class.
+     * Reverses the effect of {@link #addSubClass(ClassImpl)}
+     * @param clazz the subclass
+     */
     public void removeSubClass(ClassImpl clazz)
     {
         subClasses.remove(clazz);
     }
 
     /**
-	 * @since 1.0
+     * Sets the used heap size for this particular class.
+     * Does not include instances.
+	 * @param usedHeapSize the size in bytes
+     * @since 1.0
 	 */
     public void setUsedHeapSize(long usedHeapSize)
     {
         this.usedHeapSize = (int)Math.min(usedHeapSize, Integer.MAX_VALUE);
     }
 
+    @Override
     public boolean doesExtend(String className) throws SnapshotException
     {
         if (className.equals(this.name))

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -106,6 +106,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         return fields;
     }
 
+    @Override
     public Field getField(String name)
     {
         return internalGetField(name);
@@ -175,6 +176,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         }
     }
 
+    @Override
     public ArrayLong getReferences()
     {
         List<Field> fields = getFields();

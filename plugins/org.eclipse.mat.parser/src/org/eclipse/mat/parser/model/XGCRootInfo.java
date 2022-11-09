@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public final class XGCRootInfo extends GCRootInfo
     }
 
     /**
+     * Sets the object ID associated with the object address.
      * @param objectId the object
      * @see #getObjectId()
      */
@@ -44,8 +45,8 @@ public final class XGCRootInfo extends GCRootInfo
     }
 
     /**
-     * 
-     * @param objectId
+     * Set the object which retains this object.
+     * @param objectId the object ID associated with the content address
      * @see #getContextId()
      */
     public void setContextId(int objectId)

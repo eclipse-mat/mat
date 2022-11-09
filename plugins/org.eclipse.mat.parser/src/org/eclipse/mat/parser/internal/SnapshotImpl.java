@@ -87,6 +87,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
+/**
+ * The implementation of the {@link ISnapshot} representing the entire heap dump.
+ */
 public final class SnapshotImpl implements ISnapshot
 {
 
@@ -96,6 +99,15 @@ public final class SnapshotImpl implements ISnapshot
 
     private static final String VERSION = "MAT_01";//$NON-NLS-1$
 
+    /**
+     * Read the snapshot from an already indexed dump.
+     * @param file the dump file
+     * @param prefix the prefix of the path to find the index files
+     * @param listener to report progress
+     * @return the {@link ISnapshot}
+     * @throws SnapshotException problem reading index files
+     * @throws IOException file I/O problem
+     */
     @SuppressWarnings("unchecked")
     public static SnapshotImpl readFromFile(File file, String prefix, IProgressListener listener)
                     throws SnapshotException, IOException
@@ -266,6 +278,21 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
 
+    /**
+     * Create the snapshot after a fresh parse.
+     * @param snapshotInfo the basic data about the snapshot
+     * @param objectReaderUniqueIdentifier the type of the snapshot from the parser
+     * @param heapObjectReader how to read objects from the file
+     * @param classCache all the classes
+     * @param roots all the GC roots
+     * @param rootsPerThread the GC roots per thread
+     * @param arrayObjects which objects are arrays
+     * @param indexManager all the indexes
+     * @param listener to report progress
+     * @return the new {@link ISnapshot}
+     * @throws IOException a file I/O problem
+     * @throws SnapshotException another problem
+     */
     public static SnapshotImpl create(XSnapshotInfo snapshotInfo, //
                     String objectReaderUniqueIdentifier, //
                     IObjectReader heapObjectReader, //
@@ -448,9 +475,9 @@ public final class SnapshotImpl implements ISnapshot
         }
 
         snapshotInfo.setUsedHeapSize(usedHeapSize);
-		// numberOfObjects was previously calculated by summing getNumberOfObjects() for
-		// each class. Sometimes there was a mismatch. See bug 294311
-		snapshotInfo.setNumberOfObjects(indexManager.idx.size());
+        // numberOfObjects was previously calculated by summing getNumberOfObjects() for
+        // each class. Sometimes there was a mismatch. See bug 294311
+        snapshotInfo.setNumberOfObjects(indexManager.idx.size());
         snapshotInfo.setNumberOfClassLoaders(loaderLabels.size());
         snapshotInfo.setNumberOfGCRoots(roots.size());
         snapshotInfo.setNumberOfClasses(classCache.size());
@@ -467,11 +494,13 @@ public final class SnapshotImpl implements ISnapshot
     // interface implementation
     // //////////////////////////////////////////////////////////////
 
+    @Override
     public XSnapshotInfo getSnapshotInfo()
     {
         return snapshotInfo;
     }
 
+    @Override
     public int[] getGCRoots() throws SnapshotException
     {
         return roots.getAllKeys();
@@ -479,11 +508,13 @@ public final class SnapshotImpl implements ISnapshot
         // GCRootInfo[roots.size()]));
     }
 
+    @Override
     public Collection<IClass> getClasses() throws SnapshotException
     {
         return Arrays.asList(classCache.getAllValues(new IClass[classCache.size()]));
     }
 
+    @Override
     public Collection<IClass> getClassesByName(String name, boolean includeSubClasses) throws SnapshotException
     {
         List<IClass> list = this.classCacheByName.get(name);
@@ -501,6 +532,7 @@ public final class SnapshotImpl implements ISnapshot
         return answer;
     }
 
+    @Override
     public Collection<IClass> getClassesByName(Pattern namePattern, boolean includeSubClasses) throws SnapshotException
     {
         Set<IClass> result = new HashSet<IClass>();
@@ -520,6 +552,7 @@ public final class SnapshotImpl implements ISnapshot
         return result;
     }
 
+    @Override
     public Histogram getHistogram(IProgressListener listener) throws SnapshotException
     {
         if (listener == null)
@@ -539,6 +572,7 @@ public final class SnapshotImpl implements ISnapshot
         return histogramBuilder.toHistogram(this, true);
     }
 
+    @Override
     public Histogram getHistogram(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException
     {
         if (progressMonitor == null)
@@ -573,16 +607,33 @@ public final class SnapshotImpl implements ISnapshot
         return histogramBuilder.toHistogram(this, false);
     }
 
+    @Override
     public int[] getInboundRefererIds(int objectId) throws SnapshotException
     {
+        // Add a useful error message
+        int nobjs = indexManager.inbound().size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { objectId }));
+        }
         return indexManager.inbound().get(objectId);
     }
 
+    @Override
     public int[] getOutboundReferentIds(int objectId) throws SnapshotException
     {
+        // Add a useful error message
+        int nobjs = indexManager.outbound().size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { objectId }));
+        }
         return indexManager.outbound().get(objectId);
     }
 
+    @Override
     public int[] getInboundRefererIds(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException
     {
         if (progressMonitor == null)
@@ -593,9 +644,17 @@ public final class SnapshotImpl implements ISnapshot
         SetInt result = new SetInt();
         progressMonitor.beginTask(Messages.SnapshotImpl_ReadingInboundReferrers, objectIds.length / 100);
 
+        // Add a useful error message
+        int nobjs = indexManager.inbound().size();
         for (int ii = 0; ii < objectIds.length; ii++)
         {
-            int[] referees = inbound.get(objectIds[ii]);
+            int objectId = objectIds[ii];
+            if (objectId >= nobjs || objectId < 0)
+            {
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                                new Object[] { objectId }));
+            }
+            int[] referees = inbound.get(objectId);
             for (int refereeId : referees)
                 result.add(refereeId);
 
@@ -617,6 +676,7 @@ public final class SnapshotImpl implements ISnapshot
         return endResult;
     }
 
+    @Override
     public int[] getOutboundReferentIds(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException
     {
         if (progressMonitor == null)
@@ -627,9 +687,17 @@ public final class SnapshotImpl implements ISnapshot
         SetInt result = new SetInt();
         progressMonitor.beginTask(Messages.SnapshotImpl_ReadingOutboundReferrers, objectIds.length / 100);
 
+        // Add a useful error message
+        int nobjs = indexManager.outbound().size();
         for (int ii = 0; ii < objectIds.length; ii++)
         {
-            int[] referees = outbound.get(objectIds[ii]);
+            int objectId = objectIds[ii];
+            if (objectId >= nobjs || objectId < 0)
+            {
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                                new Object[] { objectId }));
+            }
+            int[] referees = outbound.get(objectId);
             for (int refereeId : referees)
                 result.add(refereeId);
 
@@ -648,12 +716,14 @@ public final class SnapshotImpl implements ISnapshot
         return endResult;
     }
 
+    @Override
     public IPathsFromGCRootsComputer getPathsFromGCRoots(int objectId, Map<IClass, Set<String>> excludeList)
                     throws SnapshotException
     {
         return new PathsFromGCRootsComputerImpl(objectId, excludeList);
     }
 
+    @Override
     public IMultiplePathsFromGCRootsComputer getMultiplePathsFromGCRoots(int[] objectIds,
                     Map<IClass, Set<String>> excludeList) throws SnapshotException
     {
@@ -812,6 +882,7 @@ public final class SnapshotImpl implements ISnapshot
 
     }
 
+    @Override
     public int[] getRetainedSet(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException
     {
         int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -825,6 +896,7 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
 
+    @Override
     public int[] getRetainedSet(int[] objectIds, String[] fieldNames, IProgressListener listener)
                     throws SnapshotException
     {
@@ -859,6 +931,7 @@ public final class SnapshotImpl implements ISnapshot
         return retained;
     }
 
+    @Override
     public int[] getRetainedSet(int[] objectIds, ExcludedReferencesDescriptor[] excludedReferences,
                     IProgressListener progressMonitor) throws SnapshotException
     {
@@ -917,6 +990,7 @@ public final class SnapshotImpl implements ISnapshot
         return retainedSet.toArray();
     }
 
+    @Override
     public long getMinRetainedSize(int[] objectIds, IProgressListener progressMonitor)
                     throws UnsupportedOperationException, SnapshotException
     {
@@ -936,6 +1010,7 @@ public final class SnapshotImpl implements ISnapshot
         return result;
     }
 
+    @Override
     public int[] getMinRetainedSet(int[] objectIds, IProgressListener progressMonitor)
                     throws UnsupportedOperationException, SnapshotException
     {
@@ -1069,6 +1144,7 @@ public final class SnapshotImpl implements ISnapshot
 
     }
 
+    @Override
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException
     {
         // Used by the dominator_tree query to allow a missing dominator tree to be built
@@ -1306,6 +1382,12 @@ public final class SnapshotImpl implements ISnapshot
         return dominatorTreeCalculated;
     }
 
+    /**
+     * Calculates the dominator tree after a parse
+     * @param listener to report progress
+     * @throws SnapshotException if a problem occurred
+     * @throws OperationCanceledException if the calculation was cancelled by user via the listener
+     */
     public void calculateDominatorTree(IProgressListener listener) throws SnapshotException,
                     IProgressListener.OperationCanceledException
     {
@@ -1321,20 +1403,38 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
 
+    @Override
     public int[] getImmediateDominatedIds(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
             throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
+        // Add a useful error message
+        int nobjs = indexManager.dominated().size() - 1;
+        // -1 is the root node, so is allowed
+        if (objectId >= nobjs || objectId < -1)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { objectId }));
+        }
         return indexManager.dominated().get(objectId + 1);
     }
 
+    @Override
     public int getImmediateDominatorId(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
             throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
+        // Add a useful error message
+        int nobjs = indexManager.dominator().size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { objectId }));
+        }
         return indexManager.dominator().get(objectId) - 2;
     }
 
+    @Override
     public DominatorsSummary getDominatorsOf(int[] objectIds, Pattern excludePattern, IProgressListener progressListener)
                     throws SnapshotException
     {
@@ -1455,35 +1555,70 @@ public final class SnapshotImpl implements ISnapshot
         return new DominatorsSummary(records, this);
     }
 
+    @Override
     public IObject getObject(int objectId) throws SnapshotException
     {
         IObject answer = this.classCache.get(objectId);
         if (answer != null)
             return answer;
 
-        return this.objectCache.get(objectId);
+        try
+        {
+            return this.objectCache.get(objectId);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw SnapshotException.rethrow(e);
+        }
     }
 
+    @Override
     public GCRootInfo[] getGCRootInfo(int objectId) throws SnapshotException
     {
         return roots.get(objectId);
     }
 
+    @Override
     public IClass getClassOf(int objectId) throws SnapshotException
     {
         if (isClass(objectId))
             return getObject(objectId).getClazz();
         else
+        {
+            // Add a useful error message
+            int nobjs = indexManager.o2class().size();
+            if (objectId >= nobjs || objectId < 0)
+            {
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                                new Object[] { objectId }));
+            }
             return (IClass) getObject(indexManager.o2class().get(objectId));
+        }
     }
 
+    @Override
     public long mapIdToAddress(int objectId) throws SnapshotException
     {
+        // Add a useful error message
+        int nobjs = indexManager.o2address().size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { objectId }));
+        }
         return indexManager.o2address().get(objectId);
     }
 
+    @Override
     public long getHeapSize(int objectId) throws SnapshotException
     {
+        // Add a useful error message
+        int nobjs = indexManager.idx.size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(
+                            MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { objectId }));
+        }
         if (arrayObjects.get(objectId))
         {
             return indexManager.a2size().getSize(objectId);
@@ -1507,13 +1642,21 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
 
+    @Override
     public long getHeapSize(int[] objectIds) throws UnsupportedOperationException, SnapshotException
     {
         long total = 0;
         IOne2OneIndex o2class = indexManager.o2class();
         IOne2SizeIndex a2size = indexManager.a2size();
+        // Add a useful error message
+        int nobjs = indexManager.idx.size();
         for (int objectId : objectIds)
         {
+            if (objectId >= nobjs || objectId < 0)
+            {
+                throw new SnapshotException(
+                                MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { objectId }));
+            }
             if (arrayObjects.get(objectId)) // take array sizes from another
             // index
             {
@@ -1539,6 +1682,12 @@ public final class SnapshotImpl implements ISnapshot
         return total;
     }
 
+    /**
+     * Calculate for each class an approximation for the retained size of all instances
+     * of that class.
+     * @param listener for reporting progress
+     * @throws SnapshotException if there is a problem
+     */
     public void calculateMinRetainedHeapSizeForClasses(IProgressListener listener) throws SnapshotException {
         listener.subTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses);
 
@@ -1558,20 +1707,29 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
 
+    @Override
     public long getRetainedHeapSize(int objectId) throws SnapshotException
     {
+        // Add a useful error message
+        int nobjs = indexManager.idx.size();
+        if (objectId >= nobjs || objectId < 0)
+        {
+            throw new SnapshotException(
+                            MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { objectId }));
+        }
         if (this.isDominatorTreeCalculated())
             return indexManager.o2retained().get(objectId);
         else
             return 0;
     }
 
+    @Override
     public boolean isArray(int objectId)
     {
         // Add a useful error message - snapshotInfo.getNumberOfObjects
         // isn't set early on
         int nobjs = indexManager.idx.size();
-        if (objectId > nobjs || objectId < 0)
+        if (objectId >= nobjs || objectId < 0)
         {
             SnapshotException e = new SnapshotException(
                             MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { objectId }));
@@ -1591,16 +1749,19 @@ public final class SnapshotImpl implements ISnapshot
         return false;
     }
 
+    @Override
     public boolean isClass(int objectId)
     {
         return classCache.containsKey(objectId);
     }
 
+    @Override
     public boolean isGCRoot(int objectId)
     {
         return roots.containsKey(objectId);
     }
 
+    @Override
     public int mapAddressToId(long objectAddress) throws SnapshotException
     {
         int objectId = indexManager.o2address().reverse(objectAddress);
@@ -1611,6 +1772,7 @@ public final class SnapshotImpl implements ISnapshot
         return objectId;
     }
 
+    @Override
     public void dispose()
     {
         IOException error = null;
@@ -1654,6 +1816,11 @@ public final class SnapshotImpl implements ISnapshot
     // internal stuff
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Finds the class and all its superclasses.
+     * @param classIndex the class ID
+     * @return all the classes
+     */
     public List<IClass> resolveClassHierarchy(int classIndex)
     {
         IClass clazz = classCache.get(classIndex);
@@ -1674,16 +1841,27 @@ public final class SnapshotImpl implements ISnapshot
     }
 
     /** performance improved check if the object is a class loader */
+    @Override
     public boolean isClassLoader(int objectId)
     {
         return loaderLabels.containsKey(objectId);
     }
 
+    /**
+     * Finds the name associated with a class loader.
+     * @param objectId the class loader
+     * @return the name
+     */
     public String getClassLoaderLabel(int objectId)
     {
         return loaderLabels.get(objectId);
     }
 
+    /**
+     * Associates a class loader with a name
+     * @param objectId the class loader
+     * @param label the name
+     */
     public void setClassLoaderLabel(int objectId, String label)
     {
         if (label == null)
@@ -2121,21 +2299,38 @@ public final class SnapshotImpl implements ISnapshot
 
     }
 
+    /**
+     * Gets all the indexes for the snapshot.
+     * @return the manager of the indexes
+     */
     public IndexManager getIndexManager()
     {
         return indexManager;
     }
 
+    /**
+     * Gets the reader for the particular snapshot type to read
+     * individual objects.
+     * @return the reader
+     */
     public IObjectReader getHeapObjectReader()
     {
         return heapObjectReader;
     }
 
+    /**
+     * The cache to speed the finding of the retained size for each object.
+     * @return the cache
+     */
     public RetainedSizeCache getRetainedSizeCache()
     {
         return indexManager.i2sv2;
     }
 
+    /**
+     * Gets the roots per thread from the variables on the stack frames.
+     * @return a map between the thread ID and the GC root information
+     */
     public HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> getRootsPerThread()
     {
         return rootsPerThread;
@@ -2150,6 +2345,7 @@ public final class SnapshotImpl implements ISnapshot
      * @return the extra data
      */
     @SuppressWarnings("unchecked")
+    @Override
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException
     {
         if (addon == UnreachableObjectsHistogram.class)
@@ -2162,19 +2358,20 @@ public final class SnapshotImpl implements ISnapshot
         }
     }
     
+    @Override
     public IThreadStack getThreadStack(int objectId) throws SnapshotException
     {
-    	if (!parsedThreads)
-    	{
-    		threadId2stack = ThreadStackHelper.loadThreadsData(this);
-    		parsedThreads = true;
-    	}
-    	
-    	if (threadId2stack != null)
-    	{
-    		return threadId2stack.get(objectId);
-    	}
-    	return null;
+        if (!parsedThreads)
+        {
+            threadId2stack = ThreadStackHelper.loadThreadsData(this);
+            parsedThreads = true;
+        }
+
+        if (threadId2stack != null)
+        {
+            return threadId2stack.get(objectId);
+        }
+        return null;
     }
 
     // //////////////////////////////////////////////////////////////

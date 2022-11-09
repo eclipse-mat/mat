@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,29 +24,29 @@ import org.eclipse.mat.util.IProgressListener;
 public interface IIndexBuilder
 {
     /**
-     * initialize with file and prefix (needed for naming conventions)
+     * Initialize with file and prefix (needed for naming conventions).
      * @param file the dump file
      * @param prefix used to build index files
-     * @throws SnapshotException
-     * @throws IOException
+     * @throws SnapshotException for example, some problem with the dump file
+     * @throws IOException for example, problem reading the dump file
      */
     void init(File file, String prefix) throws SnapshotException, IOException;
 
     /**
-     * pass1 and pass2 parsing 
+     * Pass1 and pass2 parsing.
      * @param index
      * @param listener for progress and error reporting
-     * @throws SnapshotException
-     * @throws IOException
+     * @throws SnapshotException major problem parsing the dump
+     * @throws IOException for example, problem reading the dump file or wrong file type
      */
     void fill(IPreliminaryIndex index, IProgressListener listener) throws SnapshotException, IOException;
 
     /**
-     * Memory Analyzer has discard unreachable objects, so the parser may need to known
-     * the discarded objects
+     * Memory Analyzer has discarded unreachable objects, so the parser may need to know
+     * the discarded objects.
      * @param purgedMapping mapping from old id to new id, -1 indicates object has been discarded
      * @param listener for progress and error reporting
-     * @throws IOException
+     * @throws IOException for example, problem writing a new index
      */
     void clean(final int[] purgedMapping, IProgressListener listener) throws IOException;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.snapshot.model.IArray;
 
 /**
@@ -57,12 +58,14 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
 
     /**
      * Sets the cached information about the contents of the array.
+     * @param content from the {@link IObjectReader}
      */
     public void setInfo(Object content)
     {
         this.info = content;
     }
 
+    @Override
     public int getLength()
     {
         if (length == -1)
@@ -79,11 +82,13 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         length = i;
     }
 
+    @Override
     protected StringBuffer appendFields(StringBuffer buf)
     {
         return super.appendFields(buf).append(";length=").append(length);//$NON-NLS-1$
     }
 
+    @Override
     public String getTechnicalName()
     {
         StringBuilder builder = new StringBuilder(256);

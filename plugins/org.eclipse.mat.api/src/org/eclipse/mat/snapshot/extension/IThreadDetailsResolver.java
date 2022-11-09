@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public interface IThreadDetailsResolver
      * Extract basic information about a thread, for example for ThreadOverviewQuery.
      * @param thread to extract the information from and to attach the information
      * @param listener to log progress and report errors
-     * @throws SnapshotException
+     * @throws SnapshotException problem retrieving or converting the data
      */
     void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException;
 
@@ -42,7 +42,7 @@ public interface IThreadDetailsResolver
      * Extract detailed information about a thread, for example for ThreadInfoQuery.
      * @param thread to extract the information from and to attach the information
      * @param listener to log progress and report errors
-     * @throws SnapshotException
+     * @throws SnapshotException problem retrieving or converting the data
      */
     void complementDeep(IThreadInfo thread, IProgressListener listener) throws SnapshotException;
 
