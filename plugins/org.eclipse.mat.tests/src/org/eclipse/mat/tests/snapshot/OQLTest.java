@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -2171,6 +2172,175 @@ public class OQLTest
     }
 
     /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObject() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT u FROM OBJECTS 1234567890 u");
+        assertThat(irt, nullValue());
+    }
+
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectClassof() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT classof(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectInbounds() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT inbounds(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectOutbounds() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT outbounds(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectDominatorof() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT dominatorof(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectDominators() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT dominators(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectRetainedSet() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT AS RETAINED SET u FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testInboundRefererIds() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getInboundRefererIds((SELECT * FROM OBJECTS 1,1234567890 ),null) FROM OBJECTS 1");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testOutboundReferentIds() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getOutboundReferentIds((SELECT * FROM OBJECTS 1,1234567890 ),null) FROM OBJECTS 1");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testRetainedSet1() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getRetainedSet((SELECT * FROM OBJECTS 1234567890 ),null) FROM OBJECTS 1");
+        assertThat(irt, nullValue());
+    }
+
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testRetainedSet2() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getRetainedSet((SELECT * FROM OBJECTS 1,1234567890 ),null) FROM OBJECTS 1");
+        assertThat(irt, nullValue());
+    }
+
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testGetHeapSize() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getHeapSize((SELECT * FROM OBJECTS 1,1234567890 ),null) FROM OBJECTS 1");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectGetRetainedHeapSize() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getRetainedHeapSize(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectGetHeapSize() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.getHeapSize(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
+     * Check error message for bad object ID
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testBadObjectMapIdToAddress() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT ${snapshot}.mapIdToAddress(u) FROM OBJECTS (1234567890) u");
+        assertThat(irt, nullValue());
+    }
+
+    /**
      * Check all getOQL() from contexts from the result are sensible.
      * @param rt ResultTable
      * @throws SnapshotException
@@ -3039,7 +3209,7 @@ public class OQLTest
         buildAddr(sb, dups);
         sb.append(" s)");
         IResultTable result = (IResultTable)execute(sb.toString());
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
         checkGetOQL(result);
     }
 
@@ -3059,7 +3229,7 @@ public class OQLTest
         OQL.union(sb, s1);
         OQL.union(sb, "SELECT s FROM OBJECTS 2 s");
         IResultTable result = (IResultTable)execute(sb.toString());
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
         checkGetOQL(result);
     }
     // //////////////////////////////////////////////////////////////

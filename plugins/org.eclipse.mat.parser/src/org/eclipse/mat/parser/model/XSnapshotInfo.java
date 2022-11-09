@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -33,8 +33,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param prefix
+     * Set the prefix used for index files.
+     * @param prefix the path prefix
      * @see #getPrefix()
      */
     public void setPrefix(String prefix)
@@ -43,8 +43,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param path
+     * Sets the path to the snapshot file.
+     * @param path the file path
      * @see #getPath()
      */
     public void setPath(String path)
@@ -53,8 +53,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param creationDate
+     * Sets the creation date of the snapshot
+     * @param creationDate the date of creation
      * @see #getCreationDate()
      */
     public void setCreationDate(Date creationDate)
@@ -63,8 +63,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param identifierSize
+     * Sets the identifier size for the snapshot.
+     * @param identifierSize the size in bits
      * @see #getIdentifierSize()
      */
     public void setIdentifierSize(int identifierSize)
@@ -73,8 +73,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param jvmInfo
+     * Sets information about the JVM.
+     * @param jvmInfo a short description of the JVM
      * @see #getJvmInfo()
      */
     public void setJvmInfo(String jvmInfo)
@@ -83,8 +83,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param numberOfClasses
+     * Sets the total number of classes.
+     * @param numberOfClasses how many classes
      * @see #getNumberOfClasses()
      */
     public void setNumberOfClasses(int numberOfClasses)
@@ -93,8 +93,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param numberOfClassLoaders
+     * Sets the total number of class loaders.
+     * @param numberOfClassLoaders how many class loaders
      * @see #getNumberOfClassLoaders()
      */
     public void setNumberOfClassLoaders(int numberOfClassLoaders)
@@ -103,8 +103,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param numberOfGCRoots
+     * Sets the number of GC roots.
+     * @param numberOfGCRoots the number of GC roots
      * @see #getNumberOfGCRoots()
      */
     public void setNumberOfGCRoots(int numberOfGCRoots)
@@ -113,8 +113,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param numberOfObjects
+     * Sets the number of objects.
+     * @param numberOfObjects the total number of objects
      * @see #getNumberOfObjects()
      */
     public void setNumberOfObjects(int numberOfObjects)
@@ -123,8 +123,8 @@ public final class XSnapshotInfo extends SnapshotInfo
     }
 
     /**
-     * 
-     * @param usedHeapSize
+     * Sets the total used heap size.
+     * @param usedHeapSize the total heap size in bytes
      * @see #getUsedHeapSize()
      */
     public void setUsedHeapSize(long usedHeapSize)

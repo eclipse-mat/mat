@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,10 @@ import java.util.Comparator;
  */
 public class ObjectComparators
 {
+    /**
+     * Compare by technical name ascending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForTechnicalNameAscending()
     {
         return new Comparator<IObject>()
@@ -30,6 +34,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by technical name descending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForTechnicalNameDescending()
     {
         return new Comparator<IObject>()
@@ -41,6 +49,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by class specific name ascending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForClassSpecificNameAscending()
     {
         return new Comparator<IObject>()
@@ -60,6 +72,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by class specific name descending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForClassSpecificNameDescending()
     {
         return new Comparator<IObject>()
@@ -78,6 +94,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by used heap size ascending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForUsedHeapSizeAscending()
     {
         return new Comparator<IObject>()
@@ -93,6 +113,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by user heap size descending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForUsedHeapSizeDescending()
     {
         return new Comparator<IObject>()
@@ -108,6 +132,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by retained heap size ascending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForRetainedHeapSizeAscending()
     {
         return new Comparator<IObject>()
@@ -123,6 +151,10 @@ public class ObjectComparators
         };
     }
 
+    /**
+     * Compare by retained heap size descending.
+     * @return the comparator
+     */
     public static Comparator<IObject> getComparatorForRetainedHeapSizeDescending()
     {
         return new Comparator<IObject>()

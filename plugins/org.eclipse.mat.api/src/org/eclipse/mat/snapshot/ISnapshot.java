@@ -347,7 +347,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return retained set of objects for the given objects
-     * @throws SnapshotException
+     * @throws SnapshotException if there was a problem, such as on cancellation
      */
     public int[] getRetainedSet(int[] objectIds, String[] fieldNames, IProgressListener progressMonitor)
                     throws SnapshotException;
@@ -372,7 +372,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return retained set of objects for the given objects
-     * @throws SnapshotException
+     * @throws SnapshotException if there was a problem, such as on cancellation
      */
     public int[] getRetainedSet(int[] objectIds, ExcludedReferencesDescriptor[] excludedReferences,
                     IProgressListener progressMonitor) throws SnapshotException;
@@ -402,7 +402,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return the minimum retained set of objects for the given objects
-     * @throws SnapshotException
+     * @throws SnapshotException if there was a problem, such as on cancellation
      */
     public int[] getMinRetainedSet(int[] objectIds, IProgressListener progressListener) throws SnapshotException;
 
@@ -417,7 +417,7 @@ public interface ISnapshot
      *            progress listener informing about the current state of
      *            execution
      * @return the minimum retained set of objects for the given objects
-     * @throws SnapshotException
+     * @throws SnapshotException if there was a problem, such as on cancellation
      */
     public long getMinRetainedSize(int[] objectIds, IProgressListener listener) throws SnapshotException;
 
@@ -431,7 +431,7 @@ public interface ISnapshot
      *            object for which the directly dominated objects should be
      *            returned
      * @return objects the given object directly dominates
-     * @throws SnapshotException
+     * @throws SnapshotException if the dominator tree has not been calculated
      */
     public int[] getImmediateDominatedIds(int objectId) throws SnapshotException;
 
@@ -447,7 +447,7 @@ public interface ISnapshot
      *            returned
      * @return Object id of the dominator. -1 if the object is dominated by the
      *         root of the dominator tree.
-     * @throws SnapshotException
+     * @throws SnapshotException if the dominator tree has not been calculated
      */
     public int getImmediateDominatorId(int objectId) throws SnapshotException;
 
@@ -472,7 +472,7 @@ public interface ISnapshot
      *            execution
      * @return DominatorsSummary the returned DominatorSummary contains the
      *         summary of the dominators grouped by classes or class loaders
-     * @throws SnapshotException
+     * @throws SnapshotException if the dominator tree has not been calculated
      */
     public DominatorsSummary getDominatorsOf(int[] objectIds, Pattern excludePattern, IProgressListener progressListener)
                     throws SnapshotException;
@@ -493,7 +493,7 @@ public interface ISnapshot
      *            execution
      * @return int[] the objects which not in a parent/child relation in the
      *         dominator tree
-     * @throws SnapshotException
+     * @throws SnapshotException if the dominator tree has not been calculated
      */
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException;
 
@@ -507,7 +507,7 @@ public interface ISnapshot
      *            id of object you want a convenient object abstraction for
      * @return object abstracting the real Java Object from the heap dump
      *         identified by the given id
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem, such as perhaps an invalid objectId
      */
     public IObject getObject(int objectId) throws SnapshotException;
 
@@ -523,7 +523,7 @@ public interface ISnapshot
      * @param objectId
      *            id of object you want the GC root info for
      * @return null if this object is no GC root or GCRootInfo[] if it is
-     * @throws SnapshotException
+     * @throws SnapshotException on an unexpected problem
      */
     public GCRootInfo[] getGCRootInfo(int objectId) throws SnapshotException;
 
@@ -537,7 +537,7 @@ public interface ISnapshot
      *            id of object you want the convenient class abstraction for
      * @return object abstracting the real Java Class this object was an
      *         instance of in the heap dump identified by the given id
-     * @throws SnapshotException
+     * @throws SnapshotException if there is an unexpected problem
      */
     public IClass getClassOf(int objectId) throws SnapshotException;
 
@@ -553,7 +553,7 @@ public interface ISnapshot
      * @param objectId
      *            id of object for which you want the heap size for
      * @return heap size for the given object.
-     * @throws SnapshotException
+     * @throws SnapshotException on an unexpected problem
      * @since 1.0
      */
     public long getHeapSize(int objectId) throws SnapshotException;
@@ -568,7 +568,7 @@ public interface ISnapshot
      * @param objectIds
      *            ids of the objects for which you want the heap size for
      * @return total heap size for the given object set
-     * @throws SnapshotException
+     * @throws SnapshotException on an unexpected problem
      */
     public long getHeapSize(int[] objectIds) throws SnapshotException;
 
@@ -586,7 +586,7 @@ public interface ISnapshot
      *            id of object for which you want the retained heap size for
      * @return retained heap size for the given object or 0 if no dominator tree
      *         was calculated
-     * @throws SnapshotException
+     * @throws SnapshotException on an unexpected problem
      */
     public long getRetainedHeapSize(int objectId) throws SnapshotException;
 
@@ -683,6 +683,8 @@ public interface ISnapshot
      * <p>
      * For example, from the supplied snapshot implementation {@link org.eclipse.mat.parser.internal.SnapshotImpl}
      * the extra information is obtained via {@link org.eclipse.mat.parser.IObjectReader#getAddon(Class)}.
+     * @param addon the type of the additional information required
+     * @param <A> the type of the result
      * @return SnapshotAddons - extended information, e.g. perm info, OoM stack
      *         trace info, JVM arguments, etc.
      *         returns null if the information is not present
@@ -694,7 +696,7 @@ public interface ISnapshot
      * Get a the stack trace information for a given thread object, if thread
      * stack information is available in this snapshot.
      * <p>
-     * 
+     * @param objectId the object ID of the thread
      * @return IThreadStack - an object representing the call stack of the
      *         thread. Returns null if no info is available for the object, or
      *         no stack info is available at all

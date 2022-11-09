@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -103,6 +103,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
     }
 
+    @Override
     public long[] getReferenceArray(int offset, int length)
     {
         try
@@ -119,6 +120,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
     }
 
+    @Override
     public ArrayLong getReferences()
     {
         ArrayLong answer = new ArrayLong(getLength() + 1);
@@ -137,6 +139,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         return answer;
     }
 
+    @Override
     protected Field internalGetField(String name)
     {
         if (name.charAt(0) != '[' || name.charAt(name.length() - 1) != ']')
@@ -162,6 +165,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
     }
 
+    @Override
     public List<NamedReference> getOutboundReferences()
     {
         List<NamedReference> answer = new ArrayList<NamedReference>(getLength() + 1);

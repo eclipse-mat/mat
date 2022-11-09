@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,11 +54,13 @@ public interface IPrimitiveArray extends IArray
 
     /**
      * Returns the {@link IObject.Type} of the primitive array.
+     * @return the type
      */
     public int getType();
 
     /**
      * Returns the component type of the array.
+     * @return the Java class of the component type
      */
     public Class<?> getComponentType();
 
@@ -92,6 +94,7 @@ public interface IPrimitiveArray extends IArray
      * The return value must not be modified because it is cached by the heap
      * dump adapter. This method does not return a copy of the array for
      * performance reasons.
+     * @return the contents of the primitive array
      */
     public Object getValueArray();
 
@@ -102,6 +105,9 @@ public interface IPrimitiveArray extends IArray
      * The return value must not be modified because it is cached by the heap
      * dump adapter. This method does not return a copy of the array for
      * performance reasons.
+     * @param offset the starting index
+     * @param length the number of entries
+     * @return the contents of the primitive array starting at the index for length entries
      */
     public Object getValueArray(int offset, int length);
 }

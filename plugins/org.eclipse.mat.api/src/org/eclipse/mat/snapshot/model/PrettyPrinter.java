@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ public final class PrettyPrinter
      * @param stringObject the String object in the dump
      * @param limit maximum number of characters to return
      * @return the value of the string from the dump, as a String
-     * @throws SnapshotException
+     * @throws SnapshotException if there is a problem with the conversion
      */
     public static String objectAsString(IObject stringObject, int limit) throws SnapshotException
     {
@@ -113,7 +113,7 @@ public final class PrettyPrinter
     /**
      * Convert a <code>char[]</code> object into a String.
      * Unprintable characters are returned as \\unnnn values
-     * @param charArray
+     * @param charArray the character array
      * @param offset where to start
      * @param count how many characters to read
      * @param limit the maximum number of characters to read

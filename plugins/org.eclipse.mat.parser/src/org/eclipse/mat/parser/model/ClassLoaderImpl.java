@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 {
     private static final long serialVersionUID = 1L;
 
+    /** If the class loader has no name */
     public static final String NO_LABEL = "__none__";//$NON-NLS-1$
 
     private volatile transient List<IClass> definedClasses = null;
@@ -110,6 +111,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         return result;
     }
 
+    @Override
     public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize,
                     IProgressListener listener) throws SnapshotException
     {
@@ -122,7 +124,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
      * @param dump the snapshot
      * @param classLoaderId the class loader to look for
      * @return a list of classes
-     * @throws SnapshotException
+     * @throws SnapshotException problem retrieving the information
      */
     public static final List<IClass> doGetDefinedClasses(ISnapshot dump, int classLoaderId) throws SnapshotException
     {
@@ -144,7 +146,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
      * @param calculateMinRetainedSize true if to make an approximate calculation
      * @param listener to indicate progress, errors and to cancel
      * @return the size, negative if approximate
-     * @throws SnapshotException
+     * @throws SnapshotException problem retrieving the information
      */
     public static final long doGetRetainedHeapSizeOfObjects(ISnapshot dump, int classLoaderId,
                     boolean calculateIfNotAvailable, boolean calculateMinRetainedSize, IProgressListener listener)

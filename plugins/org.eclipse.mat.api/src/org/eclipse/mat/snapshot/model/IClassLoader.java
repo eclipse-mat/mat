@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,8 @@ public interface IClassLoader extends IInstance
 
     /**
      * Returns the classes defined by this class loader instance.
+     * @return a list of classes defined by this class loader
+     * @throws SnapshotException if there is a problem retrieving the information
      */
     List<IClass> getDefinedClasses() throws SnapshotException;
 }

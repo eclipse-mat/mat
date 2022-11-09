@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -33,15 +33,23 @@ public interface IObject extends Serializable
      */
     public interface Type
     {
+        /** An object array/field */
         int OBJECT = 2;
-
+        /** A array of booleans or boolean field */
         int BOOLEAN = 4;
+        /** A array of char or char field */
         int CHAR = 5;
+        /** A array of float or float field */
         int FLOAT = 6;
+        /** A array of double or double field */
         int DOUBLE = 7;
+        /** A array of byte or byte field */
         int BYTE = 8;
+        /** A array of short or short field */
         int SHORT = 9;
+        /** A array of int or int field */
         int INT = 10;
+        /** A array of long or long field */
         int LONG = 11;
     }
 
@@ -139,6 +147,7 @@ public interface IObject extends Serializable
      * @param field
      *            the field name in dot notation
      * @return the value of the field
+     * @throws SnapshotException when there is a problem retrieving the field
      */
     public Object resolveValue(String field) throws SnapshotException;
 
@@ -150,6 +159,7 @@ public interface IObject extends Serializable
      * 
      * @return {@link GCRootInfo} if the object is a garbage collection root or
      *         null otherwise
+     * @throws SnapshotException when there is a problem retrieving the information
      */
     public GCRootInfo[] getGCRootInfo() throws SnapshotException;
 
