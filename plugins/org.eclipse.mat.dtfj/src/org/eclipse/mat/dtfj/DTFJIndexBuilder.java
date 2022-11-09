@@ -23,6 +23,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -118,7 +120,6 @@ import com.ibm.dtfj.java.JavaStackFrame;
 import com.ibm.dtfj.java.JavaThread;
 import com.ibm.dtfj.java.JavaVMOption;
 import com.ibm.dtfj.runtime.ManagedRuntime;
-import com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive;
 
 /**
  * Reads and parses a DTFJ dump, building indexes which are then used by MAT to create a snapshot.
@@ -939,11 +940,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                         Messages.DTFJIndexBuilder_TookmsToGetImageFromFile, (now1 - then1), dump, dumpType), null);
         
-        String reliabilityCheck = System.getProperty("reliabilityCheck");
+        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
         if (reliabilityCheck == null)
         {
             reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
-                            PreferenceConstants.P_RELIABILITY_CHECK, "", null);
+                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
         }
 
         // Set a default preference value
@@ -2618,21 +2619,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // This is a best-effort check so it's okay to use known class names:
         // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
         String imageClassName = dtfjInfo.getImage().getClass().getName();
-        if (imageClassName.endsWith("J9DDRImage"))
+        if (imageClassName.endsWith("J9DDRImage")) //$NON-NLS-1$
         {
             // This is a core dump
             StringBuilder sb = new StringBuilder();
             try
             {
                 // Get the j9javavm context of the image
-                String context = executeJdmpviewCommand("!context").trim();
+                String context = executeJdmpviewCommand("!context").trim(); //$NON-NLS-1$
                 sb.append(context);
-                context = context.substring(context.indexOf("!j9javavm"));
+                context = context.substring(context.indexOf("!j9javavm")); //$NON-NLS-1$
 
                 // Execute the context and extract out the exclusiveAccessState
                 String j9javavm = executeJdmpviewCommand(context);
-                sb.append("\n\n" + j9javavm);
-                j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26);
+                sb.append("\n\n" + j9javavm); //$NON-NLS-1$
+                j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26); //$NON-NLS-1$
                 j9javavm = j9javavm.substring(0, j9javavm.indexOf(' ')).trim();
 
                 // https://github.com/eclipse/openj9/blob/v0.22.0-release/runtime/oti/j9consts.h#L785
@@ -2646,22 +2647,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // Something has exclusive access, so figure out what it is
 
                     // Find the j9vmthread that has exclusive access
-                    String threads = executeJdmpviewCommand("!threads flags");
-                    sb.append("\n\n" + threads);
-                    threads = threads.substring(0, threads.indexOf("20 privateFlags"));
-                    threads = threads.substring(threads.lastIndexOf("!j9vmthread "));
+                    String threads = executeJdmpviewCommand("!threads flags"); //$NON-NLS-1$
+                    sb.append("\n\n" + threads); //$NON-NLS-1$
+                    threads = threads.substring(0, threads.indexOf("20 privateFlags")); //$NON-NLS-1$
+                    threads = threads.substring(threads.lastIndexOf("!j9vmthread ")); //$NON-NLS-1$
                     threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
 
                     // Get the omrVMThread for the j9vmthread
                     String omrVMThread = executeJdmpviewCommand(threads);
-                    sb.append("\n\n" + omrVMThread);
-                    omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15);
+                    sb.append("\n\n" + omrVMThread); //$NON-NLS-1$
+                    omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15); //$NON-NLS-1$
                     omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
 
                     // Get the vmState of the omrVMThread
                     String vmStateStr = executeJdmpviewCommand(omrVMThread);
-                    sb.append("\n\n" + vmStateStr);
-                    vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13);
+                    sb.append("\n\n" + vmStateStr); //$NON-NLS-1$
+                    vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13); //$NON-NLS-1$
                     vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
                     long vmState = Long.parseLong(vmStateStr, 16);
                     if ((vmState & 0x20000) != 0)
@@ -2687,11 +2688,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         try
         {
+            // Use reflection so we don't have to link to com.ibm.dtfj.j9
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
-            DDRInteractive jdmpview = new DDRInteractive(dtfjInfo.getImage(), ps);
-            jdmpview.processLine(command);
-            return baos.toString(StandardCharsets.UTF_8.name());
+            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8);
+            Class<?> ddrInteractive = dtfjInfo.getImage().getClass().getClassLoader().loadClass("com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive"); //$NON-NLS-1$
+            Constructor<?>cns = ddrInteractive.getConstructor(Object.class, ps.getClass());
+            Object jdmpview = cns.newInstance(dtfjInfo.getImage(), ps);
+            Method m = ddrInteractive.getMethod("processLine", String.class); //$NON-NLS-1$
+            m.invoke(jdmpview, command);
+            ps.close();
+            return baos.toString(StandardCharsets.UTF_8);
         }
         catch (Exception e)
         {
