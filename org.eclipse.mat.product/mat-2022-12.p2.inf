@@ -14,8 +14,8 @@ instructions.configure=\
     addRepository(type:1,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
     addRepository(type:0,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
     addRepository(type:1,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
-    addRepository(type:0,name:Eclipse 2020-03,location:https${#58}//download.eclipse.org/releases/2020-03/,enabled:true);\
-    addRepository(type:1,name:Eclipse 2020-03,location:https${#58}//download.eclipse.org/releases/2020-03/,enabled:true);\
+    addRepository(type:0,name:Eclipse 2022-12,location:https${#58}//download.eclipse.org/releases/2022-12/,enabled:true);\
+    addRepository(type:1,name:Eclipse 2022-12,location:https${#58}//download.eclipse.org/releases/2022-12/,enabled:true);\
     addRepository(type:0,name:IBM Diagnostic Tool Framework for Java,location:https${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/);\
     addRepository(type:1,name:IBM Diagnostic Tool Framework for Java,location:https${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/);\
-    setProgramProperty(propName:osgi.requiredJavaVersion,propValue:1.8);
+    setProgramProperty(propName:osgi.requiredJavaVersion,propValue:17);

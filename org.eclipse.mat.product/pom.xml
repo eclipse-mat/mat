@@ -35,7 +35,7 @@
 	</properties>
 	<build>
 		<plugins>
-			<!--  Experiment to choose a product / p2.inf pair
+			<!--  Experiment to choose a product / p2.inf pair -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -49,15 +49,13 @@
 						</goals>
 						<configuration>
 							<target>
-								<! Make the selected product the first alphabetically >
-								<copy file="${project.basedir}/${mat-product}.product" tofile="${project.basedir}/mat.product" />
+								<!-- Make the selected p2.inf the one for use with mat.product -->
 								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" />
 							</target>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			-->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>
