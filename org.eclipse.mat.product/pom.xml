@@ -35,27 +35,6 @@
 	</properties>
 	<build>
 		<plugins>
-			<!--  Experiment to choose a product / p2.inf pair -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>selectproduct</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<!-- Make the selected p2.inf the one for use with mat.product -->
-								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" />
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>
@@ -84,6 +63,31 @@
 						</product>
 					</products>
 				</configuration>
+			</plugin>
+			<!--  
+			Experiment to choose a product / p2.inf pair.
+			Have this after tycho-p2-director plugin so that later uses of this plugin
+			in the package phase execute after materialize-products
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>selectproduct</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- Make the selected p2.inf the one for use with mat.product -->
+								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
