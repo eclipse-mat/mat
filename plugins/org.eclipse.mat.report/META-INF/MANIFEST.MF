@@ -21,7 +21,7 @@ Eclipse-BuddyPolicy: dependent
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Bundle-Activator: org.eclipse.mat.report.internal.ReportPlugin
-Import-Package: com.ibm.icu.text;version="3.6.1"
+Import-Package: com.ibm.icu.text
 Bundle-Localization: plugin
 Bundle-Copyright: Copyright (c) 2008, 2022 SAP AG and IBM Corporation. 
  All rights reserved. This program and the accompanying materials 

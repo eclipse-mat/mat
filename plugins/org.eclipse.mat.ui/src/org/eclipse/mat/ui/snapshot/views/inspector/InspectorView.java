@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
-import java.text.Collator;
+import com.ibm.icu.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;

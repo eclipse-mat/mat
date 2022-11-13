@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.mat.api;bundle-version="1.0.0",
  org.hamcrest.core,
  org.hamcrest.library 
 Bundle-ActivationPolicy: lazy
-Import-Package: com.ibm.icu.text;version="3.6.1",
+Import-Package: com.ibm.icu.text,
  junit.framework;version="4.3.1",
  org.eclipse.jface.text,
  org.eclipse.jface.text.rules,

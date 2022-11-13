@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020,2021 IBM Corporation.
+ * Copyright (c) 2020,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -46,8 +46,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-
-import com.ibm.icu.text.MessageFormat;
 
 /**
  * Extract information about objects referenced by java.lang.ref.Reference, e.g.
@@ -185,7 +183,7 @@ public class ReferenceLeakQuery implements IQuery
                                     if (ai.size() <= maxresults)
                                     {
                                         IResultTree t1 = builder.build(snapshot);
-                                        String title = MessageFormat.format(Messages.ReferenceLeakQuery_TwoPaths, ref.getObject().getDisplayName(), o.getDisplayName());
+                                        String title = MessageUtil.format(Messages.ReferenceLeakQuery_TwoPaths, ref.getObject().getDisplayName(), o.getDisplayName());
                                         results.addResult(title, t1);
                                     }
                                     break lx;
@@ -207,7 +205,7 @@ public class ReferenceLeakQuery implements IQuery
 
         if (ai.size() == 0)
         {
-            TextResult child = new TextResult(MessageFormat.format(Messages.ReferenceLeakQuery_NoStrongPaths, eobjs));
+            TextResult child = new TextResult(MessageUtil.format(Messages.ReferenceLeakQuery_NoStrongPaths, eobjs));
             results.addResult(child);
         }
 

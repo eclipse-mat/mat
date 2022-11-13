@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ package org.eclipse.mat.impl.chart;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Level;
@@ -244,7 +243,7 @@ public class HtmlPieChartRenderer implements IOutputter
         // Fix up for HTML4
         imageMap = imageMap.replaceAll("/><area","><area").replaceFirst("/>$", ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         // Fix up alternate text
-        String altReplace = MessageFormat.format(Matcher.quoteReplacement(Messages.HtmlPieChartRenderer_AreaAltReplace), "$2"); //$NON-NLS-1$
+        String altReplace = MessageUtil.format(Matcher.quoteReplacement(Messages.HtmlPieChartRenderer_AreaAltReplace), "$2"); //$NON-NLS-1$
         imageMap = imageMap.replaceAll("alt=\"\"([^>]*)title=\"([^\"]*)\"", "alt=\"" + altReplace + "\"$1title=\"$2\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         // Fix up no destination
         imageMap = imageMap.replace("href=\"\"", ""); //$NON-NLS-1$ //$NON-NLS-2$
