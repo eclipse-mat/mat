@@ -83,7 +83,7 @@
 						<configuration>
 							<target>
 								<!-- Make the selected p2.inf the one for use with mat.product -->
-								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" />
+								<copy file="${project.basedir}/${mat-product}.p2.inf" tofile="${project.basedir}/mat.p2.inf" overwrite="true" />
 							</target>
 						</configuration>
 					</execution>
