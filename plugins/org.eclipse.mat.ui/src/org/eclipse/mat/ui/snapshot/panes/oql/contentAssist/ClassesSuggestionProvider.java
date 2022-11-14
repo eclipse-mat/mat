@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
+ * Copyright (c) 2012,2022 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.graphics.Image;
@@ -152,7 +153,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
     private void initList(ISnapshot snapshot) throws SnapshotException
     {
         if (snapshot == null)
-            throw new IllegalArgumentException("Cannot extract class list from a null snapshot.");
+            throw new IllegalArgumentException("Cannot extract class list from a null snapshot."); //$NON-NLS-1$
 
         Collection<IClass> classes = snapshot.getClasses();
         orderedList = new TreeSet<ContentAssistElement>();
@@ -179,7 +180,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
 
         public InitializerJob(ISnapshot snapshot)
         {
-            super("Init content assistant");
+            super(Messages.ClassesSuggestionProvider_ClassesContentAssistant);
             this.snapshot = snapshot;
         }
 

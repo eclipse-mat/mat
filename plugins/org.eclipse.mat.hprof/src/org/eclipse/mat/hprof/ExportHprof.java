@@ -2581,9 +2581,14 @@ public class ExportHprof implements IQuery
                 int sp = minlen + rnd.nextInt(Math.min(maxlen, length - minlen - (unders ? 1 : 0)) + 1 - minlen);
                 String w = randomWordLen(sp);
                 if (unders)
-                    return w = w + "_" + randomWordsLen(length - sp - 1, unders); //$NON-NLS-1$
+                {
+                    w = w + "_" + randomWordsLen(length - sp - 1, unders); //$NON-NLS-1$
+                }
                 else
-                    return w + titleCase(randomWordsLen(length - sp, unders));
+                {
+                    w = w + titleCase(randomWordsLen(length - sp, unders));
+                }
+                return w;
             }
             return randomWordLen(length);
         }

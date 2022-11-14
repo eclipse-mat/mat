@@ -110,7 +110,7 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
     {
         super();
         if (className == null)
-            throw new IllegalArgumentException("Cannot be initialized without a class name");
+            throw new IllegalArgumentException("Cannot be initialized without a class name"); //$NON-NLS-1$
         this.className = className;
         this.image = image;
         this.displayName = display;

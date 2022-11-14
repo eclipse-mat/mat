@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import org.eclipse.ui.intro.IIntroPart;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 {
-    private static final boolean FORCE_NO_WELCOME = Boolean.getBoolean("org.eclipse.mat.ui.force_no_welcome");
+    private static final boolean FORCE_NO_WELCOME = Boolean.getBoolean("org.eclipse.mat.ui.force_no_welcome"); //$NON-NLS-1$
 
     public ApplicationWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer)
     {

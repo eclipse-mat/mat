@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -47,13 +47,14 @@ import org.eclipse.ui.preferences.IWorkingCopyManager;
  */
 public class OpenPreferenceAction extends Action
 {
+    @SuppressWarnings("nls")
     private static final Set<String> ALLOWED_IDS = new HashSet<String>(Arrays.asList(new String[] {
                     "org.eclipse.ui.net.NetPreferences", //$NON-NLS-1$
-                    "org.eclipse.ui.preferencePages.Workbench", 
-                    "org.eclipse.ui.preferencePages.Keys", 
+                    "org.eclipse.ui.preferencePages.Workbench",
+                    "org.eclipse.ui.preferencePages.Keys",
                     "org.eclipse.ui.preferencePages.Views",
                     "org.eclipse.ui.preferencePages.ColorsAndFonts",
-                    "org.eclipse.ui.preferencePages.ContentTypes", 
+                    "org.eclipse.ui.preferencePages.ContentTypes",
                     "org.eclipse.ui.preferencePages.Editors",
                     "org.eclipse.ui.preferencePages.GeneralTextEditor",
                     "org.eclipse.ui.browser.preferencePage",
@@ -218,7 +219,7 @@ public class OpenPreferenceAction extends Action
         protected Node createDelegate(IConfigurationElement configElement) throws CoreException
         {
             String id = configElement.getAttribute("id"); //$NON-NLS-1$
-            return id.startsWith(MAT_PREFIX) || ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null; 
+            return id.startsWith(MAT_PREFIX) || ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null;
         }
 
         @Override

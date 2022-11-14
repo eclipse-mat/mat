@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020,2021 SAP SE and IBM Corporation.
+ * Copyright (c) 2020,2022 SAP SE and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -423,6 +423,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
      * @param file The file name.
      * @param prefix The prefix of the snapshot.
      * @return The random access file or <code>null</code>.
+     * @throws IOException problem reading the file
      */
     public static synchronized ChunkedGZIPRandomAccessFile get(RandomAccessFile raf, File file, String prefix)
             throws IOException
@@ -538,7 +539,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             defaultHeader[6] = (byte)(lastMod >> 16);
             defaultHeader[7] = (byte)(lastMod >> 24);
             String opsys = System.getProperty("os.name").toLowerCase(Locale.ROOT); //$NON-NLS-1$
-            if (opsys.contains("linux") || opsys.contains("unix") || opsys.contains("aix")) //$NON-NLS-1$ //$NON-NLS-2$
+            if (opsys.contains("linux") || opsys.contains("unix") || opsys.contains("aix")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 defaultHeader[9] = 3;
             else if (opsys.contains("mac")) //$NON-NLS-1$
                 defaultHeader[9] = 7;
@@ -1220,7 +1221,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
 
                 if (version != EXTERNAL_VERSION)
                 {
-                    throw new IOException("Expected version " + EXTERNAL_VERSION +  //$NON-NLS-2$
+                    throw new IOException("Expected version " + EXTERNAL_VERSION +  //$NON-NLS-1$
                                           " but got " + version);  //$NON-NLS-1$
                 }
 

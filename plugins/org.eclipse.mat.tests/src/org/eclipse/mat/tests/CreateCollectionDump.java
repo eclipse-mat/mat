@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2021 IBM Corporation
+ * Copyright (c) 2014, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class CreateCollectionDump
         for (Map m : mapTestData.maps)
         {
             Collection c = m.values();
-            if (c.size() == mapTestData.COUNT && c.iterator().next() instanceof String)
+            if (c.size() == MapTestData.COUNT && c.iterator().next() instanceof String)
             {
                 l0.add(c);
                 //System.out.println("Added " + c.getClass());
@@ -93,7 +93,7 @@ public class CreateCollectionDump
         {
             Set s = m.keySet();
             Set s2 = m.entrySet();
-            if (s.size() == mapTestData.COUNT && s.iterator().next() instanceof String)
+            if (s.size() == MapTestData.COUNT && s.iterator().next() instanceof String)
             {
                 l0.add(s);
                 //System.out.println("Added " + s.getClass());

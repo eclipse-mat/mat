@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.swt.graphics.Image;
 
@@ -119,7 +120,7 @@ public class FieldsSuggestionProvider implements SuggestionProvider
     private void initList(ISnapshot snapshot, IContextInformation[] classSuggestions) throws SnapshotException
     {
         if (snapshot == null)
-            throw new IllegalArgumentException("Cannot extract class list from a null snapshot.");
+            throw new IllegalArgumentException("Cannot extract class list from a null snapshot."); //$NON-NLS-1$
 
         ready = false;
         Collection<IClass>classes = new HashSet<IClass>();
@@ -166,7 +167,7 @@ public class FieldsSuggestionProvider implements SuggestionProvider
 
         public InitializerJob(ISnapshot snapshot, IContextInformation[] suggestions)
         {
-            super("Init content assistant");
+            super(Messages.FieldsSuggestionProvider_FieldsContentAssistant);
             this.snapshot = snapshot;
             this.classSuggestions = suggestions;
         }

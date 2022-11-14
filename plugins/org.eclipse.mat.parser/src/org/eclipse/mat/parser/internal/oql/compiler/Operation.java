@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -257,7 +257,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
                                 right.getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo(right) > 0;
+            return ((Comparable<Object>) left).compareTo(right) > 0;
         }
 
         public String getSymbol()
@@ -302,7 +302,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
                                 right.getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo(right) >= 0;
+            return ((Comparable<Object>) left).compareTo(right) >= 0;
         }
 
         public String getSymbol()
@@ -347,7 +347,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
                                 right.getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo(right) < 0;
+            return ((Comparable<Object>) left).compareTo(right) < 0;
         }
 
         public String getSymbol()
@@ -392,7 +392,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
                                 right.getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo(right) <= 0;
+            return ((Comparable<Object>) left).compareTo(right) <= 0;
         }
 
         public String getSymbol()

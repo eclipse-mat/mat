@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -159,8 +159,8 @@ public class MultiPaneEditorSite implements IEditorSite
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter)
+    @Override
+    public <T> T getAdapter(Class<T> adapter)
     {
         return null;
     }
@@ -173,14 +173,14 @@ public class MultiPaneEditorSite implements IEditorSite
     /*
      * new methods available in eclipse 3.2
      */
-    @SuppressWarnings("unchecked")
-    public Object getService(Class api)
+    @Override
+    public <T> T getService(Class<T> api)
     {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean hasService(Class api)
+    @Override
+    public boolean hasService(Class<?> api)
     {
         return false;
     }

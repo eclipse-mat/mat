@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,9 +29,10 @@ public class PathEditorInput implements IPathEditorInput
          * @see
          * org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
          */
+        @Override
         public Object[] getChildren(Object o)
         {
-            return null;
+            return new Object[0];
         }
 
         /*
@@ -102,13 +103,13 @@ public class PathEditorInput implements IPathEditorInput
         return path.toOSString();
     }
 
-    @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter)
+    @Override
+    public <T> T getAdapter(Class<T> adapter)
     {
         // if (ILocationProvider.class.equals(adapter))
         // return this;
         if (IWorkbenchAdapter.class.equals(adapter))
-            return fWorkbenchAdapter;
+            return adapter.cast(fWorkbenchAdapter);
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 

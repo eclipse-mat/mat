@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -485,7 +485,7 @@ public class ComponentReportQuery implements IQuery
     {
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         // We do some random sampling, but make it reproducible
-        Random random = null;
+        Random random = new Random(snapshot.getSnapshotInfo().getUsedHeapSize());
         SectionSpec duplicateStrings = new SectionSpec(Messages.ComponentReportQuery_DuplicateStrings);
         StringBuilder comment = new StringBuilder();
         boolean commentWarn = false;
@@ -519,9 +519,6 @@ public class ComponentReportQuery implements IQuery
             final int LIMIT = 100;
             if (objectIds.length > LIMIT)
             {
-                // We do some random sampling, but make it reproducible
-                if (random == null)
-                    random = new Random(snapshot.getSnapshotInfo().getUsedHeapSize());
                 int[] copy = new int[LIMIT];
                 for (int i = 0, j = 0; i < objectIds.length; ++i)
                 {

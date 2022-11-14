@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -527,7 +527,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     private static void printPropertyLine(PrintStream stream, String line)
     {
         stream.print(line);
-        stream.print("\r\n"); // Use MS-DOS line termination (0D0A) for
+        stream.print("\r\n"); // Use MS-DOS line termination (0D0A) for //$NON-NLS-1$
     }
 
     /**
