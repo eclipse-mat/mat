@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public class RefinedTableViewer extends RefinedResultViewer
         if (index <= -1)
         {
             // Bug 501453
-            MemoryAnalyserPlugin.log(new IndexOutOfBoundsException("index: "+index+" item: "+item));
+            MemoryAnalyserPlugin.log(new IndexOutOfBoundsException("index: "+index+" item: "+item)); //$NON-NLS-1$ //$NON-NLS-2$
             return;
         }
         if (index == 0) // filter row

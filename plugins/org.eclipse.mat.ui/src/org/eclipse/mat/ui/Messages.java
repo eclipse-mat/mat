@@ -39,6 +39,7 @@ public class Messages extends NLS
     public static String CheckBoxEditor_includeSubclassesAdditional;
     public static String CheckBoxEditor_verbose;
     public static String CheckBoxEditor_verboseAdditional;
+    public static String ClassesSuggestionProvider_ClassesContentAssistant;
     public static String CompareBasketView_ClearButtonLabel;
 	public static String CompareBasketView_ClearTooltip;
 	public static String CompareBasketView_CompareButtonLabel;
@@ -108,6 +109,7 @@ public class Messages extends NLS
     public static String FieldsContentProvider_ExpandToLimit;
     public static String FieldsContentProvider_Next25;
     public static String FieldsContentProvider_notValidNumber;
+    public static String FieldsSuggestionProvider_FieldsContentAssistant;
     public static String FileOpenDialogEditor_CannotWrite;
     public static String FileOpenDialogEditor_ChooseFile;
     public static String FileOpenDialogEditor_FileNotFound;
@@ -257,6 +259,7 @@ public class Messages extends NLS
     public static String Path2GCRootsPane_ReadingNext;
     public static String Path2GCRootsPane_Status;
     public static String PopupMenu_NONE;
+    public static String PropertySuggestionProvider_PropertiesContentAssistant;
 	public static String ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle;
     public static String ProviderConfigurationDialog_ApplyButtonLabel;
 	public static String ProviderConfigurationDialog_AvailableProvidersLabel;

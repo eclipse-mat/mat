@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -357,11 +357,11 @@ public class ClassLoaderExplorerQuery implements IQuery
                                             if (node.classLoaderId >= 0)
                                                 return OQL.classesByClassLoaderId(node.classLoaderId);
                                             else
-                                                return "select *"
-                                                                + " from java.lang.Class c"
-                                                                + " where"
-                                                                + " c implements org.eclipse.mat.snapshot.model.IClass"
-                                                                + "     and c.@classLoaderAddress = " + node.classLoaderAddress +"L";
+                                                return "SELECT *" //$NON-NLS-1$
+                                                                + " FROM java.lang.Class c" //$NON-NLS-1$
+                                                                + " WHERE" //$NON-NLS-1$
+                                                                + " c implements org.eclipse.mat.snapshot.model.IClass" //$NON-NLS-1$
+                                                                + "     and c.@classLoaderAddress = " + node.classLoaderAddress +"L"; //$NON-NLS-1$ //$NON-NLS-2$
                                         }
                                     };
                                 }

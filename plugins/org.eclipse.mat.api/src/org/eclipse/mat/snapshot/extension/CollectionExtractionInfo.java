@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 James Livingston
+ * Copyright (c) 2015, 2022 James Livingston and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -50,6 +50,6 @@ public class CollectionExtractionInfo
 
     // for debugging purposes
     public String toString() {
-        return "CollectionExtractionInfo for " + className + " on versions:" + version.toString();
+        return "CollectionExtractionInfo for " + className + " on versions:" + version.toString(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

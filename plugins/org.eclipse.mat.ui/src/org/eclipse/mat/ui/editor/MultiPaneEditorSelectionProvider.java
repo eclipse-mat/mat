@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import org.eclipse.ui.IEditorPart;
 public class MultiPaneEditorSelectionProvider implements ISelectionProvider
 {
 
-    private ListenerList listeners = new ListenerList();
+    private ListenerList<ISelectionChangedListener> listeners = new ListenerList<ISelectionChangedListener>();
 
     private MultiPaneEditor heapEditor;
 
@@ -40,10 +40,9 @@ public class MultiPaneEditorSelectionProvider implements ISelectionProvider
 
     public void fireSelectionChanged(final SelectionChangedEvent event)
     {
-        Object[] listeners = this.listeners.getListeners();
-        for (int i = 0; i < listeners.length; ++i)
+        for (ISelectionChangedListener listener : this.listeners)
         {
-            final ISelectionChangedListener l = (ISelectionChangedListener) listeners[i];
+            final ISelectionChangedListener l = listener;
             SafeRunner.run(new SafeRunnable()
             {
                 public void run()

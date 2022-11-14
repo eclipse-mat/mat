@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ public class Perspective implements IPerspectiveFactory
         topLeft.addView(Views.INSPECTOR_VIEW.getId());
         topLeft.addPlaceholder(Views.DETAILS_VIEW.getId());
 
-        IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, (float) 0.60, "topLeft");//$NON-NLS-1$
+        IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, (float) 0.60, "topLeft");//$NON-NLS-1$ //$NON-NLS-2$
         bottomLeft.addView(Views.HISTORY_VIEW.getId());
 
         IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM, (float) 0.80, editorArea);//$NON-NLS-1$

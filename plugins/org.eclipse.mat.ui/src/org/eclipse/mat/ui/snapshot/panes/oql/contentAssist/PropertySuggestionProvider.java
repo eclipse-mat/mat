@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 IBM Corporation
+ * Copyright (c) 2012, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.swt.graphics.Image;
@@ -338,7 +339,7 @@ public class PropertySuggestionProvider implements SuggestionProvider
 
         public InitializerJob(ISnapshot snapshot)
         {
-            super("Init content assistant");
+            super(Messages.PropertySuggestionProvider_PropertiesContentAssistant);
             this.snapshot = snapshot;
         }
 
