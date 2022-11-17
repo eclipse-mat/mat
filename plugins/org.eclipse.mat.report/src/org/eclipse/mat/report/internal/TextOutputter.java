@@ -91,8 +91,8 @@ public class TextOutputter extends OutputterBase
             s = s.replaceAll("<br/>", LINE_SEPARATOR); //$NON-NLS-1$
             s = s.replaceAll("<p>", LINE_SEPARATOR).replaceAll("</p>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             s = s.replaceAll("<a [^>]+>", "").replaceAll("</a>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            s = s.replaceAll("<ul [^>]+>", LINE_SEPARATOR).replaceAll("</ul>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            s = s.replaceAll("<li>", "").replace("</li>", LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            s = s.replaceAll("<ul [^>]+>", LINE_SEPARATOR).replaceAll("</ul>", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            s = s.replaceAll("<li>", "").replace("</li>", LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             s = s.replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
             s = s.replaceAll("&apos;", "\'"); //$NON-NLS-1$ //$NON-NLS-2$
             s = s.replaceAll("&lt;", "<"); //$NON-NLS-1$ //$NON-NLS-2$

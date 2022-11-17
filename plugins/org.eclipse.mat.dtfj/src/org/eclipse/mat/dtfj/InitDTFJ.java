@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2021 IBM Corporation.
+ * Copyright (c) 2009,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -157,7 +157,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                         }
                         catch (BundleException e)
                         {
-                            throw new CoreException(new Status(IStatus.ERROR, plugin.getBundle().getSymbolicName(), "Error updating bundle", e));
+                            throw new CoreException(new Status(IStatus.ERROR, plugin.getBundle().getSymbolicName(), Messages.InitDTFJ_ErrorUpdatingBundle, e));
                         }
                     }});
                 j.schedule();

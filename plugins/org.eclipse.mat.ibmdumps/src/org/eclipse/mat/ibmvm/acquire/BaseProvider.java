@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 IBM Corporation
+ * Copyright (c) 2010, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public abstract class BaseProvider implements IHeapDumpProvider
     static final int CREATE_COUNT = 30 * 1000 / SLEEP_TIMEOUT;
     static final int GROWING_COUNT = (CREATE_COUNT + GROW_COUNT) * 2; // progress = 67% file length, 33% waiting time
     static final int TOTAL_WORK = CREATE_COUNT + GROWING_COUNT + GROW_COUNT;
-    static final String INFO_SEPARATOR = File.pathSeparator; //$NON-NLS-1$
+    static final String INFO_SEPARATOR = File.pathSeparator;
 
     /**
      * Make a temporary jar containing the requested files

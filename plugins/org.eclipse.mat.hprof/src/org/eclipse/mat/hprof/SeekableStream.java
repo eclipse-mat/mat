@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019,2021 IBM Corporation and others.
+ * Copyright (c) 2019,2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1022,7 +1022,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 clearClosest();
             if (verbose)
             {
-                System.out.println(MessageUtil.format("Cleared to {0}", ts.size()));
+                System.out.println(MessageUtil.format("Cleared to {0}", ts.size())); //$NON-NLS-1$
             }
         }
     }

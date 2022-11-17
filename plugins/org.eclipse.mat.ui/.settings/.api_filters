@@ -8,4 +8,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/mat/ui/util/Copy.java" type="org.eclipse.mat.ui.util.Copy$ContextImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="Context"/>
+                <message_argument value="ContextImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

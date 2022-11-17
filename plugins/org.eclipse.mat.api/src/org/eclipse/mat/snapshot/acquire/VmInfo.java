@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 SAP AG.
+ * Copyright (c) 2009, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,10 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.acquire;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Instances of this class are descriptors of locally running Java processes.
@@ -92,7 +94,7 @@ public class VmInfo
 	/**
 	 * Set the PID for the process descriptor
 	 * 
-	 * @param pid
+	 * @param pid process identifier
 	 */
 	public void setPid(int pid)
 	{
@@ -112,7 +114,7 @@ public class VmInfo
 	/**
 	 * Set the description of the Java process
 	 * 
-	 * @param description
+	 * @param description description of the Java process
 	 */
 	public void setDescription(String description)
 	{
@@ -132,7 +134,7 @@ public class VmInfo
 	/**
 	 * Set the flag if heap dumps can be acquired from the described process
 	 * 
-	 * @param heapDumpEnabled
+	 * @param heapDumpEnabled true if a heap dump is possible on this process
 	 */
 	public void setHeapDumpEnabled(boolean heapDumpEnabled)
 	{
@@ -185,7 +187,8 @@ public class VmInfo
 	@Override
 	public String toString()
 	{
-		return "PID = " + pid + "\t" + description;
+	    // Keep PID with unlocalized formatting
+		return MessageUtil.format(Messages.VmInfo_Description, String.valueOf(pid), description);
 	}
 
 }

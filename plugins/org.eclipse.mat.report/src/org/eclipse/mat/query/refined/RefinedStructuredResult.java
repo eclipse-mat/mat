@@ -124,7 +124,7 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            FilteredList<E> other = (FilteredList<E>) obj;
+            FilteredList<?> other = (FilteredList<?>) obj;
             return filteredCount == other.filteredCount;
         }
     }
