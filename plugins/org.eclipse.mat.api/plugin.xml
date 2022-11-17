@@ -126,6 +126,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$EnumResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ExternalDataResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MemberNameResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ModuleResolver" />
 		<!-- networking -->
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressHolderResolver"/>

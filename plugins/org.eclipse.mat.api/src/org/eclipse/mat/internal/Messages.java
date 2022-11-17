@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -663,6 +663,8 @@ public class Messages extends NLS
     public static String TQuantize_Label_GroupedByClassLoader;
     public static String TQuantize_Label_GroupedByPackage;
     public static String TQuantize_None;
+
+    public static String VmInfo_Description;
 
     public static String VmInfoDescriptor_ErrorGettingArgumentErrorMsg;
 

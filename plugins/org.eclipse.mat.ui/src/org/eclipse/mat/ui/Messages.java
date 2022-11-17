@@ -33,6 +33,7 @@ public class Messages extends NLS
     public static String CheckBoxEditor_asRetainedSet;
     public static String CheckBoxEditor_asRetainedSetAdditional;
     public static String CheckBoxEditor_includeClassInstance;
+    public static String CheckBoxEditor_includeClassInstanceAdditional;
     public static String CheckBoxEditor_includeLoadedObjects;
     public static String CheckBoxEditor_includeLoadedObjectsAdditional;
     public static String CheckBoxEditor_includeSubclasses;

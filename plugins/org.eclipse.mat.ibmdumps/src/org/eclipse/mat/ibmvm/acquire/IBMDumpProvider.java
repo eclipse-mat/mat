@@ -106,7 +106,7 @@ public class IBMDumpProvider extends BaseProvider
 
         int returnValue()
         {
-            return (Integer)VirtualMachine.call(getCause(), "returnValue");
+            return (Integer)VirtualMachine.call(getCause(), "returnValue"); //$NON-NLS-1$
         }
     }
 
@@ -175,9 +175,9 @@ public class IBMDumpProvider extends BaseProvider
         VirtualMachineDescriptor(Object vmd)
         {
             this.vmd = vmd;
-            this.pr = new AttachProvider(VirtualMachine.call(vmd, "provider"));
-            this.id = (String) VirtualMachine.call(vmd, "id");
-            this.displayName = (String) (String) VirtualMachine.call(vmd, "displayName");
+            this.pr = new AttachProvider(VirtualMachine.call(vmd, "provider")); //$NON-NLS-1$
+            this.id = (String) VirtualMachine.call(vmd, "id"); //$NON-NLS-1$
+            this.displayName = (String) (String) VirtualMachine.call(vmd, "displayName"); //$NON-NLS-1$
         }
 
         String displayName()
@@ -231,24 +231,24 @@ public class IBMDumpProvider extends BaseProvider
             Object o;
             try
             {
-                o = VirtualMachine.call(ap, "attachVirtualMachine", vmd.vmd);
+                o = VirtualMachine.call(ap, "attachVirtualMachine", vmd.vmd); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
                 Throwable t = e.getCause();
                 // Change the type
-                if (VirtualMachine.isSubclassOf(t, "AttachNotSupportedException"))
+                if (VirtualMachine.isSubclassOf(t, "AttachNotSupportedException")) //$NON-NLS-1$
                 {
                     throw new AttachNotSupportedException(t);
                 }
-                if (VirtualMachine.isSubclassOf(t, "AttachOperationFailedException"))
+                if (VirtualMachine.isSubclassOf(t, "AttachOperationFailedException")) //$NON-NLS-1$
                 {
                     throw new AttachOperationFailedException(t);
                 }
                 if (t instanceof IOException)
                 {
                     // OpenJDK or OpenJ9 exceptions
-                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf"))
+                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf")) //$NON-NLS-1$ //$NON-NLS-2$
                     {
                         // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
                         throw new AttachNotSupportedException(t);
@@ -262,12 +262,12 @@ public class IBMDumpProvider extends BaseProvider
 
         String name()
         {
-            return (String) VirtualMachine.call(ap, "name");
+            return (String) VirtualMachine.call(ap, "name"); //$NON-NLS-1$
         }
 
         String type()
         {
-            return (String) VirtualMachine.call(ap, "type");
+            return (String) VirtualMachine.call(ap, "type"); //$NON-NLS-1$
         }
 
         private static Class<?>attCls;
@@ -275,7 +275,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             if (attCls == null)
             {
-                attCls = VirtualMachine.getClass("com.ibm.tools.attach.spi.AttachProvider", "com.sun.tools.attach.spi.AttachProvider");
+                attCls = VirtualMachine.getClass("com.ibm.tools.attach.spi.AttachProvider", "com.sun.tools.attach.spi.AttachProvider"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return attCls;
         }
@@ -283,7 +283,7 @@ public class IBMDumpProvider extends BaseProvider
         static List<AttachProvider>providers()
         {
             Class<?>apc = getStaticClass();
-            List<?> l = (List<?>)VirtualMachine.call(apc, "providers");
+            List<?> l = (List<?>)VirtualMachine.call(apc, "providers"); //$NON-NLS-1$
             List<AttachProvider>ret = new ArrayList<AttachProvider>(l.size());
             for (Object o : l)
             {
@@ -295,7 +295,7 @@ public class IBMDumpProvider extends BaseProvider
 
         List<VirtualMachineDescriptor>listVirtualMachines()
         {
-            List<?> l = (List<?>)VirtualMachine.call(ap, "listVirtualMachines");
+            List<?> l = (List<?>)VirtualMachine.call(ap, "listVirtualMachines"); //$NON-NLS-1$
             List<VirtualMachineDescriptor>ret = new ArrayList<VirtualMachineDescriptor>(l.size());
             for (Object o : l)
             {
@@ -371,8 +371,8 @@ public class IBMDumpProvider extends BaseProvider
             // The sun. is to exclude Oracle Java 9 classes which are public but not accessible.
             // The com.ibm.tools.attach.attacher. is to exclude OpenJ9 Java 10 classes which are public but not accessible.
             // The org. is to exclude possible future OpenJ9 Java 10 classes which are public but not accessible.
-            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm.") || cls.getPackage().getName().startsWith("sun.")
-                   || cls.getPackage().getName().startsWith("com.ibm.tools.attach.attacher") || cls.getPackage().getName().startsWith("org."))
+            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm.") || cls.getPackage().getName().startsWith("sun.") //$NON-NLS-1$ //$NON-NLS-2$
+                   || cls.getPackage().getName().startsWith("com.ibm.tools.attach.attacher") || cls.getPackage().getName().startsWith("org.")) //$NON-NLS-1$ //$NON-NLS-2$
             {
                 cls = cls.getSuperclass();
             }
@@ -481,7 +481,7 @@ public class IBMDumpProvider extends BaseProvider
         static List<VirtualMachineDescriptor> list()
         {
             Class<?> c1 = getStaticClass();
-            List<?> l = (List<?>) call(c1, "list");
+            List<?> l = (List<?>) call(c1, "list"); //$NON-NLS-1$
             List<VirtualMachineDescriptor> ret = new ArrayList<VirtualMachineDescriptor>();
             for (Object o : l)
             {
@@ -505,14 +505,14 @@ public class IBMDumpProvider extends BaseProvider
         {
             try
             {
-                call(vm, "loadAgent", jar, command);
+                call(vm, "loadAgent", jar, command); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
                 Throwable t = e.getCause();
                 // Change the type
-                if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); }
-                if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); }
+                if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); } //$NON-NLS-1$
+                if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); } //$NON-NLS-1$
                 if (t instanceof IOException) { throw (IOException)t; }
                 // Rethrow
                 throw e;
@@ -533,14 +533,14 @@ public class IBMDumpProvider extends BaseProvider
         {
             try
             {
-                call(vm, "loadAgentLibrary", lib, command);
+                call(vm, "loadAgentLibrary", lib, command); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
                 Throwable t = e.getCause();
                 // Change the type
-                if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); }
-                if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); }
+                if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); } //$NON-NLS-1$
+                if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); } //$NON-NLS-1$
                 if (t instanceof IOException) { throw (IOException)t; }
                 // Rethrow
                 throw e;
@@ -553,19 +553,19 @@ public class IBMDumpProvider extends BaseProvider
             Object o;
             try
             {
-                o = call(c1, "attach", nm);
+                o = call(c1, "attach", nm); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
                 Throwable t = e.getCause();
-                if (isSubclassOf(t, "AttachNotSupportedException"))
+                if (isSubclassOf(t, "AttachNotSupportedException")) //$NON-NLS-1$
                 {
                     throw new AttachNotSupportedException(t);
                 }
                 if (t instanceof IOException)
                 {
                     // OpenJDK or OpenJ9 exception
-                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf"))
+                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf")) //$NON-NLS-1$ //$NON-NLS-2$
                     {
                         // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
                         throw new AttachNotSupportedException(t);
@@ -588,7 +588,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             if (clsVM == null)
             {
-                clsVM = getClass("com.ibm.tools.attach.VirtualMachine", "com.sun.tools.attach.VirtualMachine");
+                clsVM = getClass("com.ibm.tools.attach.VirtualMachine", "com.sun.tools.attach.VirtualMachine"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return clsVM;
         }
@@ -614,12 +614,12 @@ public class IBMDumpProvider extends BaseProvider
                      * standard class path, even for JDKs.
                      * We try looking for the classes here.
                      */
-                    File f = new File(System.getProperty("java.home"));
+                    File f = new File(System.getProperty("java.home")); //$NON-NLS-1$
                     f = f.getParentFile();
                     if (f != null)
                     {
-                        f = new File(f, "lib");
-                        f = new File(f, "tools.jar");
+                        f = new File(f, "lib"); //$NON-NLS-1$
+                        f = new File(f, "tools.jar"); //$NON-NLS-1$
                         if (f.canRead())
                         {
                             try
@@ -653,7 +653,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             try
             {
-                return (Properties) call(vm, "getAgentProperties");
+                return (Properties) call(vm, "getAgentProperties"); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
@@ -667,7 +667,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             try
             {
-                return (Properties) call(vm, "getSystemProperties");
+                return (Properties) call(vm, "getSystemProperties"); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
@@ -681,7 +681,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             try
             {
-                call(vm, "detach");
+                call(vm, "detach"); //$NON-NLS-1$
             }
             catch (UndeclaredThrowableException e)
             {
@@ -850,7 +850,7 @@ public class IBMDumpProvider extends BaseProvider
         // See if an IBM VM or an Oracle VM
         try
         {
-            Class.forName("com.ibm.jvm.Dump");
+            Class.forName("com.ibm.jvm.Dump"); //$NON-NLS-1$
         }
         catch (ClassNotFoundException e)
         {
@@ -1014,7 +1014,7 @@ public class IBMDumpProvider extends BaseProvider
                 listener.done();
                 if (newFiles.isEmpty())
                 {
-                    String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnableToFindDump"), udir.getAbsoluteFile());
+                    String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnableToFindDump"), udir.getAbsoluteFile()); //$NON-NLS-1$
                     throw new FileNotFoundException(msg);
                 }
                 // Consider moving to after the detach
@@ -1041,9 +1041,9 @@ public class IBMDumpProvider extends BaseProvider
         catch (AttachNotSupportedException e)
         {
             info.setHeapDumpEnabled(false);
-            String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnsuitableVM"), info.toString());
-            listener.sendUserMessage(Severity.WARNING, msg, e); //$NON-NLS-1$
-            throw new SnapshotException(msg, e); //$NON-NLS-1$
+            String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnsuitableVM"), info.toString()); //$NON-NLS-1$
+            listener.sendUserMessage(Severity.WARNING, msg, e);
+            throw new SnapshotException(msg, e);
         }
 
     }
@@ -1247,11 +1247,11 @@ public class IBMDumpProvider extends BaseProvider
     private IBMVmInfo getVmInfo(VirtualMachineDescriptor vmd)
     {
         boolean usable = true;
-        String unusableCause = "";
+        String unusableCause = ""; //$NON-NLS-1$
         String dir = null;
         // See if the VM is usable to get dumps
         String displayName = vmd.displayName();
-        if ((vmd.id().equals(displayName) || "".equals(displayName)) && listAttach)
+        if ((vmd.id().equals(displayName) || "".equals(displayName)) && listAttach) //$NON-NLS-1$
         {
             // Insufficient details of running VM, so attach for more information
             try
@@ -1261,11 +1261,11 @@ public class IBMDumpProvider extends BaseProvider
                 try
                 {
                     Properties p = vm.getSystemProperties();
-                    dir = p.getProperty("user.dir");
+                    dir = p.getProperty("user.dir"); //$NON-NLS-1$
                     // Get something which might identify the running VM to
                     // the user
-                    displayName = p.getProperty("java.class.path");
-                    if (displayName == null || displayName.equals(""))
+                    displayName = p.getProperty("java.class.path"); //$NON-NLS-1$
+                    if (displayName == null || displayName.equals("")) //$NON-NLS-1$
                     {
                         displayName = dir;
                     }
@@ -1329,7 +1329,7 @@ public class IBMDumpProvider extends BaseProvider
             desc = unusableCause + " : " + desc;
         }
         IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
-        if (vmd.provider().name().equals("sun"))
+        if (vmd.provider().name().equals("sun")) //$NON-NLS-1$
         {
             ifo.type = DumpType.HPROF;
             // No need for a dump directory - HPROF can dump directly to the required location
@@ -1357,17 +1357,17 @@ public class IBMDumpProvider extends BaseProvider
         // Now need to guess version for versions IBM 1.7.0 and earlier
         // IBM 1.7.1 and later (=java version 1.7.0, vm.version 2.7) can dump at a location
         String vendor = props.getProperty("java.vm.vendor"); //$NON-NLS-1$
-        if (!"IBM Corporation".equals(vendor))
+        if (!"IBM Corporation".equals(vendor)) //$NON-NLS-1$
             return null;
-        String version = props.getProperty("java.version", "0"); //$NON-NLS-1$
+        String version = props.getProperty("java.version", "0"); //$NON-NLS-1$ //$NON-NLS-2$
         String vmversion = props.getProperty("java.vm.version"); //$NON-NLS-1$
-        int comp170 = version.compareTo("1.7.0");
+        int comp170 = version.compareTo("1.7.0"); //$NON-NLS-1$
         if (comp170 > 0)
         {
             // 1.8 or later (9, 10, 11, etc.)
             return null;
         }
-        if (comp170 == 0 && "2.7".equals(vmversion)) //$NON-NLS-1$ //$NON-NLS-2$
+        if (comp170 == 0 && "2.7".equals(vmversion)) //$NON-NLS-1$
         {
             // IBM 1.7.1
             return null;
@@ -1427,10 +1427,10 @@ public class IBMDumpProvider extends BaseProvider
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
-            String dir = vminfo.dumpdir != null ? vminfo.dumpdir.getAbsolutePath() : "";
+            String dir = vminfo.dumpdir != null ? vminfo.dumpdir.getAbsolutePath() : ""; //$NON-NLS-1$
             String proposedFile = info.getProposedFileName();
             // Let the file be determined later
-            proposedFile = "";
+            proposedFile = ""; //$NON-NLS-1$
             String vm2 = vm + INFO_SEPARATOR + info.isHeapDumpEnabled() + INFO_SEPARATOR + vminfo.type + INFO_SEPARATOR + proposedFile + INFO_SEPARATOR + dir + INFO_SEPARATOR  + info.getDescription();
             if (s.length < 5)
             {

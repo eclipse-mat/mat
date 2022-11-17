@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 IBM Corporation
+ * Copyright (c) 2010, 2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
     private static final String JCMD = "jcmd"; //$NON-NLS-1$
     private static final String ibmmodules[] = {"jdmpview", "jdmpview.exe", "jextract", "jextract.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-    private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+    private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     private static boolean abort = false;
     private int lastCount = 20;
 
