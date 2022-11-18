@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9716e529_144c9130",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-18T10:54:30Z",
+      "side": 1,
+      "message": "Tiny change,tested locally, adds linux.ppc64le file",
+      "revId": "9ca720106a55a4067b414eb7decba9b01a91a1db",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
