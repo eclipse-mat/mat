@@ -13,8 +13,8 @@
 package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,9 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
-import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.junit.Test;
 
@@ -55,7 +53,7 @@ public class ArrayLongTest
             int t = 0;
             ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));
             for (int j = 0; j < KEYS; ++j) {
-                long v = r.nextLong(KEYS);
+                long v = r.nextLong();
                 ss.add(v);
                 t += 1;
             }
@@ -81,8 +79,8 @@ public class ArrayLongTest
     {
         ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong(KEYS));
-            ss.set(j, r.nextLong(KEYS));
+            ss.add(r.nextLong());
+            ss.set(j, r.nextLong());
         }
         int i = 0;
         for (IteratorLong ii = ss.iterator(); ii.hasNext(); ){
@@ -106,11 +104,14 @@ public class ArrayLongTest
     {
         ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong(KEYS) + 1);
+            long v;
+            while ((v = r.nextLong()) == 0)
+                continue;
+            ss.add(v);
         }
         int t = 0;
         for (int k = 0; k < KEYS; ++k) {
-            t += ss.get(k) > 0 ? 1 : 0;
+            t += ss.get(k) != 0 ? 1 : 0;
         }
         assertEquals("contained items should equals the size", ss.size(), t); //$NON-NLS-1$
     }
@@ -131,7 +132,7 @@ public class ArrayLongTest
     {
         ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong(KEYS));
+            ss.add(r.nextLong());
         }
         ArrayLong ss2 = new ArrayLong(ss);
         int i = 0;
@@ -156,10 +157,13 @@ public class ArrayLongTest
     {
         ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong(KEYS) + 1);
+            long v;
+            while ((v = r.nextLong()) == 0)
+                continue;
+            ss.add(v);
         }
         for (int k = 0; k < KEYS; ++k) {
-            assertThat(ss.get(k), greaterThan(0L));
+            assertThat(ss.get(k), not(equalTo(0L)));
         }
     }
 
