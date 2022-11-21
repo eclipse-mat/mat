@@ -64,10 +64,6 @@ public class DumpAgent {
         try
         {
             dumpcls = Class.forName("com.ibm.jvm.Dump"); //$NON-NLS-1$
-            if (live)
-            {
-                System.gc();
-            }
         }
         catch (ClassNotFoundException e)
         {
@@ -87,15 +83,26 @@ public class DumpAgent {
         {
             if (JAVA.equals(a))
             {
+                String javacorefn = filename;
+                if (args.length > 1 && !javacorefn.endsWith(".txt")) //$NON-NLS-1$
+                {
+                    // Supplied file name will be used for another dump type,
+                    // so generate a new one here.
+                    javacorefn = javacorefn.replaceFirst("\\.[^.\\/" + File.pathSeparator + "]*$", "") + ".txt"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                }
+                String req = "java:"; //$NON-NLS-1$
+                req += live ? "request=exclusive+compact+prepwalk" : "request=exclusive+prepwalk"; //$NON-NLS-1$ //$NON-NLS-2$
+                req += ",file=" + filename; //$NON-NLS-1$
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.JavaDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("javaDumpToFile", String.class); //$NON-NLS-1$
-                    m.invoke(null, filename);
+                    // com.ibm.jvm.Dump.triggerDump(String request
+                    Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
+                    m.invoke(null, req);
                 }
                 catch (NoSuchMethodException e)
                 {
+                    live(live);
                     // com.ibm.jvm.Dump.JavaDump();
                     Method m = dumpcls.getMethod("JavaDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -103,15 +110,19 @@ public class DumpAgent {
             }
             else if (HEAP.equals(a))
             {
+                String req = "heap:"; //$NON-NLS-1$
+                req += live ? "request=exclusive+compact+prepwalk" : "request=exclusive+prepwalk"; //$NON-NLS-1$ //$NON-NLS-2$
+                req += ",file=" + filename; //$NON-NLS-1$
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.HeapDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("heapDumpToFile", String.class); //$NON-NLS-1$
-                    m.invoke(null, filename);
+                    // com.ibm.jvm.Dump.triggerDump(String request
+                    Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
+                    m.invoke(null, req);
                 }
                 catch (NoSuchMethodException e)
                 {
+                    live(live);
                     //com.ibm.jvm.Dump.HeapDump();
                     Method m = dumpcls.getMethod("HeapDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -119,15 +130,19 @@ public class DumpAgent {
             }
             else if (SYSTEM.equals(a))
             {
+                String req = "system:"; //$NON-NLS-1$
+                req += live ? "request=exclusive+compact+prepwalk" : "request=exclusive+prepwalk"; //$NON-NLS-1$ //$NON-NLS-2$
+                req += ",file=" + filename; //$NON-NLS-1$
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.SystemDumpToFile(String filenamePattern)
-                    Method m = dumpcls.getMethod("systemDumpToFile", String.class); //$NON-NLS-1$
-                    m.invoke(null, filename);
+                    // com.ibm.jvm.Dump.triggerDump(String request
+                    Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
+                    m.invoke(null, req);
                 }
                 catch (NoSuchMethodException e)
                 {
+                    live(live);
                     //com.ibm.jvm.Dump.SystemDump();
                     Method m = dumpcls.getMethod("SystemDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -170,6 +185,14 @@ public class DumpAgent {
                 Method m = dumpcls.getMethod("dumpHeap", String.class, Boolean.TYPE); //$NON-NLS-1$
                 m.invoke(hsd, filename, live);
             }
+        }
+    }
+
+    private static void live(boolean live)
+    {
+        if (live)
+        {
+            System.gc();
         }
     }
 
