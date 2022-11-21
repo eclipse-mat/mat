@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,9 @@
 package org.eclipse.mat.parser.internal.snapshot;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +33,10 @@ import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.IProgressListener.Severity;
+import org.eclipse.mat.util.MessageUtil;
 
 public class ObjectMarker
 {
@@ -181,6 +185,8 @@ public class ObjectMarker
         /* now do the real marking */
         progressListener.beginTask(Messages.ObjectMarker_MarkingObjects, rootsToProcess);
 
+        // Used for performance
+        List<NamedReference>refCache = new ArrayList<NamedReference>();
         int current;
 
         while (size > 0) // loop until there are elements in the stack
@@ -197,11 +203,12 @@ public class ObjectMarker
                     throw new IProgressListener.OperationCanceledException();
             }
 
+            refCache.clear();
             for (int child : outbound.get(current))
             {
                 if (!bits[child]) // already visited?
                 {
-                    if (!refersOnlyThroughExcluded(current, child, excludeSets, excludeObjectsBF, snapshot))
+                    if (!refersOnlyThroughExcluded(current, child, excludeSets, excludeObjectsBF, refCache, snapshot))
                     {
                         /* start stack.push() */
                         if (size == data.length)
@@ -215,6 +222,8 @@ public class ObjectMarker
 
                         bits[child] = true; // mark the object
                         count++;
+                        if (count % 10000 == 0 && progressListener.isCanceled())
+                            throw new IProgressListener.OperationCanceledException();
                     }
                 }
             }
@@ -894,7 +903,8 @@ public class ObjectMarker
     }
 
     private boolean refersOnlyThroughExcluded(int referrerId, int referentId,
-                    ExcludedReferencesDescriptor[] excludeSets, BitField excludeObjectsBF, ISnapshot snapshot)
+                    ExcludedReferencesDescriptor[] excludeSets, BitField excludeObjectsBF, 
+                    List<NamedReference> refCache, ISnapshot snapshot)
                     throws SnapshotException
     {
         if (!excludeObjectsBF.get(referrerId))
@@ -915,12 +925,74 @@ public class ObjectMarker
         IObject referrerObject = snapshot.getObject(referrerId);
         long referentAddr = snapshot.mapIdToAddress(referentId);
 
-        List<NamedReference> refs = referrerObject.getOutboundReferences();
-        for (NamedReference reference : refs)
+        // Only bother doing the sort if there are several entries
+        final int minsort = 10;
+        boolean sorted;
+        if (refCache.isEmpty())
         {
-            if (referentAddr == reference.getObjectAddress() && !excludeFields.contains(reference.getName())) { return false; }
+            List<NamedReference> refs = referrerObject.getOutboundReferences();
+            refCache.addAll(refs);
+            sorted = refCache.size() >= minsort;
+            if (sorted)
+            {
+                refCache.sort(CompObjectReference.INSTANCE);
+            }
+        }
+        else
+        {
+            sorted = refCache.size() >= minsort;
+        }
+        int idx;
+        if (sorted)
+        {
+            /*
+             * If there are duplicate addresses then this will find one,
+             * but to find all must scan forwards and backwards.
+             */
+            idx = Collections.binarySearch(refCache, new ObjectReference(snapshot, referentAddr),
+                            CompObjectReference.INSTANCE);
+            if (idx < 0)
+                return true;
+            // Find the first
+            while (idx > 0 && refCache.get(idx - 1).getObjectAddress() == referentAddr)
+                --idx;
+        }
+        else
+        {
+            // Linear search of all
+            idx = 0;
+        }
+
+        // Search forwards for the referent
+        for (int i = idx; i < refCache.size(); ++i)
+        {
+            NamedReference reference = refCache.get(i);
+            if (referentAddr == reference.getObjectAddress())
+            {
+                if (!excludeFields.contains(reference.getName()))
+                {
+                    return false;
+                }
+            }
+            else if (sorted)
+            {
+                // No more references with this address
+                break;
+            }
         }
         return true;
     }
 
+    /**
+     * Used for sorting {@link ObjectReference} by address.
+     */
+    private static final class CompObjectReference implements Comparator<ObjectReference>
+    {
+        @Override
+        public int compare(ObjectReference o1, ObjectReference o2)
+        {
+            return Long.compare(o1.getObjectAddress(), o2.getObjectAddress());
+        }
+        static CompObjectReference INSTANCE = new CompObjectReference();
+    }
 }
