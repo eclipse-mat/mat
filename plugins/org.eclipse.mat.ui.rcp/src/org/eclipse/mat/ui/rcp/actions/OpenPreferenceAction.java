@@ -67,6 +67,7 @@ public class OpenPreferenceAction extends Action
                     // "org.eclipse.ui.editors.preferencePages.HyperlinkDetectorsPreferencePage",
                     "org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage",
                     "org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage",
+                    "org.eclipse.equinox.internal.p2.ui.sdk.TrustPreferencePage",
                     "org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage",
                     "org.eclipse.update.internal.ui.preferences.MainPreferencePage"})); //$NON-NLS-1$
     private static final String MAT_PREFIX = "org.eclipse.mat."; //$NON-NLS-1$
