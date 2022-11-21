@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *     Andrew Johnson (IBM Corporation) - performance improvements
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.snapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +34,7 @@ import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsRecord;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 
 public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromGCRootsComputer
@@ -96,6 +100,11 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 			{
 				pathsList.add(path);
 			}
+			if (i % 1000 == 0)
+			{
+				if (progressListener.isCanceled())
+					throw new IProgressListener.OperationCanceledException();
+			}
 		}
 
 		pathsCalculated = true;
@@ -144,26 +153,75 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 		return dummy.nextLevel();
 	}
 
-	private boolean refersOnlyThroughExcluded(int referrerId, int referentId) throws SnapshotException
-	{
-		if (!excludeInstances.get(referrerId)) return false;
+    private boolean refersOnlyThroughExcluded(int referrerId, int referentId, List<NamedReference> refCache)
+                    throws SnapshotException
+    {
+        if (!excludeInstances.get(referrerId))
+            return false;
 
-		IObject referrerObject = snapshot.getObject(referrerId);
-		Set<String> excludeFields = excludeMap.get(referrerObject.getClazz());
-		if (excludeFields == null) return true; // treat null as all fields
+        IObject referrerObject = snapshot.getObject(referrerId);
+        Set<String> excludeFields = excludeMap.get(referrerObject.getClazz());
+        if (excludeFields == null)
+            return true; // treat null as all fields
 
-		long referentAddr = snapshot.mapIdToAddress(referentId);
+        long referentAddr = snapshot.mapIdToAddress(referentId);
 
-		List<NamedReference> refs = referrerObject.getOutboundReferences();
-		for (NamedReference reference : refs)
-		{
-			if (referentAddr == reference.getObjectAddress() && !excludeFields.contains(reference.getName()))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+        // Only bother doing the sort if there are several entries
+        final int minsort = 10;
+        boolean sorted;
+        if (refCache.isEmpty())
+        {
+            List<NamedReference> refs = referrerObject.getOutboundReferences();
+            refCache.addAll(refs);
+            sorted = refCache.size() >= minsort;
+            if (sorted)
+            {
+                refCache.sort(CompObjectReference.INSTANCE);
+            }
+        }
+        else
+        {
+            sorted = refCache.size() >= minsort;
+        }
+        int idx;
+        if (sorted)
+        {
+            /*
+             * If there are duplicate addresses then this will find one,
+             * but to find all must scan forwards and backwards.
+             */
+            idx = Collections.binarySearch(refCache, new ObjectReference(snapshot, referentAddr),
+                            CompObjectReference.INSTANCE);
+            if (idx < 0)
+                return true;
+            // Find the first
+            while (idx > 0 && refCache.get(idx - 1).getObjectAddress() == referentAddr)
+                --idx;
+        }
+        else
+        {
+            // Linear search of all
+            idx = 0;
+        }
+        // Search forwards for the referent
+        for (int i = idx; i < refCache.size(); ++i)
+        {
+            NamedReference reference = refCache.get(i);
+            if (referentAddr == reference.getObjectAddress())
+            {
+                if (!excludeFields.contains(reference.getName()))
+                {
+                    return false;
+                }
+            }
+            else if (sorted)
+            {
+                // No more references with this address
+                break;
+            }
+        }
+        return true;
+    }
 
 	private int[] bfs(IProgressListener progressListener) throws SnapshotException
 	{
@@ -205,6 +263,8 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 
 		progressListener.beginTask(Messages.MultiplePathsFromGCRootsComputerImpl_FindingPaths, steps);
 
+		// Used for performance
+		List<NamedReference>refCache = new ArrayList<NamedReference>();
 		// loop until the queue is empty, or all necessary paths are found
 		while (fifo.size() > 0 && count > 0)
 		{
@@ -218,13 +278,14 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 
 			// queue any unprocessed referenced object
 			int[] outbound = outboundIndex.get(objectId);
+			refCache.clear();
 			for (int child : outbound)
 			{
 				if (parent[child] == NOT_VISITED)
 				{
 					if (skipReferences)
 					{
-						if (refersOnlyThroughExcluded(objectId, child)) continue;
+						if (refersOnlyThroughExcluded(objectId, child, refCache)) continue;
 					}
 					parent[child] = objectId;
 					fifo.put(child);
@@ -269,4 +330,17 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 
 		return path.toArray();
 	}
+
+    /**
+     * Used for sorting {@link ObjectReference} by address.
+     */
+    private static final class CompObjectReference implements Comparator<ObjectReference>
+    {
+        @Override
+        public int compare(ObjectReference o1, ObjectReference o2)
+        {
+            return Long.compare(o1.getObjectAddress(), o2.getObjectAddress());
+        }
+        static CompObjectReference INSTANCE = new CompObjectReference();
+    }
 }

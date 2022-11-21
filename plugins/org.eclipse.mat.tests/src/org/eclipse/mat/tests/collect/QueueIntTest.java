@@ -14,9 +14,9 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -26,12 +26,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-import org.eclipse.mat.collect.IteratorLong;
-import org.eclipse.mat.collect.SetLong;
+import org.eclipse.mat.collect.QueueInt;
+import org.eclipse.mat.collect.IteratorInt;
 import org.junit.Test;
 
 
-public class SetLongTest
+public class QueueIntTest
 {
     /** Needs huge heap, tests arithmetic overflow */
     private static final int HUGE_SIZE_BIG = Integer.MAX_VALUE / 100 * 76;
@@ -40,20 +40,21 @@ public class SetLongTest
     private static final int HUGE_SIZE = USE_HUGE ? HUGE_SIZE_BIG : HUGE_SIZE_SMALL;
     private static final int KEYS = 3000;
     private static final int INITIAL_SIZE = 30;
-    private static final int COUNT = 10000;
+    private static final int COUNT = 1000;
 
     /**
      * Basic test - no unexpected ArrayIndexOutOfBoundsException
      */
     @Test
-    public void testSetLong0() {
+    public void testQueueInt0() {
         Random r = new Random(1);
         for (int i = 0; i < COUNT; ++i) {
             int t = 0;
-            SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
+            QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));
             for (int j = 0; j < KEYS; ++j) {
                 int v = r.nextInt(KEYS);
-                t += ss.add(v) ? 1 : 0;
+                ss.put(v);
+                t += 1;
             }
             assertTrue("At least one item should have been added", t > 0); //$NON-NLS-1$
             assertEquals("Added items should equal size", t, ss.size()); //$NON-NLS-1$
@@ -64,22 +65,24 @@ public class SetLongTest
      * Check that set contains everything it says it has
      */
     @Test
-    public void testSetLong1()
+    public void testQueueInt1()
     {
         Random r = new Random(1);
         for (int i = 0; i < COUNT; ++i) {
-            testOneSetLong(r);
+            testOneQueueInt(r);
         }
     }
 
-    private void testOneSetLong(Random r)
+    private void testOneQueueInt(Random r)
     {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
+        QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextInt(KEYS));
+            ss.put(r.nextInt(KEYS) + 1);
         }
-        for (IteratorLong ii = ss.iterator(); ii.hasNext(); ){
-            assertTrue("every key should be contained", ss.contains(ii.next())); //$NON-NLS-1$
+        int n = ss.size();
+        for (int i = 0; i < n; ++i) 
+        {
+            assertThat("every entry should be in the iterator", ss.get(), greaterThan(0)); //$NON-NLS-1$
         }
     }
 
@@ -87,120 +90,49 @@ public class SetLongTest
      * Check the number of contained items is the size
      */
     @Test
-    public void testSetLong2()
+    public void testQueueInt2()
     {
         Random r = new Random(1);
         for (int i = 0; i < COUNT; ++i) {
-            testTwoSetLong(r);
+            testTwoQueueInt(r);
         }
     }
 
-    private void testTwoSetLong(Random r)
+    private void testTwoQueueInt(Random r)
     {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
+        QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextInt(KEYS));
+            ss.put(r.nextInt(KEYS) + 1);
         }
         int t = 0;
         for (int k = 0; k < KEYS; ++k) {
-            t += ss.contains(k) ? 1 : 0;
+            t += ss.get() > 0 ? 1 : 0;
         }
-        assertEquals("contained items should equals the size", ss.size(), t); //$NON-NLS-1$
-    }
-    
-
-    /**
-     * Check remove works as expected
-     */
-    @Test
-    public void testSetLong3()
-    {
-        Random r = new Random(1);
-        for (int i = 0; i < COUNT; ++i) {
-            testThreeSetLong(r);
-        }
-    }
-
-    private void testThreeSetLong(Random r)
-    {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
-        for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextInt(KEYS));
-        }
-        for (int k = 0; k < KEYS; ++k) {
-            boolean b1 = ss.contains(k);
-            boolean b2 = ss.remove(k);
-            assertEquals("remove should only succeed if key is contained", b1, b2); //$NON-NLS-1$
-            assertFalse("after a remove the key should not be contained", ss.contains(k)); //$NON-NLS-1$
-        }
-    }
-
-    /**
-     * Check remove works as expected and that remaining entries
-     * are not affected.
-     */
-    @Test
-    public void testSetLong3a()
-    {
-        Random r = new Random(1);
-        for (int i = 0; i < COUNT / 5; ++i) {
-            testThreeSetLongA(r);
-        }
-    }
-
-    private void testThreeSetLongA(Random r)
-    {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
-        // Add some initial entries so the targets might be chained
-        for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong());
-        }
-        // The targets for removal
-        for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextInt(KEYS));
-        }
-        // Add some final entries possibly chained from the targets
-        for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong());
-        }
-        long all[] = ss.toArray();
-        for (int k = 0; k < KEYS; ++k) {
-            boolean b1 = ss.contains(k);
-            boolean b2 = ss.remove(k);
-            assertEquals("remove should only succeed if key is contained", b1, b2); //$NON-NLS-1$
-            assertFalse("after a remove the key should not be contained", ss.contains(k)); //$NON-NLS-1$
-        }
-        for (long k : all)
-        {
-            boolean b1 = !ss.contains(k);
-            boolean b2 = k >= 0 && k < KEYS;
-            assertEquals("Only entries from 0..KEYS-1 should have been removed for entry "+k, b1, b2); //$NON-NLS-1$
-        }
+        assertEquals("contained items should equals the size", KEYS, t); //$NON-NLS-1$
     }
 
     /**
      * Check add works as expected
      */
     @Test
-    public void testSetLong4()
+    public void testQueueInt4()
     {
         Random r = new Random(1);
         for (int i = 0; i < COUNT; ++i) {
-            testFourSetLong(r);
+            testFourQueueInt(r);
         }
     }
 
-    private void testFourSetLong(Random r)
+    private void testFourQueueInt(Random r)
     {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
+        QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));
+        ss.put(23);
+        assertThat(ss.get(), equalTo(23));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextInt(KEYS));
+            ss.put(r.nextInt(KEYS) + 1);
         }
         for (int k = 0; k < KEYS; ++k) {
-            boolean b1 = ss.contains(k);
-            boolean b2 = ss.add(k);
-            assertEquals("add should not succeed if the key is already there", b1, !b2); //$NON-NLS-1$
-            assertTrue("key should be contained after an add", ss.contains(k)); //$NON-NLS-1$
+            assertThat(ss.get(), greaterThan(0));
         }
     }
 
@@ -208,7 +140,7 @@ public class SetLongTest
      * Check performance is as expected.
      */
     @Test
-    public void testSetLong5()
+    public void testQueueInt5()
     {
         long best = Long.MAX_VALUE;
         long worst = Long.MIN_VALUE;
@@ -228,7 +160,7 @@ public class SetLongTest
     }
 
     /**
-     * Test performance of SetInt
+     * Test performance of QueueInt
      * @param n number of entries
      * @param m number of clumps
      * @param c number of times to repeat
@@ -236,21 +168,23 @@ public class SetLongTest
      */
     private long perf(int n, int m, int c)
     {
-        SetLong ss = new SetLong();
+        QueueInt ss = new QueueInt(INITIAL_SIZE);
         long then = System.currentTimeMillis();
         for (int i = 0; i < n / m; ++i)
         {
             for (int j = 0; j < m; ++j)
             {
                 int key = i + n * 2 * j;
-                ss.add(key);
+                ss.put(key);
             }
         }
         int cc = 0;
         for (int j = 0; j < c; ++j) {
             for (int i = 0; i < n; ++i) {
-                int key = i;
-                if (ss.contains(key))
+                int key = j * n + i;
+                if (key >= n / m * m)
+                    break;
+                if (ss.get() >= 0)
                     ++cc;
             }
         }
@@ -264,59 +198,58 @@ public class SetLongTest
      * @throws ClassNotFoundException 
      */
     @Test
-    public void testSetLong6() throws ClassNotFoundException, IOException
+    public void testQueueInt6() throws ClassNotFoundException, IOException
     {
         Random r = new Random(1);
         for (int i = 0; i < COUNT; ++i) {
-            testSixSetLong(r);
+            testSixQueueInt(r);
         }
     }
 
-    private void testSixSetLong(Random r) throws IOException, ClassNotFoundException
+    private void testSixQueueInt(Random r) throws IOException, ClassNotFoundException
     {
-        SetLong ss = new SetLong(r.nextInt(INITIAL_SIZE));
+        QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));
         for (int j = 0; j < KEYS; ++j) {
-            ss.add(r.nextLong());
+            ss.put(r.nextInt());
         }
         byte b[];
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);)
         {
-            oos.writeObject(ss);
+            oos.writeInt(ss.size());
+            while (ss.size() > 0)
+            {
+                oos.writeInt(ss.get());
+            }
             oos.flush();
             b = baos.toByteArray();
         }
-        SetLong ss2;
+        QueueInt ss2;
         try (ByteArrayInputStream bais = new ByteArrayInputStream(b);
                         ObjectInputStream ois = new ObjectInputStream(bais);)
         {
-            ss2 = (SetLong)ois.readObject();
+            int n = ois.readInt();
+            ss2 = new QueueInt(INITIAL_SIZE);
+            for (int i = 0; i < n; ++i)
+            {
+                ss2.put(ois.readInt());
+            }
         }
-        for (IteratorLong ii = ss.iterator(); ii.hasNext(); ){
-            assertTrue("every key should be contained in the serialized version", ss2.contains(ii.next())); //$NON-NLS-1$
-        }
-        for (IteratorLong ii = ss2.iterator(); ii.hasNext(); ){
-            assertTrue("every deserialized key should be contained", ss.contains(ii.next())); //$NON-NLS-1$
-        }
+        assertThat(ss2.size(), equalTo(KEYS));
     }
 
     /**
      * Test huge sizes for overflow problems.
      */
     @Test
-    public void testSetLong7() {
+    public void testQueueInt7() {
         int s1 = HUGE_SIZE;
-        SetLong huge = new SetLong(s1);
+        QueueInt huge = new QueueInt(s1);
+        assertThat(huge.size(), equalTo(0));
         int s2 = s1 / 3 * 2;
         for (int i = 0; i < s2; ++i) {
-            huge.add(i * 2);
+            huge.put(i * 2);
         }
         assertThat(huge.size(), equalTo(s2));
-        for (int i = 0; i < s2; ++i) {
-            boolean removed = huge.remove(i * 2);
-            assertTrue("Should have removed " + (i * 2), removed); //$NON-NLS-1$
-        }
-        assertThat(huge.size(), equalTo(0));
-        assertTrue(huge.isEmpty());
     }
 }

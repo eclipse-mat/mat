@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,6 +83,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
@@ -1893,25 +1895,58 @@ public final class SnapshotImpl implements ISnapshot
             {
                 // check for objects which are only referenced by the desired
                 // fields
+                // well, we must load the obj
+                IObject obj = getObject(current);
+                List<NamedReference> refs = obj.getOutboundReferences();
+                // Only bother doing the sort if there are several entries
+                final int minsort = 10;
+                boolean sorted = refs.size() >= minsort;
+                if (sorted)
+                {
+                    refs = new ArrayList<NamedReference>(refs);
+                    refs.sort(CompObjectReference.INSTANCE);
+                }
                 for (int child : outbound.get(current))
                 {
-                    // well, we must load the obj
-                    IObject obj = getObject(current);
+                    if (bits.get(child))
+                        continue;
                     long childAddress = mapIdToAddress(child);
 
-                    List<NamedReference> refs = obj.getOutboundReferences();
-                    for (NamedReference reference : refs)
+                    int idx;
+                    if (sorted)
                     {
-                        // if there is a ref from a not-specified field - put
-                        // the child
-                        // on the list. This means it's not part of the desired
-                        // retained set
-                        if (!bits.get(child) && reference.getObjectAddress() == childAddress
-                                        && !fieldNamesSet.contains(reference.getName()))
+                        idx = Collections.binarySearch(refs, new ObjectReference(this, childAddress), CompObjectReference.INSTANCE);
+                        if (idx < 0)
+                            continue;
+                        // Find the first
+                        while (idx > 0 && refs.get(idx - 1).getObjectAddress() == childAddress)
+                            --idx;
+                    }
+                    else
+                    {
+                        idx = 0;
+                    }
+                    for (int i = idx; i < refs.size(); ++i)
+                    {
+                        NamedReference reference = refs.get(i);
+                        if (reference.getObjectAddress() == childAddress)
                         {
-                            stack.push(child);
-                            bits.set(child);
-                            count++;
+                            if (!fieldNamesSet.contains(reference.getName()))
+                            {
+                                // if there is a ref from a not-specified field - put
+                                // the child
+                                // on the list. This means it's not part of the desired
+                                // retained set
+                                stack.push(child);
+                                bits.set(child);
+                                count++;
+                                break;
+                            }
+                        }
+                        else if (sorted)
+                        {
+                            // Ascending order, so no more matches possible
+                            break;
                         }
                     }
                 }
@@ -2421,5 +2456,18 @@ public final class SnapshotImpl implements ISnapshot
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /**
+     * Used for sorting {@link ObjectReference} by address.
+     */
+    private static final class CompObjectReference implements Comparator<ObjectReference>
+    {
+        @Override
+        public int compare(ObjectReference o1, ObjectReference o2)
+        {
+            return Long.compare(o1.getObjectAddress(), o2.getObjectAddress());
+        }
+        static CompObjectReference INSTANCE = new CompObjectReference();
     }
 }
