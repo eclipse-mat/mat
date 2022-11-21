@@ -50,6 +50,9 @@
 	<query name="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery">
 		<command>path2gc java.lang.Runtime -numberofpaths 20 -excludes java.lang.ref.WeakReference:referent</command>
 	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery">
+		<command>path2gc java.lang.Runtime -numberofpaths 20 -excludes java.lang.String\[\]:[0]</command>
+	</query>
 	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
 		<command>merge_shortest_paths -groupby FROM_GC_ROOTS java.lang.String</command>
 	</query>
@@ -58,6 +61,9 @@
 	</query>
 	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
 		<command>merge_shortest_paths -groupby FROM_OBJECTS_BY_CLASS java.lang.String</command>
+	</query>
+	<query name="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery">
+		<command>merge_shortest_paths -groupby FROM_GC_ROOTS java.lang.String -excludes java.lang.String\[\]:[0]</command>
 	</query>
 	<!-- comparisons -->
 	<!-- <query name="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery"> 

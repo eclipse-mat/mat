@@ -278,16 +278,20 @@ public class SetIntTest
         for (int j = 0; j < KEYS; ++j) {
             ss.add(r.nextInt());
         }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(ss);
-        oos.close();
-        baos.close();
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-        SetInt ss2 = (SetInt)ois.readObject();
-        ois.close();
-        bais.close();
+        byte b[];
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);)
+        {
+            oos.writeObject(ss);
+            oos.flush();
+            b = baos.toByteArray();
+        }
+        SetInt ss2;
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(b);
+                        ObjectInputStream ois = new ObjectInputStream(bais);)
+        {
+            ss2 = (SetInt)ois.readObject();
+        }
         for (IteratorInt ii = ss.iterator(); ii.hasNext(); ){
             assertTrue("every key should be contained in the deserialized version", ss2.contains(ii.next())); //$NON-NLS-1$
         }
