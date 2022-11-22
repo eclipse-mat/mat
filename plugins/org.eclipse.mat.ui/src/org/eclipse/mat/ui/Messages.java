@@ -430,6 +430,24 @@ public class Messages extends NLS
     public static String UIPreferencePage_DiscardEnable;
 
 
+    public static String DiagnosticsSelectionWizardPage_DialogName;
+    public static String DiagnosticsSelectionWizardPage_DialogDescription;
+    public static String DiagnosticsSelectionWizardPage_ChooseProcess;
+    public static String DiagnosticsSelectionWizardPage_ColumnDescription;
+    public static String DiagnosticsWizard_DialogName;
+    public static String DiagnosticsExecutionWizardPage_DialogName;
+    public static String DiagnosticsExecutionWizardPage_DialogDescription;
+    public static String DiagnosticsExecutionWizardPage_IntroIdle;
+    public static String DiagnosticsExecutionWizardPage_IntroExecuting;
+    public static String DiagnosticsExecutionWizardPage_ErrorExecuting;
+    public static String DiagnosticsExecutionWizardPage_SucceededExecuting;
+    public static String DiagnosticsAction_ThreadMXBeanDump_Description;
+    public static String DiagnosticsAction_Sleep_Description;
+    public static String DiagnosticsAction_J9JVMThreadDump_Description;
+    public static String DiagnosticsAction_J9JVMHeapDump_Description;
+    public static String DiagnosticsAction_J9JVMSystemDump_Description;
+    public static String DiagnosticsAction_Dump_Completed;
+    public static String DiagnosticsAction_HotSpotJVMHeapDump_Description;
 
     static
     {

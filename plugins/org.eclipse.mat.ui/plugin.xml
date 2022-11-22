@@ -184,6 +184,12 @@
 			name="%command.name.openHeapDump">
 		</command>
 		<command
+			categoryId="org.eclipse.ui.category.help"
+			description="%command.description.Diagnostics"
+			id="org.eclipse.mat.ui.diagnostics.Diagnostics"
+			name="%command.name.Diagnostics">
+		</command>
+		<command
 			categoryId="org.eclipse.ui.category.file"
 			description="%command.description.openSampleHeapDump"
 			helpContextId="org.eclipse.mat.ui.help.open_heapdump"
@@ -235,6 +241,10 @@
 			class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$Handler"
 			commandId="org.eclipse.mat.ui.acquire.HeapDump"
 			helpContextId="org.eclipse.mat.ui.help.acquire_arguments">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.internal.diagnostics.DiagnosticsWizardAction$Handler"
+			commandId="org.eclipse.mat.ui.diagnostics.Diagnostics">
 		</handler>
 		<handler
 			class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction$Handler"
@@ -467,6 +477,23 @@
                label="%menu.label.Open_Heap_DUMP___"
                style="push"
                tooltip="%menu.tooltip.Open_Heap_Dump">
+            <visibleWhen checkEnabled="true">
+               <with variable="activeWorkbenchWindow.activePerspective">
+                  <equals value="org.eclipse.mat.ui.perspective"/>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help">
+         <command
+               commandId="org.eclipse.mat.ui.diagnostics.Diagnostics"
+               icon="$nl$/icons/thread.gif"
+               id="org.eclipse.mat.ui.openDiagnosticsDialog"
+               label="%menu.label.Diagnostics"
+               style="push"
+               tooltip="%menu.tooltip.Diagnostics">
             <visibleWhen checkEnabled="true">
                <with variable="activeWorkbenchWindow.activePerspective">
                   <equals value="org.eclipse.mat.ui.perspective"/>
