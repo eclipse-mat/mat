@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -464,13 +464,19 @@ public class TestApplication
 
                             atts.clear();
                             handler.startElement(URI, Parameter.BASELINE, Parameter.BASELINE, atts);
-                            handler.characters(difference.getBaseline().toCharArray(), 0, difference.getBaseline()
+                            String baseline = difference.getBaseline();
+                            if (baseline == null)
+                                baseline = "";
+                            handler.characters(baseline.toCharArray(), 0, baseline
                                             .length());
                             handler.endElement(URI, Parameter.BASELINE, Parameter.BASELINE);
 
                             atts.clear();
                             handler.startElement(URI, Parameter.TESTLINE, Parameter.TESTLINE, atts);
-                            handler.characters(difference.getTestLine().toCharArray(), 0, difference.getTestLine()
+                            String testLine = difference.getTestLine();
+                            if (testLine == null)
+                                testLine = "";
+                            handler.characters(testLine.toCharArray(), 0, testLine
                                             .length());
                             handler.endElement(URI, Parameter.TESTLINE, Parameter.TESTLINE);
                         }

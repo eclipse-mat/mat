@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,8 @@ package org.eclipse.mat.inspections.threads;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,7 +192,8 @@ import org.eclipse.mat.util.IProgressListener;
     /* package */List<Column> getUsedColumns()
     {
         List<Column> answer = getDefaultColumnsCopy();
-        for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
+        // Used sorted list as otherwise the column order can change
+        for (IThreadDetailsResolver resolver : sortedResolvers())
         {
             Column[] cols = resolver.getColumns();
             if (cols != null)
@@ -208,7 +211,8 @@ import org.eclipse.mat.util.IProgressListener;
     /* package */static List<Column> getUsedColumns(List<ThreadInfoImpl> threads)
     {
         List<Column> answer = getDefaultColumnsCopy();
-        for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
+        // Used sorted list as otherwise the column order can change
+        for (IThreadDetailsResolver resolver : sortedResolvers())
         {
             Column[] cols = resolver.getColumns();
             if (cols != null)
@@ -246,6 +250,47 @@ import org.eclipse.mat.util.IProgressListener;
             answer.add(col2);
         }
         return answer;
+    }
+
+    /**
+     * Return a list of resolvers in a reproducible order. 
+     * @return the sorted list
+     */
+    private static List<IThreadDetailsResolver> sortedResolvers()
+    {
+        Collection<IThreadDetailsResolver> delegates = ThreadDetailResolverRegistry.instance().delegates();
+        List<IThreadDetailsResolver> delegates2 = new ArrayList<IThreadDetailsResolver>(delegates);
+        Collections.sort(delegates2, new CompResolver());
+        return delegates2;
+    }
+
+    /**
+     * Compare two resolvers.
+     * Tries to get an api resolver first, then dtfj then hprof.
+     */
+    private static final class CompResolver implements Comparator<IThreadDetailsResolver>
+    {
+        @Override
+        public int compare(IThreadDetailsResolver o1, IThreadDetailsResolver o2)
+        {
+            ClassLoader l1 = o1.getClass().getClassLoader();
+            ClassLoader l2 = o2.getClass().getClassLoader();
+            if (l1 == null)
+                if (l2 != null)
+                    return -1;
+                else
+                    return 0;
+            if (l2 == null)
+                return 1;
+            // Equinox loaders don't have a name but have a toString like:
+            // org.eclipse.osgi.internal.loader.EquinoxClassLoader@31e233a3[org.eclipse.mat.api:1.13.0.qualifier(id=196)]
+            String n1 = l1.toString().replaceFirst("[^\\[]*", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            String n2 = l2.toString().replaceFirst("[^\\[]*", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            int r = n1.compareTo(n2);
+            if (r != 0)
+                return r;
+            return o1.getClass().getName().compareTo(o2.getClass().getName());
+        }
     }
 
     // //////////////////////////////////////////////////////////////

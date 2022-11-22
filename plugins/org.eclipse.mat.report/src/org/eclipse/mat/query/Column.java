@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -300,6 +300,12 @@ public final class Column
     public Object getData(Object key)
     {
         return data.get(key);
+    }
+
+    @Override
+    public String toString()
+    {
+        return getLabel();
     }
 
     @Override
