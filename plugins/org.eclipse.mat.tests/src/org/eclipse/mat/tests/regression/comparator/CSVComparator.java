@@ -33,20 +33,16 @@ public class CSVComparator implements IComparator
         System.out.println(MessageUtil.format("Comparing: {0}", testName));
 
         List<Difference> differences = new ArrayList<Difference>();
-        if (baseline.length() < testFile.length())
+        if (baseline.length() != testFile.length())
         {
             differences.add(new Difference("", "baseLine length: " + baseline.length(), "testFile length: "
                             + testFile.length()));
             System.err.println(MessageUtil.format("ERROR: ({0}) Files have different lengths", testName));
-            return differences;
         }
-        BufferedReader baselineReader = null;
-        BufferedReader testFileReader = null;
-        try
+        try (
+            BufferedReader baselineReader = new BufferedReader(new FileReader(baseline.getAbsolutePath()), 1024);
+            BufferedReader testFileReader = new BufferedReader(new FileReader(testFile.getAbsolutePath()), 1024);)
         {
-            baselineReader = new BufferedReader(new FileReader(baseline.getAbsolutePath()), 1024);
-            testFileReader = new BufferedReader(new FileReader(testFile.getAbsolutePath()), 1024);
-
             String baseLine;
             String testLine;
             int lineNumber = 1;
@@ -56,11 +52,21 @@ public class CSVComparator implements IComparator
                 {
                     differences.add(new Difference(String.valueOf(lineNumber), baseLine, testLine));
                 }
-                if (differences.size() == 10) // add only first 10 differences
+                if (differences.size() >= 10) // add only first 10 differences
                     break;
                 lineNumber = lineNumber + 1;
             }
-
+            if (baseLine == null)
+            {
+                // Also log extra lines
+                while ((testLine = testFileReader.readLine()) != null)
+                {
+                    differences.add(new Difference(String.valueOf(lineNumber), baseLine, testLine));
+                    if (differences.size() >= 10) // add only first 10 differences
+                        break;
+                    lineNumber = lineNumber + 1;
+                }
+            }
             if (!differences.isEmpty())
                 System.err.println(MessageUtil.format("ERROR: ({0}) Differences detected", testName));
 
@@ -68,21 +74,6 @@ public class CSVComparator implements IComparator
         catch (IOException e)
         {
             System.err.println(MessageUtil.format("ERROR: ({0}) Error reading file {0}", testName, e.getMessage()));
-        }
-        finally
-        {
-            try
-            {
-                if (testFileReader != null)
-                    testFileReader.close();
-                if (baselineReader != null)
-                    baselineReader.close();
-            }
-            catch (IOException e)
-            {
-                System.err.println(MessageUtil.format("ERROR: ({0}) Error closing BufferedReader: {0}", //
-                                testName, e.getMessage()));
-            }
         }
         return differences;
     }

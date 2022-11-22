@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -353,9 +353,17 @@ public class Pass1Parser extends AbstractParser
     private void readUnloadClass() throws IOException
     {
         long classSerNum = in.readUnsignedInt(); // used in stacks frames
-        long classID = classSerNum2id.get(classSerNum);
-        // class2name only holds active classes
-        class2name.remove(classID);
+        if (classSerNum2id.containsKey(classSerNum))
+        {
+            long classID = classSerNum2id.get(classSerNum);
+            // class2name only holds active classes
+            class2name.remove(classID);
+        }
+        else
+        {
+            // For example: sun_jdk6_31_hprofagent_compressedOops.hprof
+            monitor.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.Pass1Parser_UnloadClassNotFound, classSerNum, Long.toHexString(in.position() - 5)), null);
+        }
     }
 
     private void readStackFrame(long length) throws IOException
