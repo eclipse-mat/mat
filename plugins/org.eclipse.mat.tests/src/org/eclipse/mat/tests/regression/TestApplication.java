@@ -539,6 +539,7 @@ public class TestApplication
 
             // add heading
             out.append("Heap Dump").append(RegTestUtils.SEPARATOR) //
+                            .append("Event Number").append(RegTestUtils.SEPARATOR) //
                             .append("Test Name").append(RegTestUtils.SEPARATOR) //
                             .append("Date").append(RegTestUtils.SEPARATOR) //
                             .append("Time").append(RegTestUtils.SEPARATOR) //
@@ -563,6 +564,7 @@ public class TestApplication
                 for (PerfData record : result.getPerfData())
                 {
                     out.append(escapeCSVField(relativePath, RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getEventNumber(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
                        .append(escapeCSVField(record.getTestName(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
                        .append(escapeCSVField(date, RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
                        .append(escapeCSVField(record.getTime(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
@@ -877,13 +879,13 @@ public class TestApplication
         // extract parsing time
         if (extractTime)
         {
-            Pattern pattern = Pattern.compile("Task: (.*) ([0-9]+) ms used ([0-9]+) free ([0-9]+) total ([0-9]+) max ([0-9]+)");
+            Pattern pattern = Pattern.compile("Task: \\[([0-9]+)\\] (.*) ([0-9]+) ms used ([0-9]+) free ([0-9]+) total ([0-9]+) max ([0-9]+)");
             for (String line : outputGobbler.getLines())
             {
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.matches())
                     result.addPerfData(new PerfData(matcher.group(1), matcher.group(2), 
-                        matcher.group(3), matcher.group(4), matcher.group(5), matcher.group(6)));
+                        matcher.group(3), matcher.group(4), matcher.group(5), matcher.group(6), matcher.group(7)));
             }
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ package org.eclipse.mat.tests.regression;
 
 /* package */class PerfData
 {
+    private String eventNum;
     private String testName;
     private String time;
     private String usedMem;
@@ -23,14 +24,20 @@ package org.eclipse.mat.tests.regression;
     private String totalMem;
     private String maxMem;
 
-    public PerfData(String testName, String time, String usedMem, String freeMem, String totalMem, String maxMem)
+    public PerfData(String eventNum, String testName, String time, String usedMem, String freeMem, String totalMem, String maxMem)
     {
+        this.eventNum = eventNum;
         this.testName = testName;
         this.time = time;
         this.usedMem = usedMem;
         this.freeMem = freeMem;
         this.totalMem = totalMem;
         this.maxMem = maxMem;
+    }
+
+    public String getEventNumber()
+    {
+        return eventNum;
     }
 
     public String getTestName()

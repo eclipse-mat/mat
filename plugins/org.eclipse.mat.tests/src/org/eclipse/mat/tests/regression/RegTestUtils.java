@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,9 @@ public class RegTestUtils
     {
         public boolean accept(File file)
         {
-            return (file.getName().endsWith(".hprof") || file.getName().endsWith(".dtfj") || file.getName().endsWith(".dmp.zip"));
+            return (file.getName().endsWith(".hprof") || file.getName().endsWith(".hprof.gz") 
+                            || file.getName().endsWith(".phd")
+                            || file.getName().endsWith(".dtfj") || file.getName().endsWith(".dmp.zip"));
         }
     };
 
@@ -40,10 +42,13 @@ public class RegTestUtils
     {
         public boolean accept(File dir, String name)
         {
-            Pattern hprofPattern = Pattern.compile(".*\\.hprof");
-            Pattern dtfjPattern = Pattern.compile(".*\\.dtfj|.*\\.dmp.zip|.*\\.phd|javacore.*\\.txt");
+            Pattern hprofPattern = Pattern.compile(".*\\.hprof|.*\\.hprof\\.gz");
+            Pattern hprofHistPattern = Pattern.compile("histogram_.*\\.txt|sun_.*\\.txt");
+            Pattern dtfjPattern = Pattern.compile(".*\\.sdff|.*\\.dmp\\.zip|.*\\.phd|javacore\\..*\\.txt");
             Pattern resultFilePattern = Pattern.compile("performanceResults.*\\.csv");
             return !hprofPattern.matcher(name).matches() && !name.endsWith(BASELINE_EXTENSION)
+                            && !name.equals(".gitignore")
+                            && !hprofHistPattern.matcher(name).matches()
                             && !dtfjPattern.matcher(name).matches() && !resultFilePattern.matcher(name).matches();
         }
     };
