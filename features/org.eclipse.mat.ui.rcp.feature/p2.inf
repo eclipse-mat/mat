@@ -11,12 +11,12 @@
 #    IBM Corporation - initial API and implementation and/or initial documentation
 ###############################################################################
 instructions.configure=\
-    addRepository(type:0,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
-    addRepository(type:1,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
-    addRepository(type:0,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
-    addRepository(type:1,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);
+    org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);
 instructions.unconfigure=\
-    removeRepository(type:0,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
-    removeRepository(type:1,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
-    removeRepository(type:0,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
-    removeRepository(type:1,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);
+    org.eclipse.equinox.p2.touchpoint.eclipse.removeRepository(type:0,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.removeRepository(type:1,name:Memory Analyzer,location:https${#58}//download.eclipse.org/mat/latest/update-site/);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.removeRepository(type:0,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
+    org.eclipse.equinox.p2.touchpoint.eclipse.removeRepository(type:1,name:Memory Analyzer latest development build,location:https${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);
