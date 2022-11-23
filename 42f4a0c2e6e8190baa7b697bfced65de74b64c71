@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ba9d71f_1f6f828a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-23T20:31:41Z",
+      "side": 1,
+      "message": "Generally look good though I have a couple of minor points below.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d01edaf6_09d74a6c",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/DiagnosticsExecutionWizardPage.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-23T20:31:41Z",
+      "side": 1,
+      "message": "This looks bad with a dark mode theme as the result is black on dark grey. It might not be necessary to set the color - the default could be okay.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cc7bf38_925f22c9",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/actions/HotSpotJVMHeapDump.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-23T20:31:41Z",
+      "side": 1,
+      "message": "I think this should just implement DiagnosticsAction to avoid the superclass which will print out an exception when run on a HotSpot VM.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
