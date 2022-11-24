@@ -18,6 +18,23 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82c1920f_262153e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-24T14:36:34Z",
+      "side": 1,
+      "message": "Generally look good though I have a some minor points below.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d01edaf6_09d74a6c",
@@ -31,6 +48,74 @@
       "writtenOn": "2022-11-23T20:31:41Z",
       "side": 1,
       "message": "This looks bad with a dark mode theme as the result is black on dark grey. It might not be necessary to set the color - the default could be okay.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80d70d64_0d8cfe25",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/DiagnosticsExecutionWizardPage.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-24T14:36:34Z",
+      "side": 1,
+      "message": "Elsewhere we get the display from the widget as \u0027status.getDisplay()\u0027. [Originally we did this when we were going to use Eclipse Remote Application Platform]",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf1fd56f_f779f595",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/DiagnosticsExecutionWizardPage.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-24T14:36:34Z",
+      "side": 1,
+      "message": "It\u0027s safer to first check whether the status widget has been disposed.",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08a50354_dd75eeef",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/DiagnosticsExecutionWizardPage.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-24T14:36:34Z",
+      "side": 1,
+      "message": "Elsewhere we get the display from the widget as \u0027status.getDisplay()\u0027. [Originally we did this when we were going to use Eclipse Remote Application Platform]",
+      "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49fd41ce_f9a0ad7b",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/internal/diagnostics/DiagnosticsExecutionWizardPage.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-24T14:36:34Z",
+      "side": 1,
+      "message": "It\u0027s safer to first check whether the status widget has been disposed.",
       "revId": "42f4a0c2e6e8190baa7b697bfced65de74b64c71",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
