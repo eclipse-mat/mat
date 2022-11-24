@@ -92,7 +92,7 @@ public class DumpAgent {
                 }
                 String req = "java:"; //$NON-NLS-1$
                 req += live ? "request=exclusive+compact+prepwalk" : "request=exclusive+prepwalk"; //$NON-NLS-1$ //$NON-NLS-2$
-                req += ",file=" + filename; //$NON-NLS-1$
+                req += ",file=" + javacorefn; //$NON-NLS-1$
                 try
                 {
                     // IBM Java 7.1 and later
