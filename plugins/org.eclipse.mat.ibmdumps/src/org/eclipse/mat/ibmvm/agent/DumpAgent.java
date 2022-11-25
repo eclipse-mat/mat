@@ -88,21 +88,23 @@ public class DumpAgent {
                 {
                     // Supplied file name will be used for another dump type,
                     // so generate a new one here.
-                    javacorefn = javacorefn.replaceFirst("\\.[^.\\/" + File.pathSeparator + "]*$", "") + ".txt"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    javacorefn = javacorefn.replaceFirst("\\.[^.\\/]*$", "") + ".txt"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 String req = "java:"; //$NON-NLS-1$
-                req += live ? "request=exclusive+compact+prepwalk" : "request=exclusive+prepwalk"; //$NON-NLS-1$ //$NON-NLS-2$
+                req += live ? "request=exclusive+compact+preempt" : "request=exclusive+preempt"; //$NON-NLS-1$ //$NON-NLS-2$
                 req += ",file=" + javacorefn; //$NON-NLS-1$
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.triggerDump(String request
+                    // com.ibm.jvm.Dump.triggerDump(String request)
                     Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
                     m.invoke(null, req);
+                    live = false;
                 }
                 catch (NoSuchMethodException e)
                 {
                     live(live);
+                    live = false;
                     // com.ibm.jvm.Dump.JavaDump();
                     Method m = dumpcls.getMethod("JavaDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -116,13 +118,15 @@ public class DumpAgent {
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.triggerDump(String request
+                    // com.ibm.jvm.Dump.triggerDump(String request)
                     Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
                     m.invoke(null, req);
+                    live = false;
                 }
                 catch (NoSuchMethodException e)
                 {
                     live(live);
+                    live = false;
                     //com.ibm.jvm.Dump.HeapDump();
                     Method m = dumpcls.getMethod("HeapDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -136,13 +140,15 @@ public class DumpAgent {
                 try
                 {
                     // IBM Java 7.1 and later
-                    // com.ibm.jvm.Dump.triggerDump(String request
+                    // com.ibm.jvm.Dump.triggerDump(String request)
                     Method m = dumpcls.getMethod("triggerDump", String.class); //$NON-NLS-1$
                     m.invoke(null, req);
+                    live = false;
                 }
                 catch (NoSuchMethodException e)
                 {
                     live(live);
+                    live = false;
                     //com.ibm.jvm.Dump.SystemDump();
                     Method m = dumpcls.getMethod("SystemDump"); //$NON-NLS-1$
                     m.invoke(null);
@@ -175,6 +181,7 @@ public class DumpAgent {
                 }
                 server.invoke(objn,  "dumpHeap",  new Object[] {filename,  Boolean.valueOf(live)},  //$NON-NLS-1$
                                 new String[] {"java.lang.String", "boolean"}); //$NON-NLS-1$ //$NON-NLS-2$
+                live = false;
 
             }
             else if ("hprof".equals(a)) //$NON-NLS-1$
@@ -184,6 +191,7 @@ public class DumpAgent {
                 // fails with linkage error on dumpHeap0()
                 Method m = dumpcls.getMethod("dumpHeap", String.class, Boolean.TYPE); //$NON-NLS-1$
                 m.invoke(hsd, filename, live);
+                live = false;
             }
         }
     }

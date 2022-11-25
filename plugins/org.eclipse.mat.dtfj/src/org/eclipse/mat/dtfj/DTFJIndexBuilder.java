@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2021 IBM Corporation.
+ * Copyright (c) 2009,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -754,6 +754,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNproblemReadingJavaStackFrame = errorCount;
     private int msgNskipHeapObject = errorCount;
     private int msgNthreadBlocking = errorCount;
+    private int msgNunexpectedSource = errorCount;
+    private int msgNcorruptCount1 = errorCount;
 
     /*
      * (non-Javadoc)
@@ -2588,6 +2590,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         skippedMessages += Math.max(0, -msgNproblemReadingJavaStackFrame);
         skippedMessages += Math.max(0, -msgNskipHeapObject);
         skippedMessages += Math.max(0, -msgNthreadBlocking);
+        skippedMessages += Math.max(0, -msgNunexpectedSource);
+        skippedMessages += Math.max(0, -msgNcorruptCount1);
         if (skippedMessages > 0)
         {
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -3186,6 +3190,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         continue;
                     JavaReference r = (JavaReference) next;
                     processRoot(r, null, gcRoot2, threadRoots2, pointerSize, listener);
+                    if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 }
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingThreadRoots);
                 if (debugInfo) debugPrint("Processing thread roots"); //$NON-NLS-1$
@@ -4817,10 +4822,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     {
                                         // Instance which is of this type
                                         ObjectReference io = (ObjectReference)n;
+                                        // E.g. currentRuntime
                                         // Haven't got an address to id to class mapping yet to check the type
                                         if (f.getName().toLowerCase(Locale.ENGLISH).contains("runtime")) //$NON-NLS-1$
                                         {
                                             source = io.getObjectAddress();
+                                            break;
                                         }
                                     }
                                 }
@@ -4943,7 +4950,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             int tgt = targetId;
             int src = indexToAddress.reverse(source);
-            if (src < 0)
+            if (src < 0 && msgNunexpectedSource-- > 0)
             {
                 listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                 Messages.DTFJIndexBuilder_UnableToFindSourceID, format(target), format(source), r
@@ -7166,6 +7173,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_ProblemReadingArray, typeName, arrayLen, arrayOffset,
                                     arrayStep, format(jo.getID().getAddress())), e);
+                    // Do not attempt to read more chunks
+                    break;
                 }
                 catch (MemoryAccessException e)
                 {
@@ -7181,6 +7190,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_ProblemReadingArray, typeName, arrayLen, arrayOffset,
                                     arrayStep, format(jo.getID().getAddress())), e);
+                    // Do not attempt to read more chunks
+                    break;
                 }
             }
         }
@@ -7270,8 +7281,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (Iterator<?> ii = jc.getDeclaredFields(); ii.hasNext();)
             {
                 Object next3 = ii.next();
-                if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredFields, jc))
+                if (isCorruptData(next3, msgNcorruptCount1 > 0 ? listener : null, 
+                       Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredFields, jc))
+                {
+                    --msgNcorruptCount1;
                     continue;
+                }
                 JavaField jf = (JavaField) next3;
                 String fieldName;
                 try
