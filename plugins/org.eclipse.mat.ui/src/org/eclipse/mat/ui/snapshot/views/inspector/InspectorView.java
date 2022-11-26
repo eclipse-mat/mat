@@ -798,10 +798,10 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             InspectorContextProvider contextProvider = new InspectorContextProvider(snapshot);
             final IContextObject firstElement = contextProvider.getContext(selection.getFirstElement());
 
-            final Object currentElement = current;
+            final IContextObject currentElement = current;
             // Has the actual object changed?
-            boolean isObject = firstElement != null && currentElement instanceof IContextObject && (firstElement
-                            .getObjectId() != ((IContextObject) currentElement).getObjectId()
+            boolean isObject = firstElement != null && (firstElement
+                            .getObjectId() != currentElement.getObjectId()
                             || firstElement.getObjectId() == -1 && firstElement instanceof IContextObjectSet
                                             && currentElement instanceof IContextObjectSet
                                             && ((IContextObjectSet) firstElement).getObjectIds().length == 0

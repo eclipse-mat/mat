@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -268,7 +269,7 @@ import org.eclipse.mat.util.IProgressListener;
      * Compare two resolvers.
      * Tries to get an api resolver first, then dtfj then hprof.
      */
-    private static final class CompResolver implements Comparator<IThreadDetailsResolver>
+    private static final class CompResolver implements Comparator<IThreadDetailsResolver>, Serializable
     {
         @Override
         public int compare(IThreadDetailsResolver o1, IThreadDetailsResolver o2)

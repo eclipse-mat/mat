@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -35,11 +35,11 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
     @Override
     public IContextObject getContext(Object row)
     {
-        try
+        if (row instanceof NamedReferenceNode)
         {
-            if (row instanceof NamedReferenceNode)
+            NamedReferenceNode node = (NamedReferenceNode) row;
+            try
             {
-                NamedReferenceNode node = (NamedReferenceNode) row;
                 final int objectId = snapshot.mapAddressToId(node.objectAddress);
                 return new IContextObject()
                 {
@@ -49,60 +49,8 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
                     }
                 };
             }
-            else if (row instanceof BaseNode)
+            catch (SnapshotException e)
             {
-                final BaseNode node = (BaseNode) row;
-
-                if (node.objectId >= 0)
-                    return new IContextObject()
-                    {
-                        public int getObjectId()
-                        {
-                            return node.objectId;
-                        }
-                    };
-                if (node.addr != Long.MIN_VALUE)
-                    return new IContextObjectSet()
-                    {
-
-                        @Override
-                        public int getObjectId()
-                        {
-                            return -1;
-                        }
-
-                        @Override
-                        public int[] getObjectIds()
-                        {
-                            return new int[0];
-                        }
-
-                        @Override
-                        public String getOQL()
-                        {
-                            return OQL.forAddress(node.addr);
-                        }
-                    };
-            }
-            else if (row instanceof IClass)
-            {
-                final IClass clazz = (IClass) row;
-
-                return new IContextObject()
-                {
-                    public int getObjectId()
-                    {
-                        return clazz.getObjectId();
-                    }
-                };
-            }
-            return null;
-        }
-        catch (SnapshotException e)
-        {
-            if (row instanceof NamedReferenceNode)
-            {
-                NamedReferenceNode node = (NamedReferenceNode) row;
                 return new IContextObjectSet() {
 
                     @Override
@@ -126,8 +74,54 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
                     }
                 };
             }
-            throw new RuntimeException(e);
         }
-    }
+        else if (row instanceof BaseNode)
+        {
+            final BaseNode node = (BaseNode) row;
 
+            if (node.objectId >= 0)
+                return new IContextObject()
+            {
+                public int getObjectId()
+                {
+                    return node.objectId;
+                }
+            };
+            if (node.addr != Long.MIN_VALUE)
+                return new IContextObjectSet()
+            {
+
+                @Override
+                public int getObjectId()
+                {
+                    return -1;
+                }
+
+                @Override
+                public int[] getObjectIds()
+                {
+                    return new int[0];
+                }
+
+                @Override
+                public String getOQL()
+                {
+                    return OQL.forAddress(node.addr);
+                }
+            };
+        }
+        else if (row instanceof IClass)
+        {
+            final IClass clazz = (IClass) row;
+
+            return new IContextObject()
+            {
+                public int getObjectId()
+                {
+                    return clazz.getObjectId();
+                }
+            };
+        }
+        return null;
+    }
 }
