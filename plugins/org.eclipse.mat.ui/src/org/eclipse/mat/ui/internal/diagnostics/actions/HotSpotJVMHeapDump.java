@@ -21,13 +21,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.diagnostics.DiagnosticsAction;
 import org.eclipse.mat.ui.internal.diagnostics.DiagnosticsProgress;
 import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Request a heap dump on a HotSpot JVM
  */
-public class HotSpotJVMHeapDump extends J9JVMBase
+public class HotSpotJVMHeapDump implements DiagnosticsAction
 {
     @Override
     public void run(DiagnosticsProgress progress)

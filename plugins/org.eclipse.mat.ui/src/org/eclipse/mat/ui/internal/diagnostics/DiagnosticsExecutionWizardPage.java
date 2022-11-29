@@ -34,7 +34,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -106,7 +105,8 @@ public class DiagnosticsExecutionWizardPage extends WizardPage implements Diagno
 
     private void setTextboxColor()
     {
-        status.setForeground(getControl().getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        // Default works better with dark themes
+        //status.setForeground(getControl().getDisplay().getSystemColor(SWT.COLOR_BLACK));
     }
 
     @Override
@@ -118,10 +118,12 @@ public class DiagnosticsExecutionWizardPage extends WizardPage implements Diagno
     @Override
     public void appendText(final String text)
     {
-        Display.getDefault().asyncExec(new Runnable()
+        getControl().getDisplay().asyncExec(new Runnable()
         {
             public void run()
             {
+                if (status.isDisposed())
+                    return;
                 String newText = status.getText();
                 if (newText == null || newText.length() == 0)
                 {
@@ -150,10 +152,12 @@ public class DiagnosticsExecutionWizardPage extends WizardPage implements Diagno
     @Override
     public void clearText()
     {
-        Display.getDefault().asyncExec(new Runnable()
+        getControl().getDisplay().asyncExec(new Runnable()
         {
             public void run()
             {
+                if (status.isDisposed())
+                    return;
                 status.setText(""); //$NON-NLS-1$
             }
         });
