@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42f41c1d_0060dfd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-11-29T09:15:03Z",
+      "side": 1,
+      "message": "Minor changes to fix comments in https://git.eclipse.org/r/c/mat/org.eclipse.mat/+/197226",
+      "revId": "6752d241acbc8385c5bb9773a8890b2c9487b57b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
