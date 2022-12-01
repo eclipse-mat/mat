@@ -131,7 +131,7 @@ public class ChartCanvas extends Canvas
 
         });
 
-        state = gr.build(renderer.getDisplayServer(), chart, bo, null, rtc, null);
+        state = gr.build(renderer.getDisplayServer(), chart.copyInstance(), bo, null, rtc, null);
 
         needsGeneration = false;
     }
@@ -144,7 +144,7 @@ public class ChartCanvas extends Canvas
             if (cachedImage != null)
                 cachedImage.dispose();
 
-            cachedImage = new Image(Display.getCurrent(), size.width, size.height);
+            cachedImage = new Image(getDisplay(), size.width, size.height);
 
             gc = new GC(cachedImage);
             renderer.setProperty(IDeviceRenderer.GRAPHICS_CONTEXT, gc);
