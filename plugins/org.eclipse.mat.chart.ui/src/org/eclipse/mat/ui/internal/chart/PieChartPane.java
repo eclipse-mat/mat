@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -179,6 +179,13 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
             });
 
+            // Make initial selection so the canvas is big enough
+            Slice slice = slices.get(0);
+            label.setText("<form>" + slice.getDescription() + "</form>", true, false); //$NON-NLS-1$//$NON-NLS-2$
+
+            // Add normal context menu
+            hookContextMenu(canvas);
+
             canvas.redraw();
         }
     }
@@ -240,6 +247,9 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         {
             StructureSource structuredSource = (StructureSource) source;
             DataPointHints dph = (DataPointHints) structuredSource.getSource();
+            // On Initial focus, set to the biggest item, not the remainder
+            if (current == null)
+                dph.setIndex(0);
             Slice slice = slices.get(dph.getIndex());
             KeyEvent keyEvent = null;
 
@@ -284,7 +294,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             {
                 label.setText("<form>" + slice.getDescription() + "</form>", true, false); //$NON-NLS-1$//$NON-NLS-2$
                 current = slice;
-                sliceName = slice.getDescription().toString();
+                sliceName = slice.getDescription();
                 formatSliceName();
                 // Trigger a change text event so that screen readers will read
                 // out the new value
@@ -379,6 +389,11 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
     public void setSelection(ISelection selection)
     {}
+
+    protected void editorContextMenuAboutToShow(PopupMenu popupMenu)
+    {
+        contextMenu.addContextActions(popupMenu, new StructuredSelection(current), null);
+    }
 
     private void fireSelectionEvent()
     {
