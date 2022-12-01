@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,8 @@ import org.eclipse.swt.accessibility.AccessibleEvent;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -179,6 +181,33 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
             });
 
+            // Make initial selection so the canvas is big enough
+            Slice slice = slices.get(0);
+            label.setText("<form>" + slice.getDescription() + "</form>", true, false); //$NON-NLS-1$//$NON-NLS-2$
+
+            // Set up a normal context menu
+            Menu menu2 = new Menu(canvas.getShell());
+            menu2.addMenuListener(new MenuAdapter()
+            {
+                @Override
+                public void menuShown(MenuEvent e)
+                {
+                    if (menu != null && !menu.isDisposed())
+                        menu.dispose();
+                    if (current == null)
+                        return;
+                    IContextObject ctx = current.getContext();
+                    if (ctx != null)
+                    {
+                        PopupMenu popupMenu = new PopupMenu();
+                        contextMenu.addContextActions(popupMenu, new StructuredSelection(current), null);
+                        menu = popupMenu.createMenu(getEditorSite().getActionBars().getStatusLineManager(), canvas);
+                        menu.setVisible(true);
+                    }
+                }
+            });
+            canvas.setMenu(menu2);
+
             canvas.redraw();
         }
     }
@@ -240,6 +269,9 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         {
             StructureSource structuredSource = (StructureSource) source;
             DataPointHints dph = (DataPointHints) structuredSource.getSource();
+            // On Initial focus, set to the biggest item, not the remainder
+            if (current == null)
+                dph.setIndex(0);
             Slice slice = slices.get(dph.getIndex());
             KeyEvent keyEvent = null;
 
