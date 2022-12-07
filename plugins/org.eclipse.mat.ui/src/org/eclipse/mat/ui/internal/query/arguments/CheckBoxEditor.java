@@ -14,6 +14,7 @@
 package org.eclipse.mat.ui.internal.query.arguments;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.HeapObjectParamArgument;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.Messages;
@@ -38,22 +39,29 @@ public class CheckBoxEditor extends ArgumentEditor
     public enum Type
     {
         INCLUDE_CLASS_INSTANCE(Messages.CheckBoxEditor_includeClassInstance, //
-                        Messages.CheckBoxEditor_includeClassInstanceAdditional), //
+                        Messages.CheckBoxEditor_includeClassInstanceAdditional, //
+                        HeapObjectParamArgument.Flags.INCLUDE_CLASS_INSTANCE), //
         INCLUDE_SUBCLASSES(Messages.CheckBoxEditor_includeSubclasses, //
-                        Messages.CheckBoxEditor_includeSubclassesAdditional), //
+                        Messages.CheckBoxEditor_includeSubclassesAdditional, //
+                        HeapObjectParamArgument.Flags.INCLUDE_SUBCLASSES), //
         INTEPRET_AS_CLASSLOADER(Messages.CheckBoxEditor_includeLoadedObjects,
-                        Messages.CheckBoxEditor_includeLoadedObjectsAdditional), //
-        RETAINED(Messages.CheckBoxEditor_asRetainedSet, Messages.CheckBoxEditor_asRetainedSetAdditional), //
-        VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional),
-        GENERAL("", null); //$NON-NLS-1$
+                        Messages.CheckBoxEditor_includeLoadedObjectsAdditional, //
+                        HeapObjectParamArgument.Flags.INCLUDE_LOADED_INSTANCES), //
+        RETAINED(Messages.CheckBoxEditor_asRetainedSet, Messages.CheckBoxEditor_asRetainedSetAdditional, //
+                        HeapObjectParamArgument.Flags.RETAINED), //
+        VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional, //
+                        HeapObjectParamArgument.Flags.VERBOSE),
+        GENERAL("", null, null); //$NON-NLS-1$
 
         private String label;
         private String helpText;
+        private String flag;
 
-        private Type(String label, String helpText)
+        private Type(String label, String helpText, String flag)
         {
             this.label = label;
             this.helpText = helpText;
+            this.flag = flag;
         }
 
         public String getLabel()
@@ -65,6 +73,11 @@ public class CheckBoxEditor extends ArgumentEditor
         {
             return helpText;
         }
+
+        public String getFlag()
+        {
+            return flag;
+        }
     }
 
     public CheckBoxEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item,
@@ -75,6 +88,8 @@ public class CheckBoxEditor extends ArgumentEditor
         setFont(item.getFont());
         setBackground(item.getBackground());
         setLayout(new FillLayout());
+        if (type.getHelpText() != null)
+            setToolTipText(type.getHelpText());
         createContents(parent);
     }
 

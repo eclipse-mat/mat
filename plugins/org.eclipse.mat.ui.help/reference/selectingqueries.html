@@ -36,18 +36,36 @@
 
 			<br /><div class="imageleft"><img class="image imageleft" src="../mimes/189608b9.png" /></div><br />
 			<p class="p"> In the menu you can also access the list of already executed queries via the
-				<span class="keyword cmdname">History</span> entry. The Query Selector which can be
+				<span class="ph menucascade"><span class="ph uicontrol">History</span></span> entry. 
+				The Query Selector which can be
 				quickly accessed with the
-				<span class="keyword cmdname">Ctrl+Q</span> key combination.</p>
+				<span class="ph uicontrol">ctrl+Q</span> or <span class="ph uicontrol">command+Q</span> 
+				key combination.</p>
 
 			<br /><div class="imageleft"><img class="image imageleft" src="../mimes/select_queries.png" /></div><br />
 			<p class="p"> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by
-				their category. When a query is marked, a detailed description of the query
+				their category. When a query is selected, a detailed description of the query
 				is displayed at the bottom. This description contains also the information
-				about the arguments for this query.
-				Try the <a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.query.browser.QueryBrowser%22)">
+				about the arguments for this query. To execute the query either double-click
+				or press <span class="ph uicontrol">enter</span>.
+			</p>
+
+			<p class="p">The input field can also be used to execute queries via the command line.
+			Either type the command name you want together with the arguments, or copy the
+				example arguments from a command in the list by using 
+			<span class="ph uicontrol">ctrl+enter</span> or <span class="ph uicontrol">command+enter</span>
+			on macOS) or mouse button 2. Then execute the query
+			by pressing <span class="ph uicontrol">enter</span> which will execute the command directly
+			if all required arguments have been specified,
+			or will bring up the arguments wizard if other arguments are required.
+			Pressing <span class="ph uicontrol">shift+enter</span>
+			will always bring up the arguments wizard if there any arguments which could be changed. 
+			</p>
+
+			<p class="p">
+			Try the <a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.query.browser.QueryBrowser%22)">
 			<strong class="ph b">Query Browser</strong></a>
 				or the <a class="xref" href="javascript:executeCommand(%22org.eclipse.mat.ui.query.browser.QueryHistory%22)">
 			<strong class="ph b">Query History Browser</strong></a> now.
@@ -55,7 +73,7 @@
 
 			<p class="p">
 				The query browser ("Search Queries...") is also available in the context menu.
-				The query browser is easier to use as it can display
+*				The query browser is easier to use as it can display
 				some or all the queries, and shows also the help for each query.
 				It offers only queries valid for the current selection. For example, queries
 				operating on the whole dump would only be offered in the drop down menu from the
@@ -91,7 +109,7 @@
 
 			<br /><div class="imageleft"><img class="image imageleft" src="../mimes/arguments_wizard.png" /></div><br />
 			<p class="p">Mandatory arguments are in boldface. Tooltips and help infopop that are
-				below the dialog provide argument description. Message area of the dialog
+				below the dialog provide argument description. The message area of the dialog
 				itself shows information about the selected argument or an error message if
 				you have entered a not valid value. Some queries require a set of objects as an
 				argument. You can provide those objects using the simple or the advanced
@@ -107,143 +125,143 @@
 				<strong class="ph b">}</strong>, <strong class="ph b">)</strong>, <strong class="ph b">?</strong>, <strong class="ph b">*</strong> and <strong class="ph b">+</strong>.</p>
 
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
-					<th style="vertical-align:bottom;text-align:left;" id="d13570e166" class="stentry">
+					<th style="vertical-align:bottom;text-align:left;" id="d13570e191" class="stentry">
 						Pattern Syntax
 					</th>
 
-					<th style="vertical-align:bottom;text-align:left;" id="d13570e169" class="stentry">Details</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d13570e194" class="stentry">Details</th>
 
 				</tr>
 </thead><tbody><tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[abc]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						a, b, or c (simple class)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[^abc]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						Any character except a, b, or c (negation)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>outbounds( object )</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">outbound referrer</td>
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">outbound referrer</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[a-zA-Z]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">a through z, or A through Z, inclusive (range)</td>
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">a through z, or A through Z, inclusive (range)</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[a-d[m-p]]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">a through d, or m through p: [a-dm-p] (union)</td>
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">a through d, or m through p: [a-dm-p] (union)</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[a-z&amp;&amp;[def]]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						d, e, or f (intersection)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[a-z&amp;&amp;[^bc]]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						a through z, except for b and c: [ad-z] (subtraction)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>[a-z&amp;&amp;[^m-p]]</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						a through z, and not m through p: [a-lq-z] (subtraction)
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\d</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						A digit: [0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\D</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						A non-digit: [^0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\s</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						A whitespace character: [ \t\n\x0B\f\r]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\S</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						 A non-whitespace character: [^\s]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\w</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						 A word character: [a-zA-Z_0-9]
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d13570e166" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e191" class="stentry">
 						<pre class="pre codeblock"><code>\W</code></pre>
 					</td>
 
-					<td style="vertical-align:top;" headers="d13570e169" class="stentry">
+					<td style="vertical-align:top;" headers="d13570e194" class="stentry">
 						 A non-word character: [^\w]
 					</td>
 

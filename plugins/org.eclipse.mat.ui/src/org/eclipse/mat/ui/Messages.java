@@ -274,6 +274,8 @@ public class Messages extends NLS
     public static String QueryBrowserPopup_Categories;
     public static String QueryBrowserPopup_PressCtrlEnter;
     public static String QueryBrowserPopup_StartTyping;
+    public static String QueryBrowserPopup_InfoEditCommand;
+    public static String QueryBrowserPopup_InfoListAll;
     public static String QueryContextHelp_Arguments;
     public static String QueryContextHelp_Usage;
     public static String QueryContextMenu_context;

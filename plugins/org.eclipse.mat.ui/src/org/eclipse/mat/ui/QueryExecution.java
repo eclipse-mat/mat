@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -64,6 +65,13 @@ public class QueryExecution
         execute(editor, originator, null, argumentSet, false, true);
     }
 
+    public static void executeCommandLine(MultiPaneEditor editor, PaneState originator, String commandLine, boolean prompt)
+                    throws SnapshotException
+    {
+        ArgumentSet argumentSet = CommandLine.parse(editor.getQueryContext(), commandLine);
+        execute(editor, originator, null, argumentSet, prompt, true);
+    }
+
     public static void executeQuery(MultiPaneEditor editor, QueryDescriptor query) throws SnapshotException
     {
         ArgumentSet argumentSet = query.createNewArgumentSet(editor.getQueryContext());
@@ -71,12 +79,13 @@ public class QueryExecution
     }
 
     public static void execute(MultiPaneEditor editor, PaneState originator, PaneState stateToReopen, ArgumentSet set,
-                    boolean promptUser, boolean isReproducable)
+                    boolean forcePrompt, boolean isReproducable)
     {
+        boolean promptUser = forcePrompt;
         if (!set.isExecutable())
             promptUser = true;
 
-        if (promptUser && !promp(editor, set))
+        if (promptUser && !promp(editor, set, forcePrompt))
             return;
 
         String cmdLine = set.writeToLine();
@@ -89,20 +98,25 @@ public class QueryExecution
         job.schedule();
     }
 
-    private static boolean promp(MultiPaneEditor editor, ArgumentSet arguments)
+    private static boolean promp(MultiPaneEditor editor, ArgumentSet arguments, boolean prompt)
     {
         boolean hasUserArguments = false;
+        boolean hasEditableArguments = false;
 
         /*
          * Find unset arguments, or boolean arguments set to false
          * because CommandLine.parse might have added values for unset flag arguments
          */
         for (ArgumentDescriptor arg : arguments.getQueryDescriptor().getArguments())
+        {
             hasUserArguments = hasUserArguments || arguments.getArgumentValue(arg) == null
                             || (arg.getType() == Boolean.class || arg.getType() == boolean.class) 
                             && Boolean.FALSE.equals(arguments.getArgumentValue(arg));
+            hasEditableArguments |= !editor.getQueryContext().available(arg.getType(), arg.getAdvice())
+                            && !(arguments.getArgumentValue(arg) instanceof HeapObjectContextArgument) ;
+        }
 
-        if (hasUserArguments)
+        if (hasUserArguments || prompt && hasEditableArguments)
         {
             ArgumentsWizard wizard = new ArgumentsWizard(editor.getQueryContext(), arguments);
             WizardDialog dialog = new WizardDialog(editor.getSite().getShell(), wizard);

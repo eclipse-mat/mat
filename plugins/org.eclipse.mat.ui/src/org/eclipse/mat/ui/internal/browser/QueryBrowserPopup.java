@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -42,9 +42,11 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.IPolicy;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -52,8 +54,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
@@ -84,7 +84,7 @@ public class QueryBrowserPopup extends PopupDialog
 
         ImageDescriptor getImageDescriptor();
 
-        void execute(MultiPaneEditor editor) throws SnapshotException;
+        void execute(MultiPaneEditor editor, boolean forcePrompt) throws SnapshotException;
     }
 
     private static final int INITIAL_COUNT_PER_PROVIDER = 4;
@@ -111,7 +111,7 @@ public class QueryBrowserPopup extends PopupDialog
     {
         this(editor, onlyHistory, new Policy());
     }
-    
+
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory, org.eclipse.mat.ui.util.IPolicy policy)
     {
         super(editor.getEditorSite().getShell(), SWT.RESIZE, true, true, true, true, true, null,
@@ -164,7 +164,7 @@ public class QueryBrowserPopup extends PopupDialog
                     else if (filterText.getText().length() == 0)
                         handleSelection(false);
                     else
-                        executeFilterText((e.stateMask & SWT.MOD2) == 0);
+                        executeFilterText((e.stateMask & SWT.MOD2) == SWT.MOD2);
 
                     return;
                 }
@@ -177,6 +177,7 @@ public class QueryBrowserPopup extends PopupDialog
                         updateHelp();
                     }
                     table.setFocus();
+                    updateInfoText();
                 }
                 else if (e.keyCode == SWT.ARROW_UP)
                 {
@@ -186,9 +187,10 @@ public class QueryBrowserPopup extends PopupDialog
                         table.setSelection(index - 1);
                         updateHelp();
                         table.setFocus();
+                        updateInfoText();
                     }
                 }
-                else if (e.character == 0x1B) // ESC
+                else if (e.character == SWT.ESC) // ESC
                     close();
             }
 
@@ -258,12 +260,13 @@ public class QueryBrowserPopup extends PopupDialog
                 if (e.keyCode == SWT.ARROW_UP && table.getSelectionIndex() == 0)
                 {
                     filterText.setFocus();
+                    updateInfoText();
                 }
                 else if (e.character == SWT.ESC)
                 {
                     close();
                 }
-                else if (e.keyCode == 0x0D && e.stateMask != 0)
+                else if (e.keyCode == 0x0D && (e.stateMask & SWT.MOD1) != 0)
                 {
                     handleSelection(true);
                 }
@@ -275,43 +278,32 @@ public class QueryBrowserPopup extends PopupDialog
             }
         });
 
-        table.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseUp(MouseEvent e)
-            {
-
-                if (table.getSelectionCount() < 1)
-                    return;
-
-                if (e.button != 1 && e.button != 3)
-                    return;
-
-                if (table.equals(e.getSource()))
-                {
-                    Object o = table.getItem(new Point(e.x, e.y));
-                    TableItem selection = table.getSelection()[0];
-                    if (selection.equals(o))
-                    {
-                        if (e.button != 1)
-                        {
-                            handleSelection(true);
-                        }
-                    }
-                }
-            }
-        });
-
         table.addSelectionListener(new SelectionListener()
         {
             public void widgetSelected(SelectionEvent e)
             {
-                updateHelp();
+                if (table.getSelectionCount() > 0 && ((e.stateMask & SWT.BUTTON3) == SWT.BUTTON3 ||
+                                (e.stateMask & SWT.MOD1) == SWT.MOD1))
+                    handleSelection(true);
+                else
+                {
+                    updateHelp();
+                    updateInfoText();
+                }
             }
 
             public void widgetDefaultSelected(SelectionEvent e)
             {
-                handleSelection(false);
+                if ((e.stateMask & SWT.MOD2) == SWT.MOD2)
+                {
+                    handleSelection(false, true);
+                }
+                else if ((e.stateMask & SWT.MOD1) == SWT.MOD1)
+                {
+                    handleSelection(true);
+                }
+                else
+                    handleSelection(false);
             }
         });
 
@@ -385,10 +377,35 @@ public class QueryBrowserPopup extends PopupDialog
             updateHelp();
         }
 
-        if (filter.length() == 0)
-            setInfoText(Messages.QueryBrowserPopup_StartTyping);
+        updateInfoText();
+    }
+
+    private void updateInfoText()
+    {
+        if (filterText.isFocusControl())
+        {
+            if (filterText.getText().length() == 0)
+                setInfoText(Messages.QueryBrowserPopup_StartTyping);
+            else
+                setInfoText(Messages.QueryBrowserPopup_InfoEditCommand);
+        }
         else
+        {
+            if (table.isFocusControl())
+            {
+                int idx = table.getSelectionIndex();
+                if (idx >= 0)
+                {
+                    QueryBrowserItem queryBrowserItem = ((QueryBrowserItem) table.getItem(idx).getData());
+                    if (queryBrowserItem.element == null)
+                    {
+                        setInfoText(Messages.QueryBrowserPopup_InfoListAll);
+                        return;
+                    }
+                }
+            }
             setInfoText(Messages.QueryBrowserPopup_PressCtrlEnter);
+        }
     }
 
     protected Control getFocusControl()
@@ -485,7 +502,9 @@ public class QueryBrowserPopup extends PopupDialog
                 // See if the arguments have changed
                 reproducable = before.equals(after);
             }
-            QueryExecution.execute(editor, null, null, argumentSet, prompt, reproducable);
+            AbstractEditorPane active = editor.getActiveEditor();
+            PaneState ps = active != null ? active.getPaneState() : null;
+            QueryExecution.execute(editor, ps, null, argumentSet, prompt, reproducable);
         }
         catch (SnapshotException e)
         {
@@ -494,6 +513,11 @@ public class QueryBrowserPopup extends PopupDialog
     }
 
     private void handleSelection(boolean doUpdateFilterText)
+    {
+        handleSelection(doUpdateFilterText, false);
+    }
+
+    private void handleSelection(boolean doUpdateFilterText, boolean forcePrompt)
     {
         if (table.getSelectionCount() != 1)
         {
@@ -511,6 +535,7 @@ public class QueryBrowserPopup extends PopupDialog
             filterText.setText(name);
             filterText.setSelection(0);
             filterText.setFocus();
+            updateInfoText();
             return;
         }
 
@@ -519,6 +544,7 @@ public class QueryBrowserPopup extends PopupDialog
             filterText.setText(selectedElement.getUsage());
             filterText.setSelection(0);
             filterText.setFocus();
+            updateInfoText();
         }
         else
         {
@@ -528,7 +554,7 @@ public class QueryBrowserPopup extends PopupDialog
             {
                 try
                 {
-                    selectedElement.execute(editor);
+                    selectedElement.execute(editor, forcePrompt);
                 }
                 catch (SnapshotException e)
                 {

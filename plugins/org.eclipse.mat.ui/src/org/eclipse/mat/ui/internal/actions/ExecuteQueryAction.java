@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - run using dialog
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.actions;
 
@@ -20,6 +21,8 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 
 public class ExecuteQueryAction extends Action
 {
@@ -58,10 +61,23 @@ public class ExecuteQueryAction extends Action
     @Override
     public void run()
     {
+        run(false);
+    }
+
+    @Override
+    public void runWithEvent(Event e)
+    {
+        // Allow the prompt to be forced even if the query is ready to execute
+        boolean forcePrompt = (e.stateMask & SWT.MOD2) == SWT.MOD2 || (e.stateMask & SWT.BUTTON3) == SWT.BUTTON3;
+        run(forcePrompt);
+    }
+
+    private void run(boolean forcePrompt)
+    {
         try
         {
             if (commandLine != null)
-                QueryExecution.executeCommandLine(editor, null, commandLine);
+                QueryExecution.executeCommandLine(editor, null, commandLine, forcePrompt);
             else
                 QueryExecution.executeQuery(editor, descriptor);
         }

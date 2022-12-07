@@ -120,11 +120,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         TableColumn column = new TableColumn(table, SWT.NONE);
         column.setText(ARGUMENT);
-        tableColumnLayout.setColumnData(column, new ColumnWeightData(0, 100));
+        tableColumnLayout.setColumnData(column, new ColumnWeightData(25, 100));
 
         column = new TableColumn(table, SWT.NONE);
         column.setText(VALUE);
-        tableColumnLayout.setColumnData(column, new ColumnWeightData(100, 100));
+        tableColumnLayout.setColumnData(column, new ColumnWeightData(75, 100));
 
         boldFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.BOLD));
         normalFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.NORMAL));
@@ -157,6 +157,13 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             protected String getText(Event event)
             {
+                TableItem item = table.getItem(new Point(event.x, event.y));
+                if (item != null && item.getData() != null && item.getData() instanceof Control)
+                {
+                    String text = ((Control)item.getData()).getToolTipText();
+                    if (text != null && !text.isEmpty())
+                        return text;
+                }
                 ArgumentDescriptor entry = getEntry(event);
                 if (entry != null) { return entry.getHelp(); }
                 return null;
@@ -431,8 +438,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         aec.addListener(this);
+        // Needed to get new pattern cell to appear promptly
+        table.pack();
+        table.requestLayout();
         // ugly: w/o pack, the table does not redraw the editors correctly
-        table.getParent().pack();
+        //table.getParent().pack();
 
         setNewTabOrder();
 
@@ -453,7 +463,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         // If an initial input would be hidden in simple mode then switch to advanced
         if (initialInput != null && (types[0] != TextEditor.DecoratorType.OBJECT_ADDRESS && !initialInput.getAddresses().isEmpty() ||
                         types[0] != TextEditor.DecoratorType.QUERY && !initialInput.getOqls().isEmpty() ||
-                        types[0] != TextEditor.DecoratorType.PATTERN && !initialInput.getPatterns().isEmpty()))
+                        types[0] != TextEditor.DecoratorType.PATTERN && !initialInput.getPatterns().isEmpty() ||
+                        initialInput.isVerbose()))
         {
             // check whether Mode.ADVANCED_MODE and switch to it if not the case
             verifyMode();
@@ -558,7 +569,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                             (initialInput != null) ? initialInput.isIncludeLoadedInstances() : false);
             addCheckBoxRows(descriptor, CheckBoxEditor.Type.RETAINED, (initialInput != null) ? initialInput
                             .isRetained() : false);
-            if (MemoryAnalyserPlugin.getDefault().isDebugging())
+            if (MemoryAnalyserPlugin.getDefault().isDebugging() || initialInput != null && initialInput.isVerbose())
             {
                 addCheckBoxRows(descriptor, CheckBoxEditor.Type.VERBOSE, (initialInput != null) ? initialInput
                             .isVerbose() : false);
@@ -657,8 +668,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     {
         TableItem item = new TableItem(table, SWT.NONE);
         item.setFont(normalFont);
-        item.setText("");//$NON-NLS-1$
-
+        item.setText(type.getFlag());
         TableEditor editor = createEditor();
 
         CheckBoxEditor aec = new CheckBoxEditor(table, context, descriptor, item, type);
@@ -850,6 +860,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                         hoa.setVerbose(value);
                         break;
                     }
+                    case GENERAL:
                     default:
                         break;
                 }

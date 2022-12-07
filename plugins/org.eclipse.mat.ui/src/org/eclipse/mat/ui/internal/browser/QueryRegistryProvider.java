@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
             this.query = query;
         }
 
-        public void execute(MultiPaneEditor editor) throws SnapshotException
+        public void execute(MultiPaneEditor editor, boolean forcePrompt) throws SnapshotException
         {
             if (policy != null)
             {
@@ -86,7 +86,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
                 policy.fillInObjectArguments(snapshot, query, set);
                 AbstractEditorPane active = editor.getActiveEditor();
                 PaneState ps = active != null ? active.getPaneState() : null;
-                QueryExecution.execute(editor, ps, null, set, !query.isShallow(),
+                QueryExecution.execute(editor, ps, null, set, !query.isShallow() || forcePrompt,
                                 false);
             }
             else

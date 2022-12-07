@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,6 @@ import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleReference;
 
 public class QueryRegistry extends RegistryReader<IQuery>
 {
@@ -518,7 +517,17 @@ public class QueryRegistry extends RegistryReader<IQuery>
         }
         else
         {
-            d.setDefaultValue(defaultValue);
+            /*
+             * Don't set a default value for an int field representing a single object.
+             * It will always have a Java value of 0 if not set, but the query probably
+             * expects an object to be explicitly supplied. See Path2GCRootsQuery.
+             * If a default value of 0 is required, the query can use Integer 0.
+             */
+            if (advice == Argument.Advice.HEAP_OBJECT && field.getType() == int.class
+                            && Integer.valueOf(0).equals(defaultValue))
+                d.setDefaultValue(null);
+            else
+                d.setDefaultValue(defaultValue);
         }
 
         return d;
