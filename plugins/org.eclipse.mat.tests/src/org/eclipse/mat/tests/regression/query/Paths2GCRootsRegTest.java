@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,9 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        // Fix to previous behaviour where path2gc defaulted to object 0
+        if (snapshot.getClassOf(object).doesExtend("java.lang.Runtime"))
+            object = 0;
         // get 1st HashMap object from the list of HashMaps sorted ascending
         RefinedResultBuilder builder = SnapshotQuery.parse("list_objects java.util.HashMap", snapshot) //
                         .refine(listener);
