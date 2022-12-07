@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.HeapObjectParamArgument;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -25,16 +27,49 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.ImageHyperlink;
 
 public class CheckBoxEditor extends ArgumentEditor
 {
     private Button checkBox;
     private Boolean value = false;
     private Type type;
+    private ImageHyperlink button;
+
+    private class ButtonEditorLayout extends Layout
+    {
+        private final static int IMAGE_MARGIN = 0;
+
+        public void layout(Composite editor, boolean force)
+        {
+            Rectangle bounds = editor.getClientArea();
+            Point size = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, force);
+            checkBox.setBounds(IMAGE_MARGIN, 0, bounds.width - size.x - IMAGE_MARGIN, bounds.height);
+            button.setBounds(bounds.width - size.x, 0, size.x, bounds.height);
+        }
+
+        public Point computeSize(Composite editor, int wHint, int hHint, boolean force)
+        {
+            if (wHint != SWT.DEFAULT && hHint != SWT.DEFAULT) { return new Point(wHint, hHint); }
+            Point contentsSize = checkBox.computeSize(SWT.DEFAULT, SWT.DEFAULT, force);
+            Point buttonSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, force);
+            // Just return the button width to ensure the button is not clipped
+            // if the label is long.
+            // The label will just use whatever extra width there is
+            Point result = new Point(buttonSize.x, Math.max(contentsSize.y, buttonSize.y));
+            return result;
+        }
+    }
 
     public enum Type
     {
@@ -134,7 +169,11 @@ public class CheckBoxEditor extends ArgumentEditor
                 }
             }
         });
-
+        if (getType() != null && getType().getFlag() != null)
+        {
+            createHelpControl(this);
+            setLayout(new ButtonEditorLayout());
+        }
     }
 
     protected void editingDone()
@@ -166,5 +205,29 @@ public class CheckBoxEditor extends ArgumentEditor
     public Type getType()
     {
         return type;
+    }
+
+    private void createHelpControl(Composite parent)
+    {
+        button = new ImageHyperlink(parent, SWT.CENTER)
+        {
+            {
+                marginHeight = 0;
+            }
+        };
+        button.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.HELP));
+        button.setFont(item.getFont());
+        button.setBackground(item.getBackground());
+        button.setToolTipText(JFaceResources.getString("helpToolTip"));//$NON-NLS-1$
+        button.addHyperlinkListener(new HyperlinkAdapter()
+        {
+            public void linkActivated(HyperlinkEvent e)
+            {
+                PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
+                                "/org.eclipse.mat.ui.help/reference/selectingqueries.html#ref_queryarguments__"//$NON-NLS-1$
+                                                + getType().getFlag().substring(1));
+            }
+        });
+
     }
 }

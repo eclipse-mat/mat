@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -44,12 +45,15 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.HelpEvent;
+import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -71,6 +75,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 public class QueryBrowserPopup extends PopupDialog
 {
@@ -207,6 +212,16 @@ public class QueryBrowserPopup extends PopupDialog
             }
         });
 
+        filterText.addHelpListener(new HelpListener() {
+            @Override
+            public void helpRequested(HelpEvent e)
+            {
+                // Unfortunately, this closes the query browser
+                //PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
+                updateHelp(true);
+            }
+        });
+
         return filterText;
     }
 
@@ -304,6 +319,15 @@ public class QueryBrowserPopup extends PopupDialog
                 }
                 else
                     handleSelection(false);
+            }
+        });
+
+        table.addHelpListener(new HelpListener() {
+            @Override
+            public void helpRequested(HelpEvent e)
+            {
+                updateHelp(true);
+                PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.query_browser"); //$NON-NLS-1$
             }
         });
 
@@ -566,6 +590,11 @@ public class QueryBrowserPopup extends PopupDialog
 
     private void updateHelp()
     {
+        updateHelp(false);
+    }
+
+    private void updateHelp(boolean forceHelp)
+    {
         if (table.getSelectionCount() > 0)
         {
             Element selectedElement = ((QueryBrowserItem) table.getItem(table.getSelectionIndex()).getData()).element;
@@ -577,15 +606,21 @@ public class QueryBrowserPopup extends PopupDialog
                 if (helpText == null || helpText.getQuery() != query)
                 {
                     if (helpText != null)
+                    {
                         helpText.close();
+                        helpText = null;
+                    }
 
-                    Rectangle myBounds = getShell().getBounds();
-                    Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
-                                    SWT.DEFAULT);
-                    helpText = new QueryContextHelp(getShell(), query, editor.getQueryContext(), helpBounds);
-                    helpText.open();
+                    IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+                    if (forceHelp || !prefs.getBoolean(ArgumentsWizardPage.HIDE_QUERY_HELP))
+                    {
+                        Rectangle myBounds = getShell().getBounds();
+                        Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
+                                        SWT.DEFAULT);
+                        helpText = new QueryContextHelp(getShell(), query, editor.getQueryContext(), helpBounds);
+                        helpText.open();
+                    }
                 }
-
             }
             else
             {

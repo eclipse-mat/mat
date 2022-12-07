@@ -305,7 +305,6 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
                 {
                     // Get the supplied and the unset arguments
                     ArgumentSet argumentSet = createNewArgumentSet(context);
-                    System.out.println("Context "+context);
                     String unsetArgs = argumentSet.getUnsetUsage();
                     if (!unsetArgs.isEmpty())
                         unsetArgs = " " + unsetArgs; //$NON-NLS-1$

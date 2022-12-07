@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -166,7 +166,8 @@ public class ArgumentSet
     public String writeToLine()
     {
         StringBuilder answer = new StringBuilder(128);
-        answer.append(query.getIdentifier()).append(" "); //$NON-NLS-1$
+        answer.append(query.getIdentifier());
+        // Argument usage add a space in front
         for (ArgumentDescriptor arg : query.getArguments())
         {
             Object value = values.get(arg);

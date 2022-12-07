@@ -250,6 +250,44 @@
 				<b>Example:</b> 0x36d99c88</p>
 			
 			<p id="oql_query">For more information about OQL, refer to the <xref href="oqlsyntax.dita" type="reference">OQL syntax details</xref></p>
+			
+			<p id="include_class_instance">
+				<b>-include_class_instance</b>
+			</p>
+			<p>
+				If there is a class pattern then the class object will also be returned as well as the instances.
+			</p>
+			
+			<p id="include_subclasses">
+				<b>-include_subclasses</b>
+			</p>
+			<p>
+				If there is a class pattern then instances of that class and instances of subclasses
+				of that class will be returned.
+			</p>
+			
+			<p id="include_loaded_instances">
+				<b>-include_loaded_instances</b>
+			</p>
+			<p>
+				If the object or objects are all class loaders then the classes loaded by those loaders
+				will be returned as well as the class loaders.
+			</p>
+			
+			<p id="retained">
+				<b>-retained</b>
+			</p>
+			<p>
+				The objects retained by the selected objects will also be returned.
+			</p>
+			
+			<p id="verbose">
+				<b>-verbose</b>
+			</p>
+			<p>
+				Can only be set via the command line with the query browser.
+				Used to see how objects are returned from the specified heap object argument.
+			</p>
 		</section>
 	</refbody>
 	<related-links><link href="querymatrix.dita" type="reference"><linktext>Query Matrix</linktext></link></related-links>
