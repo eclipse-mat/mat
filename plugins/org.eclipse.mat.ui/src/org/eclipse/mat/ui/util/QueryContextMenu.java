@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,9 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.browser.Policy;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 
 public class QueryContextMenu
 {
@@ -845,12 +847,25 @@ public class QueryContextMenu
         @Override
         public void run()
         {
+            run(false);
+        }
+
+        @Override
+        public void runWithEvent(Event e)
+        {
+            // Allow the prompt to be forced even if the query is ready to execute
+            boolean forcePrompt = (e.stateMask & SWT.MOD2) == SWT.MOD2 || (e.stateMask & SWT.BUTTON3) == SWT.BUTTON3;
+            run(forcePrompt);
+        }
+
+        private void run(boolean forcePrompt)
+        {
             try
             {
                 ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
                 ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
                 policy.fillInObjectArguments(snapshot, query, set);
-                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
+                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, forcePrompt || !query.isShallow(),
                                 false);
             }
             catch (SnapshotException e)

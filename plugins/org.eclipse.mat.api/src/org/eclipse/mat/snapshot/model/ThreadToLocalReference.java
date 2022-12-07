@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -52,8 +52,7 @@ public class ThreadToLocalReference extends PseudoReference
     }
 
     /**
-     * The description of the thread root information
-     * Not currently used, so might be removed.
+     * The description of the thread root information.
      * @return an array of GC information for the local reference
      */
     public GCRootInfo[] getGcRootInfo()

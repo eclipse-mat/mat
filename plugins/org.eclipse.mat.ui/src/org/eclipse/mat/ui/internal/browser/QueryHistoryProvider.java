@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - force prompt
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.browser;
 
@@ -99,9 +100,9 @@ public class QueryHistoryProvider extends QueryBrowserProvider
             return query;
         }
 
-        public void execute(MultiPaneEditor editor) throws SnapshotException
+        public void execute(MultiPaneEditor editor, boolean forcePrompt) throws SnapshotException
         {
-            QueryExecution.executeCommandLine(editor, null, commandLine);
+            QueryExecution.executeCommandLine(editor, null, commandLine, forcePrompt);
         }
 
         public ImageDescriptor getImageDescriptor()

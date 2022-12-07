@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -301,6 +301,20 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
             if (options.length() > 0)
             {
                 // Insert the options before the argument descriptions
+                try
+                {
+                    // Get the supplied and the unset arguments
+                    ArgumentSet argumentSet = createNewArgumentSet(context);
+                    System.out.println("Context "+context);
+                    String unsetArgs = argumentSet.getUnsetUsage();
+                    if (!unsetArgs.isEmpty())
+                        unsetArgs = " " + unsetArgs; //$NON-NLS-1$
+                    return identifier + " " + options + unsetArgs; //$NON-NLS-1$
+                }
+                catch (SnapshotException e)
+                {
+                    // Ignore and use the old way
+                }
                 String cmd = super.getUsage(context);
                 return identifier + " " + options + cmd.substring(identifier.length()); //$NON-NLS-1$
             }
