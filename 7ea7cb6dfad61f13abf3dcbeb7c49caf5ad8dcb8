@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1249ed31_11b15be1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-12-07T10:53:31Z",
+      "side": 1,
+      "message": "Tested locally on Windows - need a Linux CI build to test",
+      "revId": "7ea7cb6dfad61f13abf3dcbeb7c49caf5ad8dcb8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
