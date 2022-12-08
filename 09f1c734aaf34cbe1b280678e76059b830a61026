@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34cd8fe5_d88a40d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2022-12-08T10:42:17Z",
+      "side": 1,
+      "message": "Tested locally on Windows and Ubuntu/WSL2",
+      "revId": "09f1c734aaf34cbe1b280678e76059b830a61026",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
