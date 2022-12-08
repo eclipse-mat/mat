@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class QueryContextHelp extends PopupDialog
 
     public QueryContextHelp(Shell parent, IAnnotatedObjectDescriptor query, IQueryContext queryContext, Rectangle bounds)
     {
-        super(parent, /* HOVER_SHELLSTYLE */SWT.NO_FOCUS | SWT.TOOL, false, false, false, false, false, null, null);
+        super(parent, HOVER_SHELLSTYLE | SWT.NO_FOCUS | SWT.TOOL, false, false, false, false, false, null, null);
         this.query = query;
         this.bounds = bounds;
         this.queryContext = queryContext;
