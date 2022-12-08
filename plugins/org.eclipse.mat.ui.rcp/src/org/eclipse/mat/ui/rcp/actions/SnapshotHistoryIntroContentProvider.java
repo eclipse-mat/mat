@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
 
                     out.print("<li><img src =\""); //$NON-NLS-1$
                     out.print(icon);
-                    out.print("\">"); //$NON-NLS-1$
+                    out.print("\"/>"); //$NON-NLS-1$
 
                     out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?" //$NON-NLS-1$
                                     + "pluginId=org.eclipse.mat.ui.rcp&amp;" //$NON-NLS-1$
@@ -138,7 +138,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                                     : RESOURCE_ICON;
 
                     buffer.append("<li style=\"image\" value=\"bullet\">"); //$NON-NLS-1$
-                    buffer.append("<img src =\"").append(icon).append("\" alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                    buffer.append("<img src =\"").append(icon).append("\" alt=\"\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?" //$NON-NLS-1$
                                     + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;" //$NON-NLS-1$
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="); //$NON-NLS-1$
