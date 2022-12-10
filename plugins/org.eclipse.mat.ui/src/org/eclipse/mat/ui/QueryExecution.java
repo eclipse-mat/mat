@@ -13,17 +13,21 @@
 package org.eclipse.mat.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
+import org.eclipse.mat.internal.snapshot.SnapshotArgument;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.CommandLine;
@@ -35,12 +39,15 @@ import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.TestSuite;
+import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.EditorPaneRegistry;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.browser.QueryHistory;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
+import org.eclipse.mat.ui.snapshot.ParseHeapDumpJob;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
@@ -193,7 +200,17 @@ public class QueryExecution
         {
             try
             {
-                QueryResult result = argumentSet.execute(new ProgressMonitorWrapper(monitor));
+                List<ISnapshot> secondarySnapshots = new ArrayList<ISnapshot>();
+                preloadSnapshots(secondarySnapshots, monitor);
+                QueryResult result;
+                try
+                {
+                    result = argumentSet.execute(new ProgressMonitorWrapper(monitor));
+                }
+                finally
+                {
+                    disposePreloadedSnapshots(secondarySnapshots);
+                }
 
                 if (result != null && result.getSubject() != null)
                 {
@@ -239,7 +256,104 @@ public class QueryExecution
 				cleanup();
 			}
         }
-        
+
+        /**
+         * Preload secondary snapshots.
+         * {@link ArgumentSet#execute(IProgressListener)} won't show progress
+         * parsing secondary snapshots, so load them in advance.
+         * @param snapshots
+         * @param mon
+         * @return a list of secondary snapshots which need to be disposed.
+         * @throws SnapshotException
+         * @throws InterruptedException
+         */
+        private List<ISnapshot> preloadSnapshots(List<ISnapshot> snapshots, IProgressMonitor mon) throws SnapshotException, InterruptedException
+        {
+            // Open secondary snapshot and add to recently used list
+            for (ArgumentDescriptor arg : argumentSet.getQueryDescriptor().getArguments())
+            {
+                if (arg.getAdvice() == Advice.SECONDARY_SNAPSHOT)
+                {
+                    Object value = argumentSet.getArgumentValue(arg);
+                    if (value instanceof SnapshotArgument)
+                    {
+                        SnapshotArgument sa = (SnapshotArgument)value;
+                        preloadSnapshot(mon, snapshots, sa);
+                    }
+                    else if (arg.isList())
+                    {
+                        // handle ArgumentFactory inside list
+                        List<?> source = (List<?>) value;
+                        for (int ii = 0; ii < source.size(); ii++)
+                        {
+                            Object v = source.get(ii);
+                            if (v instanceof SnapshotFactory)
+                            {
+                                SnapshotArgument sa = (SnapshotArgument)v;
+                                preloadSnapshot(mon, snapshots, sa);
+                            }
+                        }
+                    }
+                }
+            }
+            return snapshots;
+        }
+
+        /**
+         * Preload a single snapshot.
+         * @param mon for cancellation
+         * @param snapshots to put the new snapshot into
+         * @param sa the secondary snapshot to be loaded
+         * @throws InterruptedException
+         */
+        private void preloadSnapshot(IProgressMonitor mon, List<ISnapshot> snapshots, SnapshotArgument sa)
+                        throws InterruptedException
+        {
+            Path snappath = new Path(sa.getFilename());
+            int size = snapshots.size();
+            ParseHeapDumpJob job = new ParseHeapDumpJob(snappath)
+            {
+                protected void finished(ISnapshot snapshot)
+                {
+                    synchronized (snapshots)
+                    {
+                        snapshots.add(snapshot);
+                        snapshots.notifyAll();
+                    }
+                }
+            };
+            job.schedule();
+            job.join(Long.MAX_VALUE, mon);
+            IStatus status = job.getResult();
+            if (status != null && status.isOK())
+            {
+                // finished is called by async(), so wait a little
+                int count = 3;
+                synchronized (snapshots)
+                {
+                    while (snapshots.size() == size && count++ < 3)
+                    {
+                        snapshots.wait(10000);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Dispose of all the preloaded snapshots
+         * @param secondarySnapshots a list of the snapshots
+         */
+        private void disposePreloadedSnapshots(List<ISnapshot> secondarySnapshots)
+        {
+            synchronized (secondarySnapshots)
+            {
+                for (ISnapshot snapshot : secondarySnapshots)
+                {
+                    SnapshotFactory.dispose(snapshot);
+                }
+            }
+        }
+
         private void cleanup()
         {
             this.editor = null;

@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -1551,5 +1552,30 @@ public class QueriesTest
             // If an error occurred the file might be short
             assertThat(((DisplayFileResult) t).getFile().length(), greaterThan(2000L));
         }
+    }
+
+    /**
+     * Test secondary snapshots are disposed
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testSecondarySnapshot() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, true);
+        // Use count = 1
+        String f = snapshot2.getSnapshotInfo().getPath();
+        File snf = new File(f);
+        String commandLine = "secondary -baseline \"" + f + "\" -command system_properties";
+        SnapshotQuery query = SnapshotQuery.parse(commandLine, snapshot);
+        // Use count = 2 while executing command
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        // Use count = 1 now command finished
+        assertNotNull(t);
+        SnapshotFactory.dispose(snapshot2);
+        // Use count should be 0, snapshot disposed
+        Collection<IClass> cls = snapshot2.getClassesByName("java.lang.Object", false);
+        if (cls != null)
+            assertThat("Expect snapshot disposed so no classes", cls.size(), equalTo(0));
     }
 }

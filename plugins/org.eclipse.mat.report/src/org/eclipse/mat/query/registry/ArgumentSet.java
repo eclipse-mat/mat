@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +54,14 @@ public class ArgumentSet
         this.context = context;
     }
 
-    public QueryResult execute(IProgressListener listener) throws SnapshotException, SnapshotException
+    /**
+     * Generate all the real arguments for an instance of a query,
+     * then execute the query.
+     * @param listener to show progress
+     * @return the result of the query
+     * @throws SnapshotException for errors running the query
+     */
+    public QueryResult execute(IProgressListener listener) throws SnapshotException
     {
         try
         {
@@ -137,6 +146,8 @@ public class ArgumentSet
 
             IResult result = impl.execute(listener);
 
+            cleanup(impl);
+
             return new QueryResult(this.query, this.writeToLine(), result);
         }
         catch (InstantiationException e)
@@ -160,6 +171,49 @@ public class ArgumentSet
         catch (Exception e)
         {
             throw SnapshotException.rethrow(e);
+        }
+    }
+
+    /**
+     * Cleanup argument factories.
+     * Some ArgumentFactorys need some cleanup after use.
+     * For example {@link SnapshotArgument#build(ArgumentDescriptor)} increments the use count in the factory.
+     * @param impl the query
+     * @throws IOException
+     * @throws IllegalAccessException
+     */
+    private void cleanup(IQuery impl) throws IOException, IllegalAccessException
+    {
+        // Tidy up e.g. for SnapshotArgument
+        for (ArgumentDescriptor parameter : query.getArguments())
+        {
+            Object value = values.get(parameter);
+            if (value instanceof ArgumentFactory && value instanceof Closeable)
+            {
+                ((Closeable)value).close();
+                // Null out field in query so can't be used
+                parameter.getField().set(impl, null);
+            }
+            else if (parameter.isList() && value instanceof List<?>)
+            {
+                // handle ArgumentFactory inside list
+                List<?> source = (List<?>) value;
+                Object t = parameter.getField().get(impl);
+                List<Object> target = t instanceof List<?> ? (List<Object>)t : null;
+                for (int ii = 0; ii < source.size(); ii++)
+                {
+                    Object v = source.get(ii);
+                    if (v instanceof ArgumentFactory && v instanceof Closeable)
+                    {
+                        ((Closeable)value).close();
+                        if (target != null)
+                        {
+                            // Null out field in query so can't be used
+                            target.set(ii, null);
+                        }
+                    }
+                }
+            }
         }
     }
 
