@@ -102,7 +102,7 @@ public class QueryExecution
 
         Job job = new ExecutionJob(editor, originator, stateToReopen, cmdLine, set, isReproducable);
         job.setUser(true);
-        job.schedule();
+        job.schedule(Job.SHORT);
     }
 
     private static boolean promp(MultiPaneEditor editor, ArgumentSet arguments, boolean prompt)
@@ -287,7 +287,7 @@ public class QueryExecution
                         for (int ii = 0; ii < source.size(); ii++)
                         {
                             Object v = source.get(ii);
-                            if (v instanceof SnapshotFactory)
+                            if (v instanceof SnapshotArgument)
                             {
                                 SnapshotArgument sa = (SnapshotArgument)v;
                                 preloadSnapshot(mon, snapshots, sa);
@@ -322,7 +322,7 @@ public class QueryExecution
                     }
                 }
             };
-            job.schedule();
+            job.schedule(Job.LONG);
             job.join(Long.MAX_VALUE, mon);
             IStatus status = job.getResult();
             if (status != null && status.isOK())

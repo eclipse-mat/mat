@@ -213,7 +213,26 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         Help h = queryClass.getAnnotation(Help.class);
         String help = translate(i18n, key + ".help", h != null ? h.value() : null); //$NON-NLS-1$
-        Locale helpLoc = i18n.getLocale();
+        Locale helpLoc;
+        if (translate(i18n, key + ".help", null) != null) //$NON-NLS-1$
+        {
+            // If there is an annotation file and it is not qualified, presume in English
+            helpLoc = i18n.getLocale();
+            if (queryClass.getName().startsWith("org.eclipse.mat") && Locale.ROOT.equals(helpLoc)) //$NON-NLS-1$
+            {
+                // Presume all MAT root annotations files are in English
+                helpLoc = Locale.ENGLISH;
+            }
+        }
+        else if (h != null && h.value() != null && !h.value().isEmpty())
+            /*
+             * Supplied by query class. All supplied queries should have
+             * help in an annotation, so this is probably a user class
+             * so presume in the user's default locale
+             */
+            helpLoc = Locale.getDefault();
+        else
+            helpLoc = Locale.ROOT;
 
         HelpUrl hu = queryClass.getAnnotation(HelpUrl.class);
         String helpUrl = hu != null ? hu.value() : null;

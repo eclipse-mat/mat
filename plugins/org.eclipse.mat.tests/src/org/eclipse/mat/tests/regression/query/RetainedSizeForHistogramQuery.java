@@ -19,6 +19,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
@@ -30,6 +31,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Name("Retained Size for Histogram")
 @CommandName("retained_size_histogram_test")
 @Category(Category.HIDDEN)
+@Help("Regression test for the retained size in a histogram")
 public class RetainedSizeForHistogramQuery implements IQuery
 {
     @Argument
