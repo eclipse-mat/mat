@@ -43,7 +43,7 @@ public class DeltaHistogram extends HistogramQuery
         sm.nextMonitor();
         Histogram h3 = h1.diffWithBaseline(h2);
         // Currently it seems a SECONDARY_SNAPSHOT is not disposed by the caller.
-        SnapshotFactory.dispose(snapshot2);
+        SnapshotFactory.dispose(baseline);
         listener.done();
         return h3;
     }

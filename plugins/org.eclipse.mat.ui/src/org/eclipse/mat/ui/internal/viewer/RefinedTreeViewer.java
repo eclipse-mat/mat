@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
@@ -406,7 +407,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
             ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
             if (ctrl != null && ctrl.children != null)
             {
-                new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule();
+                new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule(Job.DECORATE);
                 children.add(item);
             }
         }
@@ -421,7 +422,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
                 if (ctrl != null && ctrl.children != null)
                 {
-                    new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule();
+                    new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule(Job.DECORATE);
                     children.add(item);
                 }
             }
@@ -443,7 +444,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
             applyFilterData(new TreeItem(tree, SWT.NONE, 0));
         applyUpdating(new TreeItem(tree, SWT.NONE, 1));
 
-        new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule();
+        new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule(Job.SHORT);
     }
 
     @Override

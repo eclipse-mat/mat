@@ -114,7 +114,7 @@ import org.eclipse.swt.widgets.TreeItem;
                     }
                 }
 
-            }.schedule();
+            }.schedule(Job.SHORT);
         }
     }
 
@@ -259,7 +259,7 @@ import org.eclipse.swt.widgets.TreeItem;
                     return Status.OK_STATUS;
                 }
 
-            }.schedule();
+            }.schedule(Job.SHORT);
 
         }
     }
@@ -324,7 +324,7 @@ import org.eclipse.swt.widgets.TreeItem;
                     return Status.OK_STATUS;
                 }
 
-            }.schedule();
+            }.schedule(Job.SHORT);
 
         }
     }

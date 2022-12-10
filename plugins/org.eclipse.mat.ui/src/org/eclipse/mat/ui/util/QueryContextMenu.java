@@ -26,6 +26,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.mat.SnapshotException;
@@ -265,7 +266,7 @@ public class QueryContextMenu
                                     }
                                 }
 
-                            }.schedule();
+                            }.schedule(Job.SHORT);
                         }
                     });
 

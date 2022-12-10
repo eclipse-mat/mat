@@ -15,6 +15,7 @@ package org.eclipse.mat.ui.internal.viewer;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -85,7 +86,7 @@ public class RefinedTableViewer extends RefinedResultViewer
         if (ctrl == null || ctrl.children == null)
         {
             applyUpdating(item);
-            new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule();
+            new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule(Job.SHORT);
             return;
         }
 

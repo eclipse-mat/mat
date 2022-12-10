@@ -1307,7 +1307,7 @@ public abstract class RefinedResultViewer
             jobs.add(new DerivedDataJobDefinition(provider, operation));
 
         ControlItem ctrl = (ControlItem) control.getData(Key.CONTROL);
-        new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, null, ctrl).schedule();
+        new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, null, ctrl).schedule(Job.LONG);
     }
 
     protected void doCalculateDerivedValuesForSelection(ContextProvider provider, DerivedOperation operation)
@@ -1333,7 +1333,7 @@ public abstract class RefinedResultViewer
 
         if (widgetItems.size() > 0)
         {
-            new DerivedDataJob.OnSelection(this, provider, operation, subjectItems, widgetItems).schedule();
+            new DerivedDataJob.OnSelection(this, provider, operation, subjectItems, widgetItems).schedule(Job.SHORT);
         }
     }
 
@@ -1414,7 +1414,7 @@ public abstract class RefinedResultViewer
         List<?> children = ((ControlItem) control.getData(Key.CONTROL)).children;
         if (children != null)
         {
-            new SortingJob(this, children).schedule();
+            new SortingJob(this, children).schedule(Job.SHORT);
         }
     }
     
@@ -1515,7 +1515,7 @@ public abstract class RefinedResultViewer
                 for (RefinedStructuredResult.DerivedDataJobDefinition job : viewer.jobs)
                 {
                     new DerivedDataJob.OnFullList(viewer, job.getContextProvider(), job.getOperation(), ctrl.children,
-                                    parentItem, ctrl).schedule();
+                                    parentItem, ctrl).schedule(Job.LONG);
                 }
 
                 return Status.OK_STATUS;

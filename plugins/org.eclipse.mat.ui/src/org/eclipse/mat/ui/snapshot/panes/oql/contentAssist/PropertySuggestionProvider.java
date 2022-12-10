@@ -79,7 +79,7 @@ public class PropertySuggestionProvider implements SuggestionProvider
     public PropertySuggestionProvider(ISnapshot snapshot)
     {
         InitializerJob asyncJob = new InitializerJob(snapshot);
-        asyncJob.schedule();
+        asyncJob.schedule(Job.INTERACTIVE);
     }
 
     /**

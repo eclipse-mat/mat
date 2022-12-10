@@ -166,7 +166,7 @@
 		<command>big_drops_in_dominator_tree -skip java.*</command>
 	</query>
 	<!-- <query name="org.eclipse.mat.inspections.DeltaHistogram"> <command>delta_histogram 
-		-snapshot2 ${baseline}</command> </query> -->
+		-baseline ${baseline}</command> </query> -->
 	<query name="org.eclipse.mat.inspections.ReferenceLeakQuery">
 		<command>reference_leak .*</command>
 	</query>

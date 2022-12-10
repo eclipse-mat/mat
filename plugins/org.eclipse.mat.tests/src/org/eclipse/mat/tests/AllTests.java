@@ -38,6 +38,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.snapshot.TestInstanceSizes.class, //
                 org.eclipse.mat.tests.snapshot.QueryLookupTest.class, //
                 org.eclipse.mat.tests.snapshot.QueriesTest.class, //
+                org.eclipse.mat.tests.snapshot.AllQueries.class, //
                 org.eclipse.mat.tests.snapshot.OQLTest.class, //
                 org.eclipse.mat.tests.snapshot.MultipleSnapshots.class, //
                 org.eclipse.mat.tests.acquire.AcquireDumpTest.class,

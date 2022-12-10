@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.Category;
+import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.PropertyResult;
 import org.eclipse.mat.report.QuerySpec;
@@ -29,6 +30,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
 @Category("Test")
+@Help("Tests a composite result - having two results")
 public class CompositeResultTest implements IQuery
 {
     @Argument(advice = Advice.HEAP_OBJECT)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - help
  *******************************************************************************/
 package org.eclipse.mat.tests.regression.query;
 
@@ -25,6 +26,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -33,6 +35,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Name("Dominator Tree (binary)")
 @Category(Category.HIDDEN)
 @CommandName("dom_tree_binary_test")
+@Help("Dominator tree regression test using binary results")
 public class DomTreeRegTest implements IQuery
 {
     @Argument

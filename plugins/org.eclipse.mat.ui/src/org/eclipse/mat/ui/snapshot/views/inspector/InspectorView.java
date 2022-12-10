@@ -1159,7 +1159,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         return Status.OK_STATUS;
                     }
                     catch (SnapshotException e)
-                    {
+                   {
                         return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID,
                                         Messages.InspectorView_ErrorUpdatingInspector, e);
                     }
@@ -1375,7 +1375,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                 }
             };
-            job.schedule();
+            job.schedule(Job.DECORATE);
         }
     }
 

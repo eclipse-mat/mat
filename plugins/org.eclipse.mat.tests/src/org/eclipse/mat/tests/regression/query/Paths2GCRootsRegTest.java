@@ -22,9 +22,9 @@ import org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
-import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
@@ -35,6 +35,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Name("Paths from GC Roots")
 @CommandName("path2gc_reg_test")
 @Category(Category.HIDDEN)
+@Help("Regression test for paths from GC roots.")
 public class Paths2GCRootsRegTest extends Path2GCRootsQuery
 {
     // other arguments are the same as in superclass
