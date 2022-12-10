@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation.
+ * Copyright (c) 2018,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,17 +31,17 @@ import org.eclipse.mat.util.SimpleMonitor;
 public class DeltaHistogram extends HistogramQuery
 {
     @Argument(advice = Advice.SECONDARY_SNAPSHOT)
-    public ISnapshot snapshot2;
+    public ISnapshot baseline;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
         int parts[] = new int[] {40,40,20};
         SimpleMonitor sm = new SimpleMonitor(Messages.DeltaHistogram_Progress, listener, parts);
         Histogram h1 = (Histogram) super.execute(sm.nextMonitor());
-        snapshot = snapshot2;
+        snapshot = baseline;
         Histogram h2 = (Histogram) super.execute(sm.nextMonitor());
         sm.nextMonitor();
-        Histogram h3 = h2.diffWithBaseline(h1);
+        Histogram h3 = h1.diffWithBaseline(h2);
         // Currently it seems a SECONDARY_SNAPSHOT is not disposed by the caller.
         SnapshotFactory.dispose(snapshot2);
         listener.done();

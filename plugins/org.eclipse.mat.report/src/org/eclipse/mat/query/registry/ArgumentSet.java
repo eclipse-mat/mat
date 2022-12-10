@@ -146,7 +146,12 @@ public class ArgumentSet
 
             IResult result = impl.execute(listener);
 
-            cleanup(impl);
+            /*
+             * Don't close/dispose secondary snapshot as
+             * at the moment HTML reports use the snapshot after
+             * the query has completed.
+             */
+            //cleanup(impl);
 
             return new QueryResult(this.query, this.writeToLine(), result);
         }

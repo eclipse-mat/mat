@@ -496,6 +496,48 @@ public class GeneralSnapshotTests
         assertThat(zipf.toString(), zipf.length(), greaterThan(100L));
     }
 
+    @Test
+    public void testLeakSuspects2Report1() throws SnapshotException, IOException
+    {
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
+                        + "\"", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        checkHTMLResult(t);
+        SnapshotFactory.dispose(snapshot2);
+    }
+
+    @Test
+    public void testLeakSuspects2Report2() throws SnapshotException, IOException
+    {
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
+                        + "\"", snapshot);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        SnapshotFactory.dispose(snapshot2);
+        checkHTMLResult(t);
+    }
+
+    @Test
+    public void testLeakSuspects2Report3() throws SnapshotException, IOException
+    {
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
+                        + "\"", snapshot);
+        SnapshotFactory.dispose(snapshot2);
+        IResult t = query.execute(new CheckedProgressListener(collector));
+        assertNotNull(t);
+        checkHTMLResult(t);
+    }
+
     /**
      * See if a report with a new name is created if the old one is not writable.
      * Bug 55835

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.nullValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,6 +71,7 @@ import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -1231,7 +1233,7 @@ public class QueriesTest
     public void testCompareQuery() throws SnapshotException, IOException
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
-        SnapshotQuery query = SnapshotQuery.parse("delta_histogram -snapshot2 "+snapshot2.getSnapshotInfo().getPath(), snapshot);
+        SnapshotQuery query = SnapshotQuery.parse("delta_histogram -baseline "+snapshot2.getSnapshotInfo().getPath(), snapshot);
         IResult t = query.execute(new CheckedProgressListener(collector));
         assertNotNull(t);
         int intplus = 0;
@@ -1391,7 +1393,23 @@ public class QueriesTest
         testLeakHunter2Report(snapshot2, snapshot1, 0, 0, 0);
     }
 
-    public void testLeakHunter2Report(ISnapshot snapshot1, ISnapshot snapshot2, int expectedProbs, int expectedDomTree, int expectedSubCommands) throws SnapshotException, IOException
+    /**
+     * Comparison of two JDK11 dumps while opening baseline for
+     * first time.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testLeakHunter2ReportJDK11Fresh() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, true);
+        SnapshotFactory.dispose(snapshot1);
+        assertThat(snapshot1.getClassesByName("java.lang.Object", false), nullValue());
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
+        IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 25);
+    }
+
+    public IResult testLeakHunter2Report(ISnapshot snapshot1, ISnapshot snapshot2, int expectedProbs, int expectedDomTree, int expectedSubCommands) throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("leakhunter2 -baseline "+snapshot1.getSnapshotInfo().getPath(), snapshot2);
         IResult t = query.execute(new CheckedProgressListener(collector));
@@ -1399,7 +1417,7 @@ public class QueriesTest
         if (expectedProbs == 0)
         {
             assertThat(t, instanceOf(TextResult.class));
-            return;
+            return t;
         }
         // Should be 4 suspects
         SectionSpec ss = (SectionSpec)t;
@@ -1446,6 +1464,7 @@ public class QueriesTest
         assertThat("Expect problems section", probs, equalTo(expectedProbs));
         assertThat("Expected dominator tree section", domtree, equalTo(expectedDomTree));
         assertThat("Expected subqueries with commands", subcommands, equalTo(expectedSubCommands));
+        return t;
     }
 
     @Test
@@ -1559,6 +1578,7 @@ public class QueriesTest
      * @throws SnapshotException
      * @throws IOException
      */
+    @Ignore("HTML reports use the snapshot after the query has finished")
     @Test
     public void testSecondarySnapshot() throws SnapshotException, IOException
     {
@@ -1566,7 +1586,7 @@ public class QueriesTest
         // Use count = 1
         String f = snapshot2.getSnapshotInfo().getPath();
         File snf = new File(f);
-        String commandLine = "secondary -baseline \"" + f + "\" -command system_properties";
+        String commandLine = "secondary -baseline \"" + snf.getPath() + "\" -command system_properties";
         SnapshotQuery query = SnapshotQuery.parse(commandLine, snapshot);
         // Use count = 2 while executing command
         IResult t = query.execute(new CheckedProgressListener(collector));
