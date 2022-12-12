@@ -801,13 +801,14 @@ public class GeneralSnapshotTests
                     // Ignore
                 }
                 // Read the file into a string
-                InputStreamReader ir = new InputStreamReader(fis, encoding);
-                char cbuf[] = new char[(int)f.length()];
-                int l = ir.read(cbuf);
-                s = new String(cbuf, 0, l);
-                // Cached version for anchor checks
-                seen.put(canonfile, s);
-                ir.close();
+                try (InputStreamReader ir = new InputStreamReader(fis, encoding);)
+                {
+                    char cbuf[] = new char[(int) f.length()];
+                    int l = ir.read(cbuf);
+                    s = new String(cbuf, 0, l);
+                    // Cached version for anchor checks
+                    seen.put(canonfile, s);
+                }
             }
             finally
             {

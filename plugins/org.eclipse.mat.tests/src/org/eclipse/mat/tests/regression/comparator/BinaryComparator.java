@@ -14,6 +14,7 @@ package org.eclipse.mat.tests.regression.comparator;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ public class BinaryComparator implements IComparator
     private byte baselineBuffer[] = new byte[BUFFSIZE];
     private byte testBuffer[] = new byte[BUFFSIZE];
 
-    private final String FAILED_MESSAGE = "Test result differs from the baseline";
+    private static final String FAILED_MESSAGE = "Test result differs from the baseline";
 
     public List<Difference> compare(File baseline, File testFile) throws Exception
     {
@@ -64,7 +65,7 @@ public class BinaryComparator implements IComparator
             }
 
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             System.err.println(MessageUtil.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
                             .getMessage()));
@@ -75,8 +76,6 @@ public class BinaryComparator implements IComparator
     private boolean inputStreamEquals(String testName, InputStream baselineStream, InputStream testStream)
     {
         if (baselineStream == testStream)
-            return true;
-        if (baselineStream == null && testStream == null)
             return true;
         if (baselineStream == null || testStream == null)
             return false;

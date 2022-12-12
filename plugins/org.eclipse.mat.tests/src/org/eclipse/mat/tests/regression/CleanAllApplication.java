@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,12 +31,15 @@ public class CleanAllApplication
     private void remove(File dir)
     {
         File[] filesToRemove = dir.listFiles(RegTestUtils.cleanupFilter);
+        if (filesToRemove == null)
+            return;
         for (File file : filesToRemove)
         {
             if (file.isDirectory())
             {
                 remove(file);
-                if (file.listFiles().length == 0)
+                File[] listFiles = file.listFiles();
+                if (listFiles != null && listFiles.length == 0)
                     RegTestUtils.removeFile(file);
             }
             else

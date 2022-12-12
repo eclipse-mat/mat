@@ -61,7 +61,7 @@ public class CSVComparator implements IComparator
                 // Also log extra lines
                 while ((testLine = testFileReader.readLine()) != null)
                 {
-                    differences.add(new Difference(String.valueOf(lineNumber), baseLine, testLine));
+                    differences.add(new Difference(String.valueOf(lineNumber), null, testLine));
                     if (differences.size() >= 10) // add only first 10 differences
                         break;
                     lineNumber = lineNumber + 1;

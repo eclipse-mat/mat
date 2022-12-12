@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -41,7 +40,7 @@ import org.eclipse.mat.util.MessageUtil;
  * non-seekable streams can be closed (to release resources) without closing the
  * underlying seekable.
  */
-public class SeekableStream extends InputStream implements Closeable, AutoCloseable
+public class SeekableStream extends InputStream implements AutoCloseable
 {
     /**
      * Used to wrap and indicate a underlying stream which has a position and has seek().

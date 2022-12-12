@@ -119,6 +119,7 @@ public class AllQueries
         assumeThat(qd.getCommandType().getName(),not(startsWith("org.eclipse.mat.tests.")));
         assumeThat(helpUrl, not(nullValue()));
         URL url = new URL(new URL("file:///"), helpUrl);
+        assertNotNull(url);
     }
 
     /**
@@ -177,5 +178,15 @@ public class AllQueries
     {
         assumeThat(qd.getCommandType().getName(),not(startsWith("org.eclipse.mat.tests.")));
         assertNotNull(qd.getIcon());
+    }
+    
+    /**
+     * All the supplied queries should have an identifier
+     */
+    @Test
+    public void testIdentifier()
+    {
+        assertNotNull(qd.getIdentifier());
+        assertThat(qd.getIdentifier(), equalTo(command));
     }
 }
