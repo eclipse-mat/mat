@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation.
+ * Copyright (c) 2019,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public class CreatePerformanceDump
                 if (i % n == j && mode > 0 && mode != 4)
                 {
                     // sometimes with brand new Strings
-                    a[j][i] = new String(a[prev][i]);
+                    a[j][i] = new StringBuilder(a[prev][i]).toString();
                     ++s;
                 }
                 else
@@ -95,7 +95,7 @@ public class CreatePerformanceDump
         // Control-break causes read to return early, so try again for another key to wait
         // for the dump to complete
         if (c == -1)
-            c = System.in.read();
+            System.in.read();
 
         System.out.println("Created array of size " + n + " with each entry holding an array of size " + m
                         + " of String with " + b.numStrings + " different strings using mode: " + mode

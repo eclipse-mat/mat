@@ -916,9 +916,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
             ClassImpl thisClazz = (ClassImpl) hierarchy.get(0);
 
-            IClass objcl = lookupClass(object.objectAddress);
+            ClassImpl objcl = lookupClass(object.objectAddress);
             Field statics[] = new Field[0];
-            if (objcl instanceof ClassImpl)
+            if (objcl != null)
             {
                 // An INSTANCE_DUMP record for a class type
                 // This clazz is perhaps of different actual type, not java.lang.Class

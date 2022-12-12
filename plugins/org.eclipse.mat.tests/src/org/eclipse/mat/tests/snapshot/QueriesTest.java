@@ -1407,6 +1407,7 @@ public class QueriesTest
         assertThat(snapshot1.getClassesByName("java.lang.Object", false), nullValue());
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
         IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 25);
+        assertNotNull(r);
     }
 
     public IResult testLeakHunter2Report(ISnapshot snapshot1, ISnapshot snapshot2, int expectedProbs, int expectedDomTree, int expectedSubCommands) throws SnapshotException, IOException

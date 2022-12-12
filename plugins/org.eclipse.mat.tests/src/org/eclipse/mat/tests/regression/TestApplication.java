@@ -68,7 +68,7 @@ public class TestApplication
         comparators.put("bin", new BinaryComparator());
     }
 
-    private class StreamGobbler extends Thread
+    private static class StreamGobbler extends Thread
     {
         InputStream is;
         PrintStream os;
@@ -723,7 +723,6 @@ public class TestApplication
     private void unzip(File zipfile, File targetDir, TestSuiteResult result) throws Exception
     {
         int BUFFER = 512;// 1024;
-        BufferedOutputStream dest = null;
         FileInputStream fis;
         try
         {
@@ -755,14 +754,16 @@ public class TestApplication
                 File outputFile = new File(targetDir, entry.getName());
                 outputFile.getParentFile().mkdirs();
 
-                FileOutputStream fos = new FileOutputStream(outputFile);
-                dest = new BufferedOutputStream(fos, BUFFER);
-                while ((count = zipInputStream.read(data, 0, BUFFER)) != -1)
+                try (FileOutputStream fos = new FileOutputStream(outputFile);
+                                BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);)
                 {
-                    dest.write(data, 0, count);
+
+                    while ((count = zipInputStream.read(data, 0, BUFFER)) != -1)
+                    {
+                        dest.write(data, 0, count);
+                    }
+                    dest.flush();
                 }
-                dest.flush();
-                dest.close();
             }
             zipInputStream.close();
         }

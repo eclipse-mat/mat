@@ -548,6 +548,18 @@ public class CreateCollectionDump
                     {
                         return 0;
                     }
+                    public boolean equals(Object o)
+                    {
+                        if (!(o instanceof Delayed))
+                        {
+                            return false;
+                        }
+                        return compareTo((Delayed)o) == 0;
+                    }
+                    public int hashCode()
+                    {
+                        return 0;
+                    }
                     public long getDelay(TimeUnit unit)
                     {
                         return fi;

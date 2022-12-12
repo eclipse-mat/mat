@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012,2013 IBM Corporation
+ * Copyright (c) 2012,2022 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,9 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class HprofPlugin extends Plugin implements BundleActivator
+public class HprofPlugin extends Plugin
 {
     private static HprofPlugin plugin;
 
