@@ -1,0 +1,15 @@
+properties.0.name = org.eclipse.equinox.p2.description
+properties.0.value = Eclipse Memory Analyzer tool is a fast and feature-rich Java heap analyzer \
+that helps you find memory leaks and reduce memory consumption.\n\
+Use the Memory Analyzer to analyze production heap dumps with hundreds of millions of objects, quickly calculate the retained sizes of objects, see who is preventing the Garbage Collector from collecting objects, run a report to automatically extract leak suspects.
+properties.1.name = org.eclipse.equinox.p2.provider
+properties.1.value = Eclipse Memory Analyzer
+requires.2.namespace = org.eclipse.equinox.p2.iu
+requires.2.name = org.eclipse.ui.themes
+requires.2.range = [1.0.0, 2.0.0)
+instructions.configure=\
+    org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\
+    org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/artifacts.xml);\
+    addRepository(type:0,name:Eclipse 2023-03,location:https${#58}//download.eclipse.org/releases/2023-03/,enabled:true);\
+    addRepository(type:1,name:Eclipse 2023-03,location:https${#58}//download.eclipse.org/releases/2023-03/,enabled:true);\
+    setProgramProperty(propName:osgi.requiredJavaVersion,propValue:17);
