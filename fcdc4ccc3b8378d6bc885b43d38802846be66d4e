@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cb0be22_4a27b959",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-01-11T16:25:20Z",
+      "side": 1,
+      "message": "Tiny fix",
+      "revId": "fcdc4ccc3b8378d6bc885b43d38802846be66d4e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
