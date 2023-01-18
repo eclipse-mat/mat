@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.PreferenceConstants;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
@@ -38,11 +39,20 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
     private Viewer viewer;
     private int limit;
     private LazyFields<?> fields;
+    private int nextN;
+
+    public FieldsContentProvider()
+    {
+        int nextN = MemoryAnalyserPlugin.getDefault().getPreferenceStore().getInt(PreferenceConstants.EXPAND_ENTRIES);
+        if (nextN <= 0)
+            nextN = 25;
+        this.nextN = nextN;
+    }
 
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
     {
         this.fields = (LazyFields<?>) newInput;
-        this.limit = 25;
+        this.limit = nextN;
         this.viewer = viewer;
 
         if (this.viewer instanceof StructuredViewer)
@@ -60,7 +70,7 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
             result[index] = elements.get(index);
 
         if (!isAll)
-            result[result.length - 1] = new MoreNode(limit, fields.getSize(), this::setLimit, viewer.getControl());
+            result[result.length - 1] = new MoreNode(limit, fields.getSize(), nextN, this::setLimit, viewer.getControl());
 
         return result;
     }
@@ -83,7 +93,7 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
         if (!(selection.getFirstElement() instanceof MoreNode))
             return;
 
-        limit += 25;
+        limit += nextN;
         viewer.refresh();
     }
 
@@ -93,11 +103,13 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
         int limit;
         Control control;
         IntConsumer limitUpdater;
+        int nextN;
 
-        /* package */ MoreNode(int limit, int size, IntConsumer limitUpdater, Control control)
+        /* package */ MoreNode(int limit, int size, int nextN, IntConsumer limitUpdater, Control control)
         {
             this.limit = limit;
             this.size = size;
+            this.nextN = nextN;
             this.limitUpdater = limitUpdater;
             this.control = control;
         }
@@ -110,9 +122,9 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
         public Iterable<Action> getActions()
         {
             List<Action> actions = new ArrayList<>();
-            if (size - limit >= 25)
+            if (size - limit >= nextN)
             {
-                actions.add(new Next25ExpandAction(limit, size, limitUpdater, control));
+                actions.add(new NextNExpandAction(limit, size, nextN, limitUpdater, control));
             }
             actions.add(new CustomExpandAction(limit, size, limitUpdater, control));
             actions.add(new ExpandAllAction(limit, size, limitUpdater, control));
@@ -185,17 +197,19 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
         protected abstract long nextLimit();
     }
 
-    static class Next25ExpandAction extends ExpandAction
+    static class NextNExpandAction extends ExpandAction
     {
-        Next25ExpandAction(int limit, int size, IntConsumer limitUpdater, Control control)
+        int nextN;
+        NextNExpandAction(int limit, int size, int nextN, IntConsumer limitUpdater, Control control)
         {
-            super(Messages.FieldsContentProvider_Next25, limit, size, limitUpdater, control);
+            super(MessageUtil.format(Messages.FieldsContentProvider_NextN, nextN), limit, size, limitUpdater, control);
+            this.nextN = nextN;
         }
 
         @Override
         protected long nextLimit()
         {
-            return getCurrentLimit() + 25;
+            return getCurrentLimit() + nextN;
         }
     }
 
