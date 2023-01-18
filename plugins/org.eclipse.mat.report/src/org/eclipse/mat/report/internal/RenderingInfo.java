@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ package org.eclipse.mat.report.internal;
 import java.io.File;
 import java.net.URL;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
@@ -38,7 +39,9 @@ import org.eclipse.mat.report.Spec;
     {
         this.part = part;
         this.resultRenderer = resultRenderer;
-        this.limit = 25;
+        // Eclipse preference set by UI plugin
+        String MATUI_PLUGIN = "org.eclipse.mat.ui"; //$NON-NLS-1$
+        this.limit = Platform.getPreferencesService().getInt(MATUI_PLUGIN, "expand_entries", 25, null); //$NON-NLS-1$
     }
 
     public RenderingInfo(QueryPart part, ResultRenderer resultRenderer, int columnCount)

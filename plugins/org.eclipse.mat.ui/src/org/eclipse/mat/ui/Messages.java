@@ -108,7 +108,7 @@ public class Messages extends NLS
     public static String FieldsContentProvider_EnterNumber;
     public static String FieldsContentProvider_ExpandAll;
     public static String FieldsContentProvider_ExpandToLimit;
-    public static String FieldsContentProvider_Next25;
+    public static String FieldsContentProvider_NextN;
     public static String FieldsContentProvider_notValidNumber;
     public static String FieldsSuggestionProvider_FieldsContentAssistant;
     public static String FileOpenDialogEditor_CannotWrite;
@@ -312,7 +312,7 @@ public class Messages extends NLS
     public static String RefinedResultViewer_ExpandAll;
     public static String RefinedResultViewer_ExpandToLimit;
     public static String RefinedResultViewer_Export;
-    public static String RefinedResultViewer_Next25;
+    public static String RefinedResultViewer_NextN;
     public static String RefinedResultViewer_notValidNumber;
     public static String RefinedResultViewer_RetrieveViewElements;
     public static String RefinedResultViewer_Sort_By;
@@ -425,6 +425,7 @@ public class Messages extends NLS
     public static String UIPreferencePage_BytesDisplay_Gigabytes;
     public static String UIPreferencePage_BytesDisplay_Smart;
     public static String UIPreferencePage_HideWelcomeScreen;
+    public static String UIPreferencePage_ExpandEntries;
     public static String UIPreferencePage_DiscardOffset;
     public static String UIPreferencePage_DiscardPattern;
     public static String UIPreferencePage_DiscardPercentage;

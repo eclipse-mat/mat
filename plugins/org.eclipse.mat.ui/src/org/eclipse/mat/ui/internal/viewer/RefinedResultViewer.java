@@ -49,6 +49,7 @@ import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.PreferenceConstants;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -84,7 +85,7 @@ import org.eclipse.ui.themes.ColorUtil;
 
 public abstract class RefinedResultViewer
 {
-    protected static final int LIMIT = 25;
+    protected final int limit;
     protected static final int MAX_COLUMN_WIDTH = 500;
     protected static final int MIN_COLUMN_WIDTH = 90;
 
@@ -235,6 +236,10 @@ public abstract class RefinedResultViewer
         this.queryResult = result;
         this.result = refinedResult;
         this.jobs = new ArrayList<DerivedDataJobDefinition>(refinedResult.getJobs());
+        int limit = MemoryAnalyserPlugin.getDefault().getPreferenceStore().getInt(PreferenceConstants.EXPAND_ENTRIES);
+        if (limit <= 0)
+            limit = 25;
+        this.limit = limit;
     }
 
     public abstract void init(Composite parent, MultiPaneEditor editor, AbstractEditorPane pane);
@@ -370,7 +375,7 @@ public abstract class RefinedResultViewer
                 if (ctrl.totals.getVisibleItems() >= ctrl.totals.getNumberOfItems())
                     return;
 
-                doRevealChildren(parent, LIMIT);
+                doRevealChildren(parent, limit);
 
                 event.doit = false;
             }
@@ -902,16 +907,16 @@ public abstract class RefinedResultViewer
         {
             menu.addSeparator();
 
-            boolean isRest = ctrl.totals.getNumberOfItems() - ctrl.totals.getVisibleItems() <= LIMIT;
+            boolean isRest = ctrl.totals.getNumberOfItems() - ctrl.totals.getVisibleItems() <= limit;
 
             if (!isRest)
             {
-                Action action = new Action(Messages.RefinedResultViewer_Next25)
+                Action action = new Action(MessageUtil.format(Messages.RefinedResultViewer_NextN, limit))
                 {
                     @Override
                     public void run()
                     {
-                        doRevealChildren(parent, LIMIT);
+                        doRevealChildren(parent, limit);
                     }
 
                 };
@@ -1642,7 +1647,7 @@ public abstract class RefinedResultViewer
 
             if (parent != null)
             {
-                ctrl.totals.setVisibleItems(Math.min(LIMIT, ctrl.totals.getNumberOfItems()));
+                ctrl.totals.setVisibleItems(Math.min(viewer.limit, ctrl.totals.getNumberOfItems()));
             }
             else
             {

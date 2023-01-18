@@ -250,7 +250,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
         {
             List<?> elements = viewer.getElements(data);
             TotalsRow totals = viewer.result.buildTotalsRow(elements);
-            totals.setVisibleItems(Math.min(LIMIT, totals.getNumberOfItems()));
+            totals.setVisibleItems(Math.min(viewer.limit, totals.getNumberOfItems()));
 
             synchronized (ctrl)
             {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -317,7 +317,9 @@ public class QueryPart extends AbstractPart
 
     private void addHardLimit(RenderingInfo info)
     {
-        info.setLimit(params().getInt(Params.Rendering.LIMIT, 25));
+        String MATUI_PLUGIN = "org.eclipse.mat.ui"; //$NON-NLS-1$
+        int limit = Platform.getPreferencesService().getInt(MATUI_PLUGIN, "expand_entries", 25, null); //$NON-NLS-1$
+        info.setLimit(params().getInt(Params.Rendering.LIMIT, limit));
     }
 
     /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2020 IBM Corporation.
+ * Copyright (c) 2011,2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -33,4 +33,7 @@ public class PreferenceConstants {
 
     /** How often to discard objects when parsing */
     public static final String DISCARD_OFFSET = "discard_offset_percentage"; //$NON-NLS-1$
+
+    /** Expand lines for UI */
+    public static final String EXPAND_ENTRIES = "expand_entries"; //$NON-NLS-1$
 }
