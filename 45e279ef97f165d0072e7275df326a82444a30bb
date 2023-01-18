@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "517fb528_1aede790",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-01-18T20:55:17Z",
+      "side": 1,
+      "message": "I have updated the patch with changes for the references to 25 in org.eclipse.mat.report - for HTML reports with tables, and for RenderingInfo.java for exports. I was worried that o.e.mat.report shouldn\u0027t have a hard reference to o.e.mat.ui, but the preference is just by name.",
+      "revId": "45e279ef97f165d0072e7275df326a82444a30bb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
