@@ -102,7 +102,8 @@ public class QueryExecution
 
         Job job = new ExecutionJob(editor, originator, stateToReopen, cmdLine, set, isReproducable);
         job.setUser(true);
-        job.schedule(Job.SHORT);
+        job.setPriority(Job.SHORT);
+        job.schedule();
     }
 
     private static boolean promp(MultiPaneEditor editor, ArgumentSet arguments, boolean prompt)
@@ -322,7 +323,9 @@ public class QueryExecution
                     }
                 }
             };
-            job.schedule(Job.LONG);
+            job.setUser(true);
+            job.setPriority(Job.LONG);
+            job.schedule();
             job.join(Long.MAX_VALUE, mon);
             IStatus status = job.getResult();
             if (status != null && status.isOK())

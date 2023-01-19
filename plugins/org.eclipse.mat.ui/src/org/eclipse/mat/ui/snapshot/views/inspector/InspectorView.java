@@ -1375,7 +1375,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                 }
             };
-            job.schedule(Job.DECORATE);
+            job.setPriority(Job.DECORATE);
+            job.schedule();
         }
     }
 

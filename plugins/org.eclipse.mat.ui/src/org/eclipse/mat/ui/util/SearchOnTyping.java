@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -314,7 +314,9 @@ public class SearchOnTyping
                 thingy.deselectAll();
             else
             {
-                new SearchJob(thingy, text, filterText).schedule(250);
+                SearchJob searchJob = new SearchJob(thingy, text, filterText);
+                searchJob.setPriority(Job.INTERACTIVE);
+                searchJob.schedule(250);
             }
         }
     }

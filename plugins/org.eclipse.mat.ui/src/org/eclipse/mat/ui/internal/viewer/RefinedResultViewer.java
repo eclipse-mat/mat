@@ -412,33 +412,33 @@ public abstract class RefinedResultViewer
             }
             else
             {
-            	final int ii2 = ii;
-            	// Do without decoration initially
-            	adapter.apply(item, ii, formatted);
-            	// Getting the prefix can be slow for arrays
-            	Job job = new AbstractPaneJob(Messages.RefinedResultViewer_UpdateDecorator, this.pane)
-            	{
-            		protected IStatus doRun(IProgressMonitor monitor)
-            		{
-            			if (item.isDisposed())
-            				return Status.OK_STATUS;
-            			// Do the slow running part in the job
-            			String[] texts = new String[3];
-            			texts[0] = result.getColumns()[ii2].getDecorator().prefix(element);
-            			texts[1] = formatted;
-            			texts[2] = result.getColumns()[ii2].getDecorator().suffix(element);
-            			item.getDisplay().asyncExec(() ->
-            			{
-            				if (item.isDisposed())
-            					return;
-            				item.setData(String.valueOf(ii2), texts);
-            				adapter.apply(item, ii2, asString(texts));
-            			});
-            			return Status.OK_STATUS;
-            		}
-            	};
-            	job.setPriority(Job.DECORATE);
-            	job.schedule();
+                final int ii2 = ii;
+                // Do without decoration initially
+                adapter.apply(item, ii, formatted);
+                // Getting the prefix can be slow for arrays
+                Job job = new AbstractPaneJob(Messages.RefinedResultViewer_UpdateDecorator, this.pane)
+                {
+                    protected IStatus doRun(IProgressMonitor monitor)
+                    {
+                        if (item.isDisposed())
+                            return Status.OK_STATUS;
+                        // Do the slow running part in the job
+                        String[] texts = new String[3];
+                        texts[0] = result.getColumns()[ii2].getDecorator().prefix(element);
+                        texts[1] = formatted;
+                        texts[2] = result.getColumns()[ii2].getDecorator().suffix(element);
+                        item.getDisplay().asyncExec(() ->
+                        {
+                            if (item.isDisposed())
+                                return;
+                            item.setData(String.valueOf(ii2), texts);
+                            adapter.apply(item, ii2, asString(texts));
+                        });
+                        return Status.OK_STATUS;
+                    }
+                };
+                job.setPriority(Job.DECORATE);
+                job.schedule();
             }
         }
     }
@@ -999,6 +999,49 @@ public abstract class RefinedResultViewer
                             (visible - ctrl.totals.getVisibleItems())));
             if (box.open() != SWT.OK)
                 return;
+            // Do the expansion in stages so that the user can cancel
+            int visible1 = visible;
+            Job job = new AbstractPaneJob(Messages.RefinedResultViewer_Expanding, this.pane)
+            {
+                protected IStatus doRun(IProgressMonitor monitor)
+                {
+                    if (control.isDisposed())
+                        return Status.OK_STATUS;
+                    ProgressMonitorWrapper listener = new ProgressMonitorWrapper(monitor);
+                    listener.beginTask(Messages.RefinedResultViewer_Expanding, visible1 - ctrl.totals.getVisibleItems());
+                    for (int v = ctrl.totals.getVisibleItems(); v < visible1;)
+                    {
+                        int va = Math.min(1000, visible1 - v);
+                        int visible2 = v + va;
+                        control.getDisplay().syncExec(() ->
+                        {
+                            if (control.isDisposed())
+                                return;
+                            ctrl.totals.setVisibleItems(visible2);
+                            control.getParent().setRedraw(false);
+
+                            try
+                            {
+                                widgetRevealChildren(parent, ctrl.totals);
+                            }
+                            finally
+                            {
+                                control.getParent().setRedraw(true);
+                            }
+                        });
+                        listener.worked(va);
+                        if (listener.isCanceled())
+                            return Status.CANCEL_STATUS;
+                        v = visible2;
+                    }
+                    listener.done();
+                    return Status.OK_STATUS;
+                }
+            };
+            job.setUser(true);
+            job.setPriority(Job.LONG);
+            job.schedule();
+            return;
         }
 
         ctrl.totals.setVisibleItems(visible);
@@ -1312,7 +1355,10 @@ public abstract class RefinedResultViewer
             jobs.add(new DerivedDataJobDefinition(provider, operation));
 
         ControlItem ctrl = (ControlItem) control.getData(Key.CONTROL);
-        new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, null, ctrl).schedule(Job.LONG);
+        DerivedDataJob.OnFullList onFullListJob = new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, null, ctrl);
+        onFullListJob.setUser(true);
+        onFullListJob.setPriority(Job.LONG);
+        onFullListJob.schedule();
     }
 
     protected void doCalculateDerivedValuesForSelection(ContextProvider provider, DerivedOperation operation)
@@ -1338,7 +1384,10 @@ public abstract class RefinedResultViewer
 
         if (widgetItems.size() > 0)
         {
-            new DerivedDataJob.OnSelection(this, provider, operation, subjectItems, widgetItems).schedule(Job.SHORT);
+            DerivedDataJob.OnSelection onSelectionJob = new DerivedDataJob.OnSelection(this, provider, operation, subjectItems, widgetItems);
+            onSelectionJob.setUser(true);
+            onSelectionJob.setPriority(Job.SHORT);
+            onSelectionJob.schedule();
         }
     }
 
@@ -1419,7 +1468,10 @@ public abstract class RefinedResultViewer
         List<?> children = ((ControlItem) control.getData(Key.CONTROL)).children;
         if (children != null)
         {
-            new SortingJob(this, children).schedule(Job.SHORT);
+            SortingJob sortingJob = new SortingJob(this, children);
+            sortingJob.setUser(true);
+            sortingJob.setPriority(Job.SHORT);
+            sortingJob.schedule();
         }
     }
     
@@ -1519,8 +1571,11 @@ public abstract class RefinedResultViewer
 
                 for (RefinedStructuredResult.DerivedDataJobDefinition job : viewer.jobs)
                 {
-                    new DerivedDataJob.OnFullList(viewer, job.getContextProvider(), job.getOperation(), ctrl.children,
-                                    parentItem, ctrl).schedule(Job.LONG);
+                    DerivedDataJob.OnFullList fullListJob = new DerivedDataJob.OnFullList(viewer, job.getContextProvider(), job.getOperation(), ctrl.children,
+                                    parentItem, ctrl);
+                    fullListJob.setUser(true);
+                    fullListJob.setPriority(Job.LONG);
+                    fullListJob.schedule();
                 }
 
                 return Status.OK_STATUS;

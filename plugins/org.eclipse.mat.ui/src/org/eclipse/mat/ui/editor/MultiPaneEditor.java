@@ -213,8 +213,10 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             }
 
         });
-
-        job.schedule(Job.INTERACTIVE);
+        job.setUser(true);
+        // Parsing / opening a heap dump, so long
+        job.setPriority(Job.LONG);
+        job.schedule();
     }
 
     protected Job createInitializationJob()

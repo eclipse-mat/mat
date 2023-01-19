@@ -839,20 +839,44 @@ public final class TQuantize
 
             int objectId = ctx.getObjectId();
             if (objectId < 0)
-                return root.getOrCreateChild(Messages.TQuantize_None);
-
-            IClass objClass = quantize.snapshot.getClassOf(objectId);
-            if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
             {
-                IObject obj = quantize.snapshot.getObject(objectId);
-                if (obj instanceof IClass)
-                    objClass = (IClass) obj;
+                String pack = null;
+                if (ctx instanceof IContextObjectSet)
+                {
+                    // See if all the objects have the same package
+                    IContextObjectSet ctx2 = (IContextObjectSet) ctx;
+                    for (int objectId2 : ctx2.getObjectIds())
+                    {
+                        String cn = getClassName(objectId2);
+                        int p = cn.lastIndexOf('.');
+                        if (p < 0)
+                        {
+                            pack = null;
+                            break;
+                        }
+                        String pack2 = cn.substring(0, p);
+                        if (pack == null)
+                        {
+                            pack = pack2;
+                            objectId = objectId2;
+                        }
+                        else if (!pack2.equals(pack))
+                        {
+                            // Mismatch, so can't accumulate into one package
+                            pack = null;
+                            break;
+                        }
+                    }
+                }
+                if (pack == null)
+                    return root.getOrCreateChild(Messages.TQuantize_None);
+                // All one package, so drop through with example object
             }
-            String className = objClass.getName();
 
+            String className = getClassName(objectId);
             int p = className.lastIndexOf('.');
             if (p < 0)
-                return root;
+                return root.getOrCreateChild(Messages.TQuantize_None);
 
             StringTokenizer tokenizer = new StringTokenizer(className.substring(0, p), "."); //$NON-NLS-1$
 
@@ -866,6 +890,18 @@ public final class TQuantize
             }
 
             return current;
+        }
+
+        private String getClassName(int objectId) throws SnapshotException
+        {
+            IClass objClass = quantize.snapshot.getClassOf(objectId);
+            if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
+            {
+                IObject obj = quantize.snapshot.getObject(objectId);
+                if (obj instanceof IClass)
+                    objClass = (IClass) obj;
+            }
+            return objClass.getName();
         }
 
     }

@@ -494,7 +494,8 @@ public class CompareBasketView extends ViewPart
 
                 };
                 job.setUser(true);
-                job.schedule(Job.LONG);
+                job.setPriority(Job.LONG);
+                job.schedule();
             }
             catch (Exception e)
             {

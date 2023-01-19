@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and others.
+ * Copyright (c) 2008, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -289,6 +289,7 @@ public class HistogramPane extends QueryResultPane
         };
 
         job.setUser(true);
+        job.setPriority(Job.SHORT);
         job.schedule();
     }
     
@@ -334,7 +335,7 @@ public class HistogramPane extends QueryResultPane
 
             final Histogram current = unwrapHistogram(viewer.getResult().unwrap());
 
-            new Job(getText())
+            Job job = new Job(getText())
             {
                 protected IStatus run(IProgressMonitor monitor)
                 {
@@ -389,7 +390,10 @@ public class HistogramPane extends QueryResultPane
 
                     return Status.OK_STATUS;
                 }
-            }.schedule();
+            };
+            job.setUser(true);
+            job.setPriority(Job.SHORT);
+            job.schedule();
         }
     }
 
@@ -468,7 +472,7 @@ public class HistogramPane extends QueryResultPane
 
             if (selected != null)
             {
-                new ParseHeapDumpJob(selected)
+                ParseHeapDumpJob parseHeapDumpJob = new ParseHeapDumpJob(selected)
                 {
                     protected void finished(ISnapshot snapshot)
                     {
@@ -486,7 +490,10 @@ public class HistogramPane extends QueryResultPane
                         updateDeltaHistogram();
                     }
 
-                }.schedule();
+                };
+                parseHeapDumpJob.setUser(true);
+                parseHeapDumpJob.setPriority(Job.LONG);
+                parseHeapDumpJob.schedule();
             }
             else
             {

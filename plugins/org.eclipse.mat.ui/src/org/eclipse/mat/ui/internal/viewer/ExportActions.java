@@ -89,7 +89,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
             selectedExpanded(control, result);
 
-            new Job(Messages.ExportActions_ExportHTML)
+            Job job = new Job(Messages.ExportActions_ExportHTML)
             {
                 @Override
                 protected IStatus run(IProgressMonitor monitor)
@@ -114,7 +114,10 @@ import org.eclipse.swt.widgets.TreeItem;
                     }
                 }
 
-            }.schedule(Job.SHORT);
+            };
+            job.setUser(true);
+            job.setPriority(Job.SHORT);
+            job.schedule();
         }
     }
 
@@ -227,7 +230,7 @@ import org.eclipse.swt.widgets.TreeItem;
             if (fileName == null)
                 return;
 
-            new Job(Messages.ExportActions_ExportCSV)
+            Job job = new Job(Messages.ExportActions_ExportCSV)
             {
 
                 @Override
@@ -259,7 +262,10 @@ import org.eclipse.swt.widgets.TreeItem;
                     return Status.OK_STATUS;
                 }
 
-            }.schedule(Job.SHORT);
+            };
+            job.setUser(true);
+            job.setPriority(Job.SHORT);
+            job.schedule();
 
         }
     }
@@ -292,7 +298,7 @@ import org.eclipse.swt.widgets.TreeItem;
             if (result instanceof RefinedStructuredResult)
                 selectedExpanded(control, (RefinedStructuredResult)result);
 
-            new Job(Messages.ExportActions_ExportTXT)
+            Job job = new Job(Messages.ExportActions_ExportTXT)
             {
 
                 @Override
@@ -324,7 +330,10 @@ import org.eclipse.swt.widgets.TreeItem;
                     return Status.OK_STATUS;
                 }
 
-            }.schedule(Job.SHORT);
+            };
+            job.setUser(true);
+            job.setPriority(Job.SHORT);
+            job.schedule();
 
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG., IBM Corporation and others
+ * Copyright (c) 2008, 2022 SAP AG., IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -578,7 +579,9 @@ public class OQLPane extends CompositeHeapEditorPane
                 {
                     // force parsing of OQL query
                     SnapshotFactory.createQuery(query);
-                    new OQLJob(OQLPane.this, query, state).schedule();
+                    OQLJob oqlJob = new OQLJob(OQLPane.this, query, state);
+                    oqlJob.setPriority(Job.SHORT);
+                    oqlJob.schedule();
                 }
                 catch (final OQLParseException e)
                 {

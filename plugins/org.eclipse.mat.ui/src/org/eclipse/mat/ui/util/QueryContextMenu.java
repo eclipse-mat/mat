@@ -245,7 +245,7 @@ public class QueryContextMenu
                         @Override
                         public void run()
                         {
-                            new AbstractPaneJob(MessageUtil.format(Messages.QueryContextMenu_Processing, r.getLabel()),
+                            AbstractPaneJob job = new AbstractPaneJob(MessageUtil.format(Messages.QueryContextMenu_Processing, r.getLabel()),
                                             null)
                             {
 
@@ -266,7 +266,10 @@ public class QueryContextMenu
                                     }
                                 }
 
-                            }.schedule(Job.SHORT);
+                            };
+                            job.setUser(true);
+                            job.setPriority(Job.SHORT);
+                            job.schedule();
                         }
                     });
 

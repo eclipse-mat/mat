@@ -407,7 +407,9 @@ public class RefinedTreeViewer extends RefinedResultViewer
             ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
             if (ctrl != null && ctrl.children != null)
             {
-                new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule(Job.DECORATE);
+                DerivedDataJob.OnFullList onFullListJob = new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl);
+                onFullListJob.setPriority(Job.DECORATE);
+                onFullListJob.schedule();
                 children.add(item);
             }
         }
@@ -422,7 +424,9 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
                 if (ctrl != null && ctrl.children != null)
                 {
-                    new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule(Job.DECORATE);
+                    DerivedDataJob.OnFullList onFullListJob = new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl);
+                    onFullListJob.setPriority(Job.DECORATE);
+                    onFullListJob.schedule();
                     children.add(item);
                 }
             }
@@ -444,7 +448,10 @@ public class RefinedTreeViewer extends RefinedResultViewer
             applyFilterData(new TreeItem(tree, SWT.NONE, 0));
         applyUpdating(new TreeItem(tree, SWT.NONE, 1));
 
-        new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule(Job.SHORT);
+        RefinedResultViewer.RetrieveChildrenJob retrieveChildrenJob = new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null);
+        retrieveChildrenJob.setUser(true);
+        retrieveChildrenJob.setPriority(Job.SHORT);
+        retrieveChildrenJob.schedule();
     }
 
     @Override

@@ -311,6 +311,7 @@ public class Messages extends NLS
     public static String RefinedResultViewer_EnterNumber;
     public static String RefinedResultViewer_ExpandAll;
     public static String RefinedResultViewer_ExpandToLimit;
+    public static String RefinedResultViewer_Expanding;
     public static String RefinedResultViewer_Export;
     public static String RefinedResultViewer_NextN;
     public static String RefinedResultViewer_notValidNumber;

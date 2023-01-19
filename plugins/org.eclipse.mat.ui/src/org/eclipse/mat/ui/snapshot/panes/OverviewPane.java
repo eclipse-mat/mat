@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -406,7 +407,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
             final ISnapshot snapshot = getSnapshotInput().getSnapshot();
 
-            new AbstractPaneJob(Messages.OverviewPane_ExtractingBigObjects, this)
+            AbstractPaneJob extractObjectsJob = new AbstractPaneJob(Messages.OverviewPane_ExtractingBigObjects, this)
             {
                 @Override
                 protected IStatus doRun(IProgressMonitor monitor)
@@ -453,7 +454,9 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                     }
 
                 }
-            }.schedule();
+            };
+            extractObjectsJob.setPriority(Job.SHORT);
+            extractObjectsJob.schedule();
         }
 
         section.setClient(sectionClient);

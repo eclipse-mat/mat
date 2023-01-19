@@ -86,7 +86,10 @@ public class RefinedTableViewer extends RefinedResultViewer
         if (ctrl == null || ctrl.children == null)
         {
             applyUpdating(item);
-            new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule(Job.SHORT);
+            RefinedResultViewer.RetrieveChildrenJob retrieveChildrenJob = new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null);
+            retrieveChildrenJob.setUser(true);
+            retrieveChildrenJob.setPriority(Job.SHORT);
+            retrieveChildrenJob.schedule();
             return;
         }
 

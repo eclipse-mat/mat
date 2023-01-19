@@ -62,7 +62,8 @@ public class ClassesSuggestionProvider implements SuggestionProvider
     public ClassesSuggestionProvider(ISnapshot snapshot)
     {
         InitializerJob asyncJob = new InitializerJob(snapshot);
-        asyncJob.schedule(Job.INTERACTIVE);
+        asyncJob.setPriority(Job.INTERACTIVE);
+        asyncJob.schedule();
     }
 
     /**

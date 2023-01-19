@@ -158,7 +158,7 @@ public class TableResultPane extends QueryResultPane
                         return;
                 }
 
-                new Job(getText())
+                Job job = new Job(getText())
                 {
                     protected IStatus run(IProgressMonitor monitor)
                     {
@@ -193,7 +193,10 @@ public class TableResultPane extends QueryResultPane
                         }
                         return Status.OK_STATUS;
                     }
-                }.schedule(Job.SHORT);
+                };
+                job.setUser(true);
+                job.setPriority(Job.SHORT);
+                job.schedule();
             }
         }
     }
