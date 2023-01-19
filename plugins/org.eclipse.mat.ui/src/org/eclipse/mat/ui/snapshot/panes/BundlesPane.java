@@ -75,10 +75,12 @@ public class BundlesPane extends QueryResultPane
                     final QueryResult queryResult = new QueryResult(((BundlesPane)getPane()).srcQueryResult.getQuery(), "bundle_registry -groupBy " + target.name(),//$NON-NLS-1$
                                     tree);
 
-                    top.getDisplay().asyncExec(new Runnable()
+                    if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {
+                            if (top.isDisposed())
+                                return;
                             deactivateViewer();
 
                             groupBy = target;

@@ -171,10 +171,12 @@ public class DominatorPane extends QueryResultPane
                         final QueryResult queryResult = new QueryResult(query, "dominator_tree -groupBy " //$NON-NLS-1$
                                         + target.name(), tree);
 
-                        top.getDisplay().asyncExec(new Runnable()
+                        if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {
+                                if (top.isDisposed())
+                                    return;
                                 deactivateViewer();
 
                                 groupedBy = target;

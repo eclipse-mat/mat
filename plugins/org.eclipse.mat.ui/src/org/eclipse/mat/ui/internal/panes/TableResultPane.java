@@ -169,10 +169,12 @@ public class TableResultPane extends QueryResultPane
                                             target);
                             final IResult subject = t.process(new ProgressMonitorWrapper(monitor));
 
-                            top.getDisplay().asyncExec(new Runnable()
+                            if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                             {
                                 public void run()
                                 {
+                                    if (top.isDisposed())
+                                        return;
                                     deactivateViewer();
 
                                     QueryResult qr = new QueryResult(srcQueryResult.getQuery(), srcQueryResult

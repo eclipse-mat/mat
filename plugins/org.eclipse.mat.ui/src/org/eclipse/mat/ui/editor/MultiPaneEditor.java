@@ -176,10 +176,14 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             @Override
             public void done(final IJobChangeEvent event)
             {
+                if (parent.isDisposed())
+                    return;
                 parent.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {
+                        if (parent.isDisposed())
+                            return;
                         switch (event.getResult().getSeverity())
                         {
                             case IStatus.OK:

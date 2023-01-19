@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -112,10 +112,12 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
                     final QueryResult queryResult = new QueryResult(QueryRegistry.instance().getQuery("merge_shortest_paths"), "merge_shortest_paths -groupBy " + target.name(), //$NON-NLS-1$ //$NON-NLS-2$
                                     original.groupBy(target));
 
-                    top.getDisplay().asyncExec(new Runnable()
+                    if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {
+                            if (top.isDisposed())
+                                return;
                             deactivateViewer();
 
                             groupedBy = target;

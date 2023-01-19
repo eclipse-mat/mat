@@ -418,10 +418,12 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                         final IResult result = CommandLine.execute(ctx, "pie_biggest_objects",//$NON-NLS-1$
                                         new ProgressMonitorWrapper(monitor));
 
-                        sectionClient.getDisplay().asyncExec(new Runnable()
+                        if (!sectionClient.isDisposed()) sectionClient.getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {
+                                if (sectionClient.isDisposed())
+                                    return;
                                 try
                                 {
                                     pane = EditorPaneRegistry.instance().createNewPane(result, null);

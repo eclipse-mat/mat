@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2022 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -109,10 +109,14 @@ import org.eclipse.swt.widgets.Item;
             final int[] done = computed.toArray();
             computed.clear();
 
+            if (viewer.getControl().isDisposed())
+                return;
             viewer.getControl().getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
+                    if (viewer.getControl().isDisposed())
+                        return;
                     for (int index : done)
                     {
                         Item item = widgetItems.get(index);
@@ -162,10 +166,14 @@ import org.eclipse.swt.widgets.Item;
             final int[] done = computed.toArray();
             computed.clear();
 
+            if (viewer.getControl().isDisposed())
+                return;
             viewer.getControl().getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
+                    if (viewer.getControl().isDisposed())
+                        return;
                     for (int ii = 0; ii < done.length; ii++)
                     {
                         // correct indexes for root elements -> filter row

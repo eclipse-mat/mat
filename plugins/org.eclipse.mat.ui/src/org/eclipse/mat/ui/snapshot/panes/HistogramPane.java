@@ -244,10 +244,12 @@ public class HistogramPane extends QueryResultPane
 
                     final Histogram delta = histogram.diffWithBaseline(baseline);
 
-                    top.getDisplay().asyncExec(new Runnable()
+                    if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {
+                            if (top.isDisposed())
+                                return;
                             deactivateViewer();
 
                             QueryResult qr;
@@ -368,10 +370,12 @@ public class HistogramPane extends QueryResultPane
                                     : new QueryResult(QueryRegistry.instance().getQuery("histogram"),//$NON-NLS-1$
                                                     "histogram -groupBy " + groupBy.name(), result);//$NON-NLS-1$
 
-                    top.getDisplay().asyncExec(new Runnable()
+                    if (!top.isDisposed()) top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {
+                            if (top.isDisposed())
+                                return;
                             deactivateViewer();
 
                             HistogramPane.this.groupedBy = groupBy;
