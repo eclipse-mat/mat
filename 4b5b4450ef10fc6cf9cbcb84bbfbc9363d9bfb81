@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58f68fc3_0e10b5de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-01-19T15:05:36Z",
+      "side": 1,
+      "message": "Mainly UI changes, tested locally",
+      "revId": "4b5b4450ef10fc6cf9cbcb84bbfbc9363d9bfb81",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
