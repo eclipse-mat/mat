@@ -40,6 +40,7 @@ import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.PreferenceConstants;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.ControlItem;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.Key;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -84,8 +85,11 @@ import org.eclipse.swt.widgets.TreeItem;
 
             // extract limit
             ControlItem controlItem = (ControlItem) control.getData(Key.CONTROL);
+            int defaultLimit = MemoryAnalyserPlugin.getDefault().getPreferenceStore().getInt(PreferenceConstants.EXPAND_ENTRIES);
+            if (defaultLimit <= 0)
+                defaultLimit = 25;
             final int limit = (controlItem != null && controlItem.getTotals() != null) ? controlItem.getTotals()
-                            .getVisibleItems() : 25;
+                            .getVisibleItems() : defaultLimit;
 
             selectedExpanded(control, result);
 

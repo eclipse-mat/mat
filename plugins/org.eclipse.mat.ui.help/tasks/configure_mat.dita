@@ -171,6 +171,16 @@
 					</dl>
 				</dd>
 			</dlentry>
+			<dlentry>
+				<dt>Expanded entries in tables and trees</dt>
+				<dd>There can be many rows in the tables and trees produced by queries.
+				This controls the number of new entries displayed after a double click
+				on the totals row, or for the <menucascade><uicontrol>Next <option>N</option>n</uicontrol></menucascade> menu item
+				or for expanding a tree entry
+				or for the number of rows for a table or tree in a report,
+				if not set by the <xref format="html" scope="peer" href="../doc/org/eclipse/mat/report/Params.Rendering.html#LIMIT"><parmname>limit</parmname></xref>.
+				</dd>
+			</dlentry>
 			<dlentry id="discard">
 				<dt>Enable discard (experimental)</dt>
 				<dd>
