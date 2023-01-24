@@ -36,6 +36,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Handles executing the diagnostics on MAT
@@ -48,7 +49,7 @@ public class DiagnosticsExecutionWizardPage extends WizardPage implements Diagno
 
     public DiagnosticsExecutionWizardPage()
     {
-        super("diagnostics_execution");
+        super("diagnostics_execution"); //$NON-NLS-1$
     }
 
     public void createControl(Composite parent)
@@ -67,12 +68,19 @@ public class DiagnosticsExecutionWizardPage extends WizardPage implements Diagno
         status.setLayoutData(new GridData(GridData.FILL_BOTH));
 
         setControl(top);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.diagnostics"); //$NON-NLS-1$
     }
 
     public void reset()
     {
         introLabel.setText(Messages.DiagnosticsExecutionWizardPage_IntroIdle);
         clearText();
+    }
+
+    @Override
+    public void performHelp()
+    {
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.diagnostics"); //$NON-NLS-1$
     }
 
     public boolean performFinish(DiagnosticsAction action)

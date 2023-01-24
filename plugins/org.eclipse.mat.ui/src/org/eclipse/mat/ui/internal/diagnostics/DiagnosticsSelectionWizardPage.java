@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Select which diagnostic to perform
@@ -46,7 +47,7 @@ public class DiagnosticsSelectionWizardPage extends WizardPage
 
     public DiagnosticsSelectionWizardPage()
     {
-        super("diagnostics_selection");
+        super("diagnostics_selection"); //$NON-NLS-1$
     }
 
     public void createControl(Composite parent)
@@ -94,6 +95,7 @@ public class DiagnosticsSelectionWizardPage extends WizardPage
         setControl(top);
 
         loadTableItems();
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.diagnostics"); //$NON-NLS-1$
     }
 
     private void loadTableItems()
@@ -149,6 +151,12 @@ public class DiagnosticsSelectionWizardPage extends WizardPage
     private void selectionChanged()
     {
         getContainer().updateButtons();
+    }
+
+    @Override
+    public void performHelp()
+    {
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.diagnostics"); //$NON-NLS-1$
     }
 
     @Override

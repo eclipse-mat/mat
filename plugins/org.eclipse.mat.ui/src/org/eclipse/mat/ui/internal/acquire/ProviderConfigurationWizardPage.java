@@ -83,7 +83,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         this.acquireDialog = acquireDialog;
     }
 
-    //@Override
+    @Override
     public void createControl(Composite parent)
     {
 
@@ -140,6 +140,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
 
     }
 
+    @Override
     public IWizardPage getNextPage() {
         try 
         {
