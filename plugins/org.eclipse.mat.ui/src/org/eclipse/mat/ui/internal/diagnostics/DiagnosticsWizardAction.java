@@ -41,6 +41,7 @@ public class DiagnosticsWizardAction extends Action implements IWorkbenchWindowA
         final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
         DiagnosticsWizard wizard = new DiagnosticsWizard();
         WizardDialog dialog = new WizardDialog(shell, wizard);
+        dialog.setHelpAvailable(true);
         dialog.addPageChangedListener(wizard);
         dialog.open();
     }

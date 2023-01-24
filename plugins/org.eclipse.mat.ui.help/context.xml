@@ -69,4 +69,9 @@
 		<topic label="Selecting Queries"
 			href="reference/selectingqueries.html" />
 	</context>
+	<context id="diagnostics">
+		<description>Memory Analyzer diagnostics</description>
+		<topic label="Collect information about the Memory Analyzer tool process"
+			href="reference/support.html" />
+	</context>
 </contexts>
