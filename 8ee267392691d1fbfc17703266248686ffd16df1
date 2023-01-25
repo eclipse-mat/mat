@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27ff7339_04f65169",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-01-25T10:39:18Z",
+      "side": 1,
+      "message": "This gets updated as part of the build, but update to the latest 2022-12 in the source too.",
+      "revId": "8ee267392691d1fbfc17703266248686ffd16df1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
