@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <!--
-    Copyright (c) 2008, 2021 SAP AG and others.
+    Copyright (c) 2008, 2023 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -337,12 +337,12 @@ No objects totalling 0 B are softly referenced and also strongly retained (kept 
 				then the mapping table will not keep it alive.
 			</p>
 			<p>The report follows the format of the <xref href="#ref_inspections_component_report/softref">Soft Reference</xref>
-			section above. An example of the comment is
+			section above. An example of the comment is:
+			</p>
 				<lines><systemoutput>A total of 620 java.lang.ref.WeakReference objects have been found, which weakly reference 436 objects.
 No objects totalling 0 B are retained (kept alive) only via weak references.
 Possible Memory Leak 301 objects totalling 7.1 KB are weakly referenced and also strongly retained (kept alive) via weak references.
 				</systemoutput></lines>
-			</p>
 		</section>
 		<section id="finalizer">
 			<title>Finalizer Statistics</title>

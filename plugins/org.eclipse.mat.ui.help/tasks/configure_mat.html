@@ -62,11 +62,9 @@
 				As a rough estimate if the number of objects is N and the number of 
 				classes C, it might take at least T bytes to parse and build the dominator tree
 				where:
-				<p class="lines">T ≈ N * 28.25 + C * 1000 + P</p>
-
+				<code class="ph codeph">T ≈ N * 28.25 + C * 1000 + P</code>
 				P is the space used by the DTFJ or HPROF parsers. For a PHD file, the space could be:
-				<p class="lines">P ≈ C * 1000</p>
-
+				<code class="ph codeph">P ≈ C * 1000</code>
 				Memory Analyzer uses additional memory for caching index files, so
 				performance will be better if there is more memory available than the minimum
 				required to parse a dump.
