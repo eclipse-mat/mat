@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -942,9 +942,9 @@ public class PrimitiveMapTests
             {
                 ii++;
                 // Deliberately construct new object
-                keys[ii] = new Integer(keys[ii - 1]);
+                keys[ii] = cloneInteger(keys[ii - 1]);
                 // Deliberately construct new object
-                values[ii] = new Long(values[ii - 1]);
+                values[ii] = cloneLong(values[ii - 1]);
             }
         }
 
@@ -983,6 +983,48 @@ public class PrimitiveMapTests
                 return new MapObjectLongBridge4<Integer>(new HashMapObjectLong<Integer>());
             }
         }.run();
+    }
+
+    /**
+     * Attempt to get a new Integer which is equal to the
+     * input but a different object.
+     * Avoids using the deprecated new Integer()
+     * @param v the Integer to clone
+     * @return probably a different Integer but equal to v
+     */
+    static Integer cloneInteger(Integer v)
+    {
+        Integer v1 = Integer.valueOf(v);
+        if (v1 != v)
+            return v1;
+        // Attempt to clear any LRU cache
+        int z = 0;
+        for (int i = 0; i < 500; ++i)
+        {
+            z += Integer.valueOf(i * 0x1234567);
+        }
+        return Integer.valueOf(v + z * 0);
+    }
+
+    /**
+     * Attempt to get a new Long which is equal to the
+     * input but a different object.
+     * Avoids using the deprecated new Long()
+     * @param v the Long to clone
+     * @return probably a different Long but equal to v
+     */
+    static Long cloneLong(Long v)
+    {
+        Long v1 = Long.valueOf(v);
+        if (v1 != v)
+            return v1;
+        // Attempt to clear any LRU cache
+        long z = 0;
+        for (int i = 0; i < 500; ++i)
+        {
+            z += Integer.valueOf(i * 0x1234567);
+        }
+        return Long.valueOf(v + z * 0);
     }
 
     @Test
@@ -1253,7 +1295,7 @@ public class PrimitiveMapTests
             if (key instanceof Integer)
             {
                 // Deliberately construct new object
-                key = new Integer((Integer)key);
+                key = cloneInteger((Integer)key);
             }
             return super.remove(key);
         }
