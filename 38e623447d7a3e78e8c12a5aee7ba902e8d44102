@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8221d03c_34b3b028",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-01-26T06:20:28Z",
+      "side": 1,
+      "message": "Just changes for local DITA build and minor line endings changes",
+      "revId": "38e623447d7a3e78e8c12a5aee7ba902e8d44102",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
