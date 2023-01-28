@@ -63,7 +63,7 @@ public class GzipTests
         });
     }
     int comp;
-    private static boolean verbose = true;
+    private static boolean verbose = false;
     public GzipTests(int comp)
     {
         this.comp = comp;
