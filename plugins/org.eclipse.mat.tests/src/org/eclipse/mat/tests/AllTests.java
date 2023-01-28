@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.collect.CommandTests.class, //
                 org.eclipse.mat.tests.collect.SortTest.class, //
                 org.eclipse.mat.tests.collect.ExtractCollectionEntriesTest.class, //
+                org.eclipse.mat.tests.parser.GzipTests.class, //
                 org.eclipse.mat.tests.parser.TestIndex.class, //
                 org.eclipse.mat.tests.parser.TestIndex1to1.class, //
                 org.eclipse.mat.tests.snapshot.DominatorTreeTest.class, //
