@@ -8,7 +8,9 @@ Require-Bundle: org.eclipse.mat.parser;bundle-version="1.13.0",
  org.eclipse.mat.report;bundle-version="1.13.0",
  org.eclipse.core.runtime;bundle-version="3.4",
  org.eclipse.core.commands;bundle-version="3.3.100"
-Export-Package: org.eclipse.mat.hprof.extension
+Export-Package: org.eclipse.mat.hprof.extension,
+ org.eclipse.mat.hprof;x-friends:="org.eclipse.mat.tests",
+ io.nayuki.deflate;x-friends:="org.eclipse.mat.tests"
 Import-Package: org.eclipse.jface.preference;resolution:=optional,
  org.eclipse.jface.dialogs;resolution:=optional,
  org.eclipse.swt.widgets;resolution:=optional,

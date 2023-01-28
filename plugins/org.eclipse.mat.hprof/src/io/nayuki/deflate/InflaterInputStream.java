@@ -482,7 +482,7 @@ public final class InflaterInputStream extends FilterInputStream {
         if (n <= 0)
             return 0;
         long skipped = 0;
-        if (outputBufferLength >= 0) {
+        if (outputBufferLength > 0) {
             // There could be a new mark while we are re-reading data, or reading duplicated bytes.
             if (markPos == -2)
                 markPos = (dictionaryIndex - (outputBufferLength - outputBufferIndex)) & DICTIONARY_MASK;
