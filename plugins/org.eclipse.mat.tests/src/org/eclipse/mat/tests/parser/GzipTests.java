@@ -158,6 +158,18 @@ public class GzipTests
         }
     }
 
+    static byte[] readAllBytes(InputStream s) throws IOException
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte buff[] = new byte[10000];
+        int r;
+        while ((r = s.read(buff)) >= 0)
+        {
+            bos.write(buff, 0, r);
+        }
+        return bos.toByteArray();
+    }
+
     @Test
     public void test1() throws IOException
     {
@@ -174,7 +186,7 @@ public class GzipTests
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bo, 0, bol))
         {
             try (InflaterInputStream inf = new InflaterInputStream(bis, false)) {
-                byte bo2[] = inf.readAllBytes();
+                byte bo2[] = readAllBytes(inf);
                 assertThat(bo2, equalTo(b));
             }
         }
