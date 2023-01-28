@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2022 IBM Corporation.
+ * Copyright (c) 2012, 2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class TestIndex1to1
     long MAXELEMENTS2 = 30000000L;
     static final boolean verbose = false;
 
-    @Parameters
+    @Parameters(name = "index size {0}")
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][] {

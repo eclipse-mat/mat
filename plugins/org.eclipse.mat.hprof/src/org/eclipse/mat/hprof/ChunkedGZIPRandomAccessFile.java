@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020,2022 SAP SE and IBM Corporation.
+ * Copyright (c) 2020,2023 SAP SE and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -504,7 +504,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         cachedOffsets.remove(file.getAbsoluteFile());
     }
 
-    static class ChunkedGZIPOutputStream extends FilterOutputStream
+    public static class ChunkedGZIPOutputStream extends FilterOutputStream
     {
         Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
         CRC32 crc = new CRC32();

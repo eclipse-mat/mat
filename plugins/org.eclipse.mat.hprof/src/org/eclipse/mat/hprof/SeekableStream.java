@@ -63,14 +63,14 @@ public class SeekableStream extends InputStream implements AutoCloseable
          * @return
          * @throws IOException
          */
-        abstract long position() throws IOException;
+        protected abstract long position() throws IOException;
 
         /**
          * Set the current position.
          * @param newpos
          * @throws IOException
          */
-        abstract void seek(long newpos) throws IOException;
+        protected abstract void seek(long newpos) throws IOException;
     }
 
     /**
