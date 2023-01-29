@@ -24,6 +24,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -88,7 +89,7 @@ public class GzipTests
             }
             b[i] = (byte)c;
         }
-        if (verbose) System.out.println(new String(b, 0, 3000));
+        if (verbose) System.out.println(new String(b, 0, 3000, StandardCharsets.US_ASCII));
         return b;
     }
 
@@ -174,10 +175,9 @@ public class GzipTests
     public void test1() throws IOException
     {
         byte b[] = randomText(216962);
-        int inputLen = b.length;
 
         b = extendData(b, 13);
-        inputLen = b.length;
+        int inputLen = b.length;
 
         byte bo[] = new byte[inputLen];
         int bol = compress(b, bo);
@@ -277,10 +277,9 @@ public class GzipTests
     public void testSeekableInflater() throws IOException
     {
         byte b[] = randomText(216962);
-        int inputLen = b.length;
 
         b = extendData(b, 13);
-        inputLen = b.length;
+        int inputLen = b.length;
 
         byte bo[] = new byte[inputLen];
         int bol = compress(b, bo);
@@ -350,7 +349,7 @@ public class GzipTests
         }
         public void seek(long newpos) throws EOFException
         {
-            if (pos > Integer.MAX_VALUE)
+            if (newpos > Integer.MAX_VALUE)
                 throw new EOFException(String.valueOf(newpos));
             pos = (int)newpos;
         }
@@ -360,10 +359,9 @@ public class GzipTests
     public void testSeekableGZip2() throws IOException
     {
         byte b[] = randomText(216962);
-        int inputLen = b.length;
 
         b = extendData(b, 13);
-        inputLen = b.length;
+        int inputLen = b.length;
 
         byte bo[] = comp == 5 ? chunkedGzip1(b) : gzip1(b);
 
