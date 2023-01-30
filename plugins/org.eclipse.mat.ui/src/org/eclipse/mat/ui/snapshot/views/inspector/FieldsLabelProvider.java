@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - display fixes
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
@@ -38,8 +39,9 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
     {
         this.inspectorView = inspectorView;
         FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
-        this.italicFont = fontDescriptor.setStyle(SWT.ITALIC).createFont(Display.getDefault());
-        this.boldFont = fontDescriptor.setStyle(SWT.BOLD).createFont(Display.getDefault());
+        Display display = inspectorView.getSite().getShell().getDisplay();
+        this.italicFont = fontDescriptor.setStyle(SWT.ITALIC).createFont(display);
+        this.boldFont = fontDescriptor.setStyle(SWT.BOLD).createFont(display);
     }
 
     public Image getColumnImage(Object element, int columnIndex)

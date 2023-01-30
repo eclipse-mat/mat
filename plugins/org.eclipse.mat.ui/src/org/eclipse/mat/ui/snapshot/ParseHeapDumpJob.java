@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ public abstract class ParseHeapDumpJob extends Job
 {
     private final IPath path;
     private final Map<String, String> arguments;
+    private final Display display;
     
     private static Map<String, String> defaultArguments()
     {
@@ -68,16 +69,17 @@ public abstract class ParseHeapDumpJob extends Job
         return args;
     }
 
-    public ParseHeapDumpJob(IPath path)
+    public ParseHeapDumpJob(IPath path, Display display)
     {
-        this(path, defaultArguments());
+        this(path, defaultArguments(), display);
     }
 
-    public ParseHeapDumpJob(IPath path, Map<String, String> args)
+    protected ParseHeapDumpJob(IPath path, Map<String, String> args, Display display)
         {
         super(MessageUtil.format(Messages.ParseHeapDumpJob_ParsingHeapDumpFrom, path.toOSString()));
         this.path = path;
         this.arguments = args;
+        this.display = display;
         this.setUser(true);
 
         this.setRule(new ParseRule(path));
@@ -99,7 +101,6 @@ public abstract class ParseHeapDumpJob extends Job
             catch (final MultipleSnapshotsException mre) 
             {
                 // Prompt user to select a runtimeId and retry
-                Display display = PlatformUI.getWorkbench().getDisplay();
                 RuntimeSelector runtimeSelector = new RuntimeSelector(mre, display);
                 String selectedId = runtimeSelector.getSelectedRuntimeId();
                 if (selectedId != null)
@@ -130,7 +131,7 @@ public abstract class ParseHeapDumpJob extends Job
                 SnapshotHistoryService.getInstance().addVisitedPath(MemoryAnalyserPlugin.EDITOR_ID, path.toOSString(),
                                 destination);
 
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                display.asyncExec(new Runnable()
                 {
                     public void run()
                     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -274,7 +274,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
     @Override
     protected Job createInitializationJob()
     {
-        return new ParseHeapDumpJob(snapshotInput.getPath())
+        return new ParseHeapDumpJob(snapshotInput.getPath(), getSite().getShell().getDisplay())
         {
             @Override
             protected void finished(ISnapshot snapshot)

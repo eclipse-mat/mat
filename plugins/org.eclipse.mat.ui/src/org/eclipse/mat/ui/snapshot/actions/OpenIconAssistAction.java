@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -295,7 +295,7 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             tc2.setWidth(370);
             table.setLinesVisible(true);
             viewer.setContentProvider(new TableContentProvider());
-            viewer.setLabelProvider(new IconsLabelProvider(viewer.getTable().getFont()));
+            viewer.setLabelProvider(new IconsLabelProvider(viewer.getTable().getFont(), table.getDisplay()));
             viewer.setInput(new IconAssist().getIcons());
 
             // close dialog if user selects outside of the shell
@@ -373,11 +373,11 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
 
         Font boldFont;
 
-        public IconsLabelProvider(Font defaultFont)
+        public IconsLabelProvider(Font defaultFont, Display display)
         {
             FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
             fontDescriptor = fontDescriptor.setStyle(SWT.BOLD);
-            this.boldFont = fontDescriptor.createFont(Display.getDefault());
+            this.boldFont = fontDescriptor.createFont(display);
         }
 
         public Image getColumnImage(Object element, int columnIndex)

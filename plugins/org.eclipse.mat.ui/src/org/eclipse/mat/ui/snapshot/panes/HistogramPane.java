@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - display and job fixes
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
@@ -476,7 +477,7 @@ public class HistogramPane extends QueryResultPane
 
             if (selected != null)
             {
-                ParseHeapDumpJob parseHeapDumpJob = new ParseHeapDumpJob(selected)
+                ParseHeapDumpJob parseHeapDumpJob = new ParseHeapDumpJob(selected, getEditorSite().getShell().getDisplay())
                 {
                     protected void finished(ISnapshot snapshot)
                     {

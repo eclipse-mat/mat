@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -809,7 +809,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         if (event.getType() == IResourceChangeEvent.PRE_CLOSE)
         {
-            Display.getDefault().asyncExec(new Runnable()
+            container.getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
