@@ -476,7 +476,7 @@ public class HistogramPane extends QueryResultPane
 
             if (selected != null)
             {
-                ParseHeapDumpJob parseHeapDumpJob = new ParseHeapDumpJob(selected)
+                ParseHeapDumpJob parseHeapDumpJob = new ParseHeapDumpJob(selected, getEditorSite().getShell().getDisplay())
                 {
                     protected void finished(ISnapshot snapshot)
                     {
