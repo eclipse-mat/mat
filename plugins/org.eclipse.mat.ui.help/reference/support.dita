@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2022 IBM Corporation.
+    Copyright (c) 2022, 2023 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2022 IBM Corporation.
+				Copyright (c) 2022, 2023 IBM Corporation.
 				All rights reserved. This program and the accompanying materials
 				are made available under the terms of the Eclipse Public License 2.0
 				which accompanies this distribution, and is available at
@@ -36,8 +36,19 @@
 			See <xref format="html" scope="peer" href="https://www.eclipse.org/mat/support/"></xref>
 			for suggestions about obtaining help if you have problems running the tool.
 			</p>
-			<p>
-			To assist diagnosing a problem with Eclipse Memory Analyzer itself
+		</section>
+		<section>
+			<title>Error Log</title>
+			For initial investigation of problems with Eclipse Memory Analyzer, consult the
+			error log using
+			<menucascade>
+				<uicontrol>Window</uicontrol>
+				<uicontrol>Error Log</uicontrol>
+			</menucascade>
+		</section>
+		<section>
+			<title>Acquire Diagnostics</title>
+			To further assist in diagnosing a problem with Eclipse Memory Analyzer itself
 			try the <xref format="html" scope="peer" href="javascript:executeCommand(%22org.eclipse.mat.ui.diagnostics.Diagnostics%22)">
 			<b>Acquire diagnostics</b></xref> command, also available from
 				<menucascade>
@@ -47,7 +58,6 @@
 				This can capture a thread dump, showing what each Java thread in the
 				Eclipse Memory Analyzer process is doing.
 				It can also capture a heap dump.
-			</p>
 		</section>
 	</refbody>
 </reference>

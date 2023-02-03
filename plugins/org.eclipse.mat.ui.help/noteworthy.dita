@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,19 +10,19 @@
    
     Contributors:
         SAP AG - initial API and implementation
-        IBM Corporation - 1.4, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13 updates
+        IBM Corporation - 1.4, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14 updates
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.13.0 release.
+		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.14.0 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -34,20 +34,25 @@
 		<section>
 			<title>Enhancements and fixes</title>
 			<ul>
-			<li>The inspector view now allows sorting on the type, name or value in the
-			statics and attributes tab. If there are many statics or attributes
-			there is now an option to expand 25 more, or all the entries.</li>
-			<li>Other bugs have been fixed. See <xref format="html" scope="external" 
-					href="https://projects.eclipse.org/projects/tools.mat/releases/1.13.0/bugs">Memory Analyzer 1.13.0 issue list</xref>
+			<li>There is now a setting for tables, trees and lists to control the number of entries by which
+			a table or tree gets expanded.
+			<xref format="dita" href="tasks/configure_mat.dita#task_configure_mat__expand">Configuration option</xref>
+			</li>
+			<li>There is now a feature to allow a user to collect diagnostics
+			from Eclipse Memory Analyzer itself if there is a problem running the tool.
+			<xref format="dita" href="reference/support.dita">Acquire Diagnostics</xref>
+			</li>
+			<li>Other issues have been fixed. See <xref format="html" scope="external" 
+					href="https://bugs.eclipse.org/bugs/buglist.cgi?amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;classification=Tools&amp;product=MAT&amp;resolution=FIXED&amp;target_milestone=1.14.0">Memory Analyzer 1.14.0 issue list</xref>
 			</li>
 			</ul>
 		</section>
 
 		<section>
 			<title>Security fixes</title>
-			Memory Analyzer 1.13.0 includes the security fixes first included in Memory Analyzer 1.9.2.
-			We recommend users of stand-alone Eclipse Memory Analyzer version 1.12.0 or earlier and
-			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.13.0 or subsequent versions.
+			Memory Analyzer 1.14.0 includes the security fixes first included in Memory Analyzer 1.9.2.
+			We recommend users of stand-alone Eclipse Memory Analyzer version 1.13.0 or earlier and
+			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.14.0 or subsequent versions.
 			<dl>
 				<dlentry>
 					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2019-17634">CVE-2019-17634</xref></dt>
@@ -74,6 +79,102 @@
 								<dd>Eclipse Memory Analyzer version 1.9.1 and earlier is subject to a deserialization vulnerability if an index file of a parsed heap dump is replaced by a malicious version and the heap dump is reopened in Memory Analyzer. The user must chose to reopen an already parsed heap dump with an untrusted index for the problem to occur. The problem can be averted if the index files from an untrusted source are deleted and the heap dump is opened and reparsed. Also some local configuration data is subject to a deserialization vulnerability if the local data were to be replaced with a malicious version. This can be averted if the local configuration data stored on the file system cannot be changed by an attacker. The vulnerability could possibly allow code execution on the local system.</dd>
 							</dlentry>
 						</dl></dd>
+				</dlentry>
+			</dl>
+			The stand-alone Memory Analyzer 1.14.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			<dl>
+				<dlentry>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2022-2048">CVE-2022-2048</xref></dt>
+					<dd>
+						<dl>
+							<dlentry>
+								<dt>PROBLEMTYPE</dt>
+								<dd>CWE-400: Uncontrolled Resource Consumption</dd>
+								<dd>CWE-664: Improper Control of a Resource Through its Lifetime</dd>
+								<dd>CWE-410: Insufficient Resource Pool</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>In Eclipse Jetty HTTP/2 server implementation, when encountering an invalid HTTP/2 request,
+								the error handling has a bug that can wind up not properly cleaning up the active connections
+								and associated resources. This can lead to a Denial of Service scenario where there are no enough
+								resources left to process good requests.</dd>
+							</dlentry>
+							<dlentry>
+								<dt>NOTES</dt>
+								<dd>Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of Jetty
+								subject to this CVE.
+								Note that in stand-alone Memory Analyzer the Jetty help webserver just serves HTTP/1.1, so it might not
+								be possible to exploit this vulnerability.
+								Also note that it only listens on localhost, so is not accessible outside the machine.</dd>
+							</dlentry>
+						</dl>
+					</dd>
+				</dlentry>
+				<dlentry>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2022-2191">CVE-2022-2191</xref></dt>
+					<dd>
+						<dl>
+							<dlentry>
+								<dt>PROBLEMTYPE</dt>
+								<dd>CWE-404: Improper Resource Shutdown or Release</dd>
+								<dd>CWE-664: Improper Control of a Resource Through its Lifetime</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>In Eclipse Jetty versions 10.0.0 thru 10.0.9, and 11.0.0 thru 11.0.9 versions, SslConnection 
+								does not release ByteBuffers from configured ByteBufferPool in case of error code paths.</dd>
+							</dlentry>
+							<dlentry>
+								<dt>NOTES</dt>
+								<dd>Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of Jetty
+								subject to this CVE. Note that in stand-alone Eclipse Memory Analyzer does not have
+								HTTPS SSL connections to the Memory Analyzer Jetty help server, so it might not
+								be possible to exploit this vulnerability.
+								Also note that it only listens on localhost, so is not accessible outside the machine.</dd>
+							</dlentry>
+						</dl>
+					</dd>
+				</dlentry>
+				<dlentry>
+					<dt><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2021-41033">CVE-2021-41033</xref></dt>
+					<dd>
+						<dl>
+							<dlentry>
+								<dt>PROBLEMTYPE</dt>
+								<dd>CWE-300: Channel Accessible by Non-Endpoint</dd>
+							</dlentry>
+							<dlentry>
+								<dt>DESCRIPTION</dt>
+								<dd>In all released versions of Eclipse Equinox, at least until version 4.21 (September 2021),
+								installation can be vulnerable to man-in-the-middle attack if using p2 repos that are HTTP; 
+								that can then be exploited to serve incorrect p2 metadata and entirely alter the local installation, particularly by installing plug-ins that may then run malicious code
+								</dd>
+							</dlentry>
+							<dlentry>
+								<dt>NOTES</dt>
+								<dd>Eclipse Memory Analyzer uses Equinox p2 to access update sites.
+								If in Eclipse Memory Analyzer the URL of the p2 update site is specified in p2 configuration as 
+								HTTP rather than HTTPS then there is the possibility
+								of interception or modification of traffic before the connection is upgraded to HTTPS.
+								Stand-alone Eclipse Memory Analyzer 1.13.0 and later uses a version of Eclipse Equinox which gives a 
+								warning such as:
+									<lines>
+									<systemoutput>
+										org.eclipse.equinox.p2.repository
+										Warning
+										Thu Aug 25 16:52:34 BST 2022
+										Using unsafe http transport to retrieve http://download.eclipse.org/mat/latest/update-site/content.xml.xz, see CVE-2021-41033. Consider using https instead.
+									</systemoutput>
+									</lines>
+								Consult the <xref format="dita" href="reference/support.dita">Error Log</xref> to see these warnings.
+								Eclipse Memory Analyzer 1.14.0 is configured to specify the supplied update sites
+								using HTTPS rather than HTTP.
+								It is then up to the user to specify HTTPS rather than HTTP in any new update site definition. 
+								</dd>
+							</dlentry>
+						</dl>
+					</dd>
 				</dlentry>
 			</dl>
 			The stand-alone Memory Analyzer 1.13.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
@@ -126,9 +227,16 @@
 			</dl>
 		</section>
 		<section>
+			<title>New and Noteworthy for Memory Analyzer 1.14.0</title>
+			<p>
+				The latest New and Noteworthy document for version 1.14.0 is available 
+				<xref format="html" scope="peer" href="http://www.eclipse.org/mat/1.14.0/noteworthy.html">here</xref>.
+			</p>
+		</section>
+		<section>
 			<title>New and Noteworthy for Memory Analyzer 1.13.0</title>
 			<p>
-				The latest New and Noteworthy document for version 1.13.0 is available 
+				The New and Noteworthy document for version 1.13.0 is available 
 				<xref format="html" scope="peer" href="http://www.eclipse.org/mat/1.13.0/noteworthy.html">here</xref>.
 			</p>
 		</section>

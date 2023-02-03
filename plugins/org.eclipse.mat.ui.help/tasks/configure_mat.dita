@@ -171,7 +171,7 @@
 					</dl>
 				</dd>
 			</dlentry>
-			<dlentry>
+			<dlentry id="expand">
 				<dt>Expanded entries in tables and trees</dt>
 				<dd>There can be many rows in the tables and trees produced by queries.
 				This controls the number of new entries displayed after a double click
