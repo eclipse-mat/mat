@@ -53,7 +53,7 @@
 			<b>Acquire diagnostics</b></xref> command, also available from
 				<menucascade>
 					<uicontrol>Help</uicontrol>
-					<uicontrol>Memory Analyzer diagnostics...</uicontrol>
+					<uicontrol>Memory Analyzer Diagnostics...</uicontrol>
 				</menucascade>
 				This can capture a thread dump, showing what each Java thread in the
 				Eclipse Memory Analyzer process is doing.
