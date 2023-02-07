@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?><!--
-    Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -127,6 +127,10 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ExternalDataResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MemberNameResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ModuleResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$LocaleResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$SunLocaleResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ICUBaseLocaleResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ULocaleResolver" />
 		<!-- networking -->
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressHolderResolver"/>

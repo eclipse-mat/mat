@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -843,6 +843,110 @@ public class CommonNameResolver
         {
             IObject name = (IObject) obj.resolveValue("name"); //$NON-NLS-1$
             return name != null ? name.getClassSpecificName() : null;
+        }
+    }
+
+    private static String resolveField(IObject obj, String field) throws SnapshotException
+    {
+        IObject fieldObject = (IObject) obj.resolveValue(field);
+        return fieldObject != null ? fieldObject.getClassSpecificName() : null;
+    }
+
+    @Subjects({"java.util.Locale"})
+    public static class LocaleResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            String languageTag = resolveField(obj, "languageTag"); //$NON-NLS-1$
+            if (languageTag != null && !languageTag.isEmpty())
+                return languageTag;
+            return resolveField(obj, "baseLocale"); //$NON-NLS-1$
+        }
+    }
+
+    @Subjects({"sun.util.locale.BaseLocale"})
+    public static class SunLocaleResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            String lang = resolveField(obj, "language"); //$NON-NLS-1$
+            String region = resolveField(obj, "region"); //$NON-NLS-1$
+            String script = resolveField(obj, "script"); //$NON-NLS-1$
+            String variant = resolveField(obj, "variant"); //$NON-NLS-1$
+            StringBuilder result = new StringBuilder();
+            if (lang != null)
+                result.append(lang);
+            if (script != null && !script.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(script);
+            }
+            if (region != null && !region.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(region);
+            }
+            if (variant != null && !variant.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(variant);
+            }
+            return result.toString();
+        }
+    }
+
+    @Subjects({"com.ibm.icu.impl.locale.BaseLocale"})
+    public static class ICUBaseLocaleResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            String lang = resolveField(obj, "_language"); //$NON-NLS-1$
+            String region = resolveField(obj, "_region"); //$NON-NLS-1$
+            String script = resolveField(obj, "_script"); //$NON-NLS-1$
+            String variant = resolveField(obj, "_variant"); //$NON-NLS-1$
+            StringBuilder result = new StringBuilder();
+            if (lang != null)
+                result.append(lang);
+            if (script != null && !script.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(script);
+            }
+            if (region != null && !region.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(region);
+            }
+            if (variant != null && !variant.isEmpty())
+            {
+                if (result.length() > 0)
+                    result.append('_');
+                result.append(variant);
+            }
+            return result.toString();
+        }
+    }
+
+    @Subjects({"com.ibm.icu.util.ULocale"})
+    public static class ULocaleResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            String localeID = resolveField(obj, "localeID"); //$NON-NLS-1$
+            if (localeID != null && !localeID.isEmpty())
+                return localeID;
+            String locale = resolveField(obj, "locale"); //$NON-NLS-1$
+            if (locale != null && !locale.isEmpty())
+                return locale;
+             String baseLocale = resolveField(obj, "baseLocale"); //$NON-NLS-1$
+            if (baseLocale != null && !baseLocale.isEmpty())
+                return locale;
+            return null;
         }
     }
 }
