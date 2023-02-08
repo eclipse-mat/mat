@@ -712,8 +712,10 @@ public class Pass1Parser extends AbstractParser
                     }
                 }
 
+                StringBuilder classNameBuilder = new StringBuilder(className);
                 for (int ii = 0; ii < count; ii++)
-                    className += "[]"; //$NON-NLS-1$
+                    classNameBuilder.append("[]"); //$NON-NLS-1$
+                className = classNameBuilder.toString();
             }
         }
 

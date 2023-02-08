@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,9 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 import org.eclipse.mat.snapshot.ISnapshot;
 
@@ -58,5 +61,24 @@ public class ThreadToLocalReference extends PseudoReference
     public GCRootInfo[] getGcRootInfo()
     {
         return gcRootInfo;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ThreadToLocalReference other = (ThreadToLocalReference) obj;
+        return localObjectId == other.localObjectId && Arrays.equals(gcRootInfo, other.gcRootInfo);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), Arrays.hashCode(gcRootInfo), localObjectId);
     }
 }
