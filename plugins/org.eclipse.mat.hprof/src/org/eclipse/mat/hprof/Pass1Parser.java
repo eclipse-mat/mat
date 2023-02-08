@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -219,7 +219,7 @@ public class Pass1Parser extends AbstractParser
                             }
                         }
                         else
-                            in.skipBytes(length);
+                            checkSkipBytes(length);
                         if (ctxs.size() < currentDumpNr + 1)
                         {
                             MultipleSnapshotsException.Context ctx = new MultipleSnapshotsException.Context(dumpIdentifier(currentDumpNr));
@@ -233,7 +233,7 @@ public class Pass1Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP_END:
                         currentDumpNr++;
-                        in.skipBytes(length);
+                        checkSkipBytes(length);
                         break;
                     case Constants.Record.ALLOC_SITES:
                     case Constants.Record.HEAP_SUMMARY:
@@ -241,7 +241,7 @@ public class Pass1Parser extends AbstractParser
                     case Constants.Record.END_THREAD:
                     case Constants.Record.CPU_SAMPLES:
                     case Constants.Record.CONTROL_SETTINGS:
-                        in.skipBytes(length);
+                        checkSkipBytes(length);
                         break;
                     default:
                         switch (strictnessPreference)
@@ -256,7 +256,7 @@ public class Pass1Parser extends AbstractParser
                                                 Severity.WARNING,
                                                 MessageUtil.format(Messages.Pass1Parser_UnexpectedRecord,
                                                                 Integer.toHexString(record), length, Long.toHexString(curPos)), null);
-                                in.skipBytes(length);
+                                checkSkipBytes(length);
                                 break;
                             default:
                                 throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
@@ -342,7 +342,7 @@ public class Pass1Parser extends AbstractParser
     {
         long classSerNum = in.readUnsignedInt(); // used in stacks frames
         long classID = in.readID(idSize);
-        in.skipBytes(4); // stack trace
+        checkSkipBytes(4); // stack trace
         long nameID = in.readID(idSize);
 
         String className = getStringConstant(nameID).replace('/', '.');
@@ -598,7 +598,7 @@ public class Pass1Parser extends AbstractParser
     private void readClassDump(long segmentStartPos) throws IOException
     {
         long address = in.readID(idSize);
-        in.skipBytes(4); // stack trace serial number
+        checkSkipBytes(4); // stack trace serial number
         long superClassObjectId = in.readID(idSize);
         long classLoaderObjectId = in.readID(idSize);
 
@@ -776,7 +776,7 @@ public class Pass1Parser extends AbstractParser
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
         long address = in.readID(idSize);
-        in.skipBytes(4); // stack trace serial
+        checkSkipBytes(4); // stack trace serial
         long classID = in.readID(idSize);
         int payload = in.readInt();
 
@@ -798,7 +798,7 @@ public class Pass1Parser extends AbstractParser
             foundCompressed = true;
         }
 
-        in.skipBytes(4); // stack trace serial
+        checkSkipBytes(4); // stack trace serial
         int size = in.readInt();
         long arrayClassObjectID = in.readID(idSize);
 
@@ -818,7 +818,7 @@ public class Pass1Parser extends AbstractParser
     {
         long address = in.readID(idSize);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
         int size = in.readInt();
         byte elementType = in.readByte();
 

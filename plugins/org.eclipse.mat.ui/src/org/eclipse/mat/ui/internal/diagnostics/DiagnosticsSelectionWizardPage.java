@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2022 IBM Corporation.
+ * Copyright (c) 2022, 2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.diagnostics;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-
-import javax.management.InstanceNotFoundException;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -102,36 +99,56 @@ public class DiagnosticsSelectionWizardPage extends WizardPage
     {
         addTableItem(Messages.DiagnosticsAction_ThreadMXBeanDump_Description, new ThreadMXBeanDump());
 
+        boolean j9vm = true;
         try
         {
             // Check if this is a J9 JVM
             Class.forName("com.ibm.jvm.Dump").getMethod("triggerDump", new Class<?>[] { String.class }); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        catch (ClassNotFoundException | NoSuchMethodException e)
+        {
+            // This is okay for a non-J9 JVM
+            j9vm = false;
+        }
+        catch (Exception e)
+        {
+            // This is okay for a non-J9 JVM
+            j9vm = false;
+        }
 
+        if (j9vm)
+        {
             // If the class and method were found, then assume this is a J9 JVM
             // and add some actions
             addTableItem(Messages.DiagnosticsAction_J9JVMThreadDump_Description, new J9JVMThreadDump());
             addTableItem(Messages.DiagnosticsAction_J9JVMHeapDump_Description, new J9JVMHeapDump());
             addTableItem(Messages.DiagnosticsAction_J9JVMSystemDump_Description, new J9JVMSystemDump());
         }
-        catch (Exception e)
-        {
-            // This is okay for a non-J9 JVM
-        }
 
+        boolean hotspotvm = true;
         try
         {
             // Check if this is a HotSpot JVM
             Class<?> dumpcls = Class.forName("com.sun.management.HotSpotDiagnosticMXBean"); //$NON-NLS-1$
             ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(),
                             "com.sun.management:type=HotSpotDiagnostic", dumpcls); //$NON-NLS-1$
-
-            // If the class is found, then assume this is a HotSpot JVM
-            // and add some actions
-            addTableItem(Messages.DiagnosticsAction_HotSpotJVMHeapDump_Description, new HotSpotJVMHeapDump());
+        }
+        catch (ClassNotFoundException | IllegalArgumentException e)
+        {
+            // This is okay for a non-HotSpot JVM
+            hotspotvm = false;
         }
         catch (Exception e)
         {
             // This is okay for a non-HotSpot JVM
+            hotspotvm = false;
+        }
+
+        if (hotspotvm)
+        {
+            // If the class is found, then assume this is a HotSpot JVM
+            // and add some actions
+            addTableItem(Messages.DiagnosticsAction_HotSpotJVMHeapDump_Description, new HotSpotJVMHeapDump());
         }
 
         // For diagnosing issues with wizard cancellation:
