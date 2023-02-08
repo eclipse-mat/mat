@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ public class Pass2Parser extends AbstractParser
             idSize = in.readInt();
             if (idSize != 4 && idSize != 8)
                 throw new SnapshotException(Messages.Pass1Parser_Error_SupportedDumps);
-            in.skipBytes(8); // creation date
+            checkSkipBytes(8); // creation date
 
             long fileSize = streamLength;
             long curPos = in.position();
@@ -87,7 +87,7 @@ public class Pass2Parser extends AbstractParser
                     break;
                 int record = r & 0xff;
 
-                in.skipBytes(4); // time stamp
+                checkSkipBytes(4); // time stamp
 
                 long length = in.readUnsignedInt();
                 if (length < 0)
@@ -121,7 +121,7 @@ public class Pass2Parser extends AbstractParser
                         if (dumpMatches(currentDumpNr, dumpNrToRead))
                             readDumpSegments(length);
                         else
-                            in.skipBytes(length);
+                            checkSkipBytes(length);
 
                         if (record == Constants.Record.HEAP_DUMP)
                             currentDumpNr++;
@@ -129,10 +129,10 @@ public class Pass2Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP_END:
                         currentDumpNr++;
-                        in.skipBytes(length);
+                        checkSkipBytes(length);
                         break;
                     default:
-                        in.skipBytes(length);
+                        checkSkipBytes(length);
                         break;
                 }
 
@@ -241,19 +241,19 @@ public class Pass2Parser extends AbstractParser
                         case Constants.DumpSegment.ROOT_UNKNOWN:
                         case Constants.DumpSegment.ROOT_STICKY_CLASS:
                         case Constants.DumpSegment.ROOT_MONITOR_USED:
-                            in.skipBytes(idSize);
+                            checkSkipBytes(idSize);
                             break;
                         case Constants.DumpSegment.ROOT_JNI_GLOBAL:
-                            in.skipBytes(idSize * 2);
+                            checkSkipBytes(idSize * 2);
                             break;
                         case Constants.DumpSegment.ROOT_NATIVE_STACK:
                         case Constants.DumpSegment.ROOT_THREAD_BLOCK:
-                            in.skipBytes(idSize + 4);
+                            checkSkipBytes(idSize + 4);
                             break;
                         case Constants.DumpSegment.ROOT_THREAD_OBJECT:
                         case Constants.DumpSegment.ROOT_JNI_LOCAL:
                         case Constants.DumpSegment.ROOT_JAVA_FRAME:
-                            in.skipBytes(idSize + 8);
+                            checkSkipBytes(idSize + 8);
                             break;
                         case Constants.DumpSegment.CLASS_DUMP:
                             skipClassDump();
@@ -293,30 +293,30 @@ public class Pass2Parser extends AbstractParser
 
     private void skipClassDump() throws IOException
     {
-        in.skipBytes(7 * idSize + 8);
+        checkSkipBytes(7 * idSize + 8);
 
         int constantPoolSize = in.readUnsignedShort();
         for (int ii = 0; ii < constantPoolSize; ii++)
         {
-            in.skipBytes(2);
+            checkSkipBytes(2);
             skipValue(in);
         }
 
         int numStaticFields = in.readUnsignedShort();
         for (int i = 0; i < numStaticFields; i++)
         {
-            in.skipBytes(idSize);
+            checkSkipBytes(idSize);
             skipValue(in);
         }
 
         int numInstanceFields = in.readUnsignedShort();
-        in.skipBytes((idSize + 1) * numInstanceFields);
+        checkSkipBytes((idSize + 1) * numInstanceFields);
     }
 
     private HeapObject readInstanceDump(long segmentStartPos) throws IOException
     {
         long id = in.readID(idSize);
-        in.skipBytes(4);
+        checkSkipBytes(4);
         long classID = in.readID(idSize);
         int bytesFollowing = in.readInt();
 
@@ -330,7 +330,7 @@ public class Pass2Parser extends AbstractParser
     {
         long id = in.readID(idSize);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
         int size = in.readInt();
         long arrayClassObjectID = in.readID(idSize);
 
@@ -347,7 +347,7 @@ public class Pass2Parser extends AbstractParser
     {
         long id = in.readID(idSize);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
         int size = in.readInt();
         byte elementType = in.readByte();
 
@@ -355,9 +355,40 @@ public class Pass2Parser extends AbstractParser
             throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes((long) elementSize * size);
+        checkSkipBytes((long) elementSize * size);
 
         return HeapObject.forPrimitiveArray(id, elementType, size, segmentStartPos);
     }
 
+    private int checkSkipBytes(int skip) throws IOException
+    {
+        int left = skip;
+        while (left > 0)
+        {
+            int skipped = in.skipBytes(left);
+            if (skipped == 0)
+            {
+                in.readByte();
+                skipped = 1;
+            }
+            left -= skipped;
+        }
+        return skip - left;
+    }
+
+    private long checkSkipBytes(long skip) throws IOException
+    {
+        long left = skip;
+        while (left > 0)
+        {
+            int skipped = in.skipBytes(Math.min(left, Integer.MAX_VALUE));
+            if (skipped == 0)
+            {
+                in.readByte();
+                skipped = 1;
+            }
+            left -= skipped;
+        }
+        return skip - left;
+    }
 }

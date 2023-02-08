@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -186,10 +186,21 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
 
     protected void skipValue(IPositionInputStream in, int type) throws IOException
     {
+        int skip;
         if (type == IObject.Type.OBJECT)
-            in.skipBytes(idSize);
+            skip = idSize;
         else
-            in.skipBytes(IPrimitiveArray.ELEMENT_SIZE[type]);
+            skip = IPrimitiveArray.ELEMENT_SIZE[type];
+        while (skip > 0)
+        {
+            int skipped = in.skipBytes(skip);
+            if (skipped == 0)
+            {
+                in.readByte();
+                skipped = 1;
+            }
+            skip -= skipped;
+        }
     }
 
     /**
