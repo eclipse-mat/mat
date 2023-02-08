@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -605,11 +605,20 @@ public class TestApplication
                 File[] oldFiles = resultDir.listFiles();
                 for (File file : oldFiles)
                 {
-                    file.delete();
+                    if (!file.delete())
+                    {
+                        System.err.println("ERROR: Unable to delete old result file " + file);
+                    }
                 }
-                resultDir.delete();
+                if (!resultDir.delete())
+                {
+                    System.err.println("ERROR: Unable to delete old result folder " + resultDir);
+                }
             }
-            resultDir.mkdir();
+            if (!resultDir.mkdir() && !resultDir.exists())
+            {
+                System.err.println("ERROR: Unable to create new result folder " + resultDir);
+            }
             unzipTestResults(resultDir, dump, result);
 
             // verify that all the baseline results have corresponding result
@@ -667,7 +676,11 @@ public class TestApplication
                     // this must be a new test - place its results to the
                     // baseline folder
                     File newBaselineFile = new File(baselineDir, testResultFile.getName());
-                    testResultFile.renameTo(newBaselineFile);
+                    if (!testResultFile.renameTo(newBaselineFile))
+                    {
+                        System.err.println("ERROR: Unable to rename test result file " + 
+                                        testResultFile + " to new baseline file " + newBaselineFile);
+                    }
 
                     System.out.println("Info: New baseline was added for " + testResultFile.getName());
                     result.addTestData(new SingleTestResult(testResultFile.getName(), "New baseline was added", null));
@@ -677,7 +690,10 @@ public class TestApplication
         else
         {
             // create baseline folder and copy the result of the tests in it
-            baselineDir.mkdir();
+            if (!baselineDir.mkdir() && !baselineDir.exists())
+            {
+                System.err.println("ERROR: Unable to create new baseline folder " + baselineDir);
+            }
             // unzip only baseline results (.csv, etc) delete zip file
             unzipTestResults(baselineDir, dump, result);
             // report new baseline creation
@@ -752,7 +768,11 @@ public class TestApplication
                 byte data[] = new byte[BUFFER];
 
                 File outputFile = new File(targetDir, entry.getName());
-                outputFile.getParentFile().mkdirs();
+                File parent = outputFile.getParentFile();
+                if (!parent.mkdirs() && !parent.exists())
+                {
+                    System.err.println("ERROR: Unable to create new folder " + parent + " for unzipping " + zipfile);
+                }
 
                 try (FileOutputStream fos = new FileOutputStream(outputFile);
                                 BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);)
@@ -783,23 +803,48 @@ public class TestApplication
     private void unzipTestResults(File baselineDir, File dumpFile, TestSuiteResult result) throws Exception
     {
         // get result file name
-        String resultsFileName = dumpFile.getAbsolutePath().substring(0, dumpFile.getAbsolutePath().lastIndexOf('.'))
+        int lastDot = dumpFile.getName().lastIndexOf('.');
+        if (lastDot < 0)
+            lastDot = dumpFile.getName().length();
+        String resultsFileName = dumpFile.getName().substring(0, lastDot)
                         + "_Regression_Tests.zip";
-        System.out.println("Unzip: unzipping test result file " + resultsFileName);
+        File originFile = new File(dumpFile.getParentFile(), resultsFileName);
+        // Dumps ending in .hprof.gz might have both parts removed
+        if (!originFile.exists() && lastDot > 0)
+        {
+            int lastButOneDot = dumpFile.getName().lastIndexOf('.', lastDot - 1);
+            if (lastButOneDot > 0)
+            {
+                String resultsFileName2 = dumpFile.getName().substring(0, lastButOneDot)
+                                + "_Regression_Tests.zip";
+                File originFile2 = new File(dumpFile.getParentFile(), resultsFileName2);
+                if (originFile2.exists())
+                {
+                    resultsFileName = resultsFileName2;
+                    originFile = originFile2;
+                }
+            }
+        }
+        System.out.println("Unzip: unzipping test result file " + originFile);
 
-        File originFile = new File(resultsFileName);
         File targetFile = new File(baselineDir, originFile.getName());
         boolean succeed = originFile.renameTo(targetFile);
         if (succeed)
         {
             // unzip
             unzip(targetFile, baselineDir, result);
-            targetFile.delete();
+            if (!targetFile.delete())
+            {
+                System.err.println("ERROR: Unable to delete " + targetFile);
+            }
         }
         else
         {
-            String message = "ERROR: Failed copying test results file " + resultsFileName
-                            + " to the destination folder " + baselineDir;
+            String message = "ERROR: Failed moving test results file " + resultsFileName
+                            + " to the destination folder " + baselineDir
+                            + " Source file " + originFile.getName() + (originFile.exists() ? " exists." : " does not exist.")
+                            + " Target file " + originFile.getName() + (targetFile.exists() ? " exists." : " does not exist.")
+                            ;
             result.addErrorMessage(message);
             System.err.println(message);
         }

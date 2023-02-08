@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -237,10 +237,22 @@ public class TestSnapshots
                 InputStream is = jarFile.getInputStream(jarEntry);
                 String entryName = conn.getEntryName();
                 String tmpDirName = System.getProperty("java.io.tmpdir");
+                // Java dump temporary directory
                 File tmpDir = new File(tmpDirName, "jdtd");
+                if (tmpDir.mkdir())
+                {
+                    tmpDir.deleteOnExit();
+                }
                 file = new File(tmpDir, entryName);
                 File parent = file.getParentFile();
-                parent.mkdirs();
+                if (parent.mkdirs())
+                {
+                    parent.deleteOnExit();
+                }
+                else if (!parent.exists())
+                {
+                    System.err.println("ERROR: Unable to create new temporary folder " + parent + " for jar entry " + entryName);
+                }
 
                 copyStreamToFile(is, file, BUFSIZE);
                 file.deleteOnExit();
@@ -258,10 +270,22 @@ public class TestSnapshots
                 InputStream is = connection.getInputStream();
 
                 String tmpDirName = System.getProperty("java.io.tmpdir");
+                // Java dump temporary directory
                 File tmpDir = new File(tmpDirName, "jdtd");
+                if (tmpDir.mkdir())
+                {
+                    tmpDir.deleteOnExit();
+                }
                 file = new File(tmpDir, name);
                 File parent = file.getParentFile();
-                parent.mkdirs();
+                if (parent.mkdirs())
+                {
+                    parent.deleteOnExit();
+                }
+                else if (!parent.exists())
+                {
+                    System.err.println("ERROR: Unable to create new temporary folder " + parent + " for bundle resource " + name);
+                }
 
                 copyStreamToFile(is, file, BUFSIZE);
                 file.deleteOnExit();
