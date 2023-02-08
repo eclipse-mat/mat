@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1337,17 +1337,29 @@ public abstract class IndexWriter
             {
                 super(n);
             }
+            @Override
             public boolean add(SetTask t)
             {
                 objcount += t.length;
                 memcount += t.values.length;
                 return super.add(t);
             }
+            @Override
             public void clear()
             {
                 objcount = 0;
                 memcount = 0;
                 super.clear();
+            }
+            @Override
+            public boolean equals(Object o)
+            {
+                return super.equals(o);
+            }
+            @Override
+            public int hashCode()
+            {
+                return super.hashCode();
             }
         }
     }

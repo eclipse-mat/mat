@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 IBM Corporation
+ * Copyright (c) 2010, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -443,17 +443,18 @@ public class IBMDumpProvider extends BaseProvider
             }
             catch (InvocationTargetException e)
             {
-                if (e.getCause() instanceof RuntimeException)
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException)
                 {
-                    throw (RuntimeException)e.getCause();
+                    throw (RuntimeException)cause;
                 }
-                else if (e.getCause() instanceof Error)
+                else if (cause instanceof Error)
                 {
-                    throw (Error)e.getCause();
+                    throw (Error)cause;
                 }
                 else
                 {
-                    throw new UndeclaredThrowableException(e.getCause());
+                    throw new UndeclaredThrowableException(cause);
                 }
             }
             return ret;
@@ -1423,7 +1424,7 @@ public class IBMDumpProvider extends BaseProvider
         }
         IProgressListener ii = new StderrProgressListener();
         List<IBMVmInfo> vms = prov.getAvailableVMs1(ii);
-        for (VmInfo info : vms)
+        for (IBMVmInfo info : vms)
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();

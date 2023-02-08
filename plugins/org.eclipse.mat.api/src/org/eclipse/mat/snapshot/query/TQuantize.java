@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -219,7 +219,7 @@ public final class TQuantize
      */
     public static final class Builder
     {
-        private final class WrappedComparator implements Comparator<Object>
+        private static final class WrappedComparator implements Comparator<Object>
         {
             Comparator<Object> original;
 
@@ -533,6 +533,24 @@ public final class TQuantize
             {
                 return 1;
             }
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            return compareTo((GroupedRow)obj) == 0;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return label.hashCode();
         }
 
         public List<?> getSubjects()
@@ -935,6 +953,24 @@ public final class TQuantize
                 return name.compareTo(((Package) o).name);
             else
                 return 1;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            return compareTo((GroupedRow)obj) == 0;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return name.hashCode();
         }
 
         void setGroupedRow(GroupedRowImpl row)

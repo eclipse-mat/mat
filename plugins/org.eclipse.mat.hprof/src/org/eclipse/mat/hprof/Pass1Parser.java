@@ -689,9 +689,10 @@ public class Pass1Parser extends AbstractParser
             if (matcher.matches())
             {
                 int l = matcher.group(1).length();
-                className = matcher.group(2);
+                StringBuilder classNameBuilder = new StringBuilder(matcher.group(2));
                 for (int ii = 0; ii < l; ii++)
-                    className += "[]"; //$NON-NLS-1$
+                    classNameBuilder.append("[]"); //$NON-NLS-1$
+                className = classNameBuilder.toString();
             }
 
             // primitive arrays

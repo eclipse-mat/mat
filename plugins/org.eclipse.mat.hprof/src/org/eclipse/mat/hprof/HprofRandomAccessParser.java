@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, Netflix, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, Netflix, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -275,14 +275,14 @@ public class HprofRandomAccessParser extends AbstractParser
         if (objectId >= 0)
         {
             // Skip serial number, class ID, length
-            if (in.skipBytes(8 + idSize) != 8 + idSize)
+            if (checkSkipBytes(8 + idSize) != 8 + idSize)
                 throw new IOException();
             oclazz = dump.getClassOf(objectId);
         }
         else
         {
             // skip serial number
-            if (in.skipBytes(4) != 4)
+            if (checkSkipBytes(4) != 4)
                 throw new IOException();
             // class ID
             long classAddr = in.readID(idSize);
@@ -300,7 +300,7 @@ public class HprofRandomAccessParser extends AbstractParser
             catch (SnapshotException e)
             {
                 // move to end of object
-                if (in.skipBytes(len) != len)
+                if (checkSkipBytes(len) != len)
                     throw new IOException();
                 // Invalid object, but might be good enough for skipping over
                 return new InstanceImpl(objectId, address, null, null);
@@ -341,7 +341,7 @@ public class HprofRandomAccessParser extends AbstractParser
     {
         long id = in.readID(idSize);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
         int size = in.readInt();
         long len = (long)size * idSize;
 
@@ -358,7 +358,7 @@ public class HprofRandomAccessParser extends AbstractParser
             {
                 ObjectArrayImpl array = new ObjectArrayImpl(objectId, id, null, size);
                 // Move to end of object
-                if (in.skipBytes(len) != len)
+                if (checkSkipBytes(len) != len)
                     throw new IOException();
                 return array;
             }
@@ -385,7 +385,7 @@ public class HprofRandomAccessParser extends AbstractParser
             if (objectId == -1)
             {
                 // Move to end of object
-                if (in.skipBytes(len) != len)
+                if (checkSkipBytes(len) != len)
                     throw new IOException();
             }
         }
@@ -399,7 +399,7 @@ public class HprofRandomAccessParser extends AbstractParser
     {
         long id = in.readID(idSize);
 
-        in.skipBytes(4);
+        checkSkipBytes(4);
         int arraySize = in.readInt();
 
         long elementType = in.readByte();
@@ -422,7 +422,7 @@ public class HprofRandomAccessParser extends AbstractParser
             if (objectId == -1)
             {
                 // Move to end of object
-                if (in.skipBytes(len) != len)
+                if (checkSkipBytes(len) != len)
                     throw new IOException();
             }
         }
@@ -516,7 +516,7 @@ public class HprofRandomAccessParser extends AbstractParser
             if (skip >= 0)
             {
                 // Skip over new segment header etc.
-                in.skipBytes(skip);
+                checkSkipBytes(skip);
                 segmentType = in.readUnsignedByte();
             }
         }
@@ -526,23 +526,55 @@ public class HprofRandomAccessParser extends AbstractParser
 
     private void skipClassDump() throws IOException
     {
-        in.skipBytes(7 * idSize + 8);
+        checkSkipBytes(7 * idSize + 8);
 
         int constantPoolSize = in.readUnsignedShort();
         for (int ii = 0; ii < constantPoolSize; ii++)
         {
-            in.skipBytes(2);
+            checkSkipBytes(2);
             skipValue(in);
         }
 
         int numStaticFields = in.readUnsignedShort();
         for (int i = 0; i < numStaticFields; i++)
         {
-            in.skipBytes(idSize);
+            checkSkipBytes(idSize);
             skipValue(in);
         }
 
         int numInstanceFields = in.readUnsignedShort();
-        in.skipBytes((idSize + 1) * numInstanceFields);
+        checkSkipBytes((idSize + 1) * numInstanceFields);
+    }
+
+    private int checkSkipBytes(int skip) throws IOException
+    {
+        int left = skip;
+        while (left > 0)
+        {
+            int skipped = in.skipBytes(left);
+            if (skipped == 0)
+            {
+                in.readByte();
+                skipped = 1;
+            }
+            left -= skipped;
+        }
+        return skip - left;
+    }
+
+    private long checkSkipBytes(long skip) throws IOException
+    {
+        long left = skip;
+        while (left > 0)
+        {
+            int skipped = in.skipBytes(Math.min(left, Integer.MAX_VALUE));
+            if (skipped == 0)
+            {
+                in.readByte();
+                skipped = 1;
+            }
+            left -= skipped;
+        }
+        return skip - left;
     }
 }

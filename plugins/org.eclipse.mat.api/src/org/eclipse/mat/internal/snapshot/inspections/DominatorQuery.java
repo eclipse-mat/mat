@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -227,6 +227,32 @@ public class DominatorQuery implements IQuery
         {
             super(objectId);
         }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(super.hashCode(), objects.size());
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            GroupedNode other = (GroupedNode) obj;
+            if (objects.size() != other.objects.size())
+                return false;
+            for (int i = 0; i < objects.size(); ++i)
+            {
+                if (objects.get(i) != other.objects.get(i))
+                    return false;
+            }
+            return true;
+        }
     }
 
     private static class ClassNode extends GroupedNode
@@ -249,6 +275,11 @@ public class DominatorQuery implements IQuery
             this.label = label;
             shallowHeap = new Bytes(0);
             retainedHeap = new Bytes(0);
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            return super.equals(obj);
         }
     }
 

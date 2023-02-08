@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -67,9 +67,12 @@ public class RegTestUtils
     protected static List<File> collectDumps(File dumpsFolder, List<File> dumpList)
     {
         File[] dumps = dumpsFolder.listFiles(filter);
-        for (File file : dumps)
+        if (dumps != null)
         {
-            dumpList.add(file);
+            for (File file : dumps)
+            {
+                dumpList.add(file);
+            }
         }
 
         // check whether sub-folders contain heap dumps
@@ -82,9 +85,12 @@ public class RegTestUtils
             }
         });
 
-        for (File dir : directories)
+        if (directories != null)
         {
-            collectDumps(dir, dumpList);
+            for (File dir : directories)
+            {
+                collectDumps(dir, dumpList);
+            }
         }
 
         return dumpList;

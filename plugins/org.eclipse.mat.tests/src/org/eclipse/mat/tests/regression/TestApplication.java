@@ -596,18 +596,22 @@ public class TestApplication
         // check if the baseline exists. Baseline is placed in the
         // sub-folder, named <heapDumpName>_baseline
         File baselineDir = new File(dump.getAbsolutePath() + RegTestUtils.BASELINE_EXTENSION);
-        if (baselineDir.exists() && baselineDir.isDirectory() && baselineDir.listFiles().length > 0)
+        File[] baselineFiles;
+        if (baselineDir.exists() && baselineDir.isDirectory() && (baselineFiles = baselineDir.listFiles()) != null && baselineFiles.length > 0)
         {
             // create folder, unzip result in it
             File resultDir = new File(dump.getAbsolutePath() + RegTestUtils.TEST_EXTENSION);
             if (resultDir.exists())
             {
                 File[] oldFiles = resultDir.listFiles();
-                for (File file : oldFiles)
+                if (oldFiles != null)
                 {
-                    if (!file.delete())
+                    for (File file : oldFiles)
                     {
-                        System.err.println("ERROR: Unable to delete old result file " + file);
+                        if (!file.delete())
+                        {
+                            System.err.println("ERROR: Unable to delete old result file " + file);
+                        }
                     }
                 }
                 if (!resultDir.delete())
@@ -623,7 +627,6 @@ public class TestApplication
 
             // verify that all the baseline results have corresponding result
             // files in test folder
-            File[] baselineFiles = baselineDir.listFiles();
             for (final File baselineFile : baselineFiles)
             {
                 File[] matchingFiles = resultDir.listFiles(new FileFilter()
@@ -635,7 +638,7 @@ public class TestApplication
                     }
 
                 });
-                if (matchingFiles.length == 0)
+                if (matchingFiles == null || matchingFiles.length == 0)
                 {
                     String errorMessage = MessageUtil.format(
                                     "ERROR: Baseline result {0} has no corresponding test result", baselineFile);
@@ -649,6 +652,8 @@ public class TestApplication
             File[] results = resultDir.listFiles();
 
             System.out.println("-------------------------------------------------------------------");
+            if (results == null)
+                results = new File[0];
             for (final File testResultFile : results)
             {
                 File[] matchingFiles = baselineDir.listFiles(new FileFilter()
@@ -660,7 +665,7 @@ public class TestApplication
                     }
 
                 });
-                if (matchingFiles.length == 1)
+                if (matchingFiles == null || matchingFiles.length == 1)
                 {
                     String fileExtention = testResultFile.getName().substring(
                                     testResultFile.getName().lastIndexOf('.') + 1, testResultFile.getName().length());
@@ -698,6 +703,8 @@ public class TestApplication
             unzipTestResults(baselineDir, dump, result);
             // report new baseline creation
             File[] baseline = baselineDir.listFiles();
+            if (baseline == null)
+                baseline = new File[0];
             for (File baselineFile : baseline)
             {
                 SingleTestResult singleTestResult = new SingleTestResult(baselineFile.getName(),
@@ -714,7 +721,8 @@ public class TestApplication
         File dir = file.getParentFile();
 
         String[] indexFiles = dir.list(RegTestUtils.cleanupFilter);
-
+        if (indexFiles == null)
+            indexFiles = new String[0];
         for (String indexFile : indexFiles)
         {
             File f = new File(dir, indexFile);
@@ -749,13 +757,12 @@ public class TestApplication
             // is not possible
             return;
         }
-        ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(fis));
-        ZipEntry entry;
 
         Pattern baselinePattern = Pattern.compile("(.*\\.)?csv");
         Pattern domTreePattern = Pattern.compile("(.*\\.)?bin");
-        try
+        try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(fis)))
         {
+            ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null)
             {
                 // unzip only baseline files
@@ -785,7 +792,6 @@ public class TestApplication
                     dest.flush();
                 }
             }
-            zipInputStream.close();
         }
         catch (FileNotFoundException e)
         {
