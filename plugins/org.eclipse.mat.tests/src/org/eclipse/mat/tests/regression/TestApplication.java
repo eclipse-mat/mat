@@ -665,7 +665,7 @@ public class TestApplication
                     }
 
                 });
-                if (matchingFiles == null || matchingFiles.length == 1)
+                if (matchingFiles != null && matchingFiles.length == 1)
                 {
                     String fileExtention = testResultFile.getName().substring(
                                     testResultFile.getName().lastIndexOf('.') + 1, testResultFile.getName().length());
