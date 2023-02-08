@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - check file return codes
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -35,10 +36,14 @@ public class ForceNewBaselineApplication
             File baselineFolder = new File(dump.getAbsolutePath() + RegTestUtils.BASELINE_EXTENSION);
             if (baselineFolder.exists())
             {
-                for (File file : baselineFolder.listFiles())
+                File[] listFiles = baselineFolder.listFiles();
+                if (listFiles != null)
                 {
-                    RegTestUtils.removeFile(file);
+                    for (File file : listFiles)
+                    {
+                        RegTestUtils.removeFile(file);
 
+                    }
                 }
                 RegTestUtils.removeFile(baselineFolder);
             }
@@ -49,12 +54,16 @@ public class ForceNewBaselineApplication
 
             // rename test result folder into baseline folder
             File testFolder = new File(dump.getAbsolutePath() + RegTestUtils.TEST_EXTENSION);
-            if (testFolder.exists() && testFolder.listFiles().length > 0)
+            File[] baselineFiles;
+            if (testFolder.exists() && (baselineFiles = testFolder.listFiles()) != null
+                            && baselineFiles.length > 0)
             {
                 // create new baseline folder
                 File newBaselineFolder = new File(dump.getAbsolutePath() + RegTestUtils.BASELINE_EXTENSION);
-                newBaselineFolder.mkdir();
-                File[] baselineFiles = testFolder.listFiles();
+                if (!newBaselineFolder.mkdir() && !newBaselineFolder.exists())
+                {
+                    System.err.println("ERROR: Unable to create new baseline folder " + newBaselineFolder);
+                }
                 for (File baselineFile : baselineFiles)
                 {
                     File newBaselineFile = new File(newBaselineFolder, baselineFile.getName());
@@ -70,7 +79,10 @@ public class ForceNewBaselineApplication
                                         + " file: " + baselineFile.getName());
                     }
                 }
-                testFolder.delete();
+                if (!testFolder.delete())
+                {
+                    System.err.println("ERROR: Failed to delete test folder " + testFolder + " after creating new baseline");
+                }
 
             }
             else
