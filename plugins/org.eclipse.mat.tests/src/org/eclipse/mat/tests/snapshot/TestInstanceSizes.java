@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -94,9 +94,10 @@ public class TestInstanceSizes
             if (matcher.matches())
             {
                 int l = matcher.group(1).length();
-                className = matcher.group(2);
+                StringBuilder classNameBuilder = new StringBuilder(matcher.group(2));
                 for (int ii = 0; ii < l; ii++)
-                    className += "[]"; //$NON-NLS-1$
+                    classNameBuilder.append("[]"); //$NON-NLS-1$
+                className = classNameBuilder.toString();
             }
 
             // primitive arrays
@@ -116,8 +117,10 @@ public class TestInstanceSizes
                     }
                 }
 
+                StringBuilder classNameBuilder = new StringBuilder(className);
                 for (int ii = 0; ii < count; ii++)
-                    className += "[]"; //$NON-NLS-1$
+                    classNameBuilder.append("[]"); //$NON-NLS-1$
+                className = classNameBuilder.toString();
             }
         }
         return className;
