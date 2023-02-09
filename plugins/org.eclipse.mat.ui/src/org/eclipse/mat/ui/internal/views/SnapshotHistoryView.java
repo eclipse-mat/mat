@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -682,7 +682,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         int lastDot = name.lastIndexOf('.');
         final String prefix = lastDot >= 0 ? name.substring(0, lastDot) : name;
         // Delete threads file as well as indexes
-        final Pattern pattern = Pattern.compile("\\.(([A-Za-z0-9]*\\.)?index|threads)$");//$NON-NLS-1$
+        final Pattern pattern = Pattern.compile("\\.(([A-Za-z0-9]{1,20}\\.)?index|threads)$");//$NON-NLS-1$
 
         String[] indexFiles = directory.list(new FilenameFilter()
         {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 IBM Corporation
+ * Copyright (c) 2010, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -163,8 +164,8 @@ public class IBMExecDumpProvider extends BaseProvider
             }
             pb.command(args);
             p = pb.start();
-            StringBuffer err = new StringBuffer();
-            StringBuffer in = new StringBuffer();
+            StringBuilder err = new StringBuilder();
+            StringBuilder in = new StringBuilder();
             InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
             try
             {
@@ -526,6 +527,7 @@ public class IBMExecDumpProvider extends BaseProvider
             parserFactory.setNamespaceAware(true);
             SAXParser parser = parserFactory.newSAXParser();
             XMLReader saxXmlReader =  parser.getXMLReader();
+            saxXmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(new StringReader(input)));

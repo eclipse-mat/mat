@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -502,6 +503,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
             parserFactory.setNamespaceAware(true);
             SAXParser parser = parserFactory.newSAXParser();
             XMLReader saxXmlReader =  parser.getXMLReader();
+            saxXmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(new StringReader(input)));
