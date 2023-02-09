@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -189,6 +190,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             XMLReader saxXmlReader =  parser.getXMLReader();
             // Old way is deprecated
             //saxXmlReader = XMLReaderFactory.createXMLReader();
+            saxXmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(input));

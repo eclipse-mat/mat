@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -110,7 +110,10 @@ public class FindLeaksQuery2 implements IQuery
     public String options = "-prefix"; //$NON-NLS-1$
 
     @Argument(isMandatory = false)
-    public Pattern mask = Pattern.compile("\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"); //$NON-NLS-1$
+    public Pattern mask = Pattern.compile("\\s@ 0x[0-9a-f]+"//$NON-NLS-1$
+                    + "|^(\\[[0-9]+\\], ){0,100}\\[[0-9]+\\](,\\.\\.\\.)?$"//$NON-NLS-1$
+                    + "|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"//$NON-NLS-1$
+                    ); 
 
     @Argument(isMandatory = false, flag = "x")
     public String[] extraReferences = new String[] {

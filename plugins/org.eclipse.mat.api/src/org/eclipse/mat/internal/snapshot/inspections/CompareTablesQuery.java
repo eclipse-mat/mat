@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2010, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -82,9 +82,15 @@ import com.ibm.icu.text.NumberFormat;
 @Icon("/META-INF/icons/compare.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
 @Menu({ @Entry(options = "-setop ALL")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key;")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key;")
-,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key; -setop ALL")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \""
+                + CompareTablesQuery.simplePattern
+                + "\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key;")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \""
+                + CompareTablesQuery.complexPattern
+                + "\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key;")
+,@Entry(options = "-mode DIFF_TO_PREVIOUS -prefix -mask \""
+                + CompareTablesQuery.complexPattern
+                + "\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key; -setop ALL")
 })
 public class CompareTablesQuery implements IQuery
 {
@@ -128,6 +134,23 @@ public class CompareTablesQuery implements IQuery
     public File extraReferencesListFile;
 
     private boolean[] sameSnapshot;
+
+    static final String addressPattern = "\\s@ 0x[0-9a-f]+"; //$NON-NLS-1$
+    /**
+     * Pattern to match list of array references e.g.
+     * [1], [23], [33]
+     * [1], [23], [33], [55],...
+     */
+    static final String arrayPattern = "^(\\[[0-9]+\\], ){0,100}\\[[0-9]+\\](,\\.\\.\\.)?$"; //$NON-NLS-1$
+    static final String arraySizePattern = "(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"; //$NON-NLS-1$
+    static final String simplePattern = addressPattern + "|" + arrayPattern; //$NON-NLS-1$
+    static final String complexPattern = addressPattern + "|" + arrayPattern + "|" + arraySizePattern; //$NON-NLS-1$ //$NON-NLS-2$
+
+    static {
+        // Validate RegEx as it can't be done in the @Entry
+        Pattern.compile(simplePattern);
+        Pattern.compile(complexPattern);
+    }
 
     public enum Mode
     {

@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -398,6 +399,7 @@ public class TestApplication
 
             StreamResult streamResult = new StreamResult(out);
             SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
             TransformerHandler handler = tf.newTransformerHandler();
             Transformer serializer = handler.getTransformer();

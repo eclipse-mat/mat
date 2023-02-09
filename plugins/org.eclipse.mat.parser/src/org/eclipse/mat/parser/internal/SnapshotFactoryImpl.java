@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -731,11 +731,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         if (directory == null)
             directory = new File("."); //$NON-NLS-1$
 
-       final String fragment = prefixFile.getName();
+        final String fragment = prefixFile.getName();
 
-        final Pattern indexPattern = Pattern.compile("([A-Za-z0-9]+\\.)?index$"); //$NON-NLS-1$
+        final Pattern indexPattern = Pattern.compile("([A-Za-z0-9]{1,20}\\.)?index$"); //$NON-NLS-1$
         final Pattern threadPattern = Pattern.compile("threads$"); //$NON-NLS-1$
-        final Pattern logPattern = Pattern.compile("inbound\\.index.*\\.log$"); //$NON-NLS-1$
+        final Pattern logPattern = Pattern.compile("inbound\\.index\\.([0-9]+\\.){1,2}log$"); //$NON-NLS-1$
 
         File[] files = directory.listFiles(new FileFilter()
         {

@@ -408,7 +408,7 @@ public class BundleRegistryQuery implements IQuery
                 case 1:
                     if (row instanceof BundleDescriptor)
                         return ((BundleDescriptor) row).getState();
-                    if (row instanceof Folder && ((Folder) row).type.equals(Type.HOST))
+                    if (row instanceof Folder && ((Folder) row).type == Type.HOST)
                         return ((BundleFragment) ((Folder) row).bundle).getHost().getState();
                     if (row instanceof DescriptorFolder)
                         return ((DescriptorFolder) row).descriptor.getState();
@@ -428,7 +428,7 @@ public class BundleRegistryQuery implements IQuery
                         return ((ExtensionFolder) row).extension.getObjectId();
                     }
                 };
-            if (row instanceof Folder && ((Folder) row).type.equals(Type.HOST))
+            if (row instanceof Folder && ((Folder) row).type == Type.HOST)
                 return new IContextObject()
                 {
                     public int getObjectId()
@@ -474,7 +474,7 @@ public class BundleRegistryQuery implements IQuery
         {
             if (row instanceof BundleDescriptor)
             {
-                if (((BundleDescriptor) row).getType().equals(BundleDescriptor.Type.FRAGMENT))
+                if (((BundleDescriptor) row).getType() == BundleDescriptor.Type.FRAGMENT)
                     return Icons.FRAGMENT;
                 return Icons.BUNDLE;
             }
