@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
@@ -44,6 +45,7 @@ import org.eclipse.mat.util.MessageUtil;
  */
 @CommandName("references_statistics")
 @Icon("/META-INF/icons/reference.gif")
+@Subject("java.lang.ref.Reference")
 public class ReferenceQuery implements IQuery
 {
 

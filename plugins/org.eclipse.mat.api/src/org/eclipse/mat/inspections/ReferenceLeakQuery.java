@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020,2022 IBM Corporation.
+ * Copyright (c) 2020,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsClassRecord;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -54,6 +55,7 @@ import org.eclipse.mat.util.SimpleMonitor;
  */
 @CommandName("reference_leak")
 @Icon("/META-INF/icons/reference.gif")
+@Subject("java.lang.ref.Reference")
 public class ReferenceLeakQuery implements IQuery
 {
 
