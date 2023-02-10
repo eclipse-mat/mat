@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -641,6 +641,18 @@ public class ComponentReportQuery implements IQuery
         }
     }
 
+    private ICollectionExtractor findCollectionExtractor(IClass clazz) throws SnapshotException
+    {
+        IClass clazz1 = clazz;
+        ICollectionExtractor extractor;
+        do
+        {
+            extractor = CollectionExtractionUtils.findCollectionExtractor(clazz1.getName());
+        }
+        while (extractor == null && (clazz1 = clazz1.getSuperClass()) != null);
+        return extractor;
+    }
+
     private void addEmptyCollections(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
@@ -660,8 +672,8 @@ public class ComponentReportQuery implements IQuery
             if (listener.isCanceled())
                 break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
-            if (extractor != null && extractor.hasSize())
+            ICollectionExtractor extractor = findCollectionExtractor(clazz);
+            if (extractor != null && extractor.hasSize() && record.getNumberOfObjects() > 0)
             {
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //$NON-NLS-1$
@@ -984,8 +996,9 @@ public class ComponentReportQuery implements IQuery
             if (listener.isCanceled())
                 break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
-            if (extractor != null && extractor.hasSize() && (extractor.hasFillRatio() || extractor.hasCapacity() || extractor.hasExtractableContents()))
+            ICollectionExtractor extractor = findCollectionExtractor(clazz);
+            if (extractor != null && extractor.hasSize() && (extractor.hasFillRatio() || extractor.hasCapacity()
+                            || extractor.hasExtractableContents()) && record.getNumberOfObjects() > 0)
             {
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
@@ -1195,8 +1208,9 @@ public class ComponentReportQuery implements IQuery
             if (listener.isCanceled())
                 break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
-            if (extractor != null && extractor instanceof IMapExtractor && ((IMapExtractor)extractor).hasCollisionRatio())
+            ICollectionExtractor extractor = findCollectionExtractor(clazz);
+            if (extractor instanceof IMapExtractor && ((IMapExtractor) extractor).hasCollisionRatio()
+                            && record.getNumberOfObjects() > 0)
             {
                 // run the query: collections by size
                 int[] objectIds = record.getObjectIds();
