@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // both size and array field
                     new CollectionExtractionInfo("java.util.ArrayList", JdkVersion.except(IBM16), new FieldSizeArrayCollectionExtractor("size", "elementData")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.LinkedList", JdkVersion.except(IBM16), new LinkedListCollectionExtractor("size", "header")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ArrayList$SubList", JdkVersion.except(IBM16), new ArrayListSubListCollectionExtractor("size", "root.elementData", "offset")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.util.LinkedList", IBM16, new LinkedListCollectionExtractor("size", "voidLink")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.Vector", new FieldSizeArrayCollectionExtractor("elementCount", "elementData")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.PriorityQueue", JdkVersion.except(IBM15, IBM16), new FieldSizeArrayCollectionExtractor("size", "queue")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
