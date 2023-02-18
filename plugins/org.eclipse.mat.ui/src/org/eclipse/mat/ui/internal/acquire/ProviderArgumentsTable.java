@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,9 +26,10 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.jface.window.ToolTip;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.VmInfoDescriptor;
@@ -45,7 +46,6 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -96,7 +96,8 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         TableColumnLayout tableColumnLayout = new TableColumnLayout();
         parent.setLayout(tableColumnLayout);
 
-        table = new Table(parent, style);
+        TableViewer tableViewer = new TableViewer(parent, style);
+        table = tableViewer.getTable();
         Font parentFont = parent.getFont();
         table.setFont(parentFont);
         table.setLinesVisible(true);
@@ -110,6 +111,18 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         column.setText(VALUE);
         tableColumnLayout.setColumnData(column, new ColumnWeightData(100, 100));
 
+        ColumnViewerToolTipSupport.enableFor(tableViewer);
+        tableViewer.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getToolTipText(Object element)
+            {
+                if (element instanceof ArgumentEditor)
+                    return ((ArgumentEditor) element).getToolTipText();
+                return super.getToolTipText(element);
+            }
+        });
+
         boldFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.BOLD));
         normalFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.NORMAL));
 
@@ -120,39 +133,6 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                 event.height = tableRowHeight;
             }
         });
-
-        new DefaultToolTip(table, ToolTip.NO_RECREATE, false) {
-            private ArgumentDescriptor getEntry(Event event)
-            {
-                TableItem item = table.getItem(new Point(event.x, event.y));
-                if (item != null && item.getData() != null)
-                {
-                    return ((ArgumentEditor) item.getData()).getDescriptor();
-                }
-                return null;
-            }
-
-            protected String getText(Event event)
-            {
-                ArgumentDescriptor entry = getEntry(event);
-                if (entry != null)
-                {
-                    return entry.getHelp();
-                }
-                return null;
-            }
-
-            protected boolean shouldCreateToolTip(Event event)
-            {
-                table.setToolTipText(""); //$NON-NLS-1$
-                return getEntry(event) != null && super.shouldCreateToolTip(event);
-            }
-
-            protected Object getToolTipArea(Event event)
-            {
-                return getEntry(event);
-            }
-        }.activate();
     }
 
     private void setTableRowHeight(int height)
@@ -265,6 +245,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 
         ArgumentEditor aec = TableEditorFactory.createTableEditor(table, context, descriptor, item);
         aec.setFont(item.getFont());
+        aec.setToolTipText(descriptor.getHelp());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
         // Adjust the table height for the editor

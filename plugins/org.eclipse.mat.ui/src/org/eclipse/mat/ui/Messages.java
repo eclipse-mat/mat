@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2010, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,9 @@ public class Messages extends NLS
     public static String ArgumentsTable_InvalidAddress;
     public static String ArgumentsTable_InvalidClassNamePattern;
     public static String ArgumentsTable_isMandatory;
+    public static String ArgumentsTable_ObjectAddress;
+    public static String ArgumentsTable_ObjectOQL;
+    public static String ArgumentsTable_ObjectPattern;
     public static String ArgumentsTable_ProvidePattern;
     public static String ArgumentsTable_selectedRows;
     public static String ArgumentsTable_Value;
