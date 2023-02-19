@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,11 @@
  *    Andrew Johnson - disposal of resources
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.chart;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.birt.chart.device.IDeviceRenderer;
 import org.eclipse.birt.chart.exception.ChartException;
@@ -35,7 +40,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
 public class ChartCanvas extends Canvas
 {
@@ -50,16 +54,34 @@ public class ChartCanvas extends Canvas
 
     private boolean needsGeneration = true;
     private boolean isDisabled = false;
+    private boolean usePNG = false;
 
     public ChartCanvas(Composite parent, int style)
     {
         super(parent, style);
 
-        // initialize the SWT rendering device
         try
         {
+            // initialize the SWT rendering device
             PluginSettings ps = PluginSettings.instance();
             renderer = ps.getDevice("dv.SWT"); //$NON-NLS-1$
+            if (renderer == null)
+            {
+                // initialize the PNG rendering device instead
+                renderer = ps.getDevice("dv.PNG"); //$NON-NLS-1$
+                if (renderer != null)
+                {
+                    usePNG = true;
+                }
+                else
+                {
+                    isDisabled = true;
+                    UnsupportedOperationException e = new UnsupportedOperationException("dv.SWT");
+                    MemoryAnalyserPlugin.log(e, MessageUtil.format(Messages.ChartCanvas_Error_DisableChartRendering, e.getMessage()
+                                    ));
+                    throw e;
+                }
+            }
         }
         catch (ChartException e)
         {
@@ -82,8 +104,15 @@ public class ChartCanvas extends Canvas
                     if (needsGeneration)
                         drawToCachedImage(rect);
 
-                    e.gc.drawImage(cachedImage, 0, 0, cachedImage.getBounds().width, cachedImage.getBounds().height, 0,
-                                    0, rect.width, rect.height);
+                    if (usePNG)
+                    {
+                        setBackgroundImage(cachedImage);
+                    }
+                    else
+                    {
+                        e.gc.drawImage(cachedImage, 0, 0, cachedImage.getBounds().width, cachedImage.getBounds().height, 0,
+                                        0, rect.width, rect.height);
+                    }
                 }
                 catch (LinkageError t)
                 {
@@ -144,10 +173,19 @@ public class ChartCanvas extends Canvas
             if (cachedImage != null)
                 cachedImage.dispose();
 
-            cachedImage = new Image(getDisplay(), size.width, size.height);
+            ByteArrayOutputStream os = null;
+            if (usePNG)
+            {
+                os = new ByteArrayOutputStream();
+                renderer.setProperty(IDeviceRenderer.FILE_IDENTIFIER, os);
+            }
+            else
+            {
+                cachedImage = new Image(getDisplay(), size.width, size.height);
 
-            gc = new GC(cachedImage);
-            renderer.setProperty(IDeviceRenderer.GRAPHICS_CONTEXT, gc);
+                gc = new GC(cachedImage);
+                renderer.setProperty(IDeviceRenderer.GRAPHICS_CONTEXT, gc);
+            }
 
             if (chart != null)
             {
@@ -155,6 +193,21 @@ public class ChartCanvas extends Canvas
                 Generator gr = Generator.instance();
                 gr.render(renderer, state);
             }
+            if (os != null)
+                os.close();
+            if (usePNG)
+            {
+                try (InputStream inputStream = new ByteArrayInputStream(os.toByteArray());)
+                {
+                    cachedImage = new Image(getDisplay(), inputStream);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            isDisabled = true;
+            MemoryAnalyserPlugin.log(e,
+                            MessageUtil.format(Messages.ChartCanvas_Error_DisableChartRendering, e.getMessage()));
         }
         finally
         {
