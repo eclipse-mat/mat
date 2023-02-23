@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -495,7 +495,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 IClass arrayType = lookupClass(arrayClassID);
                 if (arrayType == null)
                 {
-                    int objectId = identifiers.reverse(arrayClassID);
+                    int objectId = identifiers0.reverse(arrayClassID);
                     if (objectId >= 0)
                     {
                         String msg = MessageUtil.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment,
@@ -539,7 +539,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 IClass type = lookupClass(classID);
                 if (type == null)
                 {
-                    int objectId = identifiers.reverse(classID);
+                    int objectId = identifiers0.reverse(classID);
                     if (objectId >= 0)
                     {
                         String msg = MessageUtil.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment,

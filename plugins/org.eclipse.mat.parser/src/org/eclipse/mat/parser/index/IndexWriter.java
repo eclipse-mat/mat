@@ -185,7 +185,8 @@ public abstract class IndexWriter
         public int reverse(long val)
         {
             int a, c;
-            for (a = 0, c = size(); a < c;)
+            // Just search up to size, as anything in collect probably hasn't been sorted
+            for (a = 0, c = size; a < c;)
             {
                 // Avoid overflow problems by using unsigned divide by 2
                 int b = (a + c) >>> 1;
