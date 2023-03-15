@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    Copyright (c) 2010, 2022 SAP AG.
+    Copyright (c) 2010, 2023 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -203,7 +203,7 @@
 								<configuration>
 									<fileNames>
 										<fileName>MemoryAnalyzer.exe</fileName>
-										<fileName>eclipsec.exe</fileName>
+										<fileName>MemoryAnalyzerc.exe</fileName>
 									</fileNames>
 								</configuration>
 							</execution>
