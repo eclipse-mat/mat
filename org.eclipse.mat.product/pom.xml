@@ -164,6 +164,22 @@
 									</target>
 								</configuration>
 							</execution>
+							<!-- Temporary until ParseHeapDump.bat updated -->
+							<execution>
+								<id>rename-eclipsec</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<move 
+											file="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/win32/win32/x86_64/mat/MemoryAnalyzerc.exe"
+											tofile="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/win32/win32/x86_64/mat/eclipsec.exe"
+										/>
+									</target>
+								</configuration>
+							</execution>
 							<!--
 							<execution>
 								<id>publish</id>
@@ -203,7 +219,7 @@
 								<configuration>
 									<fileNames>
 										<fileName>MemoryAnalyzer.exe</fileName>
-										<fileName>MemoryAnalyzerc.exe</fileName>
+										<fileName>eclipsec.exe</fileName>
 									</fileNames>
 								</configuration>
 							</execution>
