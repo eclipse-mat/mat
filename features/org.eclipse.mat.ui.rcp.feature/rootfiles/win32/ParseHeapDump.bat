@@ -10,4 +10,4 @@ REM
 set _DIRNAME=.\
 if "%OS%" == "Windows_NT" set _DIRNAME=%~dp0%
 
-"%_DIRNAME%\eclipsec.exe" --launcher.ini "%_DIRNAME%\MemoryAnalyzer.ini" -consoleLog -nosplash -application org.eclipse.mat.api.parse %*
+"%_DIRNAME%\MemoryAnalyzerc.exe" --launcher.ini "%_DIRNAME%\MemoryAnalyzer.ini" -consoleLog -nosplash -application org.eclipse.mat.api.parse %*
