@@ -76,7 +76,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     protected final HprofPreferences.HprofStrictness strictnessPreference;
     /*
      * Names used as pseudo-class names
-     * Not translatable 
+     * Not translatable
      */
     static final String METHOD = "<method>"; //$NON-NLS-1$
     static final String METHOD_TYPE = "<method type>"; //$NON-NLS-1$
@@ -85,7 +85,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     static final String NATIVE_MEMORY_TYPE = "<native memory type>"; //$NON-NLS-1$
     /*
      * Field names for pseudo classes.
-     * Not translatable 
+     * Not translatable
      */
     static final String STACK_DEPTH = "stackDepth"; //$NON-NLS-1$
     static final String FRAME_NUMBER = "frameNumber"; //$NON-NLS-1$
