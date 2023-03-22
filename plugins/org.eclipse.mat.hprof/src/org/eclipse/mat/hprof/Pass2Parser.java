@@ -24,13 +24,18 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
+import org.eclipse.mat.snapshot.model.Field;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-import org.eclipse.mat.util.IProgressListener.Severity;
 
 /**
  * Parser used to read the hprof formatted heap dump
@@ -43,6 +48,11 @@ public class Pass2Parser extends AbstractParser
     private IPositionInputStream in;
     private boolean parallel;
     private long streamLength;
+    private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
+    private HashMapLongObject<String> constantPool = new HashMapLongObject<String>();
+    private final String METHODSASCLASSES = HprofPreferences.methodsAsClasses();
+    private final boolean READFRAMES = HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
+                    || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES);
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference, long streamLength, boolean parallel)
@@ -116,6 +126,24 @@ public class Pass2Parser extends AbstractParser
 
                 switch (record)
                 {
+                    case Constants.Record.STRING_IN_UTF8:
+                        if (READFRAMES)
+                            readString(length);
+                        else
+                            checkSkipBytes(length);
+                        break;
+                    case Constants.Record.LOAD_CLASS:
+                        if (READFRAMES)
+                            readLoadClass(length);
+                        else
+                            checkSkipBytes(length);
+                        break;
+                    case Constants.Record.STACK_FRAME:
+                        if (READFRAMES)
+                            readStackFrame(curPos, length);
+                        else
+                            checkSkipBytes(length);
+                        break;
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
                         if (dumpMatches(currentDumpNr, dumpNrToRead))
@@ -148,6 +176,116 @@ public class Pass2Parser extends AbstractParser
             catch (IOException ignore)
             {}
         }
+    }
+
+    /**
+     * Note the constant pool strings.
+     * Used for methods as classes.
+     */
+    private void readString(long length) throws IOException
+    {
+        long id = in.readID(idSize);
+        byte[] chars = new byte[(int) (length - idSize)];
+        in.readFully(chars);
+        constantPool.put(id, new String(chars, "UTF-8")); //$NON-NLS-1$
+    }
+
+    /*
+     * Note the classes.
+     * Used for methods as classes.
+     */
+    private void readLoadClass(long length) throws IOException
+    {
+        long classSerNum = in.readUnsignedInt(); // used in stacks frames
+        long classID = in.readID(idSize);
+        checkSkipBytes(4); // stack trace
+        in.readID(idSize); // nameID
+        checkSkipBytes(length - 4 - idSize - 4 - idSize);
+        classSerNum2id.put(classSerNum, classID);
+    }
+
+    private Object readStaticField(IClass cls, String field)
+    {
+        for (Field s1 : cls.getStaticFields())
+        {
+            if (s1.getType() == Type.OBJECT
+                            && s1.getName().equals(field)
+                            && s1.getValue() instanceof ObjectReference)
+            {
+                return s1.getValue();
+            }
+        }
+        return null;
+    }
+
+    /*
+     * Note the stack frames.
+     * Used for methods as classes.
+     */
+    private void readStackFrame(long filePos, long length) throws IOException
+    {
+        long frameId = in.readID(idSize);
+        long methodName = in.readID(idSize);
+        long methodSig = in.readID(idSize);
+        in.readID(idSize); // srcFile
+        long classSerNum = in.readUnsignedInt();
+        in.readInt(); // lineNr can be negative
+        Long typeAddressO = classSerNum2id.get(classSerNum);
+        String methodNameS = constantPool.get(methodName);
+        String methodSigS = constantPool.get(methodSig);
+        IClass decClass = handler.lookupClass(typeAddressO);
+        long typeAddress = 0;
+        if (decClass != null)
+        {
+            String fullMethodName = decClass.getName() + '.' + methodNameS + methodSigS;
+            IClass methodCls = handler.lookupClassByName(fullMethodName, false);
+            if (methodCls != null)
+            {
+                Object dc = readStaticField(methodCls, DECLARING_CLASS);
+                if (dc instanceof ObjectReference
+                                && ((ObjectReference) dc).getObjectAddress() == decClass.getObjectAddress())
+                {
+                    IClass methodClazz = handler.lookupClassByName(METHOD, false);
+                    if (methodClazz != null)
+                    {
+                        for (IClass methodCls2 : methodClazz.getAllSubclasses())
+                        {
+                            if (!methodCls2.getName().equals(fullMethodName))
+                                continue;
+                            dc = readStaticField(methodCls2, DECLARING_CLASS);
+                            if (dc instanceof ObjectReference
+                                            && ((ObjectReference) dc).getObjectAddress() == decClass.getObjectAddress())
+                            {
+                                methodCls = methodCls2;
+                                break;
+                            }
+                        }
+                    }
+                }
+                typeAddress = methodCls.getObjectAddress();
+            }
+        }
+        if (typeAddress == 0)
+        {
+            IClass frameClazz = handler.lookupClassByName(STACK_FRAME, false);
+            if (frameClazz != null)
+            {
+                typeAddress = frameClazz.getObjectAddress();
+            }
+            else
+            {
+                IClass methodClazz = handler.lookupClassByName(METHOD, false);
+                if (methodClazz != null)
+                    typeAddress = methodClazz.getObjectAddress();
+            }
+        }
+        // Must match pass 1
+        final long stackFrameBase = 0x100;
+        final long stackFrameAlign = 0x100;
+        long frameAddress = stackFrameBase + frameId * stackFrameAlign;
+        byte dummyData[] = new byte[100];
+        HeapObject heapObject = HeapObject.forInstance(frameAddress, typeAddress, dummyData, filePos, idSize);
+        this.handler.addObject(heapObject);
     }
 
     private void readDumpSegments(long length) throws SnapshotException, IOException

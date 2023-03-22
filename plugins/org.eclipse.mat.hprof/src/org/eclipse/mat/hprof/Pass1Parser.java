@@ -37,6 +37,8 @@ import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -52,6 +54,7 @@ public class Pass1Parser extends AbstractParser
 
     // New size of classes including per-instance fields
     private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
+    private final String METHODSASCLASSES = HprofPreferences.methodsAsClasses();
 
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
     private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
@@ -70,6 +73,10 @@ public class Pass1Parser extends AbstractParser
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
     private BufferingRafPositionInputStream in;
+    /** First stack frame address */
+    private static final long stackFrameBase = 0x100;
+    /** Alignment of stack frames - should not be stricter than rest of heap */
+    private static final long stackFrameAlign = 0x100;
 
     public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -195,7 +202,7 @@ public class Pass1Parser extends AbstractParser
                         readUnloadClass();
                         break;
                     case Constants.Record.STACK_FRAME:
-                        readStackFrame(length);
+                        readStackFrame(curPos, length);
                         break;
                     case Constants.Record.STACK_TRACE:
                         readStackTrace(length);
@@ -345,7 +352,13 @@ public class Pass1Parser extends AbstractParser
         checkSkipBytes(4); // stack trace
         long nameID = in.readID(idSize);
 
-        String className = getStringConstant(nameID).replace('/', '.');
+        String className0 = getStringConstant(nameID);
+        int methodArgs = className0.indexOf('(');
+        String className;
+        if (methodArgs < 0)
+            className = className0.replace('/', '.');
+        else
+            className = className0.substring(0, methodArgs).replace('/', '.') + className0.substring(methodArgs);
         class2name.put(classID, className);
         classSerNum2id.put(classSerNum, classID);
     }
@@ -366,7 +379,7 @@ public class Pass1Parser extends AbstractParser
         }
     }
 
-    private void readStackFrame(long length) throws IOException
+    private void readStackFrame(long segmentStartPos, long length) throws IOException
     {
         long frameId = in.readID(idSize);
         long methodName = in.readID(idSize);
@@ -375,7 +388,7 @@ public class Pass1Parser extends AbstractParser
         long classSerNum = in.readUnsignedInt();
         int lineNr = in.readInt(); // can be negative
         StackFrame frame = new StackFrame(frameId, lineNr, getStringConstant(methodName), getStringConstant(methodSig),
-                        getStringConstant(srcFile), classSerNum);
+                        getStringConstant(srcFile), classSerNum, segmentStartPos);
         id2frame.put(frameId, frame);
     }
 
@@ -575,7 +588,11 @@ public class Pass1Parser extends AbstractParser
         Long tid = thread2id.get(threadSerialNo);
         if (tid != null)
         {
-            handler.addGCRoot(id, tid, gcType);
+            // With METHODSASCLASSES instead we add references from the stack
+            // frame to the local
+            if (!((HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
+                            || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES)) && hasLineInfo))
+                handler.addGCRoot(id, tid, gcType);
         }
         else
         {
@@ -843,7 +860,7 @@ public class Pass1Parser extends AbstractParser
         return result == null ? MessageUtil.format(Messages.Pass1Parser_Error_UnresolvedName, Long.toHexString(address)) : result;
     }
 
-    private void dumpThreads()
+    private void dumpThreads() throws IOException
     {
         // noticed that one stack trace with empty stack is always reported,
         // even if the dump has no call stacks info
@@ -876,6 +893,20 @@ public class Pass1Parser extends AbstractParser
 
                     }
                 }
+                if (HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
+                                || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+                {
+                    // Add the stack frames as extra locals
+                    for (int i = 0; i < stack.frameIds.length; ++i)
+                    {
+                        long frameI = stack.frameIds[i];
+                        StackFrame frame = id2frame.get(frameI);
+                        {
+                            long frameAddress = stackFrameBase + frame.frameId * stackFrameAlign;
+                            out.println("    objectId=0x" + Long.toHexString(frameAddress) + ", line=" + (i)); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
+                }
                 out.println();
             }
             out.flush();
@@ -902,6 +933,194 @@ public class Pass1Parser extends AbstractParser
             }
         }
 
+        if (HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
+                        || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+        {
+            stackFramesAsObjects();
+        }
+    }
+
+    private ClassImpl genClass(long nextAddress, String className, long superClass, long classLoader,
+                    Field flds[], FieldDescriptor desc[], IClass clsType) throws IOException
+    {
+        IClass existing = handler.lookupClassByName(className, false);
+        if (existing instanceof ClassImpl)
+            return (ClassImpl)existing;
+        ClassImpl newClass = new ClassImpl(nextAddress, className, superClass, classLoader, flds, desc);
+        class2name.put(nextAddress, className);
+        // This will be replaced by a size calculated from the field sizes
+        newClass.setHeapSizePerInstance(0);
+        if (clsType instanceof ClassImpl)
+            newClass.setClassInstance((ClassImpl) clsType);
+        handler.addClass(newClass, -1, idSize, 0);
+        return newClass;
+    }
+
+    private long nextFreeAddr(long addr)
+    {
+        while (class2name.containsKey(addr))
+        {
+            addr += stackFrameAlign;
+        }
+        return addr;
+    }
+
+    private void stackFramesAsObjects() throws IOException
+    {
+        final long rootLoader = 0;
+        // Find the biggest frameId
+        long maxFrameId = 0;
+        for (long a : id2frame.getAllKeys())
+        {
+            if (a > maxFrameId)
+                maxFrameId = a;
+        }
+
+        // The method addresses come after the stack frames
+        long nextAddress = stackFrameBase + (maxFrameId + 1) * stackFrameAlign;
+        nextAddress = nextFreeAddr(nextAddress);
+
+        // Equivalent to java.lang.Object
+        ClassImpl clazzNativeMemory = genClass(nextAddress, NATIVE_MEMORY, 0, rootLoader, new Field[0], new FieldDescriptor[0], null);
+        nextAddress = nextFreeAddr(nextAddress);
+
+        // Equivalent to java.lang.Class
+        ClassImpl clazzNativeMemoryType = genClass(nextAddress, NATIVE_MEMORY_TYPE, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], new FieldDescriptor[0], null);
+        nextAddress = nextFreeAddr(nextAddress);
+        clazzNativeMemoryType.setClassInstance(clazzNativeMemoryType);
+
+        // Now we have a type we can set the type of NATIVE_MEMORY
+        clazzNativeMemory.setClassInstance(clazzNativeMemoryType);
+
+        ClassImpl clazzMethodType = genClass(nextAddress, METHOD_TYPE, clazzNativeMemoryType.getObjectAddress(), rootLoader, new Field[0], new FieldDescriptor[0], clazzNativeMemoryType);
+        nextAddress = nextFreeAddr(nextAddress);
+
+        ClassImpl clazzMethod;
+        ClassImpl clazzStackFrame;
+        if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+        {
+            FieldDescriptor[] fldm = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
+                            new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                            new FieldDescriptor(NATIVE, IObject.Type.BOOLEAN),
+                            new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
+                            new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),
+                            new FieldDescriptor(STACK_DEPTH, IObject.Type.INT),
+            };
+            clazzMethod = genClass(nextAddress, METHOD, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fldm, clazzMethodType);
+            nextAddress = nextFreeAddr(nextAddress);
+            clazzStackFrame = null;
+        }
+        else
+        {
+            clazzMethod = null;
+            FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
+                            new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                            new FieldDescriptor(NATIVE, IObject.Type.BOOLEAN),
+                            new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
+                            new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),
+                            new FieldDescriptor(STACK_DEPTH, IObject.Type.INT),
+                            new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
+                            new FieldDescriptor(METHOD_NAME, IObject.Type.OBJECT),
+            };
+            clazzStackFrame = genClass(nextAddress, STACK_FRAME, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fld, clazzMethodType);
+            nextAddress = nextFreeAddr(nextAddress);
+        }
+
+        // Examine all the stack frames
+        for (Iterator<StackTrace> it = serNum2stackTrace.values(); it.hasNext(); )
+        {
+            StackTrace st = it.next();
+            Long tid = thread2id.get(st.threadSerialNr);
+            if (tid == null)
+                continue;
+            List<JavaLocal> locals = thread2locals.get(st.threadSerialNr);
+            for (int linenum = 0; linenum < st.frameIds.length; ++linenum)
+            {
+                long frameId = st.frameIds[linenum];
+                StackFrame frame = id2frame.get(frameId);
+                long frameAddress = stackFrameBase + frame.frameId * stackFrameAlign;
+                long frameType = 0;
+                ClassImpl frameClazz = null;
+                if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+                {
+                    String className2 = null;
+                    Long classId = classSerNum2id.get(frame.classSerNum);
+                    if (classId == null)
+                    {
+                        className2 = "<UNKNOWN CLASS>"; //$NON-NLS-1$
+                    }
+                    else
+                    {
+                        className2 = class2name.get(classId);
+                    }
+                    String fullMethodName = className2 + '.' + frame.method + frame.methodSignature;
+                    for (Iterator <HashMapLongObject.Entry<String>>it2 = class2name.entries(); it2.hasNext();)
+                    {
+                        HashMapLongObject.Entry<String>e = it2.next();
+                        if (e.getValue().equals(fullMethodName))
+                        {
+                            IClass cls = handler.lookupClass(e.getKey());
+                            if (cls != null)
+                            {
+                                for (Field s1 : cls.getStaticFields())
+                                {
+                                    if (s1.getType() == Type.OBJECT
+                                                    && s1.getName().equals(DECLARING_CLASS)
+                                                    && s1.getValue() instanceof ObjectReference
+                                                    && ((ObjectReference)s1.getValue()).getObjectAddress() == classId)
+                                    {
+                                        frameType = e.getKey();
+                                        if (cls instanceof ClassImpl)
+                                            frameClazz = (ClassImpl)cls;
+                                        break;
+                                    }
+                                }
+                                if (frameType != 0)
+                                    break;
+                            }
+                        }
+                    }
+                    if (frameType == 0)
+                    {
+                        // Method does not exist, so create it
+                        frameType = nextAddress;
+                        Field statics[] = {
+                                        new Field(DECLARING_CLASS, Type.OBJECT, new ObjectReference(null, classId)),
+                                        new Field(FILE_NAME, Type.OBJECT, frame.sourceFile),
+                        };
+                        IClass decClass = handler.lookupClass(classId);
+                        frameClazz = genClass(frameType, fullMethodName, clazzMethod.getObjectAddress(), decClass.getClassLoaderAddress(), statics, new FieldDescriptor[0], clazzMethodType);
+                        nextAddress = nextFreeAddr(nextAddress);
+                    }
+                }
+                else
+                {
+                    frameType = clazzStackFrame.getObjectAddress();
+                }
+
+                handler.reportInstanceWithClass(frameAddress, frame.filePos, frameType, 0);
+                handler.addGCRoot(frameAddress, tid, GCRootInfo.Type.JAVA_STACK_FRAME);
+                int localCount = 0;
+                for (JavaLocal loc : locals)
+                {
+                    if (loc.lineNumber == linenum)
+                    {
+                        handler.addGCRoot(loc.objectId, frameAddress, loc.getType());
+                        ++localCount;
+                    }
+                }
+                // Adjust size of frame based on number of locals
+                if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+                {
+                    if (frameClazz != null)
+                    {
+                        long frameSize = localCount * idSize;
+                        if (frameSize > frameClazz.getHeapSizePerInstance())
+                            frameClazz.setHeapSizePerInstance(frameSize);
+                    }
+                }
+            }
+        }
     }
 
     private class StackFrame
@@ -911,6 +1130,7 @@ public class Pass1Parser extends AbstractParser
         String methodSignature;
         String sourceFile;
         long classSerNum;
+        long filePos;
 
         /*
          * > 0 line number 0 no line info -1 unknown location -2 compiled method
@@ -919,7 +1139,7 @@ public class Pass1Parser extends AbstractParser
         int lineNr;
 
         public StackFrame(long frameId, int lineNr, String method, String methodSignature, String sourceFile,
-                        long classSerNum)
+                        long classSerNum, long filePos)
         {
             super();
             this.frameId = frameId;
@@ -928,6 +1148,7 @@ public class Pass1Parser extends AbstractParser
             this.methodSignature = methodSignature;
             this.sourceFile = sourceFile;
             this.classSerNum = classSerNum;
+            this.filePos = filePos;
         }
 
         @Override
@@ -947,22 +1168,31 @@ public class Pass1Parser extends AbstractParser
             String sourceLocation = ""; //$NON-NLS-1$
             if (lineNr > 0)
             {
-                sourceLocation = "(" + sourceFile + ":" + String.valueOf(lineNr) + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                sourceLocation = sourceFile + ":" + String.valueOf(lineNr); //$NON-NLS-1$
             }
             else if (lineNr == 0 || lineNr == -1)
             {
-                sourceLocation = "(Unknown Source)"; //$NON-NLS-1$
+                if (sourceFile != null)
+                    sourceLocation = sourceFile;
+                else
+                    sourceLocation = "Unknown Source"; //$NON-NLS-1$
             }
             else if (lineNr == -2)
             {
-                sourceLocation = "(Compiled method)"; //$NON-NLS-1$
+                if (sourceFile != null)
+                    sourceLocation = sourceFile + "(Compiled Code)"; //$NON-NLS-1$
+                else
+                    sourceLocation = "(Compiled Code)"; //$NON-NLS-1$
             }
             else if (lineNr == -3)
             {
-                sourceLocation = "(Native Method)"; //$NON-NLS-1$
+                if (sourceFile != null)
+                    sourceLocation = sourceFile + "(Native Method)"; //$NON-NLS-1$
+                else
+                    sourceLocation = "(Native Method)"; //$NON-NLS-1$
             }
 
-            return "  at " + className + "." + method + methodSignature + " " + sourceLocation; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return "  at " + className + "." + method + methodSignature + " (" + sourceLocation + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
     }

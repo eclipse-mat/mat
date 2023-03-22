@@ -156,6 +156,9 @@
 
 		<!-- Wildfly / JBoss Enterprise Application Platform -->
 		<resolver impl="org.eclipse.mat.inspections.wildfly.WildflyJbossNameResolvers$ModuleClassLoaderResolver"/>
+
+		<!-- stacks as pseudo-objects -->
+		<resolver impl="org.eclipse.mat.inspections.threads.StackFrameResolver"/>
 	</extension>
 
 	<extension point="org.eclipse.mat.api.requestResolver">

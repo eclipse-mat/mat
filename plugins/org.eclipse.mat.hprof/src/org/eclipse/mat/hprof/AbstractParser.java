@@ -74,6 +74,28 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     // The size of identifiers in the dump file
     protected int idSize;
     protected final HprofPreferences.HprofStrictness strictnessPreference;
+    /*
+     * Names used as pseudo-class names
+     * Not translatable 
+     */
+    static final String METHOD = "<method>"; //$NON-NLS-1$
+    static final String METHOD_TYPE = "<method type>"; //$NON-NLS-1$
+    static final String STACK_FRAME = "<stack frame>"; //$NON-NLS-1$
+    static final String NATIVE_MEMORY = "<native memory>"; //$NON-NLS-1$
+    static final String NATIVE_MEMORY_TYPE = "<native memory type>"; //$NON-NLS-1$
+    /*
+     * Field names for pseudo classes.
+     * Not translatable 
+     */
+    static final String STACK_DEPTH = "stackDepth"; //$NON-NLS-1$
+    static final String FRAME_NUMBER = "frameNumber"; //$NON-NLS-1$
+    static final String LOCATION_ADDRESS = "locationAddress"; //$NON-NLS-1$
+    static final String COMPILATION_LEVEL = "compilationLevel"; //$NON-NLS-1$
+    static final String NATIVE = "native"; //$NON-NLS-1$
+    static final String LINE_NUMBER = "lineNumber"; //$NON-NLS-1$
+    static final String DECLARING_CLASS = "declaringClass"; //$NON-NLS-1$
+    static final String METHOD_NAME = "methodName"; //$NON-NLS-1$
+    static final String FILE_NAME = "fileName"; //$NON-NLS-1$
 
     /* package */AbstractParser(HprofPreferences.HprofStrictness strictnessPreference)
     {

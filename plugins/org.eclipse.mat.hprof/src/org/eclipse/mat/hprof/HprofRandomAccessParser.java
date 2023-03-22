@@ -41,6 +41,8 @@ import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.IStackFrame;
+import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -95,6 +97,8 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         switch (segmentType)
         {
+            case Constants.Record.STACK_FRAME:
+                return readStackFrame(objectId, dump);
             case Constants.DumpSegment.INSTANCE_DUMP:
                 return readInstanceDump(objectId, dump);
             case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
@@ -106,6 +110,71 @@ public class HprofRandomAccessParser extends AbstractParser
                                 segmentType, Long.toHexString(position)));
         }
 
+    }
+
+    private IObject readStackFrame(int objectId, ISnapshot dump) throws SnapshotException, IOException
+    {
+        in.readUnsignedInt(); // time
+        in.readUnsignedInt(); // length
+        long frameId = in.readID(idSize);
+        in.readID(idSize); // methodName
+        in.readID(idSize); // methodSig
+        in.readID(idSize); // srcFile
+        in.readUnsignedInt(); // classSerNum
+        int lineNr = in.readInt(); // can be negative
+        IClass classImpl = dump.getClassOf(objectId);
+        List<Field>fields = new ArrayList<Field>();
+        Field f = new Field(LINE_NUMBER, IObject.Type.INT, lineNr);
+        fields.add(f);
+        int compLevel = lineNr == -2 ? 1 : 0;
+        f = new Field(COMPILATION_LEVEL, IObject.Type.INT, compLevel);
+        fields.add(f);
+        boolean nativ = lineNr == -3;
+        f = new Field(NATIVE, IObject.Type.BOOLEAN, nativ);
+        fields.add(f);
+        f = new Field(LOCATION_ADDRESS, IObject.Type.LONG, (long)frameId);
+        fields.add(f);
+        // Identify more stack frame information from the .threads index
+        int thrds[] = dump.getInboundRefererIds(objectId);
+     l: for (int thrd : thrds)
+        {
+            IThreadStack stack = dump.getThreadStack(thrd);
+            if (stack != null)
+            {
+                for (int fm = 0; fm < stack.getStackFrames().length; ++fm)
+                {
+                    IStackFrame frm = stack.getStackFrames()[fm];
+                    for (int oo : frm.getLocalObjectsIds())
+                    {
+                        if (oo == objectId)
+                        {
+                            f = new Field(FRAME_NUMBER, IObject.Type.INT, fm);
+                            fields.add(f);
+                            f = new Field(STACK_DEPTH, IObject.Type.INT, stack.getStackFrames().length - fm);
+                            fields.add(f);
+                            for (FieldDescriptor fd : classImpl.getFieldDescriptors())
+                            {
+                                if (fd.getName().equals(METHOD_NAME))
+                                {
+                                    String stkLine = frm.getText().replaceFirst("\\s*at\\s+([^ ]+).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
+                                    f = new Field(METHOD_NAME, IObject.Type.OBJECT, stkLine);
+                                    fields.add(f);
+                                }
+                                else if (fd.getName().equals(FILE_NAME))
+                                {
+                                    String stkLine = frm.getText().replaceFirst("\\s*at\\s+[^ ]+\\s+\\(([^:()]+).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
+                                    f = new Field(FILE_NAME, IObject.Type.OBJECT, stkLine);
+                                    fields.add(f);
+                                }
+                            }
+                            break l;
+                        }
+                    }
+                }
+            }
+        }
+        long objectAddress = dump.mapIdToAddress(objectId);
+        return new InstanceImpl(objectId, objectAddress, (ClassImpl)classImpl, fields);
     }
 
     public List<IClass> resolveClassHierarchy(ISnapshot snapshot, IClass clazz) throws SnapshotException

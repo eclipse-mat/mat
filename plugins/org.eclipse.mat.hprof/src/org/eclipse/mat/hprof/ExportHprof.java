@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2022 IBM Corporation
+ * Copyright (c) 2018, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -93,7 +93,6 @@ import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SilentProgressListener;
 
@@ -1247,7 +1246,8 @@ public class ExportHprof implements IQuery
             case IObject.Type.OBJECT:
                 if (addType)
                     os.writeByte(IObject.Type.OBJECT);
-                ObjectReference value = skipData ? null : (ObjectReference) fld.getValue();
+                ObjectReference value = skipData || !(fld.getValue() instanceof ObjectReference) ? null
+                                : (ObjectReference) fld.getValue();
                 if (value != null)
                     writeID(os, value.getObjectAddress());
                 else
@@ -1581,6 +1581,7 @@ public class ExportHprof implements IQuery
 
     private void processThreadLocalRefs(DataOutput os, IObject io, int[][] objs) throws IOException, SnapshotException
     {
+        Integer threadSerial = threadToSerial.get(io.getObjectId());
         for (NamedReference nr : io.getOutboundReferences())
         {
             if (nr instanceof ThreadToLocalReference)
@@ -1592,6 +1593,9 @@ public class ExportHprof implements IQuery
                     if (g2.getType() == Type.JAVA_STACK_FRAME)
                     {
                         // Another layer: Thread -> JAVA_STACK_FRAME -> objects
+                        // Fix up the thread serial number for the stack frame
+                        if (threadSerial != null)
+                            threadToSerial.put(tlr.getObjectId(), threadSerial);
                         processThreadLocalRefs(os, tlr.getObject(), objs);
                     }
                 }

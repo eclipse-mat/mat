@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2022 IBM Corporation.
+ * Copyright (c) 2009,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -144,6 +144,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     static final String FRAME_NUMBER = "frameNumber"; //$NON-NLS-1$
     static final String LOCATION_ADDRESS = "locationAddress"; //$NON-NLS-1$
     static final String COMPILATION_LEVEL = "compilationLevel"; //$NON-NLS-1$
+    static final String NATIVE = "native"; //$NON-NLS-1$
     static final String LINE_NUMBER = "lineNumber"; //$NON-NLS-1$
     private static final String DECLARING_CLASS = "declaringClass"; //$NON-NLS-1$
     static final String METHOD_NAME = "methodName"; //$NON-NLS-1$
@@ -1923,6 +1924,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
                                 new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                                new FieldDescriptor(NATIVE, IObject.Type.BOOLEAN),
                                 new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
                                 new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
                                 new FieldDescriptor(METHOD_NAME, IObject.Type.OBJECT),
@@ -1934,6 +1936,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
                                 new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                                new FieldDescriptor(NATIVE, IObject.Type.BOOLEAN),
                                 new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
                                 new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
                                 new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),

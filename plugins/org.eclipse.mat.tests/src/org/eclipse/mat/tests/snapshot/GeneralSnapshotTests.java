@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2022 IBM Corporation.
+ * Copyright (c) 2010,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -107,50 +107,53 @@ public class GeneralSnapshotTests
     };
     final Stacks stackInfo;
 
-    @Parameters(name="{index}: Snapshot={0} options={1}")
+    @Parameters(name="{index}: Snapshot={0} options={1} methods={2}")
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][] {
-            {TestSnapshots.SUN_JDK6_32BIT, Stacks.NONE},
-            {TestSnapshots.SUN_JDK5_64BIT, Stacks.NONE},
-            {TestSnapshots.SUN_JDK6_18_32BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.SUN_JDK6_18_64BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.SUN_JDK5_13_32BIT, Stacks.NONE},
-            {TestSnapshots.IBM_JDK6_32BIT_HEAP, Stacks.NONE},
-            {TestSnapshots.IBM_JDK6_32BIT_JAVA, Stacks.FRAMES},
-            {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, Stacks.FRAMES},
-            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS},
-            {"allMethods", Stacks.FRAMES_AND_OBJECTS},
-            {"runningMethods", Stacks.FRAMES_AND_OBJECTS},
-            {"framesOnly", Stacks.FRAMES_AND_OBJECTS},
-            {"noMethods", Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.IBM_JDK142_32BIT_HEAP, Stacks.NONE},
-            {TestSnapshots.IBM_JDK142_32BIT_JAVA, Stacks.FRAMES},
-            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, TestSnapshots.DTFJreadJavacore142 ? Stacks.FRAMES : Stacks.NONE},
-            {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
-            {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.ORACLE_JDK9_01_64BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.SUN_JDK6_32BIT, Stacks.NONE, null},
+            {TestSnapshots.SUN_JDK5_64BIT, Stacks.NONE, null},
+            {TestSnapshots.SUN_JDK6_18_32BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.SUN_JDK6_18_64BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.SUN_JDK5_13_32BIT, Stacks.NONE, null},
+            {TestSnapshots.IBM_JDK6_32BIT_HEAP, Stacks.NONE, null},
+            {TestSnapshots.IBM_JDK6_32BIT_JAVA, Stacks.FRAMES, null},
+            {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, Stacks.FRAMES, null},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS, Methods.ALL_METHODS},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS, Methods.RUNNING_METHODS},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS, Methods.FRAMES_ONLY},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS, Methods.NONE},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP, Stacks.NONE, null},
+            {TestSnapshots.IBM_JDK142_32BIT_JAVA, Stacks.FRAMES, null},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, TestSnapshots.DTFJreadJavacore142 ? Stacks.FRAMES : Stacks.NONE, null},
+            {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES, null},
+            {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.ORACLE_JDK9_01_64BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS, null},
+            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS, Methods.RUNNING_METHODS},
+            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS, Methods.FRAMES_ONLY},
+            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS, Methods.NONE},
         });
     }
 
-    public GeneralSnapshotTests(String snapshotname, Stacks s)
+    public GeneralSnapshotTests(String snapshotname, Stacks s, Methods m)
     {
-        if (snapshotname.equals("allMethods")) {
-            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "all");
+        if (m == Methods.ALL_METHODS) {
+            snapshot = snapshot2(snapshotname, "all");
             hasMethods = Methods.ALL_METHODS;
         }
-        else if (snapshotname.equals("runningMethods")) {
-            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "running");
+        else if (m == Methods.RUNNING_METHODS) {
+            snapshot = snapshot2(snapshotname, "running");
             hasMethods = Methods.RUNNING_METHODS;
         }
-        else if (snapshotname.equals("framesOnly")) {
-            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "frames");
+        else if (m == Methods.FRAMES_ONLY) {
+            snapshot = snapshot2(snapshotname, "frames");
             hasMethods = Methods.FRAMES_ONLY;
         }
-        else if (snapshotname.equals("noMethods")) {
-            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "none");
+        else if (m == Methods.NONE) {
+            snapshot = snapshot2(snapshotname, "none");
             hasMethods = Methods.NONE;
         }
         else
@@ -162,20 +165,20 @@ public class GeneralSnapshotTests
     }
 
     @AfterParam
-    public static void cleanUp(String snapshotname, Stacks s)
-    {
+    public static void cleanUp(String snapshotname, Stacks s, Methods m)
+        {
         String snapshotname2;
-        if (snapshotname.equals("allMethods")) {
-            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#all";
+        if (m == Methods.ALL_METHODS) {
+            snapshotname2 = snapshotname + ";#all";
         }
-        else if (snapshotname.equals("runningMethods")) {
-            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#running";
+        else if (m == Methods.RUNNING_METHODS) {
+            snapshotname2 = snapshotname + ";#running";
         }
-        else if (snapshotname.equals("framesOnly")) {
-            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#frames";
+        else if (m == Methods.FRAMES_ONLY) {
+            snapshotname2 = snapshotname + ";#frames";
         }
-        else if (snapshotname.equals("noMethods")) {
-            snapshotname2 = TestSnapshots.IBM_JDK6_32BIT_SYSTEM + ";#none";
+        else if (m == Methods.NONE) {
+            snapshotname2 = snapshotname + ";#none";
         } else {
             return;
         }
@@ -191,21 +194,34 @@ public class GeneralSnapshotTests
      */
     public ISnapshot snapshot2(String snapshotname, String includeMethods)
     {
-        final String dtfjPlugin = "org.eclipse.mat.dtfj";
         final String key = "methodsAsClasses";
+
+        final String dtfjPlugin = "org.eclipse.mat.dtfj";
         IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(dtfjPlugin);
         String prev = preferences.get(key, null);
         preferences.put(key, includeMethods);
+
+        final String hprofPlugin = "org.eclipse.mat.hprof";
+        IEclipsePreferences preferences2 = InstanceScope.INSTANCE.getNode(hprofPlugin);
+        String prev2 = preferences.get(key, null);
+        preferences2.put(key, includeMethods);
+
         try {
             // Tag the snapshot name so we don't end up with the wrong version
             String snapshotname2 = snapshotname+";#"+includeMethods;
             ISnapshot ret = TestSnapshots.getSnapshot(snapshotname2, false);
             return ret;
         } finally {
+            // Restore DTFJ
             if (prev != null)
                 preferences.put(key, prev);
             else
                 preferences.remove(key);
+            // Restore HPROF
+            if (prev2 != null)
+                preferences2.put(key, prev2);
+            else
+                preferences2.remove(key);
         }
     }
 

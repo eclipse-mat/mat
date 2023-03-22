@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 IBM Corporation.
+ * Copyright (c) 2011, 2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,12 @@ public class HprofPreferences
 
     /** Additional references for classes */
     public static final String ADDITIONAL_CLASS_REFERENCES = "hprofAddClassRefs"; //$NON-NLS-1$
+
+    /** Whether to treat stack frames as psuedo-objects and methods as pseudo-classes */
+    public static final String P_METHODS = "methodsAsClasses"; //$NON-NLS-1$
+    public static final String NO_METHODS_AS_CLASSES = "none"; //$NON-NLS-1$
+    public static final String RUNNING_METHODS_AS_CLASSES = "running"; //$NON-NLS-1$
+    public static final String FRAMES_ONLY = "frames"; //$NON-NLS-1$
 
     /**
      * Return the currently selected preference for strictness. This first
@@ -124,5 +130,16 @@ public class HprofPreferences
     {
         return Platform.getPreferencesService().getBoolean(HprofPlugin.getDefault().getBundle().getSymbolicName(),
                         HprofPreferences.ADDITIONAL_CLASS_REFERENCES, false, null);
+    }
+
+    /**
+     * Preference for whether pseudo-objects should be created
+     * for stack frames and methods.
+     */
+    public static String methodsAsClasses()
+    {
+        String pref = Platform.getPreferencesService().getString(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.P_METHODS, HprofPreferences.NO_METHODS_AS_CLASSES, null);
+        return pref;
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -566,7 +566,11 @@ public class ThreadOverviewQuery implements IQuery
                             int[] objectIds = frame.getLocalObjectsIds();
                             SetInt si = new SetInt();
                             for (int i : objectIds)
-                                si.add(i);
+                            {
+                                // Ignore stack frame psuedo-objects
+                                if (!(i == getObjectId() && !snapshot.isClass(i)))
+                                    si.add(i);
+                            }
                             return si.toArray();
                         }
 
@@ -659,8 +663,18 @@ public class ThreadOverviewQuery implements IQuery
                                     }
                                 }
                             }
-                            List<NamedReference> refs = threadInfo
-                                            .getThreadObject().getOutboundReferences();
+                            /*
+                             * Handle references from the thread
+                             * or the stack frame pseudo-object.
+                             */
+                            int refererId = tsfmln.threadStackFrameNode.objectId;
+                            IObject refererObj;
+                            if (refererId != -1 && !snapshot.isClass(refererId))
+                                // Actual stack frame pseudo object
+                                refererObj = snapshot.getObject(refererId);
+                            else
+                                refererObj = threadInfo.getThreadObject();
+                            List<NamedReference> refs = refererObj.getOutboundReferences();
                             for (NamedReference ref : refs)
                             {
                                 if (ref.getObjectId() != objectId)
@@ -676,6 +690,7 @@ public class ThreadOverviewQuery implements IQuery
                                                             : Messages.ThreadStackQuery_Label_Local_Busy_Monitor;
                                         }
                                     }
+                                    return tlr.getName();
                                 }
                             }
                         }
@@ -773,7 +788,7 @@ public class ThreadOverviewQuery implements IQuery
                     tsfn.objectId = frameIds[tsfn.depth];
                     if (tsfn.objectId == -1)
                     {
-                        // Add the class from the class name of the stack frame
+                        // Add the class from the method name or class name of the stack frame
                         tsfn.objectId = frameId(frame);
                     }
                     stackFrameNodes.add(tsfn);
@@ -790,6 +805,9 @@ public class ThreadOverviewQuery implements IQuery
                     List<ThreadStackFrameLocalNode> stackFrameLocals = new ArrayList<ThreadStackFrameLocalNode>(localIds.length);
                     for (int localId : localIds)
                     {
+                        // Is the local actually just the stack frame object (and not the class)?
+                        if (tsfn.objectId == localId && !snapshot.isClass(localId))
+                            continue;
                         ThreadStackFrameLocalNode tsfln = new ThreadStackFrameLocalNode();
                         tsfln.objectId = localId;
                         tsfln.threadStackFrameNode = tsfn;
@@ -835,7 +853,24 @@ public class ThreadOverviewQuery implements IQuery
                                     int f = (Integer)fn;
                                     if (f >= 0 && f < numFrames)
                                     {
-                                        frameIds[f] = tlr.getObjectId(); 
+                                        frameIds[f] = tlr.getObjectId();
+                                        break;
+                                    }
+                                }
+                                /*
+                                 * See if a reference from the thread is to
+                                 * the pseudo-object stack frame
+                                 */
+                                for (int f = 0; f < ton.stack.getStackFrames().length; ++f)
+                                {
+                                    IStackFrame fm = ton.stack.getStackFrames()[f];
+                                    for (int o : fm.getLocalObjectsIds())
+                                    {
+                                        if (o == tlr.getObjectId())
+                                        {
+                                            frameIds[f] = o;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -852,7 +887,7 @@ public class ThreadOverviewQuery implements IQuery
 
         /**
          * Return the id of the class associated with this stack frame.
-         * @param frm
+         * @param frm the stack frame
          * @return the id, or -1 if not found
          */
         private int frameId(IStackFrame frm)
@@ -860,12 +895,31 @@ public class ThreadOverviewQuery implements IQuery
             String fm = frm.getText();
             if (fm != null)
             {
-                // Extract the class name from the full method name
-                // at package.name.Classname.method(Arguments) Classname.java(13)
-                fm = fm.replaceFirst("\\s*at\\s+([^(]+)\\.[^.(]+.*", "$1"); //$NON-NLS-1$//$NON-NLS-2$
+                // Extract the full method name.
+                // Example text: 
+                //   at package.name.Classname.method(Arguments)LReturnCls; Classname.java(13)
+                String fm1 = fm.replaceFirst("\\s*at\\s+([^ ]+).*", "$1"); //$NON-NLS-1$//$NON-NLS-2$
                 try
                 {
-                    Collection<IClass>clss = snapshot.getClassesByName(fm, false);
+                    Collection<IClass>clss = snapshot.getClassesByName(fm1, false);
+                    // If unambiguous which class
+                    if (clss != null && clss.size() == 1)
+                    {
+                        for (IClass cls : clss)
+                        {
+                            return cls.getObjectId();
+                        }
+                    }
+                }
+                catch (SnapshotException e)
+                {
+                }
+                // Extract the class name from the full method name
+                //   at package.name.Classname.method(Arguments)LReturnCls; Classname.java(13)
+                fm1 = fm.replaceFirst("\\s*at\\s+([^(]+)\\.[^.(]+.*", "$1"); //$NON-NLS-1$//$NON-NLS-2$
+                try
+                {
+                    Collection<IClass>clss = snapshot.getClassesByName(fm1, false);
                     // If unambiguous which class
                     if (clss != null && clss.size() == 1)
                     {

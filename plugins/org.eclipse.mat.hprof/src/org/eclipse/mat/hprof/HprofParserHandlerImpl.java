@@ -314,9 +314,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
             boolean skipLogRefs = false;
             // add class instance - if not set by pass1 from an instance_dump for the class
-            if (clazz.getClazz() == null)
+            if (clazz.getClazz() == null || clazz.getClazz().getName().startsWith("<")) //$NON-NLS-1$
             {
-                clazz.setClassInstance(javaLangClass);
+                if (clazz.getClazz() == null)
+                    clazz.setClassInstance(javaLangClass);
                 if (NEWCLASSSIZE)
                 {
                     // Recalculate the clazz heap size based on also java.lang.Class fields
@@ -583,6 +584,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         if (!clazz.isArrayType())
         {
+            if (clazz.getSuperClassAddress() != 0)
+            {
+                ClassImpl superClass = classesByAddress.get(clazz.getSuperClassAddress());
+                // Base the size of a stack frame on the number of locals, set in pass1.
+                if (superClass.getName().equals("<method>")) //$NON-NLS-1$
+                    return (int) clazz.getHeapSizePerInstance();
+            }
             return alignUpToX(calculateSizeRecursive(clazz), objectAlign);
         }
         else
