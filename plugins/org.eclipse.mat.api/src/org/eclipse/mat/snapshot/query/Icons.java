@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.snapshot.ISnapshot;
 
@@ -131,7 +132,17 @@ public final class Icons
         else if (snapshot.isClassLoader(objectId))
             return isGCRoot ? CLASSLOADER_INSTANCE_AS_GC_ROOT : CLASSLOADER_INSTANCE;
         else
+        {
+            try
+            {
+                if (snapshot.getClassOf(objectId).doesExtend("<stack frame>")
+                    || snapshot.getClassOf(objectId).doesExtend("<method>"))
+                    return STACK_FRAME;
+            }
+            catch (SnapshotException e)
+            {}
             return isGCRoot ? OBJECT_INSTANCE_AS_GC_ROOT : OBJECT_INSTANCE;
+        }
     }
 
     /**
@@ -152,7 +163,17 @@ public final class Icons
         else if (snapshot.isClassLoader(objectId))
             return isGCRoot ? CLASSLOADER_INSTANCE_IN_GC : CLASSLOADER_INSTANCE_IN;
         else
+        {
+            try
+            {
+                if (snapshot.getClassOf(objectId).doesExtend("<stack frame>")
+                    || snapshot.getClassOf(objectId).doesExtend("<method>"))
+                    return STACK_FRAME;
+            }
+            catch (SnapshotException e)
+            {}
             return isGCRoot ? OBJECT_INSTANCE_IN_GC : OBJECT_INSTANCE_IN;
+        }
     }
 
     /**
@@ -173,7 +194,17 @@ public final class Icons
         else if (snapshot.isClassLoader(objectId))
             return isGCRoot ? CLASSLOADER_INSTANCE_OUT_GC : CLASSLOADER_INSTANCE_OUT;
         else
+        {
+            try
+            {
+                if (snapshot.getClassOf(objectId).doesExtend("<stack frame>")
+                    || snapshot.getClassOf(objectId).doesExtend("<method>"))
+                    return STACK_FRAME;
+            }
+            catch (SnapshotException e)
+            {}
             return isGCRoot ? OBJECT_INSTANCE_OUT_GC : OBJECT_INSTANCE_OUT;
+        }
     }
 
     // this class must not have any dependency on AWT or SWT to be able to run
@@ -198,6 +229,8 @@ public final class Icons
     private static final URL CLASSLOADER_INSTANCE_IN_GC = build("in/classloader_obj_gc_root");
     private static final URL CLASSLOADER_INSTANCE_OUT = build("out/classloader_obj");
     private static final URL CLASSLOADER_INSTANCE_OUT_GC = build("out/classloader_obj_gc_root");
+
+    private static final URL STACK_FRAME = getURL("stack_frame.gif");
 
     private static URL build(String name)
     {

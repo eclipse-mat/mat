@@ -40,7 +40,19 @@ public abstract class SubjectRegistry<D> extends RegistryReader<D>
         if (subjects != null && subjects.length > 0)
         {
             for (int ii = 0; ii < subjects.length; ii++)
+            {
+                D oldResolver = resolvers.get(subjects[ii]);
+                if (oldResolver != null)
+                {
+                    Logger.getLogger(getClass().getName()).log(
+                                    Level.WARNING,
+                                    MessageUtil.format(Messages.SubjectRegistry_DuplicateResolver,
+                                                    subjects[ii],
+                                                    oldResolver.getClass().getName(),
+                                                    resolver.getClass().getName()));
+                }
                 resolvers.put(subjects[ii], resolver);
+            }
         }
         else
         {

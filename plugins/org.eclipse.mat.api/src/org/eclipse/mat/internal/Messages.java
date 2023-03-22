@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -577,6 +577,23 @@ public class Messages extends NLS
     public static String SoftReferenceStatQuery_Label_Retained;
     public static String SoftReferenceStatQuery_Label_StronglyRetainedReferents;
 
+    public static String StackFrameResolver_file;
+    public static String StackFrameResolver_file_compiled;
+    public static String StackFrameResolver_file_native;
+    public static String StackFrameResolver_file_line;
+    public static String StackFrameResolver_file_line_compiled;
+    public static String StackFrameResolver_file_line_native;
+    public static String StackFrameResolver_method;
+    public static String StackFrameResolver_method_compiled;
+    public static String StackFrameResolver_method_native;
+    public static String StackFrameResolver_method_file;
+    public static String StackFrameResolver_method_file_compiled;
+    public static String StackFrameResolver_method_file_native;
+    public static String StackFrameResolver_method_file_line;
+    public static String StackFrameResolver_method_file_line_compiled;
+    public static String StackFrameResolver_method_file_line_native;
+
+    public static String SubjectRegistry_DuplicateResolver;
     public static String SubjectRegistry_Error_MissingAnnotation;
     public static String SubjectRegistry_ErrorMsg_MissingSubjectAnnotation;
 

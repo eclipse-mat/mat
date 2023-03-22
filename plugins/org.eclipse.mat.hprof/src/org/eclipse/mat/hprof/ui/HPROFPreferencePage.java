@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2019 IBM Corporation.
+ * Copyright (c) 2011,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -75,6 +75,16 @@ public class HPROFPreferencePage extends FieldEditorPreferencePage implements IW
                         }, getFieldEditorParent(), true));
         addField(new BooleanFieldEditor(HprofPreferences.ADDITIONAL_CLASS_REFERENCES, Messages.HPROFPreferences_Additional_Class_References,
                         getFieldEditorParent()));
+        // Create a choice for stack frames as objects
+        addField(new RadioGroupFieldEditor(
+                        HprofPreferences.P_METHODS,
+                        Messages.HPROFPreferencePage_MethodsAsClasses,
+                        1,
+                        new String[][] {
+                            { Messages.HPROFPreferencePage_NoMethods, HprofPreferences.NO_METHODS_AS_CLASSES },
+                            { Messages.HPROFPreferencePage_OnlyStackFrames, HprofPreferences.FRAMES_ONLY },
+                            { Messages.HPROFPreferencePage_RunningMethods, HprofPreferences.RUNNING_METHODS_AS_CLASSES },
+                        }, getFieldEditorParent(), true));
     }
 
     /**

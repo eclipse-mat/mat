@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP AG and others.
+ * Copyright (c) 2010, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -108,6 +108,10 @@ public class Messages extends NLS
     public static String HPROFStrictness_Unhandled_Preference;
     public static String HPROFStrictness_Stopped;
     public static String HPROFPreferences_Additional_Class_References;
+    public static String HPROFPreferencePage_MethodsAsClasses;
+    public static String HPROFPreferencePage_NoMethods;
+    public static String HPROFPreferencePage_OnlyStackFrames;
+    public static String HPROFPreferencePage_RunningMethods;
 
     static
     {
