@@ -7805,6 +7805,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
             al2.add(f);
         }
 
+        // Add declared methods as pseudo-fields
+        if (getExtraInfo2)
+        {
+            int mindex = 1;
+            for (Iterator<?> i = j2.getDeclaredMethods(); i.hasNext();)
+            {
+                Object next = i.next();
+                if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, j2))
+                    continue;
+                JavaMethod jm = (JavaMethod) next;
+                long address = getMethodAddress(jm, listener);
+                ObjectReference val = new ObjectReference(null, address);
+                Field f = new Field("<method[" + (mindex++) + "]>", IObject.Type.OBJECT, val); //$NON-NLS-1$ //$NON-NLS-2$
+                al2.add(f);
+            }
+        }
+
         // Add the MAT descriptions of the fields
         Field[] statics = al2.toArray(new Field[al2.size()]);
         FieldDescriptor[] fld = al.toArray(new FieldDescriptor[al.size()]);

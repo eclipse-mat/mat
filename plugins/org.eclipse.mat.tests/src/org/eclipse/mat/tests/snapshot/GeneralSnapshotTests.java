@@ -1327,7 +1327,6 @@ public class GeneralSnapshotTests
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
         // Currently can't export methods as classes properly
-        assumeThat(hasMethods, not(equalTo(Methods.ALL_METHODS)));
         if (redact)
             assumeThat(hasMethods,equalTo(Methods.NONE));
         // HPROF parser can't handle adding links from classloader to classes for javacore
