@@ -938,6 +938,37 @@ public class Pass1Parser extends AbstractParser
         {
             stackFramesAsObjects();
         }
+        else
+        {
+            fixupNativeClasses();
+        }
+    }
+
+    /**
+     * Fix up any special classes introduced in an exported HPROF file.
+     */
+    private void fixupNativeClasses()
+    {
+        IClass nm = handler.lookupClassByName(NATIVE_MEMORY, false);
+        IClass nt = handler.lookupClassByName(NATIVE_MEMORY_TYPE, false);
+        IClass mt = handler.lookupClassByName(METHOD_TYPE, false);
+        IClass m = handler.lookupClassByName(METHOD, false);
+        IClass s = handler.lookupClassByName(STACK_FRAME, false);
+        if (nm instanceof ClassImpl && 
+                        nt instanceof ClassImpl &&
+                        (m instanceof ClassImpl || s instanceof ClassImpl))
+        {
+            ((ClassImpl)nm).setClassInstance((ClassImpl)nt);
+            ((ClassImpl)nt).setClassInstance((ClassImpl)nt);
+            if (mt instanceof ClassImpl)
+            {
+                ((ClassImpl)mt).setClassInstance((ClassImpl)nt);
+                if (m instanceof ClassImpl)
+                    ((ClassImpl)m).setClassInstance((ClassImpl)mt);
+            }
+            if (s instanceof ClassImpl)
+                ((ClassImpl)s).setClassInstance((ClassImpl)nt);
+        }
     }
 
     private ClassImpl genClass(long nextAddress, String className, long superClass, long classLoader,
@@ -992,13 +1023,14 @@ public class Pass1Parser extends AbstractParser
         // Now we have a type we can set the type of NATIVE_MEMORY
         clazzNativeMemory.setClassInstance(clazzNativeMemoryType);
 
-        ClassImpl clazzMethodType = genClass(nextAddress, METHOD_TYPE, clazzNativeMemoryType.getObjectAddress(), rootLoader, new Field[0], new FieldDescriptor[0], clazzNativeMemoryType);
-        nextAddress = nextFreeAddr(nextAddress);
+        ClassImpl clazzMethodType;
 
         ClassImpl clazzMethod;
         ClassImpl clazzStackFrame;
         if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
         {
+            clazzMethodType = genClass(nextAddress, METHOD_TYPE, clazzNativeMemoryType.getObjectAddress(), rootLoader, new Field[0], new FieldDescriptor[0], clazzNativeMemoryType);
+            nextAddress = nextFreeAddr(nextAddress);
             FieldDescriptor[] fldm = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
                             new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
                             new FieldDescriptor(NATIVE, IObject.Type.BOOLEAN),
@@ -1012,6 +1044,7 @@ public class Pass1Parser extends AbstractParser
         }
         else
         {
+            clazzMethodType = null;
             clazzMethod = null;
             FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
                             new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
@@ -1022,7 +1055,7 @@ public class Pass1Parser extends AbstractParser
                             new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
                             new FieldDescriptor(METHOD_NAME, IObject.Type.OBJECT),
             };
-            clazzStackFrame = genClass(nextAddress, STACK_FRAME, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fld, clazzMethodType);
+            clazzStackFrame = genClass(nextAddress, STACK_FRAME, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fld, clazzNativeMemoryType);
             nextAddress = nextFreeAddr(nextAddress);
         }
 
