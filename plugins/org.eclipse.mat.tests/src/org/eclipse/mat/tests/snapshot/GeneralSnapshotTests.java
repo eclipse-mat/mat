@@ -203,7 +203,7 @@ public class GeneralSnapshotTests
 
         final String hprofPlugin = "org.eclipse.mat.hprof";
         IEclipsePreferences preferences2 = InstanceScope.INSTANCE.getNode(hprofPlugin);
-        String prev2 = preferences.get(key, null);
+        String prev2 = preferences2.get(key, null);
         preferences2.put(key, includeMethods);
 
         try {
@@ -1327,7 +1327,9 @@ public class GeneralSnapshotTests
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
         // Currently can't export methods as classes properly
-        assumeThat(hasMethods, equalTo(Methods.NONE));
+        assumeThat(hasMethods, not(equalTo(Methods.ALL_METHODS)));
+        if (redact)
+            assumeThat(hasMethods,equalTo(Methods.NONE));
         // HPROF parser can't handle adding links from classloader to classes for javacore
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
         assumeThat(fn.getName(), not(containsString("javacore")));
