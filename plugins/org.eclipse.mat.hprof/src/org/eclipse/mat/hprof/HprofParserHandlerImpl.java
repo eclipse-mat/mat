@@ -33,6 +33,7 @@ import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.hprof.describer.Version;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IPreliminaryIndex;
@@ -85,6 +86,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private HashMap<Long, Integer> requiredClassIDs = new HashMap<Long, Integer>();
     private IClass[] primitiveArrays = new IClass[IPrimitiveArray.TYPE.length];
     private boolean[] requiredPrimitiveArrays = new boolean[IPrimitiveArray.COMPONENT_TYPE.length];
+
+    private SetLong classLoaders = new SetLong();
 
     private HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>> threadAddressToLocals = new HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>>();
 
@@ -264,9 +267,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         int maxClassId = 0;
 
         // calculate instance size for all classes
-        for (Iterator<?> e = classesByAddress.values(); e.hasNext();)
+        for (Iterator<ClassImpl> e = classesByAddress.values(); e.hasNext();)
         {
-            ClassImpl clazz = (ClassImpl) e.next();
+            ClassImpl clazz = e.next();
             int index = identifiers0.reverse(clazz.getObjectAddress());
             clazz.setObjectId(index);
 
@@ -274,6 +277,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
             clazz.setHeapSizePerInstance(calculateInstanceSize(clazz));
             clazz.setUsedHeapSize(calculateClassSize(clazz));
+
+            // For fixing up HPROF files created from exporting DTFJ snapshots
+            classLoaders.add(clazz.getClassLoaderAddress());
         }
 
         // Compress the identifiers index to disk
@@ -983,6 +989,18 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         Object value = AbstractParser.readValue(in, null, type, object.idSize);
                         if (stField != null)
                             stField.setValue(value);
+                    }
+                }
+            }
+
+            // For fixing up HPROF files created from exporting DTFJ snapshots
+            if (!classLoaders.contains(0) && classLoaders.contains(object.objectAddress))
+            {
+                for (ClassImpl clazz : classesByAddress.getAllValues(new ClassImpl[0]))
+                {
+                    if (clazz.getClassLoaderAddress() == object.objectAddress)
+                    {
+                        object.references.add(clazz.getObjectAddress());
                     }
                 }
             }

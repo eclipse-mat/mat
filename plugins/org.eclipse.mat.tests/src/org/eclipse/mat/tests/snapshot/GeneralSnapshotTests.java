@@ -1329,9 +1329,7 @@ public class GeneralSnapshotTests
         // Currently can't export methods as classes properly
         if (redact)
             assumeThat(hasMethods,equalTo(Methods.NONE));
-        // HPROF parser can't handle adding links from classloader to classes for javacore
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
-        assumeThat(fn.getName(), not(containsString("javacore")));
         File tmpdir = TestSnapshots.createGeneratedName(fn.getName(), null);
         File newSnapshotFile = new File(tmpdir, fn.getName() + (compress ? "hprof.gz" : "hprof"));
         File mapping = redact ? new File(tmpdir, fn.getName() + "_mapping.properties") : null;
@@ -1416,7 +1414,8 @@ public class GeneralSnapshotTests
                             }
                         }
                     }
-                    assertThat("Should be a non-empty byte[] somewhere", nonnull1, greaterThan(0));
+                    if (!"DTFJ-Javacore".equals(snapshot.getSnapshotInfo().getProperty("$heapFormat")))
+                        assertThat("Should be a non-empty byte[] somewhere", nonnull1, greaterThan(0));
                     // Check that no char arrays match the old class names
                     Collection<IClass>cl2 = newSnapshot.getClassesByName("char[]", false);
                     int nonnull2 = 0;
@@ -1438,7 +1437,8 @@ public class GeneralSnapshotTests
                             }
                         }
                     }
-                    assertThat("Should be a non-empty char[] somewhere", nonnull2, greaterThan(0));
+                    if (!"DTFJ-Javacore".equals(snapshot.getSnapshotInfo().getProperty("$heapFormat")))
+                        assertThat("Should be a non-empty char[] somewhere", nonnull2, greaterThan(0));
                     File newSnapshotFile2 = File.createTempFile(fn.getName(), (compress ? ".hprof.gz" : ".hprof"), tmpdir);
 
                     try
