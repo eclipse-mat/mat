@@ -49,7 +49,7 @@
 
 		<div class="section"><h2 class="title sectiontitle">Security fixes</h2>
 			
-			Memory Analyzer 1.14.0 includes the security fixes first included in Memory Analyzer 1.9.2.
+			Eclipse Memory Analyzer 1.14.0 includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
 			We recommend users of stand-alone Eclipse Memory Analyzer version 1.13.0 or earlier and
 			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.14.0 or subsequent versions.
 			<dl class="dl">
@@ -213,6 +213,79 @@
 								Eclipse Memory Analyzer 1.14.0 is configured to specify the supplied update sites
 								using HTTPS rather than HTTP.
 								It is then up to the user to specify HTTPS rather than HTTP in any new update site definition. 
+								</dd>
+
+							
+						</dl>
+
+					</dd>
+
+				
+				
+					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-41704" target="_blank">CVE-2022-41704</a></dt>
+
+					<dd class="dd">
+						<dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-918: Server-Side Request Forgery (SSRF)</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">A vulnerability in Batik of Apache XML Graphics allows an attacker to run untrusted Java code
+								from an SVG. This issue affects Apache XML Graphics prior to 1.16.
+								It is recommended to update to version 1.16.
+								</dd>
+
+							
+							
+								<dt class="dt dlterm">NOTES</dt>
+
+								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of
+								Batik of Apache XML Graphics subject to this CVE.
+								Eclipse Memory Analyzer does not directly use SVG.
+								Batik of Apache XML Graphics is a dependency of Eclipse E4 RCP and BIRT,
+								which are dependencies of Eclipse Memory Analyzer.
+								</dd>
+
+							
+						</dl>
+
+					</dd>
+
+				
+				
+					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-42890" target="_blank">CVE-2022-42890</a></dt>
+
+					<dd class="dd">
+						<dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-918: Server-Side Request Forgery (SSRF)</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">A vulnerability in Batik of Apache XML Graphics allows an attacker
+								to run Java code from untrusted SVG via JavaScript.
+								This issue affects Apache XML Graphics prior to 1.16.
+								Users are recommended to upgrade to version 1.16.
+								</dd>
+
+							
+							
+								<dt class="dt dlterm">NOTES</dt>
+
+								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of
+								Batik of Apache XML Graphics subject to this CVE.
+								Eclipse Memory Analyzer does not directly use SVG.
+								Batik of Apache XML Graphics is a dependency of Eclipse E4 RCP and BIRT,
+								which are dependencies of Eclipse Memory Analyzer.
 								</dd>
 
 							
