@@ -463,6 +463,50 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 			<dlentry>
 				<dt>
 					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>HPROF Parser</uicontrol>
+						<uicontrol>Stack frames</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+					Normally stack frames are just shown in the Thread overview and stacks query.
+					This option allows stack frames to be treated as objects which are then visible like any other Java object in a Memory Analyzer view.
+					<dl>
+					<dlentry>
+					<dt>Normal
+					</dt>
+					<dd>Stack frames are just shown in the Thread overview and stacks query.
+					</dd>
+					</dlentry>
+					<dlentry>
+					<dt>Only stack frames as pseudo-objects
+					</dt>
+					<dd>
+					Stack frames are of type <codeph>&lt;stack frame&gt;</codeph>, size 0, with method names and source file
+and line numbers via fields and a name resolver.
+					<p>This is useful when looking at paths to and from objects via local variables as the stack frames are visible in
+					the paths to GC roots queries.</p>
+					</dd>
+					</dlentry>
+					<dlentry>
+					<dt>Stack frames as pseudo-objects and running methods as pseudo-classes
+					</dt>
+					<dd>Stack frames of are of type <codeph>packageName.className.methodName(Signature)ReturnType</codeph> extending <codeph>&lt;method&gt;</codeph> representing the method being executed,
+of size an estimate of the stack frame size, with source file and line number via fields and a name resolver,
+and those methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> of size 0.
+The size of a stack frame is estimated as 8 bytes times the maximum number of object references from a frame of that type.
+					<p>This can be useful to find out which methods are currently running and how much stack space they take up.
+					To examine running methods then take the histogram view, filter by '\(', then sort by instances or instance size.
+					</p>
+					</dd>
+					</dlentry>
+					</dl>
+					
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
 						<uicontrol>General</uicontrol>
 						<uicontrol>Appearance</uicontrol>
 						<uicontrol>Colors and Fonts</uicontrol>
