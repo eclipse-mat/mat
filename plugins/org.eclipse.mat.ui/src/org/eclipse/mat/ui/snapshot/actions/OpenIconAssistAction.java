@@ -137,6 +137,8 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
                             Messages.OpenIconAssistAction_OtherObject));
             icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.PACKAGE),
                             Messages.OpenIconAssistAction_Package));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.STACK_FRAME),
+                            Messages.OpenIconAssistAction_StackFrame));
 
             icons.add(new Icon(null, Messages.OpenIconAssistAction_IndicatorsAdded));
             icons.add(new Icon(ImageHelper.getInboundImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE),

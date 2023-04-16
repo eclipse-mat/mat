@@ -207,6 +207,7 @@ public class Messages extends NLS
     public static String OpenIconAssistAction_QueryViews;
     public static String OpenIconAssistAction_ReferenceAbove;
     public static String OpenIconAssistAction_ReferenceBelow;
+    public static String OpenIconAssistAction_StackFrame;
     public static String OpenIconAssistAction_ThisObjectIsGCRoot;
     public static String OpenObjectByIdAction_AddressIsNotHexNumber;
     public static String OpenObjectByIdAction_AddressMustBeHexNumber;

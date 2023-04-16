@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,8 @@ public class ImageHelper
 
         int CLASS = 8;
         int PACKAGE = 9;
+
+        int STACK_FRAME = 10;
     }
 
     public interface Decorations
@@ -50,7 +52,7 @@ public class ImageHelper
 
     private static final String[] IMAGES = new String[] { "class_obj", "instance_obj", "classloader_obj", "array_obj", //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
                     "class_obj_gc_root", "instance_obj_gc_root", "classloader_obj_gc_root", "array_obj_gc_root", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    "class", "package" }; //$NON-NLS-1$ //$NON-NLS-2$
+                    "class", "package", "stack_frame" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     private static final String PREFIX_OVERLAY = "$nl$/icons/decorations/"; //$NON-NLS-1$
 
@@ -90,6 +92,14 @@ public class ImageHelper
         }
         else
         {
+            try
+            {
+                if (object.getClazz().doesExtend("<stack frame>") //$NON-NLS-1$
+                    || object.getClazz().doesExtend("<method>")) //$NON-NLS-1$
+                    return Type.STACK_FRAME;
+            }
+            catch (SnapshotException e)
+            {}
             return isGCRoot ? Type.OBJECT_INSTANCE_GC_ROOT : Type.OBJECT_INSTANCE;
         }
     }
