@@ -168,7 +168,23 @@ public class CommonNameResolver
         public String resolve(IObject heapObject) throws SnapshotException
         {
             IPrimitiveArray charArray = (IPrimitiveArray) heapObject;
-            return PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), 1024);
+            // Check for empty array
+            int limit = 1024;
+            Object v = charArray.getValueArray(0, Math.min(charArray.getLength(), limit));
+            if (!(v instanceof char[]))
+                return null;
+            char[] value = (char[])v;
+
+            int j;
+            for (j = 0; j < value.length; j++)
+            {
+                if (value[j] != 0)
+                    break;
+            }
+            if (j == value.length)
+                return null;
+
+            return PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), limit);
         }
     }
 
@@ -178,8 +194,19 @@ public class CommonNameResolver
         public String resolve(IObject heapObject) throws SnapshotException
         {
             IPrimitiveArray arr = (IPrimitiveArray) heapObject;
-            byte[] value = (byte[]) arr.getValueArray(0, Math.min(arr.getLength(), 1024));
-            if (value == null)
+            // Check for empty array
+            Object v = arr.getValueArray(0, Math.min(arr.getLength(), 1024));
+            if (!(v instanceof byte[]))
+                return null;
+            byte[] value = (byte[])v;
+
+            int j;
+            for (j = 0; j < value.length; j++)
+            {
+                if (value[j] != 0)
+                    break;
+            }
+            if (j == value.length)
                 return null;
 
             // must not modify the original byte array
