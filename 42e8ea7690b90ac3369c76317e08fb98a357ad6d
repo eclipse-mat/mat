@@ -16,6 +16,23 @@
       "message": "Tested manually",
       "revId": "42e8ea7690b90ac3369c76317e08fb98a357ad6d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75ea0dfa_78c9ee41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-05-17T15:12:18Z",
+      "side": 1,
+      "message": "What if it\u0027s a dump with memory contents and the first up to 1024 values are actually 0?",
+      "revId": "42e8ea7690b90ac3369c76317e08fb98a357ad6d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
