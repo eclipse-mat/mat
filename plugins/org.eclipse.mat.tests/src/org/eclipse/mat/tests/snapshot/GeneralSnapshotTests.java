@@ -1307,7 +1307,8 @@ public class GeneralSnapshotTests
         assertNotNull(t);
         // Will run name resolvers on every object!
         IResultTable table = (IResultTable)t;
-        // Every PHD files have some empty char arrays which get resolved.
+        // PHD files do have char arrays and byte arrays, but these no longer get resolved (bug 581829).
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-Javacore")));
         // More than one different line, so some name resolvers are working
         assertThat(table.getRowCount(), greaterThan(1));

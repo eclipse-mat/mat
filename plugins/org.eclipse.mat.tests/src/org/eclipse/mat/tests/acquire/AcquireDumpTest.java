@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2021 IBM Corporation.
+ * Copyright (c) 2015, 2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,9 @@ package org.eclipse.mat.tests.acquire;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
@@ -366,8 +366,8 @@ public class AcquireDumpTest
                 }
             }
         }
-        assertEquals("Expected to find a org.eclipse.mat.tests plugin", found, 1);
-        assertEquals("Expected Dependencies,Dependents, Extension Points, Extensions, Used Services from org.eclipse.mat.api", f2, 31);
+        assertThat("Expected to find a org.eclipse.mat.tests plugin", found, equalTo(1));
+        assertThat("Expected Dependencies,Dependents, Extension Points, Extensions, Used Services from org.eclipse.mat.api", f2, equalTo(31));
     }
 
     private void checkSubtree(IResultTree tree, Object o3, int minElements, String toFind, String errMsg)

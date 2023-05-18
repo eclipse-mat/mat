@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 IBM Corporation
+ * Copyright (c) 2010, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,8 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -57,8 +56,8 @@ public class ArrayIntTest
                 ss.add(v);
                 t += 1;
             }
-            assertTrue("At least one item should have been added", t > 0); //$NON-NLS-1$
-            assertEquals("Added items should equal size", t, ss.size()); //$NON-NLS-1$
+            assertThat("At least one item should have been added", t, greaterThan(0)); //$NON-NLS-1$
+            assertThat("Size should equal added items", ss.size(), equalTo(t)); //$NON-NLS-1$
             assertFalse("Not empty", ss.isEmpty());
         }
     }
@@ -84,7 +83,7 @@ public class ArrayIntTest
         }
         int i = 0;
         for (IteratorInt ii = ss.iterator(); ii.hasNext(); ){
-            assertEquals("every entry should be in the iterator", ss.get(i++), ii.next()); //$NON-NLS-1$
+            assertThat("the iterator should match each entry", ii.next(), equalTo(ss.get(i++))); //$NON-NLS-1$
         }
     }
 
@@ -110,7 +109,7 @@ public class ArrayIntTest
         for (int k = 0; k < KEYS; ++k) {
             t += ss.get(k) > 0 ? 1 : 0;
         }
-        assertEquals("contained items should equals the size", ss.size(), t); //$NON-NLS-1$
+        assertThat("contained items should equals the size", t, equalTo(ss.size())); //$NON-NLS-1$
     }
 
     /**
@@ -134,7 +133,7 @@ public class ArrayIntTest
         ArrayInt ss2 = new ArrayInt(ss);
         int i = 0;
         for (IteratorInt ii = ss.iterator(); ii.hasNext(); ){
-            assertEquals("every entry should be in the iterator", ss2.get(i++), ii.next()); //$NON-NLS-1$
+            assertThat("the iterator should match each entry", ii.next(), equalTo(ss2.get(i++))); //$NON-NLS-1$
         }
     }
 
@@ -254,11 +253,11 @@ public class ArrayIntTest
         }
         int i = 0;
         for (IteratorInt ii = ss.iterator(); ii.hasNext(); ){
-            assertEquals("every key should be contained in the deserialized version", ii.next(), ss2.get(i++)); //$NON-NLS-1$
+            assertThat("every key should be contained in the deserialized version", ii.next(), equalTo(ss2.get(i++))); //$NON-NLS-1$
         }
         i = 0;
         for (IteratorInt ii = ss2.iterator(); ii.hasNext(); ){
-            assertEquals("every deserialized key should be contained", ii.next(), ss.get(i++)); //$NON-NLS-1$
+            assertThat("every deserialized key should be contained", ii.next(), equalTo(ss.get(i++))); //$NON-NLS-1$
         }
     }
 
