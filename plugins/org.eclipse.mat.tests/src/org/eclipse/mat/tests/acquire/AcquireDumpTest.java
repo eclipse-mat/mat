@@ -34,6 +34,7 @@ import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
@@ -244,6 +245,7 @@ public class AcquireDumpTest
                                 long now = System.currentTimeMillis();
                                 System.out.println("Took "+(now-then)+"ms for EclipseBundle query for "+dmp+" "+dmp.length());
                             }
+                            checkBigIntegerResolver(answer);
                         }
                         finally
                         {
@@ -405,5 +407,41 @@ public class AcquireDumpTest
     static void incFound()
     {
         ++found;
+    }
+
+    /**
+     * This query requires an heap dump from a running Eclipse system to 
+     * test the BigInteger resolver.
+     * @param snapshot
+     * @throws SnapshotException
+     */
+    void checkBigIntegerResolver(ISnapshot snapshot) throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("group_by_value java.math.BigInteger", snapshot);
+        assertNotNull(query);
+        IResult result = query.execute(new VoidProgressListener());
+        assertNotNull(result);
+        IResultTable table = (IResultTable) result;
+        assertThat(table.getRowCount(), greaterThan(10));
+        int found[] = new int[25];
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            String val = (String)table.getColumnValue(row, 0);
+            if (val.matches("1[0]*"))
+            {
+                if (val.length() < found.length)
+                {
+                    ++found[val.length()];
+                }
+            }
+        }
+        int npowers = 0;
+        for (int i = 1; i < found.length; ++i)
+        {
+            if (found[i] > 0)
+                ++npowers;
+        }
+        assertThat("Powers of 10 as BigInteger", npowers, greaterThanOrEqualTo(4));
     }
 }
