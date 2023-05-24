@@ -13,7 +13,11 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,6 +29,7 @@ import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -974,6 +979,62 @@ public class CommonNameResolver
             if (baseLocale != null && !baseLocale.isEmpty())
                 return locale;
             return null;
+        }
+    }
+
+    @Subject("java.math.BigInteger")
+    public static class BigIntegerResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            boolean little = false;
+            Object sn = obj.resolveValue("sign"); //$NON-NLS-1$
+            if (!(sn instanceof Integer))
+            {
+                sn = obj.resolveValue("signum"); //$NON-NLS-1$
+                if (!(sn instanceof Integer))
+                {
+                    return null;
+                }
+            }
+            Object mg = obj.resolveValue("mag"); //$NON-NLS-1$
+            if (!(mg instanceof IPrimitiveArray))
+            {
+                mg = obj.resolveValue("digits"); //$NON-NLS-1$
+                if (!(mg instanceof IPrimitiveArray))
+                    return null;
+                little = true;
+            }
+            int signum = (Integer)sn;
+            IPrimitiveArray pa = (IPrimitiveArray)mg;
+            if (pa.getType() != Type.INT)
+                return null;
+            int mag[] = (int[])pa.getValueArray();
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                 DataOutputStream dos = new DataOutputStream(baos))
+            {
+                if (little)
+                {
+                    for (int i = mag.length - 1; i >= 0; --i)
+                    {
+                        dos.writeInt(mag[i]);
+                    }
+                }
+                else
+                {
+                    for (int m : mag)
+                    {
+                        dos.writeInt(m);
+                    }
+                }
+                dos.flush();
+                BigInteger bi = new BigInteger(signum, baos.toByteArray());
+                return bi.toString();
+            }
+            catch (IOException e)
+            {
+                return null;
+            }
         }
     }
 }
