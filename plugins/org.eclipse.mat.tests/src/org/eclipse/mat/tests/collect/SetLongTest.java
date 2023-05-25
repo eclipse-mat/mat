@@ -319,4 +319,42 @@ public class SetLongTest
         assertThat(huge.size(), equalTo(0));
         assertTrue(huge.isEmpty());
     }
+
+    /**
+     * Check that adding an existing element inside an iterator
+     * doesn't break the iterator.
+     */
+    @Test
+    public void testSetLong8()
+    {
+        for (int i = 160; i < 170; ++i) {
+            Random r = new Random(i);
+            testEightSetLong(r);
+        }
+    }
+
+    private void testEightSetLong(Random r)
+    {
+        int size0 = r.nextInt(INITIAL_SIZE);
+        SetLong ss = new SetLong(size0);
+        for (int j = 0; j < KEYS; ++j) {
+            ss.add(r.nextInt(KEYS));
+            int i = 0;
+            int s1 = ss.size();
+            int t = r.nextInt(s1);
+            for (IteratorLong ii = ss.iterator(); ii.hasNext(); ++i) {
+                long v = ii.next();
+                assertTrue("i="+i+ " v="+v, ss.contains(v));  //$NON-NLS-1$//$NON-NLS-2$
+                if (i == t)
+                {
+                    ss.add(v);
+                    assertTrue("i="+i+ " v="+v, ss.contains(v));  //$NON-NLS-1$//$NON-NLS-2$
+                    assertEquals(ss.size(), s1);
+                }
+            }
+        }
+        for (IteratorLong ii = ss.iterator(); ii.hasNext(); ){
+            assertTrue("every key should be contained", ss.contains(ii.next())); //$NON-NLS-1$
+        }
+    }
 }
