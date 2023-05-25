@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
 package org.eclipse.mat.collect;
 
 import java.io.Serializable;
+import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 
 /**
@@ -32,13 +33,14 @@ public final class SetLong implements Serializable
      * E.g. ArrayList has a limit of Integer.MAX_VALUE - 8
      */
     private static final int BIG_CAPACITY = PrimeFinder.findPrevPrime(Integer.MAX_VALUE - 8 + 1) - 1;
-    
+
     private int capacity;
     private int step;
     private int limit;
     private int size;
     private boolean[] used;
     private long[] keys;
+    private transient int mod;
 
     /**
      * Create a set of default size
@@ -58,26 +60,37 @@ public final class SetLong implements Serializable
     }
 
     /**
-     * Add a value to the set 
+     * Add a value to the set.
      * @param key the value to add
-     * @return return true if added 
+     * @return return true if added
      */
     public boolean add(long key)
     {
-        if (size == limit)
-        {
-            // Double in size but avoid overflow or JVM limits
-            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
-        }
         int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return false; }
             hash = step(hash);
         }
+        if (size == limit)
+        {
+            // Double in size but avoid overflow or JVM limits
+            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
+            hash = hash(key);
+            while (used[hash])
+            {
+                if (keys[hash] == key)
+                {
+                    // Should not happen unless another thread modified the set
+                    throw new ConcurrentModificationException();
+                }
+                hash = step(hash);
+            }
+        }
         used[hash] = true;
         keys[hash] = key;
         size++;
+        mod++;
         return true;
     }
 
@@ -111,6 +124,7 @@ public final class SetLong implements Serializable
                     keys[newHash] = key;
                     hash = step(hash);
                 }
+                mod++;
                 return true;
             }
             hash = step(hash);
@@ -152,13 +166,14 @@ public final class SetLong implements Serializable
         return size() == 0;
     }
 
-    /** 
+    /**
      * clear all the entries
      */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
+        mod++;
     }
 
     /**
@@ -171,6 +186,7 @@ public final class SetLong implements Serializable
         {
             int n = 0;
             int i = -1;
+            int mod0 = mod;
 
             public boolean hasNext()
             {
@@ -179,6 +195,8 @@ public final class SetLong implements Serializable
 
             public long next() throws NoSuchElementException
             {
+                if (mod0 != mod)
+                    throw new ConcurrentModificationException();
                 while (++i < used.length)
                 {
                     if (used[i])
@@ -192,7 +210,7 @@ public final class SetLong implements Serializable
         };
     }
 
-    /** 
+    /**
      * convert to an array
      * @return a copy of the entries
      */
@@ -210,11 +228,6 @@ public final class SetLong implements Serializable
         return array;
     }
 
-    private int oldHash(long key)
-    {
-        return (((int) key) & Integer.MAX_VALUE) % capacity;
-    }
-
     private int step(int hash)
     {
         hash += step;
@@ -222,6 +235,11 @@ public final class SetLong implements Serializable
         if (hash >= capacity || hash < 0)
             hash -= capacity;
         return hash;
+    }
+
+    private int oldHash(long key)
+    {
+        return (((int) key) & Integer.MAX_VALUE) % capacity;
     }
 
     /**
@@ -275,11 +293,12 @@ public final class SetLong implements Serializable
             }
         }
         size = oldSize;
+        mod++;
     }
 
     /**
      * Calculate a suitable initial capacity
-     * @return initial capacity which has the same capacity, step 
+     * @return initial capacity which has the same capacity, step
      */
     private int calcInit()
     {
@@ -328,7 +347,7 @@ public final class SetLong implements Serializable
      * Deserialize a SetLong.
      * Previous versions serialized the object directly using
      * an old hash function, and the current version does
-     * the same for compatibility, 
+     * the same for compatibility,
      * so rebuild allowing a new hash function.
      * @return a populated SetLong, ready to use.
      */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ package org.eclipse.mat.collect;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -30,7 +31,7 @@ public final class HashMapObjectLong<E> implements Serializable
      */
     public interface Entry<E>
     {
-       /**
+        /**
          * Get the key.
          * @return the key
          */
@@ -56,7 +57,7 @@ public final class HashMapObjectLong<E> implements Serializable
      * E.g. ArrayList has a limit of Integer.MAX_VALUE - 8
      */
     private static final int BIG_CAPACITY = PrimeFinder.findPrevPrime(Integer.MAX_VALUE - 8 + 1) - 1;
-    
+
     private int capacity;
     private int step;
     private int limit;
@@ -64,6 +65,7 @@ public final class HashMapObjectLong<E> implements Serializable
     private boolean[] used;
     private Object[] keys;
     private long[] values;
+    private transient int mod;
 
     /**
      * Create a map of default size
@@ -90,12 +92,6 @@ public final class HashMapObjectLong<E> implements Serializable
      */
     public boolean put(E key, long value)
     {
-        if (size == limit)
-        {
-            // Double in size but avoid overflow or JVM limits
-            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
-        }
-
         int hash = hash(key);
         while (used[hash])
         {
@@ -106,10 +102,27 @@ public final class HashMapObjectLong<E> implements Serializable
             }
             hash = step(hash);
         }
+        if (size == limit)
+        {
+            // Double in size but avoid overflow or JVM limits
+            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
+            // Find the spot
+            hash = hash(key);
+            while (used[hash])
+            {
+                if (keys[hash].equals(key))
+                {
+                    // Should never happen as we searched above, so must have been modified by another thread
+                    throw new ConcurrentModificationException();
+                }
+                hash = step(hash);
+            }
+        }
         used[hash] = true;
         keys[hash] = key;
         values[hash] = value;
         size++;
+        mod++;
 
         return false;
     }
@@ -147,6 +160,7 @@ public final class HashMapObjectLong<E> implements Serializable
                     values[newHash] = values[hash];
                     hash = step(hash);
                 }
+                mod++;
                 return true;
             }
             hash = step(hash);
@@ -201,7 +215,9 @@ public final class HashMapObjectLong<E> implements Serializable
         for (int i = 0; i < used.length; i++)
         {
             if (used[i])
+            {
                 array[j++] = keys[i];
+            }
         }
         return array;
     }
@@ -241,7 +257,7 @@ public final class HashMapObjectLong<E> implements Serializable
     }
 
     /**
-     * Is the map empty 
+     * Is the map empty?
      * @return true if no current mappings
      */
     public boolean isEmpty()
@@ -257,6 +273,7 @@ public final class HashMapObjectLong<E> implements Serializable
     {
         size = 0;
         used = new boolean[capacity];
+        mod++;
     }
 
     /**
@@ -269,6 +286,7 @@ public final class HashMapObjectLong<E> implements Serializable
         {
             int n = 0;
             int i = -1;
+            final int mod0 = mod;
 
             public boolean hasNext()
             {
@@ -278,6 +296,8 @@ public final class HashMapObjectLong<E> implements Serializable
             @SuppressWarnings("unchecked")
             public E next() throws NoSuchElementException
             {
+                if (mod != mod0)
+                    throw new ConcurrentModificationException();
                 while (++i < used.length)
                 {
                     if (used[i])
@@ -306,6 +326,7 @@ public final class HashMapObjectLong<E> implements Serializable
         {
             int n = 0;
             int i = -1;
+            int mod0 = mod;
 
             public boolean hasNext()
             {
@@ -314,6 +335,8 @@ public final class HashMapObjectLong<E> implements Serializable
 
             public long next() throws NoSuchElementException
             {
+                if (mod != mod0)
+                    throw new ConcurrentModificationException();
                 while (++i < used.length)
                 {
                     if (used[i])
@@ -337,6 +360,7 @@ public final class HashMapObjectLong<E> implements Serializable
         {
             int n = 0;
             int i = -1;
+            final int mod0 = mod;
 
             public boolean hasNext()
             {
@@ -345,6 +369,8 @@ public final class HashMapObjectLong<E> implements Serializable
 
             public Entry<E> next() throws NoSuchElementException
             {
+                if (mod != mod0)
+                    throw new ConcurrentModificationException();
                 while (++i < used.length)
                 {
                     if (used[i])
@@ -355,11 +381,15 @@ public final class HashMapObjectLong<E> implements Serializable
                             @SuppressWarnings("unchecked")
                             public E getKey()
                             {
+                                if (mod != mod0)
+                                    throw new ConcurrentModificationException();
                                 return (E) keys[i];
                             }
 
                             public long getValue()
                             {
+                                if (mod != mod0)
+                                    throw new ConcurrentModificationException();
                                 return values[i];
                             }
                         };
@@ -429,6 +459,7 @@ public final class HashMapObjectLong<E> implements Serializable
             }
         }
         size = oldSize;
+        mod++;
     }
 
     private int step(int hash)
@@ -439,9 +470,10 @@ public final class HashMapObjectLong<E> implements Serializable
             hash -= capacity;
         return hash;
     }
+
     private int oldHash(Object obj)
     {
-        // Math.abs isn't safe for Integer.MIN_VALUE as it returns Integer.MIN_VALUE 
+        // Math.abs isn't safe for Integer.MIN_VALUE as it returns Integer.MIN_VALUE
         return (obj.hashCode() & Integer.MAX_VALUE) % capacity;
     }
 
@@ -462,7 +494,7 @@ public final class HashMapObjectLong<E> implements Serializable
 
     /**
      * Calculate a suitable initial capacity
-     * @return initial capacity which has the same capacity, step 
+     * @return initial capacity which has the same capacity, step
      */
     private int calcInit()
     {
@@ -511,7 +543,7 @@ public final class HashMapObjectLong<E> implements Serializable
     /**
      * Previous versions serialized the object directly using
      * an old hash function, and the current version does
-     * the same for compatibility, 
+     * the same for compatibility,
      * so rebuild allowing a new hash function.
      * @return
      */

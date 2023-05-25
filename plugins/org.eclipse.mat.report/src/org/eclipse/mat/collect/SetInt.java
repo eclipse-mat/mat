@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
 package org.eclipse.mat.collect;
 
 import java.io.Serializable;
+import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 
 /**
@@ -32,13 +33,14 @@ public final class SetInt implements Serializable
      * E.g. ArrayList has a limit of Integer.MAX_VALUE - 8
      */
     private static final int BIG_CAPACITY = PrimeFinder.findPrevPrime(Integer.MAX_VALUE - 8 + 1) - 1;
-    
+
     private int capacity;
     private int step;
     private int limit;
     private int size;
     private boolean[] used;
     private int[] keys;
+    private transient int mod;
 
     /**
      * Create a set of default size
@@ -58,28 +60,40 @@ public final class SetInt implements Serializable
     }
 
     /**
-     * Add a value to the set 
+     * Add a value to the set.
      * @param key the value to add
-     * @return return true if added 
+     * @return return true if added
      */
     public boolean add(int key)
     {
-        if (size == limit)
-        {
-            // Double in size but avoid overflow or JVM limits
-            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
-        }
         int hash = hash(key);
         while (used[hash])
         {
             if (keys[hash] == key) { return false; }
             hash = step(hash);
         }
+        if (size == limit)
+        {
+            // Double in size but avoid overflow or JVM limits
+            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
+            hash = hash(key);
+            while (used[hash])
+            {
+                if (keys[hash] == key)
+                {
+                    // Should not happen unless another thread modified the set
+                    throw new ConcurrentModificationException();
+                }
+                hash = step(hash);
+            }
+        }
         used[hash] = true;
         keys[hash] = key;
         size++;
+        mod++;
         return true;
     }
+
     /**
      * Remove a value from the set
      * @param key the value to add
@@ -110,6 +124,7 @@ public final class SetInt implements Serializable
                     keys[newHash] = key;
                     hash = step(hash);
                 }
+                mod++;
                 return true;
             }
             hash = step(hash);
@@ -151,13 +166,14 @@ public final class SetInt implements Serializable
         return size() == 0;
     }
 
-    /** 
+    /**
      * clear all the entries
      */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
+        mod++;
     }
 
     /**
@@ -170,6 +186,7 @@ public final class SetInt implements Serializable
         {
             int n = 0;
             int i = -1;
+            int mod0 = mod;
 
             public boolean hasNext()
             {
@@ -178,6 +195,8 @@ public final class SetInt implements Serializable
 
             public int next() throws NoSuchElementException
             {
+                if (mod0 != mod)
+                    throw new ConcurrentModificationException();
                 while (++i < used.length)
                 {
                     if (used[i])
@@ -191,7 +210,7 @@ public final class SetInt implements Serializable
         };
     }
 
-    /** 
+    /**
      * convert to an array
      * @return a copy of the entries
      */
@@ -222,7 +241,6 @@ public final class SetInt implements Serializable
     {
         return (key & Integer.MAX_VALUE) % capacity;
     }
-
 
     /**
      * Hash function.
@@ -275,11 +293,12 @@ public final class SetInt implements Serializable
             }
         }
         size = oldSize;
+        mod++;
     }
 
     /**
      * Calculate a suitable initial capacity
-     * @return initial capacity which has the same capacity, step 
+     * @return initial capacity which has the same capacity, step
      */
     private int calcInit()
     {
@@ -328,7 +347,7 @@ public final class SetInt implements Serializable
      * Deserialize a SetInt.
      * Previous versions serialized the object directly using
      * an old hash function, and the current version does
-     * the same for compatibility, 
+     * the same for compatibility,
      * so rebuild allowing a new hash function.
      * @return a populated SetInt, ready to use.
      */
