@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b31a4d06_f63251e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-05-25T21:36:23Z",
+      "side": 1,
+      "message": "Looks okay. I don\u0027t think it will fix bug 581932 though.\nAny comments?",
+      "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
