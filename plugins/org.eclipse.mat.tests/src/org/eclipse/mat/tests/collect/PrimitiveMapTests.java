@@ -14,9 +14,11 @@
 package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
@@ -44,7 +47,6 @@ import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapObjectLong;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
-import org.eclipse.mat.tests.TestSnapshots;
 import org.junit.Test;
 
 public class PrimitiveMapTests
@@ -65,25 +67,25 @@ public class PrimitiveMapTests
     // HashMapIntLong
     // //////////////////////////////////////////////////////////////
 
-    @Test
-    public void testIntLongMap() throws ClassNotFoundException, IOException
+    private void testIntLongMap(int num_values) throws ClassNotFoundException, IOException
     {
-        Random r = new Random();
+        Random r = getRandom(num_values);
 
-        Integer[] keys = new Integer[NUM_VALUES];
-        Long[] values = new Long[NUM_VALUES];
+        Integer[] keys = new Integer[num_values];
+        Long[] values = new Long[num_values];
 
-        for (int ii = 0; ii < NUM_VALUES; ii++)
+        for (int ii = 0; ii < num_values; ii++)
         {
-            keys[ii] = r.nextInt();
-            values[ii] = r.nextLong();
-
             // make sure we have at least one duplicate
-            if (ii == 10)
+            if (ii == 11)
             {
-                ii++;
                 keys[ii] = keys[ii - 1];
                 values[ii] = values[ii - 1];
+            }
+            else
+            {
+                keys[ii] = r.nextInt();
+                values[ii] = r.nextLong();
             }
         }
 
@@ -106,6 +108,31 @@ public class PrimitiveMapTests
             }
         }.run();
 
+    }
+
+    /**
+     * Doesn't need to be random - just give a reproducible
+     * sequence of scattered values.
+     * @param seed for the sequence
+     */
+    private Random getRandom(int seed)
+    {
+        return new Random(seed);
+    }
+
+    @Test
+    public void testIntLongMap() throws ClassNotFoundException, IOException
+    {
+        testIntLongMap(NUM_VALUES);
+    }
+
+    @Test
+    public void testIntLongMapN() throws ClassNotFoundException, IOException
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            testIntLongMap(i);
+        }
     }
 
     @Test
@@ -142,7 +169,7 @@ public class PrimitiveMapTests
 
     public long testIntLongMapPerf(int n, int m, int c)
     {
-        Random r = new Random();
+        Random r = getRandom(n);
 
         Integer[] keys = new Integer[n / m * m];
         Long[] values = new Long[n / m * m];
@@ -349,25 +376,25 @@ public class PrimitiveMapTests
     // HashMapIntObject
     // //////////////////////////////////////////////////////////////
 
-    @Test
-    public void testIntObjectMap() throws ClassNotFoundException, IOException
+    public void testIntObjectMap(int num_values) throws ClassNotFoundException, IOException
     {
-        Random r = new Random();
+        Random r = getRandom(num_values);
 
-        Integer[] keys = new Integer[NUM_VALUES];
-        Long[] values = new Long[NUM_VALUES];
+        Integer[] keys = new Integer[num_values];
+        Long[] values = new Long[num_values];
 
-        for (int ii = 0; ii < NUM_VALUES; ii++)
+        for (int ii = 0; ii < num_values; ii++)
         {
-            keys[ii] = r.nextInt();
-            values[ii] = r.nextLong();
-
             // make sure we have at least one duplicate
-            if (ii == 10)
+            if (ii == 11)
             {
-                ii++;
                 keys[ii] = keys[ii - 1];
                 values[ii] = values[ii - 1];
+            }
+            else
+            {
+                keys[ii] = r.nextInt();
+                values[ii] = r.nextLong();
             }
         }
 
@@ -401,6 +428,21 @@ public class PrimitiveMapTests
     }
 
     @Test
+    public void testIntObjectMap() throws ClassNotFoundException, IOException
+    {
+        testIntObjectMap(NUM_VALUES);
+    }
+
+    @Test
+    public void testIntObjectMapN() throws ClassNotFoundException, IOException
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            testIntObjectMap(i);
+        }
+    }
+
+    @Test
     public void testIntObjectMapPerf()
     {
         long best = Long.MAX_VALUE;
@@ -424,7 +466,7 @@ public class PrimitiveMapTests
 
     public long testIntObjectMapPerf(int n, int m, int c)
     {
-        Random r = new Random();
+        Random r = getRandom(n);
 
         Integer[] keys = new Integer[n / m * m];
         Long[] values = new Long[n / m * m];
@@ -635,25 +677,25 @@ public class PrimitiveMapTests
     // HashMapLongObject
     // //////////////////////////////////////////////////////////////
 
-    @Test
-    public void testLongObjectMap() throws ClassNotFoundException, IOException
+    public void testLongObjectMap(int num_values) throws ClassNotFoundException, IOException
     {
-        Random r = new Random();
+        Random r = getRandom(num_values);
 
-        Long[] keys = new Long[NUM_VALUES];
-        Integer[] values = new Integer[NUM_VALUES];
+        Long[] keys = new Long[num_values];
+        Integer[] values = new Integer[num_values];
 
-        for (int ii = 0; ii < NUM_VALUES; ii++)
+        for (int ii = 0; ii < num_values; ii++)
         {
-            keys[ii] = r.nextLong();
-            values[ii] = r.nextInt();
-
             // make sure we have at least one duplicate
-            if (ii == 10)
+            if (ii == 11)
             {
-                ii++;
                 keys[ii] = keys[ii - 1];
                 values[ii] = values[ii - 1];
+            }
+            else
+            {
+                keys[ii] = r.nextLong();
+                values[ii] = r.nextInt();
             }
         }
 
@@ -686,6 +728,21 @@ public class PrimitiveMapTests
     }
 
     @Test
+    public void testLongObjectMap() throws ClassNotFoundException, IOException
+    {
+        testLongObjectMap(NUM_VALUES);
+    }
+
+    @Test
+    public void testLongObjectMapN() throws ClassNotFoundException, IOException
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            testLongObjectMap(i);
+        }
+    }
+
+    @Test
     public void testLongObjectMapPerf()
     {
         long best = Long.MAX_VALUE;
@@ -709,7 +766,7 @@ public class PrimitiveMapTests
 
     public long testLongObjectMapPerf(int n, int m, int c)
     {
-        Random r = new Random();
+        Random r = getRandom(n);
 
         Long[] keys = new Long[n / m * m];
         Integer[] values = new Integer[n / m * m];
@@ -916,35 +973,33 @@ public class PrimitiveMapTests
     // HashMapObjectLong
     // //////////////////////////////////////////////////////////////
 
-    @Test
-    public void testObjectLongMap() throws ClassNotFoundException, IOException
+    public void testObjectLongMap(int num_values) throws ClassNotFoundException, IOException
     {
-        Random r = new Random();
+        Random r = getRandom(num_values);
 
-        Integer[] keys = new Integer[NUM_VALUES];
-        Long[] values = new Long[NUM_VALUES];
+        Integer[] keys = new Integer[num_values];
+        Long[] values = new Long[num_values];
 
-        for (int ii = 0; ii < NUM_VALUES; ii++)
+        for (int ii = 0; ii < num_values; ii++)
         {
-            keys[ii] = r.nextInt();
-            values[ii] = r.nextLong();
-
             // make sure we have at least one duplicate
-            if (ii == 10)
+            if (ii == 11)
             {
-                ii++;
                 keys[ii] = keys[ii - 1];
                 values[ii] = values[ii - 1];
             }
-
             // make sure we have at least one via equals
-            if (ii == 20)
+            else if (ii == 21)
             {
-                ii++;
                 // Deliberately construct new object
                 keys[ii] = cloneInteger(keys[ii - 1]);
                 // Deliberately construct new object
                 values[ii] = cloneLong(values[ii - 1]);
+            }
+            else
+            {
+                keys[ii] = r.nextInt();
+                values[ii] = r.nextLong();
             }
         }
 
@@ -983,6 +1038,21 @@ public class PrimitiveMapTests
                 return new MapObjectLongBridge4<Integer>(new HashMapObjectLong<Integer>());
             }
         }.run();
+    }
+
+    @Test
+    public void testObjectLongMap() throws ClassNotFoundException, IOException
+    {
+        testObjectLongMap(NUM_VALUES);
+    }
+
+    @Test
+    public void testObjectLongMapN() throws ClassNotFoundException, IOException
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            testObjectLongMap(i);
+        }
     }
 
     /**
@@ -1051,7 +1121,7 @@ public class PrimitiveMapTests
 
     public long testObjectLongMapPerf(int n, int m, int c)
     {
-        Random r = new Random();
+        Random r = getRandom(n);
 
         Integer[] keys = new Integer[n / m * m];
         Long[] values = new Long[n / m * m];
@@ -1286,7 +1356,7 @@ public class PrimitiveMapTests
         {
             super(delegate);
         }
-        
+
         /**
          * check that remove is done by equality not identity
          */
@@ -1320,8 +1390,7 @@ public class PrimitiveMapTests
 
         public void run() throws IOException, ClassNotFoundException
         {
-            TestSnapshots.testAssertionsEnabled();
-            assert keys.length == values.length : "Keys and values must have the same length"; //$NON-NLS-1$
+            assertThat("Keys and values must have the same length", values.length, equalTo(keys.length)); //$NON-NLS-1$
 
             Map<K, V> subject = createEmpty();
             Map<K, V> reference = new HashMap<K, V>();
@@ -1331,6 +1400,8 @@ public class PrimitiveMapTests
             verifyKeys(subject, reference);
             verifyValues(subject, reference);
             verifyGets(subject, reference);
+            verifyContains(subject, reference);
+            verifyReplace(subject, reference);
             verifyContains(subject, reference);
             byte b[] = serialize(subject);
             Map<K, V> subject2 = deserialize(b);
@@ -1344,8 +1415,7 @@ public class PrimitiveMapTests
          */
         public void perfRun()
         {
-            TestSnapshots.testAssertionsEnabled();
-            assert keys.length == values.length : "Keys and values must have the same length"; //$NON-NLS-1$
+            assertThat("Keys and values must have the same length", values.length, equalTo(keys.length)); //$NON-NLS-1$
 
             Map<K, V> subject = createEmpty();
             Map<K, V> reference = new HashMap<K, V>();
@@ -1360,7 +1430,7 @@ public class PrimitiveMapTests
                 V get = subject.get(key);
                 V get2 = reference.get(key);
 
-                assert get == null ? get2 == null : get.equals(get2);
+                assertThat("reference size "+reference.size(), get, equalTo(get2)); //$NON-NLS-1$
             }
         }
 
@@ -1372,15 +1442,15 @@ public class PrimitiveMapTests
                 boolean contains1 = subject.containsKey(key);
                 boolean contains2 = reference.containsKey(key);
 
-                assert contains1 == contains2;
-                
+                assertThat(contains1, equalTo(contains2));
+
                 if (key instanceof Integer)
                 {
                     Integer keyi = i;
                     contains1 = subject.containsKey(keyi);
                     contains2 = reference.containsKey(keyi);
 
-                    assert contains1 == contains2;
+                    assertThat("Map size " + subject.size() + " ref size " + reference.size() +" key " + keyi, contains1, equalTo(contains2)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 else if (key instanceof Long)
                 {
@@ -1388,7 +1458,7 @@ public class PrimitiveMapTests
                     contains1 = subject.containsKey(keyl);
                     contains2 = reference.containsKey(keyl);
 
-                    assert contains1 == contains2;
+                    assertThat("Map size " + subject.size() + " ref size " + reference.size() + " key " + keyl, contains1, equalTo(contains2)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
                 ++i;
             }
@@ -1397,7 +1467,7 @@ public class PrimitiveMapTests
         private void verifyRemove(Map<K, V> subject, Map<K, V> reference)
         {
             for (Map.Entry<K, V> entry : reference.entrySet())
-                assert entry.getValue().equals(subject.remove(entry.getKey()));
+                assertThat(subject.remove(entry.getKey()), equalTo(entry.getValue()));
         }
 
         private void verifyInsert(Map<K, V> subject, Map<K, V> reference)
@@ -1406,9 +1476,27 @@ public class PrimitiveMapTests
             {
                 V put = subject.put(keys[ii], values[ii]);
                 V put2 = reference.put(keys[ii], values[ii]);
-                assert put == null ? put2 == null : put.equals(put2);
-                assert subject.size() == reference.size();
+                assertThat(put, equalTo(put2));
+                assertThat(subject.size(), equalTo(reference.size()));
             }
+        }
+
+        private void verifyReplace(Map<K, V> subject, Map<K, V> reference)
+        {
+            int size = subject.size();
+            int i = 0;
+            for (Iterator<Entry<K, V>>it = subject.entrySet().iterator(); it.hasNext();)
+            {
+                Entry<K, V> e = it.next();
+                V val = e.getValue();
+                V prev = subject.put(e.getKey(), e.getValue());
+                assertThat(prev, equalTo(val));
+                assertThat("i = "+i, subject.size(), equalTo(size)); //$NON-NLS-1$
+                i++;
+                assertThat(e.getValue(), equalTo(reference.get(e.getKey())));
+            }
+            assertThat(i, equalTo(size));
+            assertThat(subject.size(), equalTo(size));
         }
 
         private void verifyKeys(Map<K, V> subject, Map<K, V> reference)
@@ -1418,8 +1506,8 @@ public class PrimitiveMapTests
             List<K> referenceKeys = new ArrayList<K>(reference.keySet());
             Collections.sort(referenceKeys);
 
-            assert subjectKeys.size() == referenceKeys.size();
-            assert subjectKeys.equals(referenceKeys);
+            assertThat(subjectKeys.size(), equalTo(referenceKeys.size()));
+            assertThat(subjectKeys, equalTo(referenceKeys));
         }
 
         private void verifyValues(Map<K, V> subject, Map<K, V> reference)
@@ -1429,23 +1517,23 @@ public class PrimitiveMapTests
             List<V> referenceKeys = new ArrayList<V>(reference.values());
             Collections.sort(referenceKeys);
 
-            assert subjectKeys.size() == referenceKeys.size();
-            assert subjectKeys.equals(referenceKeys);
+            assertThat(subjectKeys.size(), equalTo(referenceKeys.size()));
+            assertThat(subjectKeys, equalTo(referenceKeys));
         }
 
         private void verifyEmpty(Map<K, V> subject)
         {
-            assert subject.isEmpty();
-            assert subject.size() == 0;
-            assert subject.keySet().isEmpty();
-            assert subject.values().isEmpty();
-            assert subject.entrySet().isEmpty();
+            assertTrue(subject.isEmpty());
+            assertThat(subject.size(), equalTo(0));
+            assertTrue(subject.keySet().isEmpty());
+            assertTrue(subject.values().isEmpty());
+            assertTrue(subject.entrySet().isEmpty());
             for (K key : keys)
-                assert !subject.containsKey(key);
+                assertFalse(subject.containsKey(key));
             for (V value : values)
-                assert !subject.containsValue(value);
+                assertFalse(subject.containsValue(value));
             for (K key : keys)
-                assert subject.remove(key) == null;
+                assertThat(subject.remove(key), equalTo(nullValue()));
         }
 
         private byte[] serialize(Map<K, V> subject) throws IOException
