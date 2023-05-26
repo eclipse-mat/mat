@@ -272,6 +272,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             ClassImpl clazz = e.next();
             int index = identifiers0.reverse(clazz.getObjectAddress());
             clazz.setObjectId(index);
+            if (index < 0)
+            {
+                monitor.sendUserMessage(IProgressListener.Severity.ERROR,
+                                MessageUtil.format(Messages.HprofParserHandlerImpl_ClassNotFoundInAddressIndex,
+                                                clazz.getTechnicalName()),
+                                null);
+            }
 
             maxClassId = Math.max(maxClassId, index);
 
@@ -397,6 +404,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                                     cl.getFieldDescriptors().toArray(new FieldDescriptor[0]));
                     newcl.setClassInstance(type);
                     // Fix up the existing lookups
+                    // Relies on replacement of a value being safe inside iterator
                     classesByAddress.put(e.getKey(), newcl);
                     List<ClassImpl>nms = classesByName.get(cl.getName());
                     for (int i = 0; i < nms.size(); ++i)

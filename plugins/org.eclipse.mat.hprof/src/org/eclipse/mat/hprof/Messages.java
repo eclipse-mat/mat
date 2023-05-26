@@ -55,6 +55,7 @@ public class Messages extends NLS
     public static String HprofIndexBuilder_Parsing;
     public static String HprofIndexBuilder_Scanning;
     public static String HprofIndexBuilder_Writing;
+    public static String HprofParserHandlerImpl_ClassNotFoundInAddressIndex;
     public static String HprofParserHandlerImpl_DiscardedObjects;
     public static String HprofParserHandlerImpl_Error_ExpectedClassSegment;
     public static String HprofParserHandlerImpl_Error_MultipleClassInstancesExist;
