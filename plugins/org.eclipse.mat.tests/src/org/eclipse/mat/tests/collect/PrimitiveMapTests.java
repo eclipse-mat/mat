@@ -14,7 +14,6 @@
 package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -1533,7 +1532,7 @@ public class PrimitiveMapTests
             for (V value : values)
                 assertFalse(subject.containsValue(value));
             for (K key : keys)
-                assertThat(subject.remove(key), equalTo(nullValue()));
+                assertThat(subject.remove(key), equalTo(null));
         }
 
         private byte[] serialize(Map<K, V> subject) throws IOException
