@@ -16,6 +16,40 @@
       "message": "Looks okay. I don\u0027t think it will fix bug 581932 though.\nAny comments?",
       "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c8ab6d3_83fcf4b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-05-27T03:59:46Z",
+      "side": 1,
+      "message": "LGTM, I think the mod counter should be volatile so it\u0027s visible and not hoisted. Thoughts?",
+      "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e0cf53b_5b88fb56",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/collect/HashMapIntLong.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-05-27T03:59:46Z",
+      "side": 1,
+      "message": "What do you think of changing this to `volatile`?",
+      "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
