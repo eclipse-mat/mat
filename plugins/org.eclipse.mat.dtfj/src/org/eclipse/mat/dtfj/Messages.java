@@ -80,6 +80,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_DTFJRootsDisabled;
     public static String DTFJIndexBuilder_DuplicateJavaStackFrame;
     public static String DTFJIndexBuilder_DuringGC;
+    public static String DTFJIndexBuilder_ErrorCheckingOMRVMThread;
     public static String DTFJIndexBuilder_ErrorCheckingReliability;
     public static String DTFJIndexBuilder_ErrorGettingOutboundReferences;
     public static String DTFJIndexBuilder_ErrorReadingProcessID;

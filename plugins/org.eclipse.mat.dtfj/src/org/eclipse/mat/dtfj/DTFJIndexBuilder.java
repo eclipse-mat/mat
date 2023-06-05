@@ -2652,30 +2652,43 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 else if (exclusiveAccessState == 2)
                 {
                     // Something has exclusive access, so figure out what it is
+                    sb.append("Something has exclusive access because exclusiveAccessState = 2\n"); //$NON-NLS-1$
 
                     // Find the j9vmthread that has exclusive access
                     String threads = executeJdmpviewCommand("!threads flags"); //$NON-NLS-1$
-                    sb.append("\n\n" + threads); //$NON-NLS-1$
+                    sb.append("\n\n> !threads flags\n" + threads); //$NON-NLS-1$
                     threads = threads.substring(0, threads.indexOf("20 privateFlags")); //$NON-NLS-1$
                     threads = threads.substring(threads.lastIndexOf("!j9vmthread ")); //$NON-NLS-1$
                     threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
 
                     // Get the omrVMThread for the j9vmthread
                     String omrVMThread = executeJdmpviewCommand(threads);
-                    sb.append("\n\n" + omrVMThread); //$NON-NLS-1$
+                    sb.append("\n\n> " + threads + "\n" + omrVMThread); //$NON-NLS-1$ //$NON-NLS-2$
                     omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15); //$NON-NLS-1$
                     omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
 
-                    // Get the vmState of the omrVMThread
-                    String vmStateStr = executeJdmpviewCommand(omrVMThread);
-                    sb.append("\n\n" + vmStateStr); //$NON-NLS-1$
-                    vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13); //$NON-NLS-1$
-                    vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
-                    long vmState = Long.parseLong(vmStateStr, 16);
-                    if ((vmState & 0x20000) != 0)
+                    if (!omrVMThread.startsWith("!j9x ")) //$NON-NLS-1$
                     {
-                        // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
-                        return DumpReliability.DURING_GARBAGE_COLLECTION;
+                        // Get the vmState of the omrVMThread
+                        String vmStateStr = executeJdmpviewCommand(omrVMThread);
+                        sb.append("\n\n> " + omrVMThread + "\n" + vmStateStr); //$NON-NLS-1$ //$NON-NLS-2$
+                        vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13); //$NON-NLS-1$
+                        vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
+                        long vmState = Long.parseLong(vmStateStr, 16);
+                        if ((vmState & 0x20000) != 0)
+                        {
+                            // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
+                            return DumpReliability.DURING_GARBAGE_COLLECTION;
+                        }
+                    }
+                    else
+                    {
+                        // When omrVMThread evaluates to a !j9x command, then
+                        // jdmpview doesn't have enough information on the
+                        // OMRVMThread structure. This could be due to an older
+                        // version of Java, for example.
+                        listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingOMRVMThread,
+                                        new UnsupportedOperationException(sb.toString()));
                     }
                 }
             }
@@ -2684,8 +2697,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // This will probably be caused by a change in the undocumented
                 // format of the various jdmpview commands, so we just
                 // print a warning about it.
-                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability, e);
-                System.out.println(sb.toString());
+                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability,
+                                new UnsupportedOperationException(sb.toString(), e));
             }
         }
         return DumpReliability.UNKNOWN;
