@@ -35,6 +35,24 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0804c11b_38f68421",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2655,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-06-12T17:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3320e695_52838c80",
+      "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4af993ca_3cee7479",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-06-06T11:39:53Z",
       "side": 1,
       "message": "If the output from the command is an error or is unexpected, then these substring() will throw a StringIndexOutOfBoundsException which will be caught further down. That\u0027s probably fine, as the user will just report the whole text to us.",
+      "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6270fe8b_b3bc380e",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2660,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-06-12T17:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4af993ca_3cee7479",
       "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
@@ -69,6 +105,24 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "263a2687_da39be48",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2670,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-06-12T17:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6f07c6a_087b0594",
+      "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7809093a_1385947e",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-06-06T11:39:53Z",
       "side": 1,
       "message": "We don\u0027t normally print messages to System.out. It might be better to send it to the log, either as part of the error message or as part of the exception message. Could the exception be UnsupportedOperationException?",
+      "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21f02698_92b95b8f",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2692,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-06-12T17:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7809093a_1385947e",
       "revId": "0a2b66b9661ae9b90ea687ee1d83552eb43deca5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
