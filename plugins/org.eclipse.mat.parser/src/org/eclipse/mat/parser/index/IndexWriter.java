@@ -167,6 +167,7 @@ public abstract class IndexWriter
                 collect = null;
             }
             Arrays.parallelSort(identifiers, 0, size);
+            Arrays.sort(identifiers, 0, size); // Debug for bug 581932
         }
 
         public int size()
