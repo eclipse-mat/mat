@@ -90,6 +90,7 @@ public class Pass1Parser extends AbstractParser
     public void read(File file, String prefix, String dumpNrToRead, long estimatedLength) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
+        // or https://hg.openjdk.org/jdk8/jdk8/jdk/raw-file/tip/src/share/demo/jvmti/hprof/manual.html
         in = new BufferingRafPositionInputStream(file, prefix, 0, 8*1024, 0);
 
         int currentDumpNr = 0;

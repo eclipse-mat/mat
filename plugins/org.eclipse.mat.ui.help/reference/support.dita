@@ -33,7 +33,7 @@
 	<refbody>
 		<section>
 			<p>Eclipse Memory Analyzer is an open source project.
-			See <xref format="html" scope="peer" href="https://www.eclipse.org/mat/support/"></xref>
+			See <xref format="html" scope="peer" href="https://eclipse.dev/mat/support/"></xref>
 			for suggestions about obtaining help if you have problems running the tool.
 			</p>
 		</section>

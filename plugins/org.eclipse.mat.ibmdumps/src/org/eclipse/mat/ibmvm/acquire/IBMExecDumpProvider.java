@@ -684,8 +684,8 @@ public class IBMExecDumpProvider extends BaseProvider
             }
             pb.command(args);
             p = pb.start();
-            StringBuffer err = new StringBuffer();
-            StringBuffer in = new StringBuffer();
+            StringBuilder err = new StringBuilder();
+            StringBuilder in = new StringBuilder();
             InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
             try
             {

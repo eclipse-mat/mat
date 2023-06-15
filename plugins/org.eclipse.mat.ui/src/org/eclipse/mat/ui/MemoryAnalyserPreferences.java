@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 IBM Corporation
+ * Copyright (c) 2014, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.ui.IStartup;
  * We use this instead of a PreferenceInitializer because that only gets called
  * when the preference pane is opened. 
  * 
- * @see <a href="http://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html">http://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html</a>
+ * @see <a href="https://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html">https://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html</a>
  */
 public class MemoryAnalyserPreferences implements IStartup
 {

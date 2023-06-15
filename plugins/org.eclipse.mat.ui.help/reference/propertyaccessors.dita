@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,9 +19,9 @@
 	<prolog>
 		<copyright>
 			<copyryear year="2008"></copyryear>
-			<copyryear year="2021"></copyryear>
+			<copyryear year="2023"></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -369,7 +369,7 @@
 			<p>If the array access syntax is used on a map then the map is converted to a list of
 			map entries. These can then be examined using the bean access syntax to retrieve the key
 			<codeph>h[0].@key</codeph> or value <codeph>h[0].@value</codeph>.
-			See <xref format="html" scope="peer" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#Map_processing">Wiki OQL Map processing</xref>
+			See <xref format="html" scope="peer" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#Map_processing">Wiki OQL Map processing</xref>
 			for more details of OQL with maps and collections.</p>
 		</section>
 		<section>

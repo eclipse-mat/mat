@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -106,7 +106,7 @@ public class CSVOutputter extends OutputterBase
 
     /**
      * Escape data for use in csv files.
-     * http://en.wikipedia.org/wiki/Comma-separated_values
+     * https://en.wikipedia.org/wiki/Comma-separated_values
      */
     private static void escape(Writer writer, String data) throws IOException
     {

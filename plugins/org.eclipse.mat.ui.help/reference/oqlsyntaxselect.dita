@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -122,7 +122,7 @@
 			</p>
 			<p>With Memory Analyzer 1.10 or later, <codeph>DISTINCT</codeph> also operates without
 			<codeph>OBJECTS</codeph> to find items which are distinct.
-			See <xref format="html" scope="peer" href="http://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</xref>
+			See <xref format="html" scope="peer" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</xref>
 			for further details.</p>
 			<p><b>Expressions (experimental, Memory Analyzer 1.4 or later)</b></p>
 			<p>
