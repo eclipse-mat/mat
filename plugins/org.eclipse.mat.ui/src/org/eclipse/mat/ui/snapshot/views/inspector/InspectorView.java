@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
 import com.ibm.icu.text.Collator;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -137,6 +139,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     private List<Menu> contextMenus = new ArrayList<Menu>();
 
     boolean keepInSync = true;
+    private boolean blankArrays;
     
     private static final class FieldsViewerComparator extends ViewerComparator
     {
@@ -922,11 +925,11 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             final ISnapshotEditorInput input = heapEditor.getSnapshotInput();
             if (input.hasSnapshot())
             {
-                this.snapshot = input.getSnapshot();
+                setSnapshot(input.getSnapshot());
             }
             else
             {
-                this.snapshot = null;
+                setSnapshot(null);
 
                 // snapshot is not yet available -> register to be informed once
                 // the snapshot has been fully loaded
@@ -939,7 +942,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     public void onSnapshotLoaded(ISnapshot snapshot)
                     {
                         if (InspectorView.this.snapshot == null)
-                            InspectorView.this.snapshot = snapshot;
+                            InspectorView.this.setSnapshot(snapshot);
 
                         input.removeChangeListener(this);
                     }
@@ -970,7 +973,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             clearInput();
 
-            this.snapshot = null;
+            setSnapshot(null);
             this.editor = null;
             this.prev.clear();
 
@@ -1225,7 +1228,12 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     if (object instanceof IInstance)
                         fields = new LazyFields.Instance((IInstance) object);
                     else if (object instanceof IPrimitiveArray)
-                        fields = new LazyFields.PrimitiveArray((IPrimitiveArray) object);
+                    {
+                        if (blankArrays)
+                            fields = new LazyFields.PrimitiveArrayBlank((IPrimitiveArray) object);
+                        else
+                            fields = new LazyFields.PrimitiveArray((IPrimitiveArray) object);
+                    }
                     else if (object instanceof IObjectArray)
                         fields = new LazyFields.ObjectArray((IObjectArray) object);
                     else if (object instanceof IClass)
@@ -1378,6 +1386,31 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             job.setPriority(Job.DECORATE);
             job.schedule();
         }
+    }
+
+    private void setSnapshot(ISnapshot snapshot)
+    {
+        this.snapshot = snapshot;
+        setBlankArrays();
+    }
+
+    /**
+     * Snapshots from PHDs etc. do not have primitive array contents,
+     * so show as blank rather than all zeroes etc.
+     */
+    private void setBlankArrays()
+    {
+        if (snapshot != null)
+        {
+
+            Serializable currentHeapFormat = snapshot.getSnapshotInfo().getProperty("$heapFormat"); //$NON-NLS-1$
+            if ("DTFJ-PHD".equals(currentHeapFormat)) //$NON-NLS-1$
+            {
+                blankArrays = true;
+                return;
+            }
+        }
+        blankArrays = false;
     }
 
     private void clearInput()

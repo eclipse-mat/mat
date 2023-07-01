@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -175,6 +175,21 @@ import org.eclipse.mat.ui.Messages;
         protected Object createElement(IPrimitiveArray array, int index)
         {
             Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index)); //$NON-NLS-1$//$NON-NLS-2$
+            return new FieldNode(field, false);
+        }
+    }
+
+    /* package */static class PrimitiveArrayBlank extends PrimitiveArray
+    {
+        public PrimitiveArrayBlank(IPrimitiveArray array)
+        {
+            super(array);
+        }
+
+        @Override
+        protected Object createElement(IPrimitiveArray array, int index)
+        {
+            Field field = new Field("[" + index + "]", array.getType(), ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
             return new FieldNode(field, false);
         }
     }
