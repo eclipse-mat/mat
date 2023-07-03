@@ -17,7 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -1035,6 +1037,79 @@ public class CommonNameResolver
             {
                 return null;
             }
+        }
+    }
+
+    @Subject("java.math.BigDecimal")
+    public static class BigDecimalResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            // Find the number
+            // OpenJDK & Harmony
+            Object iv = obj.resolveValue("intVal"); //$NON-NLS-1$
+            String num = null;
+            if (iv instanceof IObject)
+            {
+                IObject io = (IObject) iv;
+                num = io.getClassSpecificName();
+            }
+            else
+            {
+                // OpenJDK
+                iv = obj.resolveValue("intCompact"); //$NON-NLS-1$
+                // Harmony
+                if (iv == null)
+                    iv = obj.resolveValue("smallValue"); //$NON-NLS-1$
+                // 1.4.2
+                if (iv == null)
+                    iv = obj.resolveValue("intLong"); //$NON-NLS-1$
+                if (iv instanceof Number)
+                {
+                    // Not applicable value?
+                    if (((Number) iv).longValue() == Long.MIN_VALUE)
+                        return null;
+                    num = ((Number) iv).toString();
+                }
+            }
+            if (num == null)
+                return null;
+            // Find the scale and precision
+            int scale = 0;
+            // OpenJDK & Harmony
+            Object scaleo = obj.resolveValue("scale"); //$NON-NLS-1$
+            if (scaleo instanceof Integer)
+            {
+                scale = (Integer) scaleo;
+            }
+            // OpenJDK & Harmony
+            Object precisiono = obj.resolveValue("precision"); //$NON-NLS-1$
+            BigDecimal bd;
+            if (precisiono instanceof Integer)
+            {
+                int precision = (Integer) precisiono;
+                MathContext mc = new MathContext(precision);
+                if (scale != 0)
+                {
+                    bd = new BigDecimal(new BigInteger(num), scale, mc);
+                }
+                else
+                {
+                    bd = new BigDecimal(num, mc);
+                }
+            }
+            else
+            {
+                if (scale != 0)
+                {
+                    bd = new BigDecimal(new BigInteger(num), scale);
+                }
+                else
+                {
+                    bd = new BigDecimal(num);
+                }
+            }
+            return bd.toPlainString();
         }
     }
 }

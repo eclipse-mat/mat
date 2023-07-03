@@ -133,6 +133,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ICUBaseLocaleResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ULocaleResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$BigIntegerResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$BigDecimalResolver" />
 		<!-- networking -->
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$Inet6AddressHolderResolver"/>

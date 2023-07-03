@@ -24,6 +24,8 @@ import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -149,6 +151,7 @@ public class AcquireDumpTest
                 collector.checkThat("VM description", desc, notNullValue());
                 if (desc.contains("org.eclipse.mat.tests"))
                 {
+                    fillBD();
                     System.out.println("Desc " + desc);
                     // If we can, try compressing the dump to test more code paths
                     try
@@ -246,6 +249,7 @@ public class AcquireDumpTest
                                 System.out.println("Took "+(now-then)+"ms for EclipseBundle query for "+dmp+" "+dmp.length());
                             }
                             checkBigIntegerResolver(answer);
+                            checkBigDecimalResolver(answer);
                         }
                         finally
                         {
@@ -443,5 +447,61 @@ public class AcquireDumpTest
                 ++npowers;
         }
         assertThat("Powers of 10 as BigInteger", npowers, greaterThanOrEqualTo(4));
+    }
+
+    /**
+     * This query requires an heap dump from this program with the fillBD() values to
+     * test the BigDecimal resolver.
+     * @param snapshot
+     * @throws SnapshotException
+     */
+    void checkBigDecimalResolver(ISnapshot snapshot) throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("group_by_value java.math.BigDecimal", snapshot);
+        assertNotNull(query);
+        IResult result = query.execute(new VoidProgressListener());
+        assertNotNull(result);
+        IResultTable table = (IResultTable) result;
+        assertThat(table.getRowCount(), greaterThan(10));
+        int found[] = new int[25];
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            String val = (String)table.getColumnValue(row, 0);
+            assertNotNull("Expect all BigDecimals to be resolved", val);
+            int dotpos = val.indexOf('.');
+            if (val.contains("1234") || val.contains("5678")) //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            {
+                if (dotpos + 1 < found.length)
+                {
+                    ++found[dotpos + 1];
+                }
+            }
+        }
+        int dotposns = 0;
+        for (int i = 0; i < found.length; ++i)
+        {
+            if (found[i] > 0)
+            {
+                ++dotposns;
+            }
+        }
+        assertThat("Decimals as BigDecimal", dotposns, greaterThanOrEqualTo(14));
+    }
+
+    BigDecimal values[];
+    void fillBD()
+    {
+        int n = 40;
+        values = new BigDecimal[n];
+        for (int i = 0; i < n; ++i)
+        {
+            if (i == 20)
+                values[i] = new BigDecimal(123456789);
+            else if (i % 2 == 0)
+                values[i] = new BigDecimal(123456789.0 * Math.pow(10, i - 20));
+            else
+                values[i] = new BigDecimal(new BigInteger("1234567890123456789"), i - 20);
+        }
     }
 }

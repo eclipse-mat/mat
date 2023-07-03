@@ -37,8 +37,10 @@ import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -701,8 +703,18 @@ public class GeneralSnapshotTests
         assertThat("Expected unzipped directory", unzipf.exists());
         
         // See if the text file is there and has contents
-        File unzipedFile = new File(unzipf, "pages/Query_Command2.txt");
-        assertThat(unzipedFile.toString(), unzipedFile.length(), greaterThan(100L));
+        File unzippedDir = new File(unzipf, "pages");
+        File files[] = unzippedDir.listFiles(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname)
+            {
+                return pathname.isFile();
+            }
+        });
+        assertThat("Should be only one file", files.length, equalTo(1));
+        File unzippedFile = new File(unzippedDir, "Query_Command2.txt");
+        assertThat(unzippedFile.toString(), unzippedFile.length(), greaterThan(100L));
     }
 
     @Test
