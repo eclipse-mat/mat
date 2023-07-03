@@ -27,6 +27,7 @@ import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -712,7 +713,7 @@ public class GeneralSnapshotTests
                 return pathname.isFile();
             }
         });
-        assertThat("Should be only one file", files.length, equalTo(1));
+        assertThat("Should be only one file", files, arrayWithSize(1));
         File unzippedFile = new File(unzippedDir, "Query_Command2.txt");
         assertThat(unzippedFile.toString(), unzippedFile.length(), greaterThan(100L));
     }
