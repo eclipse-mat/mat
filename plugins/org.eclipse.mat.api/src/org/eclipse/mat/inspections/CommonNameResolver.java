@@ -1048,6 +1048,9 @@ public class CommonNameResolver
             // Find the number
             // OpenJDK & Harmony
             Object iv = obj.resolveValue("intVal"); //$NON-NLS-1$
+            // IBM 1.8.0 SR6 FP11
+            if (iv == null)
+                iv = obj.resolveValue("bi"); //$NON-NLS-1$
             String num = null;
             if (iv instanceof IObject)
             {
@@ -1064,6 +1067,9 @@ public class CommonNameResolver
                 // 1.4.2
                 if (iv == null)
                     iv = obj.resolveValue("intLong"); //$NON-NLS-1$
+                // IBM 1.8.0 SR6 FP11
+                if (iv == null)
+                    iv = obj.resolveValue("laside"); //$NON-NLS-1$
                 if (iv instanceof Number)
                 {
                     // Not applicable value?
@@ -1078,12 +1084,30 @@ public class CommonNameResolver
             int scale = 0;
             // OpenJDK & Harmony
             Object scaleo = obj.resolveValue("scale"); //$NON-NLS-1$
+            // IBM 1.8.0 SR6 FP11
+            if (scaleo == null)
+                scaleo = obj.resolveValue("cachedScale"); //$NON-NLS-1$
             if (scaleo instanceof Integer)
             {
                 scale = (Integer) scaleo;
             }
             // OpenJDK & Harmony
             Object precisiono = obj.resolveValue("precision"); //$NON-NLS-1$
+            if (precisiono == null)
+            {
+                // IBM 1.8.0 SR6 FP11
+                Object flagso = obj.resolveValue("flags"); //$NON-NLS-1$
+                if (flagso instanceof Integer)
+                {
+                    int flags = (Integer)flagso;
+                    // Decimal floating point mode - can't handle this yet.
+                    if ((flags & 0x3) == 0)
+                        return null;
+                    // Cached precision?
+                    if ((flags & 0x10) != 0)
+                        precisiono = flags >>> 7;
+                }
+            }
             BigDecimal bd;
             if (precisiono instanceof Integer)
             {
