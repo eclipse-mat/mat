@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -219,6 +219,47 @@
 							<uicontrol>Inspector</uicontrol>
 						</menucascade>
 						<image href="../mimes/link_with_snapshot.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow id="attribute_tab">
+					<stentry>Attribute tab in Inspector View</stentry>
+					<stentry>
+						The Object Inspector View shows the details for the single selected
+						object. The attribute tab shows the fields of an object or array elements
+						for an array.
+						<dl>
+							<dlentry>
+								<dt>Type</dt>
+								<dd>The type of the field or array element.
+									<ul>
+										<li>byte</li>
+										<li>short</li>
+										<li>int</li>
+										<li>long</li>
+										<li>boolean</li>
+										<li>char</li>
+										<li>float</li>
+										<li>double</li>
+										<li>ref - an object reference</li>
+									</ul>
+								</dd>
+							</dlentry>
+							<dlentry>
+								<dt>Name</dt>
+								<dd>The name of the field or the array element index.</dd>
+							</dlentry>
+							<dlentry>
+								<dt>Value</dt>
+								<dd>The value of the field or array element.
+								Blank for PHD snapshots as the snapshot does not have
+								field names or the value of primitive arrays.</dd>
+							</dlentry>
+						</dl>
+						As IBM Portable Heap Dump (PHD) files do not contain primitive array contents
+						the value column for array elements is blank.
+						As IBM Portable Heap Dump (PHD) files do not contain field names
+						the attribute tab is blank for plain objects. Outbound references
+						are shown by the <xref format="dita" href="../reference/querymatrix.dita#ref_querymatrix/list_objects">list objects</xref> query.
 					</stentry>
 				</strow>
 				<strow id="value_tab">
