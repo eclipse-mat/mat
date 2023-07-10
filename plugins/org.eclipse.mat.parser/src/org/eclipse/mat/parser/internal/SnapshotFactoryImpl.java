@@ -242,7 +242,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         FileLock l;
         try
         {
-            FileChannel fc = FileChannel.open(Path.of(lockFile.getPath()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+            FileChannel fc = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
             int msgSize = 1024;
             ByteBuffer buf = ByteBuffer.allocate(msgSize);
             try
