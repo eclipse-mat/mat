@@ -14,12 +14,20 @@
 package org.eclipse.mat.parser.internal;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -198,8 +206,22 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         if (answer == null)
         {
-            deleteIndexFiles(file, prefix, listener);
-            answer = parse(file, prefix, args, listtypes, listener);
+            File lockFile = new File(prefix + "lock.index"); //$NON-NLS-1$
+            FileLock fl1 = null;
+            /*
+             * For autocloseable, the closeable object will be closed
+             * when parsing is done. This will release the lock and
+             * delete the lock file.
+             */
+            try (Closeable ac = lockParse(file, lockFile, listener))
+            {
+                deleteIndexFiles(file, prefix, lockFile, listener);
+                answer = parse(file, prefix, args, listtypes, listener);
+            }
+            catch (IOException e)
+            {
+                throw new SnapshotException(e);
+            }
         }
 
         entry = new SnapshotEntry(1, answer);
@@ -207,6 +229,83 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         snapshotCache.put(file, entry);
 
         return answer;
+    }
+
+    /**
+     * Create a lock to stop concurrent parsing.
+     * @param file The dump - used for a message in the lock file
+     * @param lockFile The lock file
+     * @return an object which will be auto closed when the parsing is done.
+     * @throws SnapshotException
+     */
+    private Closeable lockParse(File file, File lockFile, IProgressListener listener) throws SnapshotException
+    {
+        FileLock l;
+        try
+        {
+            FileChannel fc = FileChannel.open(Path.of(lockFile.getPath()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+            int msgSize = 1024;
+            ByteBuffer buf = ByteBuffer.allocate(msgSize);
+            try
+            {
+                // Get the lock
+                l = fc.lock(msgSize, Long.MAX_VALUE - msgSize, false);
+                // Write a lock message
+                Date date = new Date();
+                String message = MessageUtil.format(Messages.SnapshotFactoryImpl_MATParsingLock, file, System.getProperty("user.name"), date); //$NON-NLS-1$
+                buf.put(message.getBytes(StandardCharsets.UTF_8));
+                buf.flip();
+                fc.write(buf);
+                fc.force(true);
+            }
+            catch (OverlappingFileLockException e)
+            {
+                // find out who has the lock
+                buf.reset();
+                fc.read(buf);
+                buf.flip();
+                int lim = buf.limit();
+                byte b[] = new byte[lim];
+                buf.get(b);
+                String message = new String(b, StandardCharsets.UTF_8);
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_ConcurrentParsingError, lockFile, message), e);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new SnapshotException(e);
+        }
+        return new Closeable()
+        {
+
+            @Override
+            public void close()
+            {
+                IOException e1 = null;
+                try
+                {
+                    l.release();
+                }
+                catch (IOException e)
+                {
+                    e1 = e;
+                }
+                try
+                {
+                    l.acquiredBy().close();
+                }
+                catch (IOException e)
+                {
+                    e1 = e;
+                }
+                boolean deleted = lockFile.delete();
+                if (!deleted)
+                {
+                    listener.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                    Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, lockFile.toString()), e1);
+                }
+            }
+        };
     }
 
     public synchronized void dispose(ISnapshot snapshot)
@@ -724,7 +823,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         return clsInfo;
     }
 
-    private void deleteIndexFiles(File file, final String prefix, IProgressListener listener)
+    private void deleteIndexFiles(File file, final String prefix, File lockFile, IProgressListener listener)
     {
         File prefixFile = new File(prefix);
         File directory = prefixFile.getParentFile();
@@ -746,6 +845,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
                 String name = f.getName();
                 return name.startsWith(fragment)
+                                && !name.equals(lockFile.getName())
                                 && (indexPattern.matcher(name.substring(fragment.length())).matches()
                                   || threadPattern.matcher(name.substring(fragment.length())).matches()
                                   || logPattern.matcher(name.substring(fragment.length())).matches());
