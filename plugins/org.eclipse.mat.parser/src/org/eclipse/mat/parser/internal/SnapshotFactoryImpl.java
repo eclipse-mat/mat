@@ -245,10 +245,19 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             FileChannel fc = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
             int msgSize = 1024;
             ByteBuffer buf = ByteBuffer.allocate(msgSize);
+            Exception e1 = null;
             try
             {
                 // Get the lock
-                l = fc.lock(msgSize, Long.MAX_VALUE - msgSize, false);
+                l = fc.tryLock(msgSize, Long.MAX_VALUE - msgSize, false);
+            }
+            catch (OverlappingFileLockException e)
+            {
+                e1 = e;
+                l = null;
+            }
+            if (l != null)
+            {
                 // Write a lock message
                 Date date = new Date();
                 String message = MessageUtil.format(Messages.SnapshotFactoryImpl_MATParsingLock, file, System.getProperty("user.name"), date); //$NON-NLS-1$
@@ -257,17 +266,16 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 fc.write(buf);
                 fc.force(true);
             }
-            catch (OverlappingFileLockException e)
+            else
             {
                 // find out who has the lock
-                buf.reset();
                 fc.read(buf);
                 buf.flip();
                 int lim = buf.limit();
                 byte b[] = new byte[lim];
                 buf.get(b);
                 String message = new String(b, StandardCharsets.UTF_8);
-                throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_ConcurrentParsingError, lockFile, message), e);
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_ConcurrentParsingError, lockFile, message), e1); 
             }
         }
         catch (IOException e)
