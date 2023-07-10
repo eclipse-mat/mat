@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?><!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - content type
  -->
 
 <plugin>
@@ -18,4 +19,20 @@
 	<extension point="org.eclipse.mat.api.factory">
 		<factory impl="org.eclipse.mat.parser.internal.SnapshotFactoryImpl" />
 	</extension>
+	
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+        <!-- declares a content type for MAT index files -->
+        <content-type id="org.eclipse.mat.Index" name="Eclipse Memory Analyzer index file" 
+            priority="normal"
+            base-type="org.eclipse.mat.JavaHeapDump"
+            file-extensions="index"
+        >
+            <describer
+                class="org.eclipse.core.runtime.content.BinarySignatureDescriber">
+                <parameter name="signature" value="4D 41 54 5F 30 31"/>
+                <parameter name="offset" value="8"/>
+                <parameter name="required" value="true"/>
+            </describer>
+        </content-type>
+    </extension>
 </plugin>

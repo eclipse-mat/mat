@@ -14,8 +14,10 @@
 package org.eclipse.mat.ui.internal.views;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -42,6 +46,8 @@ import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -206,6 +212,15 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         table.setHeaderVisible(true);
         AccessibleCompositeAdapter.access(table);
 
+        // Expand the column to the full width
+        table.addControlListener(new ControlAdapter()
+        {
+            public void controlResized(ControlEvent e)
+            {
+                tableColumn.setWidth(table.getClientArea().width);
+            }
+        });
+
         table.addMouseListener(new MouseAdapter()
         {
 
@@ -261,8 +276,17 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             tableItem.setData(entry);
 
             IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
+            IContentType type;
+            try (InputStream is = new FileInputStream(entry.getFilePath()))
+            {
+                type = Platform.getContentTypeManager().findContentTypeFor(is, entry.getFilePath());
+            }
+            catch (IOException e)
+            {
+                type = null;
+            }
             tableItem.setImage(MemoryAnalyserPlugin.getDefault().getImage(
-                            registry.getImageDescriptor(entry.getFilePath())));
+                            registry.getImageDescriptor(entry.getFilePath(), type)));
         }
     }
 

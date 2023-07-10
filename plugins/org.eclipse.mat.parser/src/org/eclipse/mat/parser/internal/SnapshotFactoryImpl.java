@@ -207,7 +207,6 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         if (answer == null)
         {
             File lockFile = new File(prefix + "lock.index"); //$NON-NLS-1$
-            FileLock fl1 = null;
             /*
              * For autocloseable, the closeable object will be closed
              * when parsing is done. This will release the lock and
