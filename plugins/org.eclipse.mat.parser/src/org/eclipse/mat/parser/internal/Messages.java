@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_ClassIndexAddressNotEqualClassObjectAddress;
     public static String SnapshotFactoryImpl_ClassIndexAddressTypeIDNotEqualClassImplClassId;
     public static String SnapshotFactoryImpl_ClassIndexNotEqualClassObjectID;
+    public static String SnapshotFactoryImpl_ConcurrentParsingError;
     public static String SnapshotFactoryImpl_EmptyOutbounds;
     public static String SnapshotFactoryImpl_Error_NoParserRegistered;
     public static String SnapshotFactoryImpl_Error_OpeningHeapDump;
@@ -72,6 +73,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_IndexAddressNegativeArraySize;
     public static String SnapshotFactoryImpl_InvalidFirstOutbound;
     public static String SnapshotFactoryImpl_InvalidOutbound;
+    public static String SnapshotFactoryImpl_MATParsingLock;
     public static String SnapshotFactoryImpl_NoOutbounds;
     public static String SnapshotFactoryImpl_ObjDescClass;
     public static String SnapshotFactoryImpl_ObjDescObjType;
