@@ -239,13 +239,14 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
      */
     private Closeable lockParse(File file, File lockFile, IProgressListener listener) throws SnapshotException
     {
-        FileLock l;
+        FileLock l1;
         try
         {
             FileChannel fc = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
             int msgSize = 1024;
             ByteBuffer buf = ByteBuffer.allocate(msgSize);
             Exception e1 = null;
+            FileLock l;
             try
             {
                 // Get the lock
@@ -258,6 +259,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             }
             if (l != null)
             {
+                l1 = l;
                 // Write a lock message
                 Date date = new Date();
                 String message = MessageUtil.format(Messages.SnapshotFactoryImpl_MATParsingLock, file, System.getProperty("user.name"), date); //$NON-NLS-1$
@@ -291,7 +293,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 IOException e1 = null;
                 try
                 {
-                    l.release();
+                    l1.release();
                 }
                 catch (IOException e)
                 {
@@ -299,7 +301,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 }
                 try
                 {
-                    l.acquiredBy().close();
+                    l1.acquiredBy().close();
                 }
                 catch (IOException e)
                 {
