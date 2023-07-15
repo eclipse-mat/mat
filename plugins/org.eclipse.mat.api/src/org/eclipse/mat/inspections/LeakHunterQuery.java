@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -862,7 +862,11 @@ public class LeakHunterQuery implements IQuery
             String classloaderName = getName(classloader);
             if (keywords != null)
             {
-                keywords.add(classloaderName);
+                // Do not want the address in the keyword, so do not use getTechnicalName() 
+                String keywordName = classloader.getClassSpecificName();
+                if (keywordName == null)
+                    keywordName = classloader.getClazz().getName();
+                keywords.add(keywordName);
             }
             return HTMLUtils.escapeText(classloaderName);
         }
@@ -1153,7 +1157,14 @@ public class LeakHunterQuery implements IQuery
                             keywords.add(p[1]);
                         // Extract the source file
                         if (p.length > 2)
-                            keywords.add(p[2].substring(1, p[2].length() - 1));
+                        {
+                            // (MyClass.java(Compiled Code))
+                            // Remove parentheses and (Compiled Code) or (Native Method)
+                            int end = p[2].indexOf('(', 1);
+                            if (end < 0)
+                                end = p[2].length() - 1;
+                            keywords.add(p[2].substring(1, end));
+                        }
                     }
                 }
                 QuerySpec stackResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStack, new TextResult(stackBuilder
