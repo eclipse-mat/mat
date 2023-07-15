@@ -225,6 +225,18 @@ public class LeakHunterQuery implements IQuery
         return false;
     }
 
+    /**
+     * Is this object a pseudo-object for
+     * stack frames as objects?
+     */
+    private boolean isStackFrame(int objectId) throws SnapshotException
+    {
+        if (snapshot.getClassOf(objectId).doesExtend("<method>") || //$NON-NLS-1$
+                        snapshot.getClassOf(objectId).doesExtend("<stack frame>")) //$NON-NLS-1$
+            return true;
+        return false;
+    }
+
     private CompositeResult getLeakSuspectDescription(SuspectRecord suspect, IProgressListener listener)
                     throws SnapshotException
     {
@@ -406,6 +418,67 @@ public class LeakHunterQuery implements IQuery
             threadDetails = extractThreadData(suspect, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
         }
 
+        IObject describedObject = (suspect.getAccumulationPoint() != null) ? suspect.getAccumulationPoint().getObject()
+                        : suspect.getSuspect();
+
+        // add a path to the accumulation point
+        QuerySpec qspath;
+        try
+        {
+            IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
+                            .setArgument("object", describedObject) //$NON-NLS-1$
+                            .execute(listener);
+            qspath = new QuerySpec(Messages.LeakHunterQuery_ShortestPaths, result);
+            qspath.setCommand("path2gc 0x" + Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
+            // See if the end of the path is a thread
+            if (!isThreadRelated && result instanceof IResultTree && result instanceof ISelectionProvider)
+            {
+                IResultTree tree = (IResultTree)result;
+                ISelectionProvider sel = (ISelectionProvider)result;
+                for (Object row : tree.getElements())
+                {
+                    int r[] = findEndTree(tree, sel, row, describedObject.getObjectId(), -1);
+                    if (r != null)
+                    {
+                        if (isThread(r[0]))
+                        {
+                            isThreadRelated = true;
+                            int accObjId = (r[2] >= 0 && isStackFrame(r[1])) ? r[2] : r[1];
+                            AccumulationPoint ap = accObjId >= 0 ? new AccumulationPoint(snapshot.getObject(accObjId)) : null;
+                            SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(r[0]), totalHeap, ap);
+                            objectsForTroubleTicketInfo.add(suspect2.getSuspect());
+
+                            overview.append("<p>"); //$NON-NLS-1$
+                            if (ap != null)
+                            {
+                                overview.append(MessageUtil.format(Messages.LeakHunterQuery_ThreadLocalVariable,
+                                                HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()),
+                                                HTMLUtils.escapeText(ap.getObject().getDisplayName()),
+                                                HTMLUtils.escapeText(describedObject.getDisplayName())));
+                            }
+                            else
+                            {
+                                overview.append(MessageUtil.format(Messages.LeakHunterQuery_ThreadShortestPath,
+                                                HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()),
+                                                HTMLUtils.escapeText(describedObject.getDisplayName())));
+                            }
+                            overview.append(" "); //$NON-NLS-1$
+                            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
+                                            HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()), //
+                                            formatRetainedHeap(suspect2.getSuspectRetained(), totalHeap)));
+                            overview.append("</p>"); //$NON-NLS-1$
+                            threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            throw new SnapshotException(Messages.LeakHunterQuery_ErrorShortestPaths, e);
+        }
+
         /* append keywords */
         appendKeywords(keywords, overview);
 
@@ -418,53 +491,9 @@ public class LeakHunterQuery implements IQuery
         CompositeResult composite = new CompositeResult();
         overviewResult.setText(overview.toString());
         composite.addResult(Messages.LeakHunterQuery_Description, overviewResult);
-        IObject describedObject = (suspect.getAccumulationPoint() != null) ? suspect.getAccumulationPoint().getObject()
-                        : suspect.getSuspect();
 
-        // add a path to the accumulation point
-        try
-        {
-            IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
-                            .setArgument("object", describedObject) //$NON-NLS-1$
-                            .execute(listener);
-            QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_ShortestPaths, result);
-            qs.setCommand("path2gc 0x" + Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
-            composite.addResult(qs);
-            if (!isThreadRelated && result instanceof IResultTree && result instanceof ISelectionProvider)
-            {
-                IResultTree tree = (IResultTree)result;
-                ISelectionProvider sel = (ISelectionProvider)result;
-                for (Object row : tree.getElements())
-                {
-                    int r[] = findEndTree(tree, sel, row, describedObject.getObjectId());
-                    if (r != null)
-                    {
-                        if (isThread(r[0]))
-                        {
-                            isThreadRelated = true;
-                            AccumulationPoint ap = new AccumulationPoint(snapshot.getObject(r[1]));
-                            SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(r[0]), totalHeap, ap);
-                            StringBuilder overview2 = new StringBuilder();
-                            TextResult threadOverview = new TextResult();
-                            Set<String>keywords2 = new LinkedHashSet<String>();
-                            objectsForTroubleTicketInfo.add(suspect2.getSuspect());
-                            threadDetails = extractThreadData(suspect2, keywords2, objectsForTroubleTicketInfo, overview2, threadOverview);
-                            /* append keywords */
-                            appendKeywords(keywords2, overview2);
-                            // add CSN components data
-                            appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview2);
-                            threadOverview.setText(overview2.toString());
-                            composite.addResult(Messages.LeakHunterQuery_ThreadRootShortestPath, threadOverview);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            throw new SnapshotException(Messages.LeakHunterQuery_ErrorShortestPaths, e);
-        }
+        // add the result of a path to the accumulation point
+        composite.addResult(qspath);
 
         // show the acc. point in the dominator tree
         IResult objectInDominatorTree = showInDominatorTree(describedObject.getObjectId());
@@ -591,17 +620,13 @@ public class LeakHunterQuery implements IQuery
         }
         ThreadInfoQuery.Result threadDetails = null;
 
-        // append keywords
-        appendKeywords(keywords, builder);
-
-        // add CSN components data
-        appendTroubleTicketInformation(involvedClassLoaders, builder);
-
         /*
          * Prepare the composite result from the different pieces
          */
         CompositeResult composite = new CompositeResult();
-        composite.addResult(Messages.LeakHunterQuery_Description, new TextResult(builder.toString(), true));
+        TextResult overviewResult = new TextResult(); // used to create links
+        // Empty result, will be filled in later
+        composite.addResult(Messages.LeakHunterQuery_Description, overviewResult);
 
         /*
          * Show more details about the big instances
@@ -686,20 +711,45 @@ public class LeakHunterQuery implements IQuery
             {
                 if (isThread(path[0]))
                 {
-                    AccumulationPoint ap = new AccumulationPoint(path.length > 1 ? snapshot.getObject(path[1]) : null);
+                    AccumulationPoint ap;
+                    if (path.length > 2 && isStackFrame(path[1]))
+                    {
+                        ap = new AccumulationPoint(snapshot.getObject(path[2]));
+                    }
+                    else if (path.length > 1)
+                    {
+                        ap = new AccumulationPoint(snapshot.getObject(path[1]));
+                    }
+                    else
+                    {
+                        ap = null;
+                    }
                     SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(path[0]), totalHeap, ap);
-                    StringBuilder overview2 = new StringBuilder();
-                    TextResult threadOverview = new TextResult();
-                    Set<String>keywords2 = new LinkedHashSet<String>();
                     List<IObject> objectsForTroubleTicketInfo = new ArrayList<IObject>(2);
                     objectsForTroubleTicketInfo.add(suspect2.getSuspect());
-                    threadDetails = extractThreadData(suspect2, keywords2, objectsForTroubleTicketInfo, overview2, threadOverview);
-                    /* append keywords */
-                    appendKeywords(keywords2, overview2);
-                    // add CSN components data
-                    appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview2);
-                    threadOverview.setText(overview2.toString());
-                    composite.addResult(Messages.LeakHunterQuery_ThreadRootShortestPath, threadOverview);
+                    // Description
+                    builder.append("<p>"); //$NON-NLS-1$
+                    if (ap != null)
+                    {
+                        builder.append(MessageUtil.format(Messages.LeakHunterQuery_ThreadLocalVariable,
+                                        HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()),
+                                        HTMLUtils.escapeText(ap.getObject().getDisplayName()),
+                                        HTMLUtils.escapeText(accPoint.getObject().getDisplayName())));
+                    }
+                    else
+                    {
+                        builder.append(MessageUtil.format(Messages.LeakHunterQuery_ThreadShortestPath,
+                                        HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()),
+                                        HTMLUtils.escapeText(accPoint.getObject().getDisplayName())));
+                    }
+                    builder.append(" "); //$NON-NLS-1$
+                    builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
+                                    HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()), //
+                                    formatRetainedHeap(suspect2.getSuspectRetained(), totalHeap)));
+                    builder.append("</p>"); //$NON-NLS-1$
+                    threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, builder, overviewResult);
+                    // add keywords to builder later
+                    // add CSN components data to builder later
                 }
             }
         }
@@ -721,6 +771,16 @@ public class LeakHunterQuery implements IQuery
                 composite.addResult(qs);
             }
         }
+
+        // Postpone building overview until now
+
+        // append keywords
+        appendKeywords(keywords, builder);
+
+        // add CSN components data
+        appendTroubleTicketInformation(involvedClassLoaders, builder);
+
+        overviewResult.setText(builder.toString());
 
         if (threadDetails != null)
         {
@@ -744,29 +804,33 @@ public class LeakHunterQuery implements IQuery
      * @param sel the selection provider (the tree)
      * @param row the current row
      * @param prev previous object in tree
-     * @return array [root object, previous object traversed] or
+     * @param prev2 the object before the previous object in tree
+     * @return array [root object, previous object traversed, second previous object traversed] or
      *     null if no selected object at root
      */
-    private int[] findEndTree(IResultTree tree, ISelectionProvider sel, Object row, int prev)
+    private int[] findEndTree(IResultTree tree, ISelectionProvider sel, Object row, int prev, int prev2)
     {
         if (sel.isSelected(row))
         {
             IContextObject x = tree.getContext(row);
             if (x != null && x.getObjectId() >= 0)
-                return new int[] {x.getObjectId(), prev};
+                return new int[] {x.getObjectId(), prev, prev2};
         }
         if (sel.isExpanded(row))
         {
             // Recurse
             IContextObject x = tree.getContext(row);
             if (x != null)
+            {
+                prev2 = prev;
                 prev = x.getObjectId();
+            }
             List<?> children = tree.getChildren(row);
             if (children != null)
             {
                 for (Object r2 : children)
                 {
-                    int ret[] = findEndTree(tree, sel, r2, prev);
+                    int ret[] = findEndTree(tree, sel, r2, prev, prev2);
                     if (ret != null)
                         return ret;
                 }
@@ -820,7 +884,7 @@ public class LeakHunterQuery implements IQuery
             }
             else
             {
-                IClass clazz = (suspect instanceof IClass) ? (IClass) suspect : suspect.getClazz(); 
+                IClass clazz = (suspect instanceof IClass) ? (IClass) suspect : suspect.getClazz();
                 ticket = resolver.resolveByClass(clazz, listener);
                 key = clazz.getName();
             }
@@ -862,7 +926,7 @@ public class LeakHunterQuery implements IQuery
             String classloaderName = getName(classloader);
             if (keywords != null)
             {
-                // Do not want the address in the keyword, so do not use getTechnicalName() 
+                // Do not want the address in the keyword, so do not use getTechnicalName()
                 String keywordName = classloader.getClassSpecificName();
                 if (keywordName == null)
                     keywordName = classloader.getClazz().getName();
@@ -1033,7 +1097,8 @@ public class LeakHunterQuery implements IQuery
             {
                 // Find the local variables involved in the path to the accumulation point
                 final SetInt locals = new SetInt();
-                IObject acc = suspect.getAccumulationPoint().getObject();
+                IObject acc = suspect.getAccumulationPoint() != null ? suspect.getAccumulationPoint().getObject()
+                                : null;
                 if (acc != null)
                 {
                     IResultTree tree = (IResultTree) SnapshotQuery.lookup("merge_shortest_paths", snapshot) //$NON-NLS-1$
@@ -1049,7 +1114,27 @@ public class LeakHunterQuery implements IQuery
                                 IContextObject co2 = tree.getContext(row2);
                                 int o2 = co2.getObjectId();
                                 if (o2 >= 0)
-                                    locals.add(o2);
+                                {
+                                    /*
+                                     * Stack frames as objects?
+                                     * If so, then find the variables in those frames.
+                                     */
+                                    if (isStackFrame(o2))
+                                    {
+                                        // So find the actual variable in the frame
+                                        for (Object row3 : tree.getChildren(row2))
+                                        {
+                                            IContextObject co3 = tree.getContext(row3);
+                                            int o3 = co3.getObjectId();
+                                            if (o3 >= 0)
+                                                locals.add(o3);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        locals.add(o2);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1067,9 +1152,11 @@ public class LeakHunterQuery implements IQuery
                 long significantLocal = (long)(0.1 * suspect.getSuspectRetained());
                 // Are several variables from a frame that significant together
                 long significantFrame = (long)(0.25 * suspect.getSuspectRetained());
+                List<Map<String,SetInt>> involvedFrames = new ArrayList<>();
                 for (IStackFrame frame : stack.getStackFrames())
                 {
                     boolean involved = false;
+                    SetInt frameLocals = new SetInt();
                     for (int l : frame.getLocalObjectsIds())
                     {
                         if (!foundLocals)
@@ -1085,12 +1172,16 @@ public class LeakHunterQuery implements IQuery
                                 if (dom == threadId || dom >= 0 && snapshot.getImmediateDominatorId(dom) == threadId)
                                 {
                                     locals.add(l);
+                                    frameLocals.add(l);
                                     involved = true;
                                 }
                             }
                         }
                         else if (locals.contains(l))
+                        {
+                            frameLocals.add(l);
                             involved = true;
+                        }
                     }
                     if (!involved && !foundLocals)
                     {
@@ -1143,6 +1234,7 @@ public class LeakHunterQuery implements IQuery
                             for (int l : doms)
                             {
                                 locals.add(l);
+                                frameLocals.add(l);
                             }
                             involved = true;
                         }
@@ -1150,22 +1242,80 @@ public class LeakHunterQuery implements IQuery
                     stackBuilder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
                     if (involved)
                     {
+                        /*
+                         * Store details about the involved frame
+                         * so we can filter out JDK frames later
+                         */
                         String frameText = frame.getText();
-                        String p[] = frameText.split("\\s+"); //$NON-NLS-1$
-                        // Extract the method
-                        if (p.length > 1)
-                            keywords.add(p[1]);
+                        String p[] = frameText.split("\\s+", 2); //$NON-NLS-1$
+                        Map <String,SetInt>m = new HashMap<>();
+                        m.put(p.length > 1 ? p[1] : "", frameLocals); //$NON-NLS-1$
+                        involvedFrames.add(m);
+                    }
+                }
+                if (involvedFrames.size() > 0)
+                {
+                    // Find the top skipped frames e.g. JDK
+                    int skipped = 0;
+                    for (skipped = 0; skipped < involvedFrames.size(); ++skipped)
+                    {
+                        String frameName = involvedFrames.get(skipped).keySet().iterator().next();
+                        if (!skipPattern.matcher(frameName).matches())
+                            break;
+                    }
+                    // Remove duplicated variables from skipped frames
+                    for (int i = skipped; i < involvedFrames.size(); ++i)
+                    {
+                        SetInt vars = involvedFrames.get(i).values().iterator().next();
+                        for (int j = 0; j < skipped; ++j)
+                        {
+                            SetInt vars2 = involvedFrames.get(j).values().iterator().next();
+                            for (int v : vars.toArray())
+                            {
+                                vars2.remove(v);
+                            }
+                        }
+                    }
+                    builder.append("<p>").append(Messages.LeakHunterQuery_SignificantStackFrames).append("</p><ul>");  //$NON-NLS-1$//$NON-NLS-2$
+                    for (int i = 0; i < involvedFrames.size(); ++i)
+                    {
+                        SetInt frameLocals = involvedFrames.get(i).values().iterator().next();
+                        if (frameLocals.isEmpty())
+                            continue;
+                        String frameName = involvedFrames.get(i).keySet().iterator().next();
+                        String p[] = frameName.split("\\s+", 2); //$NON-NLS-1$
+                        keywords.add(p[0]);
                         // Extract the source file
-                        if (p.length > 2)
+                        if (p.length > 1)
                         {
                             // (MyClass.java(Compiled Code))
                             // Remove parentheses and (Compiled Code) or (Native Method)
-                            int end = p[2].indexOf('(', 1);
+                            int end = p[1].indexOf('(', 1);
                             if (end < 0)
-                                end = p[2].length() - 1;
-                            keywords.add(p[2].substring(1, end));
+                                end = p[1].length() - 1;
+                            keywords.add(p[1].substring(1, end));
                         }
+                        // Add the frame and the interesting locals to the list
+                        builder.append("<li>"); //$NON-NLS-1$
+                        builder.append(HTMLUtils.escapeText(p[0]));
+                        if (p.length > 1)
+                        {
+                            builder.append(' ').append(HTMLUtils.escapeText(p[1]));
+                        }
+                        builder.append("<ul>"); //$NON-NLS-1$
+                        for (int v : frameLocals.toArray())
+                        {
+                            IObject obj = snapshot.getObject(v);
+                            builder.append("<li>").append(MessageUtil.format(Messages.LeakHunterQuery_Retains, //$NON-NLS-1$
+                                            HTMLUtils.escapeText(obj.getDisplayName()),
+                                            formatRetainedHeap(snapshot.getRetainedHeapSize(v), totalHeap)))
+                                            .append("</li>"); // $NON-NLS-1$ //$NON-NLS-1$
+                        }
+
+                        builder.append("</ul>"); //$NON-NLS-1$
+                        builder.append("</li>"); //$NON-NLS-1$
                     }
+                    builder.append("</ul>"); //$NON-NLS-1$
                 }
                 QuerySpec stackResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStack, new TextResult(stackBuilder
                                 .toString()));
@@ -1281,7 +1431,7 @@ public class LeakHunterQuery implements IQuery
         double factor = 0.8;
         double threshold = numPaths * factor;
         List<IClass> referencePattern = new ArrayList<IClass>();
-        
+
         if (classRecords.length > 0)
         {
             Arrays.sort(classRecords, MultiplePathsFromGCRootsClassRecord.getComparatorByNumberOfReferencedObjects());

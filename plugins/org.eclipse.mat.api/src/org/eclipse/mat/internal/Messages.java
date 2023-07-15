@@ -467,13 +467,17 @@ public class Messages extends NLS
     public static String LeakHunterQuery_ReferencePattern;
     public static String LeakHunterQuery_ReferencePatternFor;
     public static String LeakHunterQuery_RequestDetails;
+    public static String LeakHunterQuery_Retains;
     public static String LeakHunterQuery_SeeStackstrace;
     public static String LeakHunterQuery_SeeStackstraceVars;
     public static String LeakHunterQuery_ShortestPaths;
+    public static String LeakHunterQuery_SignificantStackFrames;
     public static String LeakHunterQuery_StackTraceAvailable;
     public static String LeakHunterQuery_SystemClassLoader;
     public static String LeakHunterQuery_ThreadDetails;
+    public static String LeakHunterQuery_ThreadLocalVariable;
     public static String LeakHunterQuery_ThreadRootShortestPath;
+    public static String LeakHunterQuery_ThreadShortestPath;
     public static String LeakHunterQuery_ThreadStack;
     public static String LeakHunterQuery_ThreadStackAndLocals;
     public static String LeakHunterQuery_TicketForSuspect;
