@@ -79,6 +79,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.PieFactory;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
 import org.eclipse.mat.util.HTMLUtils;
@@ -527,6 +528,54 @@ public class LeakHunterQuery implements IQuery
         return composite;
     }
 
+    private void addCommand(QuerySpec spec, String command, int suspects[])
+    {
+        if (suspects.length > 0)
+        {
+            if (suspects.length <= 30)
+            {
+                try
+                {
+                    StringBuilder sb = new StringBuilder(command);
+                    for (int i : suspects)
+                    {
+                        sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i))); //$NON-NLS-1$
+                    }
+                    spec.setCommand(sb.toString());
+                }
+                catch (SnapshotException e)
+                {} // Ignore if problem
+            }
+            // Perhaps they are all the instances of a class
+            try
+            {
+                IClass cls = snapshot.getClassOf(suspects[0]);
+                if (cls.getNumberOfObjects() == suspects.length)
+                {
+                    //
+                    int a[] = cls.getObjectIds();
+                    int b[] = suspects.clone();
+                    Arrays.sort(a);
+                    Arrays.sort(b);
+                    if (Arrays.equals(a, b))
+                    {
+                        Collection<IClass> cl1 = snapshot.getClassesByName(cls.getName(), false);
+                        if (cl1 != null && cl1.size() == 1)
+                        {
+                            StringBuilder sb = new StringBuilder(command);
+                            sb.append(' ');
+                            sb.append(cls.getName());
+                            spec.setCommand(sb.toString());
+                        }
+
+                    }
+                }
+            }
+            catch (SnapshotException e)
+            {}
+        }
+    }
+
     private CompositeResult getLeakDescriptionGroupOfObjects(SuspectRecordGroupOfObjects suspect, IProgressListener listener)
                     throws SnapshotException
     {
@@ -673,6 +722,32 @@ public class LeakHunterQuery implements IQuery
             {} // Ignore if problem
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.addResult(spec);
+        }
+
+        // add histogram of suspects and show objects they retain
+        if (true)
+        {
+            RefinedResultBuilder rbuilder = SnapshotQuery.lookup("histogram", snapshot) //$NON-NLS-1$
+                            .setArgument("objects", suspectInstances) //$NON-NLS-1$
+                            .refine(listener);
+            rbuilder.setInlineRetainedSizeCalculation(true);
+            rbuilder.addDefaultContextDerivedColumn(RetainedSizeDerivedData.PRECISE); 
+            IResult result = rbuilder.build(); 
+            QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_SuspectObjectsByClass, result);
+            addCommand(qs, "histogram", suspectInstances); //$NON-NLS-1$
+            qs.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.addResult(qs);
+
+            rbuilder = SnapshotQuery.lookup("show_retained_set", snapshot) //$NON-NLS-1$
+                            .setArgument("objects", suspectInstances) //$NON-NLS-1$
+                            .refine(listener);
+            rbuilder.setInlineRetainedSizeCalculation(true);
+            rbuilder.addDefaultContextDerivedColumn(RetainedSizeDerivedData.APPROXIMATE); 
+            result = rbuilder.build(); 
+            qs = new QuerySpec(Messages.LeakHunterQuery_AllObjectsByClassRetained, result);
+            addCommand(qs, "show_retained_set", suspectInstances); //$NON-NLS-1$
+            qs.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.addResult(qs);
         }
 
         AccumulationPoint accPoint = suspect.getAccumulationPoint();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2022 IBM Corporation.
+ * Copyright (c) 2011, 2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
 package org.eclipse.mat.tests.snapshot;
 
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.AllOf.allOf;
@@ -28,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.nullValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1340,7 +1340,7 @@ public class QueriesTest
     public void testLeakHunter2ReportJDK6() throws SnapshotException, IOException
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot, snapshot2, 4, 1, 12);
+        testLeakHunter2Report(snapshot, snapshot2, 4, 1, 14);
     }
 
     /**
@@ -1377,7 +1377,7 @@ public class QueriesTest
     {
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false); // Do not dispose this as shared
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 25);
+        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 29);
     }
 
     /**
@@ -1406,7 +1406,7 @@ public class QueriesTest
         SnapshotFactory.dispose(snapshot1);
         assertThat(snapshot1.getClassesByName("java.lang.Object", false), nullValue());
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
-        IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 25);
+        IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 29);
         assertNotNull(r);
     }
 

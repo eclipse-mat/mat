@@ -15,6 +15,9 @@ package org.eclipse.mat.internal;
 
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * NLS translatable messages for org.eclipse.mat.api
+ */
 public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.internal.messages"; //$NON-NLS-1$
@@ -432,6 +435,7 @@ public class Messages extends NLS
     public static String LeakHunterQuery_AccumulatedObjects;
     public static String LeakHunterQuery_AccumulatedObjectsByClass;
     public static String LeakHunterQuery_AllAccumulatedObjectsByClass;
+    public static String LeakHunterQuery_AllObjectsByClassRetained;
     public static String LeakHunterQuery_BiggestInstances;
     public static String LeakHunterQuery_BiggestInstancesHeading;
     public static String LeakHunterQuery_BiggestInstancesOverview;
@@ -473,6 +477,7 @@ public class Messages extends NLS
     public static String LeakHunterQuery_ShortestPaths;
     public static String LeakHunterQuery_SignificantStackFrames;
     public static String LeakHunterQuery_StackTraceAvailable;
+    public static String LeakHunterQuery_SuspectObjectsByClass;
     public static String LeakHunterQuery_SystemClassLoader;
     public static String LeakHunterQuery_ThreadDetails;
     public static String LeakHunterQuery_ThreadLocalVariable;
