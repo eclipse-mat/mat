@@ -2097,6 +2097,7 @@ public final class SnapshotImpl implements ISnapshot
                 {
                     excludeInstances.set(objId);
                 }
+                excludeInstances.set(clazz.getObjectId());
             }
         }
 

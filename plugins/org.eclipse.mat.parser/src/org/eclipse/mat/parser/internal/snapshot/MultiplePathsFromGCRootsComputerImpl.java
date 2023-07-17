@@ -77,6 +77,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 			{
 				excludeInstances.set(objId);
 			}
+			excludeInstances.set(clazz.getObjectId());
 		}
 	}
 
