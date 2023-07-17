@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b447cb7_bd470917",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-07-17T18:52:03Z",
+      "side": 1,
+      "message": "Only tested Paths go GC roots. Now also tested Merge Paths to GC roots and fixed an NPE.",
+      "revId": "aef92afc99089b76554a4e2bfced5c22310c6cfc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
