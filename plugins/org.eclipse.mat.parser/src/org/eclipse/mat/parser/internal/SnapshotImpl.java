@@ -2049,7 +2049,7 @@ public final class SnapshotImpl implements ISnapshot
         int objectId;
         LinkedList<Path> fifo = new LinkedList<Path>();
         BitField visited = new BitField(indexManager.o2address().size());
-        BitField excludeInstances;
+        BitField excludeInstances, excludeClasses;
         IIndexReader.IOne2ManyIndex inboundIndex; // to avoid method calls to
 
         int currentId;
@@ -2071,7 +2071,7 @@ public final class SnapshotImpl implements ISnapshot
 
             if (excludeMap != null)
             {
-                initExcludeInstances();
+                initExcludes();
             }
 
             currentId = objectId;
@@ -2087,9 +2087,10 @@ public final class SnapshotImpl implements ISnapshot
             }
         }
 
-        private void initExcludeInstances() throws SnapshotException
+        private void initExcludes() throws SnapshotException
         {
             excludeInstances = new BitField(indexManager.o2address().size());
+            excludeClasses = new BitField(indexManager.o2address().size());
             for (IClass clazz : excludeMap.keySet())
             {
                 int[] objects = clazz.getObjectIds();
@@ -2097,16 +2098,32 @@ public final class SnapshotImpl implements ISnapshot
                 {
                     excludeInstances.set(objId);
                 }
+                excludeClasses.set(clazz.getObjectId());
             }
         }
 
         private boolean refersOnlyThroughExcluded(int referrerId, int referentId) throws SnapshotException
         {
-            if (!excludeInstances.get(referrerId))
+            if (excludeInstances.get(referrerId))
+            {
+                IObject referrerObject = getObject(referrerId);
+                return checkExcludeFields(referrerId, referentId, referrerObject, referrerObject.getClazz());
+            }
+            else if (excludeClasses.get(referrerId))
+            {
+                IClass referrerObject = (IClass) getObject(referrerId);
+                return checkExcludeFields(referrerId, referentId, referrerObject, referrerObject);
+            }
+            else
+            {
                 return false;
+            }
+        }
 
-            IObject referrerObject = getObject(referrerId);
-            Set<String> excludeFields = excludeMap.get(referrerObject.getClazz());
+        private boolean checkExcludeFields(int referrerId, int referentId, IObject referrerObject, IClass referrerClass)
+                        throws SnapshotException
+        {
+            Set<String> excludeFields = excludeMap.get(referrerClass);
             if (excludeFields == null)
                 return true; // treat null as all fields
 
@@ -2115,7 +2132,8 @@ public final class SnapshotImpl implements ISnapshot
             List<NamedReference> refs = referrerObject.getOutboundReferences();
             for (NamedReference reference : refs)
             {
-                if (referentAddr == reference.getObjectAddress() && !excludeFields.contains(reference.getName())) { return false; }
+                if (referentAddr == reference.getObjectAddress() && !excludeFields.contains(reference.getName()))
+                { return false; }
             }
             return true;
         }
