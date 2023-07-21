@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IRequestDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
@@ -119,7 +120,25 @@ import org.eclipse.mat.util.IProgressListener;
         for (NamedReference ref : refs)
         {
             if (ref instanceof ThreadToLocalReference)
+            {
                 result.add(ref.getObjectId());
+                ThreadToLocalReference tlr = (ThreadToLocalReference)ref;
+                for (GCRootInfo gr : tlr.getGcRootInfo())
+                {
+                    // Allow for stack frames as pseudo-objects
+                    if (gr.getType() == GCRootInfo.Type.JAVA_STACK_FRAME)
+                    {
+                        List<NamedReference> refs2 = ref.getObject().getOutboundReferences();
+                        for (NamedReference ref2 : refs2)
+                        {
+                            if (ref2 instanceof ThreadToLocalReference)
+                            {
+                                result.add(ref2.getObjectId());
+                            }
+                        }
+                    }
+                }
+            }
         }
         return result.toArray();
     }

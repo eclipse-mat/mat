@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,14 +54,16 @@ public class FinalizerThreadQuery implements IQuery
         if (finalizerThreadClasses == null || finalizerThreadClasses.isEmpty())
         {
             // IBM finalizer thread
-            return getFinalizerThreads2(snapshot, Messages.FinalizerThreadQuery_FinalizerThread);
+            // Do not translate the name as we are matching with the name of the thread in the snapshot
+            return getFinalizerThreads2(snapshot, "Finalizer thread"); //$NON-NLS-1$
         }
         else
         {
             // Two sorts of finalizer threads
             int a[] = getFinalizerThreads1(snapshot);
             // Created by System.runFinalization()
-            int b[] = getFinalizerThreads2(snapshot, Messages.FinalizerThreadQuery_SecondaryFinalizer);
+            // Do not translate the name as we are matching with the name of the thread in the snapshot
+            int b[] = getFinalizerThreads2(snapshot, "Secondary finalizer"); //$NON-NLS-1$
             int ret[] = new int[a.length + b.length];
             System.arraycopy(a, 0, ret, 0, a.length);
             System.arraycopy(b, 0, ret, a.length, b.length);
