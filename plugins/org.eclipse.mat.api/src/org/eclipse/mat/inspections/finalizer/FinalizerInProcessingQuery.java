@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
@@ -116,10 +117,29 @@ public class FinalizerInProcessingQuery implements IQuery
     {
         List<NamedReference> refs = thread.getOutboundReferences();
         List<IObject> result = new ArrayList<IObject>();
-        for (NamedReference ref : refs)
+        nextRef: for (NamedReference ref : refs)
         {
             if (ref instanceof ThreadToLocalReference)
+            {
+                ThreadToLocalReference tlr = (ThreadToLocalReference)ref;
+                for (GCRootInfo gr : tlr.getGcRootInfo())
+                {
+                    // Allow for stack frames as pseudo-objects
+                    if (gr.getType() == GCRootInfo.Type.JAVA_STACK_FRAME)
+                    {
+                        List<NamedReference> refs2 = ref.getObject().getOutboundReferences();
+                        for (NamedReference ref2 : refs2)
+                        {
+                            if (ref2 instanceof ThreadToLocalReference)
+                            {
+                                result.add(ref2.getObject());
+                            }
+                        }
+                        continue nextRef;
+                    }
+                }
                 result.add(ref.getObject());
+            }
         }
         return result.toArray(new IObject[result.size()]);
     }
