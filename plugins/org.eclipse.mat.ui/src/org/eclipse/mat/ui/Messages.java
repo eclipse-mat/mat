@@ -351,7 +351,9 @@ public class Messages extends NLS
     public static String SnapshotHistoryView_DeleteFile;
     public static String SnapshotHistoryView_DeleteFromHistory;
     public static String SnapshotHistoryView_DeleteIndexFiles;
+    public static String SnapshotHistoryView_DeleteIndexFilesSuccess;
     public static String SnapshotHistoryView_DeleteInFileSystem;
+    public static String SnapshotHistoryView_DeleteInFileSystemSuccess;
     public static String SnapshotHistoryView_ErrorDeletingFiles;
     public static String SnapshotHistoryView_ExploreFileSystem;
     public static String SnapshotHistoryView_ExploreInFileSystem;

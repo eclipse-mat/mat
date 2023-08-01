@@ -400,6 +400,12 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     {
                         showProblems(problems);
                     }
+                    else
+                    {
+                        MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                        box.setMessage(Messages.SnapshotHistoryView_DeleteInFileSystemSuccess);
+                        box.open();
+                    }
                 }
                 else
                 {
@@ -544,8 +550,15 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 {
                     showProblems(problems);
                 }
+                else
+                {
+                    MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                    box.setMessage(Messages.SnapshotHistoryView_DeleteIndexFilesSuccess);
+                    box.open();
+                }
             }
         };
+        actionDeleteIndeces.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.REMOVE_ALL));
 
         actionCopy = new Action()
         {
