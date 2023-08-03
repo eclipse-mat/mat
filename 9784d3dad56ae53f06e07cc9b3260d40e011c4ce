@@ -16,6 +16,23 @@
       "message": "Verified locally",
       "revId": "9784d3dad56ae53f06e07cc9b3260d40e011c4ce",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "296e6cff_e573aacd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-08-03T21:03:56Z",
+      "side": 1,
+      "message": "I can’t properly check the code at the moment but generally it looks okay.\n1. Is the message grammatically correct when deleting more than one snapshot file (if multi select is possible.)\n2. Do the action icons now match the usual Eclipse icons, if there are some, for remove snapshot from list, delete index files and delete snapshot and index?\n3. Is the confirmation dialog annoying? I’m not a typical user as I’m mainly testing MAT so often delete the index files. Real users might do this less often, and actually see the slow deletion. The snapshot details will show if a file has indices as it has more information but could there be some indication in the snapshot history? Deleting everything is obvious when it completes as the file name is removed. Should files without indices has a different icon or overlay, or could the text be in italics? The change might be adequate instead of a dialog.",
+      "revId": "9784d3dad56ae53f06e07cc9b3260d40e011c4ce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
