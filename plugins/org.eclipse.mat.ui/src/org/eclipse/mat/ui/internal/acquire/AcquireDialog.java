@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -81,8 +81,8 @@ import org.eclipse.ui.PlatformUI;
 public class AcquireDialog extends WizardPage
 {
     private static final String LAST_DIRECTORY_KEY = AcquireDialog.class.getName() + ".lastDir"; //$NON-NLS-1$
-    
-    private LocalResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources());
+
+    private LocalResourceManager resourceManager;
     private Font italicFont;
 
     private Table localVMsTable;
@@ -99,9 +99,9 @@ public class AcquireDialog extends WizardPage
 
     interface ProcessSelectionListener
     {
-    	void processSelected(AnnotatedObjectArgumentsSet argumentSet);
+        void processSelected(AnnotatedObjectArgumentsSet argumentSet);
     }
-    
+
     public AcquireDialog(Collection<HeapDumpProviderDescriptor> dumpProviders)
     {
         super("acq"); //$NON-NLS-1$
@@ -125,7 +125,7 @@ public class AcquireDialog extends WizardPage
 
         TableColumnLayout tableColumnLayout = new TableColumnLayout();
         tableComposite.setLayout(tableColumnLayout);
-        
+
         localVMsTable = new Table(tableComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
         localVMsTable.setHeaderVisible(true);
         localVMsTable.setLinesVisible(true);
@@ -218,6 +218,7 @@ public class AcquireDialog extends WizardPage
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
 
+        resourceManager = new LocalResourceManager(JFaceResources.getResources(), top);
         italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
 
         Composite buttons = new Composite(top, SWT.NONE);
@@ -246,7 +247,7 @@ public class AcquireDialog extends WizardPage
                 aw.getContainer().showPage(aw.configPage);
             }
         });
-        
+
         saveLocationLabel = new Label(top, SWT.NONE);
         saveLocationLabel.setText(Messages.AcquireDialog_SaveLocation);
         GridDataFactory.swtDefaults().span(2, 1).applyTo(saveLocationLabel);
@@ -255,36 +256,36 @@ public class AcquireDialog extends WizardPage
         GridDataFactory.fillDefaults().minSize(300, 0).grab(true, false).applyTo(folderText);
         String lastDir = Platform.getPreferencesService().getString(MemoryAnalyserPlugin.PLUGIN_ID, LAST_DIRECTORY_KEY, "", null); //$NON-NLS-1$
         if (lastDir == null || lastDir.trim().equals("")) //$NON-NLS-1$
-        	lastDir = System.getProperty("user.home");  //$NON-NLS-1$
-        
+            lastDir = System.getProperty("user.home");  //$NON-NLS-1$
+
         folderText.setText(lastDir);
         folderText.addModifyListener(new ModifyListener()
         {
-        	public void modifyText(ModifyEvent e)
-        	{
-        		getContainer().updateButtons();
-        		String errorMessage = null;
-        		int level= NONE;
-        		if (localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0)
-        		{
-        		    File f = new File(AcquireDialog.this.getSelectedPath());
-        		    if (f.isDirectory())
-        		    {
-        		        errorMessage = Messages.AcquireDialog_FileIsDirectory;
-        		        level = ERROR;
-        		    }
-        		    else if (f.exists())
-        		    {
-        		        errorMessage = Messages.AcquireDialog_FileExists;
-        		        level = WARNING;
-        		    }
-        		}
-        		AcquireDialog.this.setMessage(errorMessage, level);
-        	}
+            public void modifyText(ModifyEvent e)
+            {
+                getContainer().updateButtons();
+                String errorMessage = null;
+                int level= NONE;
+                if (localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0)
+                {
+                    File f = new File(AcquireDialog.this.getSelectedPath());
+                    if (f.isDirectory())
+                    {
+                        errorMessage = Messages.AcquireDialog_FileIsDirectory;
+                        level = ERROR;
+                    }
+                    else if (f.exists())
+                    {
+                        errorMessage = Messages.AcquireDialog_FileExists;
+                        level = WARNING;
+                    }
+                }
+                AcquireDialog.this.setMessage(errorMessage, level);
+            }
         });
 
         Button b = new Button(top, SWT.NONE);
-        b.setText(Messages.AcquireDialog_BrowseButton); 
+        b.setText(Messages.AcquireDialog_BrowseButton);
         b.addSelectionListener(new SelectionAdapter()
         {
             public void widgetSelected(SelectionEvent e)
@@ -331,7 +332,7 @@ public class AcquireDialog extends WizardPage
 
         localVMsTable.setFocus();
         setControl(top);
-        
+
         // Delay retrieving the VM information until the wizard is displayed
         getControl().getDisplay().asyncExec(new Runnable()
         {
@@ -341,7 +342,7 @@ public class AcquireDialog extends WizardPage
             }
         });
     }
-    
+
     private void refreshTable()
     {
         localVMsTable.removeAll();
@@ -403,40 +404,40 @@ public class AcquireDialog extends WizardPage
                 return sortpid * sort(o1.getPid(), o2.getPid()) + sortproc *
                                signum(AcquireDialog.this.getProviderDescriptor(o1).getName().compareTo(
                                     AcquireDialog.this.getProviderDescriptor(o2).getName()));
-            } 
+            }
         });
         return vms2;
     }
 
     private List<VmInfo> getAvailableVms()
-	{
-    	List<VmInfo> vms = new ArrayList<VmInfo>();
-    	
-    	for (HeapDumpProviderDescriptor providerDescriptor : providerDescriptors)
-		{
-        	GetVMListRunnable getListOperation = new GetVMListRunnable(providerDescriptor, getContainer());
-        	if (getListOperation.run().isOK())
-        	{
-        		List<? extends VmInfo> providerVMs = getListOperation.getResult();
-        		if (providerVMs != null)
-        		{
-        			vms.addAll(providerVMs);
-        		}
-        	}
-		}
-		return vms;
-	}
+    {
+        List<VmInfo> vms = new ArrayList<VmInfo>();
+        
+        for (HeapDumpProviderDescriptor providerDescriptor : providerDescriptors)
+        {
+            GetVMListRunnable getListOperation = new GetVMListRunnable(providerDescriptor, getContainer());
+            if (getListOperation.run().isOK())
+            {
+                List<? extends VmInfo> providerVMs = getListOperation.getResult();
+                if (providerVMs != null)
+                {
+                    vms.addAll(providerVMs);
+                }
+            }
+        }
+        return vms;
+    }
 
-	@Override
+    @Override
     public boolean isPageComplete()
     {
         // There needs to be a valid process and a valid dump name
-	    // Also if the heap dump is disabled (indicated by italic font), also disable (getGrayed() doesn't work).
-	    if (localVMsTable.getSelectionIndex() == -1)
-	    {
-	        return false;
-	    }
-	    // See if the enabled status has changed (for example getting a dump has failed).
+        // Also if the heap dump is disabled (indicated by italic font), also disable (getGrayed() doesn't work).
+        if (localVMsTable.getSelectionIndex() == -1)
+        {
+            return false;
+        }
+        // See if the enabled status has changed (for example getting a dump has failed).
         boolean isEnabled = !localVMsTable.getItem(localVMsTable.getSelectionIndex()).getFont().equals(italicFont);
         boolean isEnabled2 = ((VmInfoDescriptor)((AnnotatedObjectArgumentsSet)localVMsTable.getItem(localVMsTable.getSelectionIndex()).getData()).getDescriptor()).getVmInfo().isHeapDumpEnabled();
         if (isEnabled && !isEnabled2)
@@ -449,58 +450,58 @@ public class AcquireDialog extends WizardPage
                         folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
     }
 
-	public AnnotatedObjectArgumentsSet getProcessArgumentsSet()
-	{
-		if (localVMsTable.getSelectionIndex() == -1) return null;
-		AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
+    public AnnotatedObjectArgumentsSet getProcessArgumentsSet()
+    {
+        if (localVMsTable.getSelectionIndex() == -1) return null;
+        AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
 
-		return argumentsSet;
-	}
-	
-	public VmInfo getProcess()
-	{
-		if (localVMsTable.getSelectionIndex() == -1) return null;
-		AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
-		VmInfoDescriptor descriptor = (VmInfoDescriptor) argumentsSet.getDescriptor();
+        return argumentsSet;
+    }
+    
+    public VmInfo getProcess()
+    {
+        if (localVMsTable.getSelectionIndex() == -1) return null;
+        AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
+        VmInfoDescriptor descriptor = (VmInfoDescriptor) argumentsSet.getDescriptor();
 
-		return descriptor.getVmInfo();
-	}
-	
+        return descriptor.getVmInfo();
+    }
+    
 
     public String getSelectedPath()
     {
         return folderText.getText();
     }
-    
+
     private String getSelectedDirectory()
     {
-    	String selectedPath = folderText.getText();
-    	if (selectedPath == null)
-    		return ""; //$NON-NLS-1$
-    	
-    	// if the selection is a folder, just return it
-    	File f = new File(selectedPath);
-    	if (f.isDirectory())
-    		return selectedPath;
-    	
-    	// otherwise return what seems to be the deepest folder
-    	String dir = f.getParent();
-    	return dir == null ? selectedPath : dir;
+        String selectedPath = folderText.getText();
+        if (selectedPath == null)
+            return ""; //$NON-NLS-1$
+        
+        // if the selection is a folder, just return it
+        File f = new File(selectedPath);
+        if (f.isDirectory())
+            return selectedPath;
+        
+        // otherwise return what seems to be the deepest folder
+        String dir = f.getParent();
+        return dir == null ? selectedPath : dir;
     }
 
     public void saveSettings()
     {
-    	InstanceScope.INSTANCE.getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
+        InstanceScope.INSTANCE.getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
     }
-    
+
     private HeapDumpProviderDescriptor getProviderDescriptor(VmInfo vmInfo)
     {
-    	return HeapDumpProviderRegistry.instance().getHeapDumpProvider(vmInfo.getHeapDumpProvider().getClass());
+        return HeapDumpProviderRegistry.instance().getHeapDumpProvider(vmInfo.getHeapDumpProvider().getClass());
     }
-    
+
     synchronized void addProcessSelectionListener(ProcessSelectionListener listener)
     {
-    	listeners.add(listener);
+        listeners.add(listener);
     }
 
     void clearSelection() {
@@ -519,7 +520,7 @@ public class AcquireDialog extends WizardPage
         selectionChanged();
         fillTable();
     }
-	
+
     void updateFileName()
     {
         VmInfo process = getProcess();
@@ -569,13 +570,13 @@ public class AcquireDialog extends WizardPage
         }
     }
 
-	private void selectionChanged()
+    private void selectionChanged()
     {
         updateFileName();
         // notify listeners
         for (ProcessSelectionListener listener : listeners)
         {
-        	listener.processSelected(getProcessArgumentsSet());
+            listener.processSelected(getProcessArgumentsSet());
         }
         // The button states might depend on the listeners changing
         getContainer().updateButtons();
@@ -597,60 +598,60 @@ public class AcquireDialog extends WizardPage
     }
 
     private static class GetVMListRunnable implements IRunnableWithProgress
-	{
-		private IStatus status;
-		private IRunnableContext context;
-		private List<? extends VmInfo> result;
-		private HeapDumpProviderDescriptor provider;
-		
-		public GetVMListRunnable(HeapDumpProviderDescriptor provider, IRunnableContext context)
-		{
-			this.provider = provider;
-			this.context = context;
-		}
+    {
+        private IStatus status;
+        private IRunnableContext context;
+        private List<? extends VmInfo> result;
+        private HeapDumpProviderDescriptor provider;
+        
+        public GetVMListRunnable(HeapDumpProviderDescriptor provider, IRunnableContext context)
+        {
+            this.provider = provider;
+            this.context = context;
+        }
 
-		public List<? extends VmInfo> getResult()
-		{
-			return result;
-		}
+        public List<? extends VmInfo> getResult()
+        {
+            return result;
+        }
 
-		public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException
-		{
-			status = doOperation(monitor);
-		}
-		
-		private IStatus doOperation(IProgressMonitor monitor)
-		{
-			IProgressListener listener = new ProgressMonitorWrapper(monitor);
-			try
-			{
-				result = provider.getHeapDumpProvider().getAvailableVMs(listener);
-				if (listener.isCanceled()) return Status.CANCEL_STATUS;
-			}
-			catch (Exception e)
-			{
-				return ErrorHelper.createErrorStatus(e);
-			}
+        public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException
+        {
+            status = doOperation(monitor);
+        }
+        
+        private IStatus doOperation(IProgressMonitor monitor)
+        {
+            IProgressListener listener = new ProgressMonitorWrapper(monitor);
+            try
+            {
+                result = provider.getHeapDumpProvider().getAvailableVMs(listener);
+                if (listener.isCanceled()) return Status.CANCEL_STATUS;
+            }
+            catch (Exception e)
+            {
+                return ErrorHelper.createErrorStatus(e);
+            }
 
-			return Status.OK_STATUS;
-		}
-		
-		public final IStatus run()
-		{
-			try
-			{
-				context.run(true, true, this);
-			}
-			catch (Exception e)
-			{
-				status = ErrorHelper.createErrorStatus(Messages.AcquireSnapshotAction_UnexpectedException, e);
-			}
+            return Status.OK_STATUS;
+        }
+        
+        public final IStatus run()
+        {
+            try
+            {
+                context.run(true, true, this);
+            }
+            catch (Exception e)
+            {
+                status = ErrorHelper.createErrorStatus(Messages.AcquireSnapshotAction_UnexpectedException, e);
+            }
 
-			// report error if any occurred
-			if (!status.isOK() && status != Status.CANCEL_STATUS)
-				Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.INFO, MessageUtil.format("Error getting list of VMs with [{0}] provider", provider.getName()), status.getException()); //$NON-NLS-1$
+            // report error if any occurred
+            if (!status.isOK() && status != Status.CANCEL_STATUS)
+                Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.INFO, MessageUtil.format("Error getting list of VMs with [{0}] provider", provider.getName()), status.getException()); //$NON-NLS-1$
 
-			return status;
-		}
-	}
+            return status;
+        }
+    }
 }
