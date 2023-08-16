@@ -33,6 +33,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
@@ -57,6 +61,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -201,6 +206,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
     private Action actionOpenFileInFileSystem;
     private Action actionDeleteIndeces;
     private Action actionCopy;
+    private LocalResourceManager resourceManager;
+    private Font italicFont;
 
     @Override
     public void createPartControl(Composite parent)
@@ -211,6 +218,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         tableColumn.setWidth(400);
         table.setHeaderVisible(true);
         AccessibleCompositeAdapter.access(table);
+        resourceManager = new LocalResourceManager(JFaceResources.getResources(), table);
+        italicFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.ITALIC));
 
         // Expand the column to the full width
         table.addControlListener(new ControlAdapter()
@@ -274,6 +283,19 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             TableItem tableItem = new TableItem(table, 0);
             tableItem.setText(entry.getFilePath());
             tableItem.setData(entry);
+            File index = null;
+            if (entry.getInfo() instanceof SnapshotInfo)
+            {
+                // Find the prefix path directly
+                SnapshotInfo ifo = (SnapshotInfo)entry.getInfo();
+                String prefix = ifo.getPrefix();
+                if (prefix != null)
+                {
+                    index = new File(prefix + "index"); //$NON-NLS-1$
+                }
+            }
+            if (index == null || !index.exists())
+                tableItem.setFont(italicFont);
 
             IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
             IContentType type;
@@ -285,8 +307,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             {
                 type = null;
             }
-            tableItem.setImage(MemoryAnalyserPlugin.getDefault().getImage(
-                            registry.getImageDescriptor(entry.getFilePath(), type)));
+            ImageDescriptor imageDescriptor = registry.getImageDescriptor(entry.getFilePath(), type);
+            if (index == null || !index.exists())
+                imageDescriptor = ImageDescriptor.createWithFlags(imageDescriptor, SWT.IMAGE_DISABLE);
+            tableItem.setImage(MemoryAnalyserPlugin.getDefault().getImage(imageDescriptor));
         }
     }
 
@@ -541,6 +565,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     deleteIndexes(index, problems);
                     if (!index.exists())
                     {
+                        item.setFont(italicFont);
+                        ImageDescriptor imageDescriptor = ImageDescriptor.createFromImage(item.getImage());
+                        imageDescriptor = ImageDescriptor.createWithFlags(imageDescriptor, SWT.IMAGE_DISABLE);
+                        item.setImage(MemoryAnalyserPlugin.getDefault().getImage(imageDescriptor));
                         // Perhaps the history was for an index file, or the index file also listed in the history
                         SnapshotHistoryService.getInstance().removePath(new Path(index.getAbsolutePath()));
                     }
@@ -656,15 +684,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             public void run()
             {
                 table.removeAll();
-                for (SnapshotHistoryService.Entry entry : visited)
-                {
-                    TableItem item = new TableItem(table, 0);
-                    item.setText(entry.getFilePath());
-                    item.setData(entry);
-                    IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-                    item.setImage(MemoryAnalyserPlugin.getDefault().getImage(
-                                    registry.getImageDescriptor(entry.getFilePath())));
-                }
+                fillTable();
             }
         });
     }

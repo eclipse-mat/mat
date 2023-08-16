@@ -66,7 +66,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
     private static final String ARGUMENT = Messages.ArgumentsTable_Argument;
     private static final String VALUE = Messages.ArgumentsTable_Value;
 
-    private LocalResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources());
+    private LocalResourceManager resourceManager;
 
     private Table table;
     private Font boldFont;
@@ -123,6 +123,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
             }
         });
 
+        resourceManager = new LocalResourceManager(JFaceResources.getResources(), table);
         boldFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.BOLD));
         normalFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.NORMAL));
 
