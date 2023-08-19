@@ -35,6 +35,24 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "105ff9bb_ded93570",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-08-19T07:23:11Z",
+      "side": 1,
+      "message": "I think volatile would be too costly in performance, and is not needed to detect a structural change to the map by one thread while it is using an iterator. This now is a fail-fast iterator, so detects an error if easy, but with no guarantees, similar to some OpenJDK and Apache Harmony collections.",
+      "parentUuid": "3c8ab6d3_83fcf4b4",
+      "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e0cf53b_5b88fb56",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-05-27T03:59:46Z",
       "side": 1,
       "message": "What do you think of changing this to `volatile`?",
+      "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bea486fd_150fbe24",
+        "filename": "plugins/org.eclipse.mat.report/src/org/eclipse/mat/collect/HashMapIntLong.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-08-19T07:23:11Z",
+      "side": 1,
+      "message": "See https://stackoverflow.com/questions/56590710/volatile-in-the-hashmap-about-modcount\nI don\u0027t think it is worth it for the possible performance costs.",
+      "parentUuid": "6e0cf53b_5b88fb56",
       "revId": "8a4b7916316dfd29858aab5d2805a09b141741b1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
