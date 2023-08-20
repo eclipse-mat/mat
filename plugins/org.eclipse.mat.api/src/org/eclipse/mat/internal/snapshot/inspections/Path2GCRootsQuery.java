@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -55,13 +55,13 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("path2gc")
 @Icon("/META-INF/icons/path2gc.gif")
 @Menu( { @Entry(options = "-excludes \"\";"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>;"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized>;"), //
                 @Entry(options = "-excludes java.lang.ref.SoftReference:referent;"), //
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent;"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized> java.lang.ref.SoftReference:referent;"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized> java.lang.ref.SoftReference:referent;"), //
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.SoftReference:referent;"), //
-                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>;"), //
-                @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.Runtime:<Unfinalized>;") //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized>;"), //
+                @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.ref.Finalizer:unfinalized java.lang.Runtime:<Unfinalized>;") //
 })
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/path_to_gc_roots.html")
 public class Path2GCRootsQuery implements IQuery
@@ -114,7 +114,19 @@ public class Path2GCRootsQuery implements IQuery
 
                     StringTokenizer tokens = new StringTokenizer(entry.substring(colon + 1), ","); //$NON-NLS-1$
                     while (tokens.hasMoreTokens())
-                        fields.add(tokens.nextToken());
+                    {
+                        String field = tokens.nextToken();
+                        fields.add(field);
+                        /*
+                         * Allow for NLS translations where the pseudo-field
+                         * is specified in English but MAT is running in another language.
+                         */
+                        if (field.startsWith("<") && field.endsWith(">")) //$NON-NLS-1$ //$NON-NLS-2$
+                        {
+                            if (field.equals("<Unfinalized>")) //$NON-NLS-1$
+                                fields.add('<' + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + '>'); 
+                        }
+                    }
 
                     pattern = pattern.substring(0, colon);
                 }

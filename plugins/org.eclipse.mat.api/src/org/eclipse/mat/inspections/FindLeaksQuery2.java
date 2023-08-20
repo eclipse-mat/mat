@@ -16,9 +16,7 @@ package org.eclipse.mat.inspections;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.inspections.FindLeaksQuery.ExcludesConverter;
 import org.eclipse.mat.inspections.FindLeaksQuery.SuspectRecord;
 import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.internal.Messages;
@@ -79,10 +78,6 @@ public class FindLeaksQuery2 implements IQuery
     //
     // ///////////////////////////////////////////
 
-    private final static Set<String> REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "referent" })); //$NON-NLS-1$
-    private final static Set<String> UNFINALIZED_REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" })); //$NON-NLS-1$ //$NON-NLS-2$
     private final static int MAX_DEPTH = 1000;
 
     // ////////////////////////////////////////////
@@ -113,7 +108,7 @@ public class FindLeaksQuery2 implements IQuery
     public Pattern mask = Pattern.compile("\\s@ 0x[0-9a-f]+"//$NON-NLS-1$
                     + "|^(\\[[0-9]+\\], ){0,100}\\[[0-9]+\\](,\\.\\.\\.)?$"//$NON-NLS-1$
                     + "|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])"//$NON-NLS-1$
-                    ); 
+                    );
 
     @Argument(isMandatory = false, flag = "x")
     public String[] extraReferences = new String[] {
@@ -125,6 +120,11 @@ public class FindLeaksQuery2 implements IQuery
 
     @Argument(isMandatory = false, flag = "xfile")
     public File extraReferencesListFile;
+
+    public double group_suspects_accumulation_ratio = 0.8;
+
+    public List<String> excludes = Arrays.asList( //
+                    new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     static final int retainedDiffCol = 5;
     static final int simpleDiffCol = 2;
@@ -177,7 +177,7 @@ public class FindLeaksQuery2 implements IQuery
         ArrayInt suspiciousObjects = new ArrayInt();
         int i = 0;
         HashMapIntObject<ClassRecord>map = new HashMapIntObject<ClassRecord>();
-        final HashMapIntObject<Object>rowmap = new HashMapIntObject<Object>(); 
+        final HashMapIntObject<Object>rowmap = new HashMapIntObject<Object>();
         while (i < topDominators.size())
         {
             Object row = topDominators.get(i);
@@ -342,7 +342,7 @@ public class FindLeaksQuery2 implements IQuery
             deltaRetained = ((Bytes)colv).getValue();
         else if (colv instanceof Number)
             deltaRetained = ((Number)colv).longValue();
-        else 
+        else
             deltaRetained = 0;
         return deltaRetained;
     }
@@ -396,10 +396,10 @@ public class FindLeaksQuery2 implements IQuery
         int depth = 0;
         while (tree.hasChildren(row) && (rows = tree.getChildren(row)) != null && rows.size() != 0 && depth < MAX_DEPTH)
         {
-            long dominatedRetainedSize = this.readCol(tree, rows.get(0), retainedDiffCol); 
+            long dominatedRetainedSize = this.readCol(tree, rows.get(0), retainedDiffCol);
             if ((double)dominatedRetainedSize / dominatorRetainedSize < big_drop_ratio)
             {
-                return new AccumulationPoint(snapshot.getObject(dominator), dominatorRetainedSize, path.toArray()); 
+                return new AccumulationPoint(snapshot.getObject(dominator), dominatorRetainedSize, path.toArray());
             }
 
             dominatorRetainedSize = dominatedRetainedSize;
@@ -425,20 +425,9 @@ public class FindLeaksQuery2 implements IQuery
 
         // calculate the shortest paths to all
         // avoid weak paths
-        Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true); //$NON-NLS-1$
-        if (classes != null)
-            for (IClass clazz : classes)
-            {
-                excludeMap.put(clazz, REFERENCE_FIELD_SET);
-            }
-        // Unfinalized objects from J9
-        classes = snapshot.getClassesByName("java.lang.Runtime", false); //$NON-NLS-1$
-        if (classes != null)
-            for (IClass clazz : classes)
-            {
-                excludeMap.put(clazz, UNFINALIZED_REFERENCE_FIELD_SET);
-            }
+        // Unfinalized objects from J9 and HotSpot
+        // convert excludes into the required format
+        Map<IClass, Set<String>> excludeMap = ExcludesConverter.convert(snapshot, excludes);
 
         IMultiplePathsFromGCRootsComputer comp = snapshot.getMultiplePathsFromGCRoots(objectIds, excludeMap);
 
@@ -447,7 +436,16 @@ public class FindLeaksQuery2 implements IQuery
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        
+
+        if (records.length == 0)
+        {
+            // We have no paths with all the excludes, so try again without the excludes
+            comp = snapshot.getMultiplePathsFromGCRoots(objectIds, Collections.emptyMap());
+            records = comp.getPathsByGCRoot(listener);
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+        }
+
         if (records.length > 0)
         {
             int numPaths = comp.getAllPaths(listener).length;
@@ -463,7 +461,7 @@ public class FindLeaksQuery2 implements IQuery
             MultiplePathsFromGCRootsRecord parentRecord = records[0];
 
             // parentRecord.getReferencedRetainedSize()
-            int threshold = (int) (0.8 * objectIds.length);
+            int threshold = (int) (group_suspects_accumulation_ratio * objectIds.length);
 
             Object row = null;
             while (parentRecord.getCount() > threshold)
