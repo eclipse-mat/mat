@@ -264,7 +264,7 @@ public class ComponentReportQuery implements IQuery
 
         List<ExcludedReferencesDescriptor> excludes = new ArrayList<ExcludedReferencesDescriptor>();
 
-        addExcludes(excludes, "java.lang.ref.Finalizer", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
+        addExcludes(excludes, "java.lang.ref.Finalizer", "referent", "unfinalized"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         addExcludes(excludes, "java.lang.Runtime", UNFINALIZED_REFERENCE); //$NON-NLS-1$
         addExcludes(excludes, "java.lang.ref.PhantomReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.WeakReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -447,7 +447,7 @@ public class ComponentReportQuery implements IQuery
             {
                 String command = "customized_retained_set"; //$NON-NLS-1$
                 command += " " + objectLabel; //$NON-NLS-1$
-                command += " -x java.lang.ref.Finalizer:referent"; //$NON-NLS-1$
+                command += " -x java.lang.ref.Finalizer:referent,unfinalized"; //$NON-NLS-1$
                 command += " java.lang.Runtime:" + UNFINALIZED_REFERENCE; //$NON-NLS-1$
                 command += " java.lang.ref.PhantomReference:referent"; //$NON-NLS-1$
                 command += " java.lang.ref.WeakReference:referent"; //$NON-NLS-1$
