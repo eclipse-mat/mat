@@ -1340,7 +1340,7 @@ public class QueriesTest
     public void testLeakHunter2ReportJDK6() throws SnapshotException, IOException
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot, snapshot2, 4, 1, 14);
+        testLeakHunter2Report(snapshot, snapshot2, 4, 1, 16);
     }
 
     /**
@@ -1355,7 +1355,7 @@ public class QueriesTest
     }
 
     /**
-     * Comparison of two JDK11 dumps
+     * Comparison of a Java 8 with a Java 7 dump
      * @throws SnapshotException
      * @throws IOException
      */
@@ -1364,7 +1364,7 @@ public class QueriesTest
     {
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false); // Do not dispose this as shared
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK8_64BIT_SYSTEM, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot1, snapshot2, 5, 1, 16);
+        testLeakHunter2Report(snapshot1, snapshot2, 5, 1, 20);
     }
 
     /**
@@ -1377,7 +1377,7 @@ public class QueriesTest
     {
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, false); // Do not dispose this as shared
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
-        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 29);
+        testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 33);
     }
 
     /**
@@ -1406,7 +1406,7 @@ public class QueriesTest
         SnapshotFactory.dispose(snapshot1);
         assertThat(snapshot1.getClassesByName("java.lang.Object", false), nullValue());
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.OPENJDK_JDK11_04_64BIT, false); // Do not dispose this as shared
-        IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 29);
+        IResult r = testLeakHunter2Report(snapshot1, snapshot2, 9, 1, 33);
         assertNotNull(r);
     }
 

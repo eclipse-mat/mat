@@ -275,7 +275,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
             if (query.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(query.getStatus().toString()).append("\"> ");
+                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"").append(query.getStatus().toString()).append("\">");
 
             if (!linkToHeading)
                 artefact.append("<a id=\"").append(id(query)).append("\">");

@@ -57,13 +57,13 @@ import org.eclipse.mat.util.VoidProgressListener;
 @CommandName("merge_shortest_paths")
 @Icon("/META-INF/icons/mpaths_from_gc.gif")
 @Menu( { @Entry(options = "-excludes \"\";"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>;"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized>;"), //
                 @Entry(options = "-excludes java.lang.ref.SoftReference:referent;"), //
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent;"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized> java.lang.ref.SoftReference:referent;"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized> java.lang.ref.SoftReference:referent;"), //
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.SoftReference:referent;"), //
-                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent java.lang.Runtime:<Unfinalized>;"), //
-                @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.Runtime:<Unfinalized>;") //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent java.lang.ref.Finalizer:referent,unfinalized java.lang.Runtime:<Unfinalized>;"), //
+                @Entry(options = "-excludes java.lang.ref.Reference:referent java.lang.ref.Finalizer:unfinalized java.lang.Runtime:<Unfinalized>;") //
 })
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/merge_shortest_paths.html")
 public class MultiplePath2GCRootsQuery implements IQuery
