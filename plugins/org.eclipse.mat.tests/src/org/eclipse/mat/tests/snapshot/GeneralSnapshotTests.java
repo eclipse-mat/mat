@@ -702,7 +702,7 @@ public class GeneralSnapshotTests
         // See if the unzip worked
         File unzipf = new File(prefix + "_Query");
         assertThat("Expected unzipped directory", unzipf.exists());
-        
+
         // See if the text file is there and has contents
         File unzippedDir = new File(unzipf, "pages");
         File files[] = unzippedDir.listFiles(new FileFilter() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -174,7 +174,9 @@ public class ThreadInfoQuery implements IQuery
             builder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
-		return new QuerySpec(Messages.ThreadInfoQuery_ThreadStack, new TextResult(builder.toString()));
+		QuerySpec qs = new QuerySpec(Messages.ThreadInfoQuery_ThreadStack, new TextResult(builder.toString()));
+		qs.setCommand("thread_stack 0x" + Long.toHexString(threadObject.getObjectAddress())); //$NON-NLS-1$
+		return qs;
 
 	}
 

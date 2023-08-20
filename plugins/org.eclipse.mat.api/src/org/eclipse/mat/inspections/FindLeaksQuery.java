@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,9 @@ package org.eclipse.mat.inspections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
@@ -70,10 +72,6 @@ public class FindLeaksQuery implements IQuery
     //
     // ///////////////////////////////////////////
 
-    private final static Set<String> REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "referent" })); //$NON-NLS-1$
-    private final static Set<String> UNFINALIZED_REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" })); //$NON-NLS-1$ //$NON-NLS-2$
     private final static int MAX_DEPTH = 1000;
 
     // ////////////////////////////////////////////
@@ -93,6 +91,11 @@ public class FindLeaksQuery implements IQuery
 
     // @Argument(isMandatory = false, flag = "big_drop_ratio")
     public double big_drop_ratio = 0.7;
+
+    public double group_suspects_accumulation_ratio = 0.8;
+
+    public List<String> excludes = Arrays.asList( //
+                    new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -227,6 +230,15 @@ public class FindLeaksQuery implements IQuery
         return null;
     }
 
+    static class ExcludesConverter extends Path2GCRootsQuery
+    {
+        public static Map<IClass, Set<String>> convert(ISnapshot snapshot, List<String> excludes)
+                        throws SnapshotException
+        {
+            return Path2GCRootsQuery.convert(snapshot, excludes);
+        }
+    }
+
     private SuspectRecord buildSuspectRecordGroupOfObjects(ClassHistogramRecord record, IProgressListener listener)
                     throws SnapshotException
     {
@@ -235,20 +247,9 @@ public class FindLeaksQuery implements IQuery
 
         // calculate the shortest paths to all
         // avoid weak paths
-        Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true); //$NON-NLS-1$
-        if (classes != null)
-            for (IClass clazz : classes)
-            {
-                excludeMap.put(clazz, REFERENCE_FIELD_SET);
-            }
-        // Unfinalized objects from J9
-        classes = snapshot.getClassesByName("java.lang.Runtime", false); //$NON-NLS-1$
-        if (classes != null)
-            for (IClass clazz : classes)
-            {
-                excludeMap.put(clazz, UNFINALIZED_REFERENCE_FIELD_SET);
-            }
+        // Unfinalized objects from J9 and HotSpot
+        // convert excludes into the required format
+        Map<IClass, Set<String>> excludeMap = ExcludesConverter.convert(snapshot, excludes);
 
         IMultiplePathsFromGCRootsComputer comp = snapshot.getMultiplePathsFromGCRoots(objectIds, excludeMap);
 
@@ -257,7 +258,16 @@ public class FindLeaksQuery implements IQuery
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        
+
+        if (records.length == 0)
+        {
+            // We have no paths with all the excludes, so try again without the excludes
+            comp = snapshot.getMultiplePathsFromGCRoots(objectIds, Collections.emptyMap());
+            records = comp.getPathsByGCRoot(listener);
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+        }
+
         if (records.length > 0)
         {
             int numPaths = comp.getAllPaths(listener).length;
@@ -273,7 +283,7 @@ public class FindLeaksQuery implements IQuery
             MultiplePathsFromGCRootsRecord parentRecord = records[0];
 
             // parentRecord.getReferencedRetainedSize()
-            int threshold = (int) (0.8 * objectIds.length);
+            int threshold = (int) (group_suspects_accumulation_ratio * objectIds.length);
 
             while (parentRecord.getCount() > threshold)
             {
