@@ -101,6 +101,12 @@ public class FindLeaksQuery2 implements IQuery
     // @Argument(isMandatory = false, flag = "big_drop_ratio")
     public double big_drop_ratio = 0.7;
 
+    public double group_suspects_accumulation_ratio = 0.8;
+
+    @Argument(isMandatory = false)
+    public List<String> excludes = Arrays.asList( //
+                    new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+
     @Argument(isMandatory = false)
     public String options = "-prefix"; //$NON-NLS-1$
 
@@ -120,11 +126,6 @@ public class FindLeaksQuery2 implements IQuery
 
     @Argument(isMandatory = false, flag = "xfile")
     public File extraReferencesListFile;
-
-    public double group_suspects_accumulation_ratio = 0.8;
-
-    public List<String> excludes = Arrays.asList( //
-                    new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
     static final int retainedDiffCol = 5;
     static final int simpleDiffCol = 2;

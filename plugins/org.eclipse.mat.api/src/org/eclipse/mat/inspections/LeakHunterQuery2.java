@@ -21,6 +21,7 @@ import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
@@ -104,27 +105,29 @@ public class LeakHunterQuery2 extends LeakHunterQuery
         SnapshotQuery query = SnapshotQuery.parse(querycmd, snapshot)
                         .setArgument("threshold_percent", threshold_percent) //$NON-NLS-1$
                         .setArgument("max_paths", max_paths) //$NON-NLS-1$
+                        .setArgument("excludes", excludes) //$NON-NLS-1$
                         .setArgument("baseline", baseline); //$NON-NLS-1$
 
         cmd.append(" -threshold_percent ").append(threshold_percent); //$NON-NLS-1$
         cmd.append(" -max_paths ").append(max_paths); //$NON-NLS-1$
-        cmd.append(" -baseline ").append(baseline.getSnapshotInfo().getPath()); //$NON-NLS-1$
+        addExcludes(cmd);
+        cmd.append(" -baseline ").append(Converters.convertAndEscape(String.class, baseline.getSnapshotInfo().getPath())); //$NON-NLS-1$
         if (mask != null)
         {
             query.setArgument("mask", mask); //$NON-NLS-1$
-            cmd.append(" ").append("-mask ").append(escape(mask.pattern())); //$NON-NLS-1$ //$NON-NLS-2$
+            cmd.append(" ").append("-mask ").append(Converters.convertAndEscape(Pattern.class, mask)); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (extraReferences != null)
         {
             query.setArgument("extraReferences", Arrays.asList(extraReferences)); //$NON-NLS-1$
             cmd.append(" ").append("-x "); //$NON-NLS-1$ //$NON-NLS-2$
             for (String e : extraReferences)
-                cmd.append(" ").append(escape(e)); //$NON-NLS-1$
+                cmd.append(" ").append(Converters.convertAndEscape(String.class, e)); //$NON-NLS-1$
         }
         if (extraReferencesListFile != null)
         {
             query.setArgument("extraReferencesListFile", extraReferencesListFile); //$NON-NLS-1$
-            cmd.append(" -xfile ").append(escape(extraReferencesListFile.getAbsolutePath())); //$NON-NLS-1$
+            cmd.append(" -xfile ").append(Converters.convertAndEscape(File.class, extraReferencesListFile)); //$NON-NLS-1$
         }
 
         savedcmd = cmd.toString();

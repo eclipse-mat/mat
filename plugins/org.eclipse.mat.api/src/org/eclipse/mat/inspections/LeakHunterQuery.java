@@ -55,6 +55,7 @@ import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTree;
+import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -119,6 +120,7 @@ public class LeakHunterQuery implements IQuery
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
     public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*"); //$NON-NLS-1$
 
+    @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
                     new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
@@ -205,6 +207,7 @@ public class LeakHunterQuery implements IQuery
         return (FindLeaksQuery.SuspectsResultTable) SnapshotQuery.lookup("find_leaks", snapshot) //$NON-NLS-1$
                         .setArgument("threshold_percent", threshold_percent) //$NON-NLS-1$
                         .setArgument("max_paths", max_paths) //$NON-NLS-1$
+                        .setArgument("excludes", excludes) //$NON-NLS-1$
                         .execute(listener);
     }
 
@@ -918,14 +921,14 @@ public class LeakHunterQuery implements IQuery
         return composite;
     }
 
-    private void addExcludes(StringBuilder sb)
+    void addExcludes(StringBuilder sb)
     {
-        if (excludes.size() > 0)
+        if (excludes != null && !excludes.isEmpty())
         {
             sb.append(" -excludes"); //$NON-NLS-1$
             for (String ex : excludes)
             {
-                sb.append(' ').append(ex);
+                sb.append(' ').append(Converters.convertAndEscape(String.class, ex));
             }
             sb.append(';');
         }

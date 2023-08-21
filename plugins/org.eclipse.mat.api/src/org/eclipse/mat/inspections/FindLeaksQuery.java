@@ -94,6 +94,7 @@ public class FindLeaksQuery implements IQuery
 
     public double group_suspects_accumulation_ratio = 0.8;
 
+    @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
                     new String[] { "java.lang.ref.Reference:referent", "java.lang.ref.Finalizer:unfinalized", "java.lang.Runtime:" + "<" + GCRootInfo.getTypeAsString(GCRootInfo.Type.UNFINALIZED) + ">" }); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
