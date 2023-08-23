@@ -77,6 +77,8 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
+import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.PieFactory;
@@ -118,7 +120,7 @@ public class LeakHunterQuery implements IQuery
     public int max_paths = 10000;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*"); //$NON-NLS-1$
+    public Pattern skipPattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|jdk\\..*"); //$NON-NLS-1$
 
     @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
@@ -241,6 +243,28 @@ public class LeakHunterQuery implements IQuery
         return false;
     }
 
+    /**
+     * Is this object a local variable from the frameId?
+     * @param frameId the stack frame ID, or thread ID if no stack frames as variables.
+     * @param objectId the object in questions
+     * @return true if a local variable
+     * @throws SnapshotException
+     */
+    private boolean isStackFrameLocal(int frameId, int objectId) throws SnapshotException
+    {
+        IObject frame = snapshot.getObject(frameId);
+        List<NamedReference> refs = frame.getOutboundReferences();
+        for (NamedReference ref : refs)
+        {
+            if (ref instanceof ThreadToLocalReference)
+            {
+                if (ref.getObjectId() == objectId)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private CompositeResult getLeakSuspectDescription(SuspectRecord suspect, IProgressListener listener)
                     throws SnapshotException
     {
@@ -329,18 +353,20 @@ public class LeakHunterQuery implements IQuery
                     if (snapshot.isClassLoader(referrerId))
                     {
                         referrerClassloader = referrer;
-                        objectsForTroubleTicketInfo.add(suspectClassloader);
+                        objectsForTroubleTicketInfo.add(referrerClassloader);
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
                         overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedBy,
                                         referrerClassloaderName));
                     }
                     else if (snapshot.isClass(referrerId))
                     {
+                        className = ((IClass)referrer).getName();
+                        keywords.add(className);
                         referrerClassloader = snapshot.getObject(((IClass) referrer).getClassLoaderId());
 //                        involvedClassloaders.add(suspectClassloader);
                         objectsForTroubleTicketInfo.add(referrer);
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, className,
+                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, HTMLUtils.escapeText(className),
                                         referrerClassloaderName));
                     }
                     else
@@ -352,6 +378,8 @@ public class LeakHunterQuery implements IQuery
                             IObject suspectObject = snapshot.getObject(suspectId);
                             suspect = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), suspect.getAccumulationPoint());
                         }
+                        className = referrer.getClazz().getName();
+                        keywords.add(className);
                         referrerClassloader = snapshot.getObject(referrer.getClazz().getClassLoaderId());
 //                        involvedClassloaders.add(suspectClassloader);
                         objectsForTroubleTicketInfo.add(referrer);
@@ -452,7 +480,7 @@ public class LeakHunterQuery implements IQuery
                         if (isThread(r[0]))
                         {
                             isThreadRelated = true;
-                            int accObjId = (r[2] >= 0 && isStackFrame(r[1])) ? r[2] : r[1];
+                            int accObjId = (r[2] >= 0 && isStackFrame(r[1]) && isStackFrameLocal(r[1], r[2])) ? r[2] : r[1];
                             AccumulationPoint ap = accObjId >= 0 ? new AccumulationPoint(snapshot.getObject(accObjId)) : null;
                             SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(r[0]), totalHeap, ap);
                             objectsForTroubleTicketInfo.add(suspect2.getSuspect());
@@ -660,7 +688,7 @@ public class LeakHunterQuery implements IQuery
                 objectsForTroubleTicketInfo.add(suspect.getAccumulationPoint().getObject());
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClass, className,
+                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClass, HTMLUtils.escapeText(className),
                                 classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else
@@ -675,8 +703,69 @@ public class LeakHunterQuery implements IQuery
 
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, className,
+                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, HTMLUtils.escapeText(className),
                                 classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
+
+                boolean isThreadRelated = isThread(suspect.getAccumulationPoint().getObject().getObjectId());
+                /*
+                 * if the class name matches the skip pattern, try to find the first
+                 * referrer which does not match the pattern
+                 */
+                if (skipPattern.matcher(className).matches() && !isThreadRelated)
+                {
+                    int referrerId = findReferrer(accumulationPointId);
+                    if (referrerId != -1)
+                    {
+                        IObject referrer = snapshot.getObject(referrerId);
+                        IObject referrerClassloader = null;
+                        if (snapshot.isClassLoader(referrerId))
+                        {
+                            referrerClassloader = referrer;
+                            objectsForTroubleTicketInfo.add(referrerClassloader);
+                            String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
+                            builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedBy,
+                                            referrerClassloaderName));
+                        }
+                        else if (snapshot.isClass(referrerId))
+                        {
+                            className = ((IClass)referrer).getName();
+                            keywords.add(className);
+                            referrerClassloader = snapshot.getObject(((IClass) referrer).getClassLoaderId());
+//                            involvedClassloaders.add(referrerClassloader);
+                            objectsForTroubleTicketInfo.add(referrer);
+                            String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
+                            builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, HTMLUtils.escapeText(className),
+                                            referrerClassloaderName));
+                        }
+                        else
+                        {
+                            SuspectRecord suspect2 = null;
+                            if (isThread(referrerId))
+                            {
+                                isThreadRelated = true;
+                                int suspectId = referrerId;
+                                IObject suspectObject = snapshot.getObject(suspectId);
+                                suspect2 = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), suspect.getAccumulationPoint());
+                            }
+                            className = referrer.getClazz().getName();
+                            keywords.add(className);
+                            referrerClassloader = snapshot.getObject(referrer.getClazz().getClassLoaderId());
+//                            involvedClassloaders.add(suspectClassloader);
+                            objectsForTroubleTicketInfo.add(referrer);
+                            String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
+                            builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, HTMLUtils.escapeText(referrer
+                                            .getDisplayName()), referrerClassloaderName));
+                            if (isThreadRelated)
+                            {
+                                builder.append("<p>"); //$NON-NLS-1$
+                                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
+                                                HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()), //
+                                                formatRetainedHeap(suspect2.getSuspectRetained(), totalHeap)));
+                                builder.append("</p>"); //$NON-NLS-1$
+                            }
+                        }
+                    }
+                }
             }
             builder.append("</p>"); //$NON-NLS-1$
         }
@@ -818,7 +907,7 @@ public class LeakHunterQuery implements IQuery
                 if (isThread(path[0]))
                 {
                     AccumulationPoint ap;
-                    if (path.length > 2 && isStackFrame(path[1]))
+                    if (path.length > 2 && isStackFrame(path[1]) && isStackFrameLocal(path[1], path[2]))
                     {
                         ap = new AccumulationPoint(snapshot.getObject(path[2]));
                     }
@@ -895,7 +984,7 @@ public class LeakHunterQuery implements IQuery
                 if (io instanceof IClass)
                 {
                     String cn = OQLclassName((IClass)io);
-                    qs.setCommand("merge_shortest_paths SELECT * FROM " + cn + " s WHERE dominatorof(s) = null; -groupby FROM_GC_ROOTS_BY_CLASS"); //$NON-NLS-1$ //$NON-NLS-2$
+                    qs.setCommand("merge_shortest_paths SELECT * FROM " + cn + " s WHERE dominatorof(s) = null; -groupby FROM_GC_ROOTS_BY_CLASS -excludes ;"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 composite.addResult(qs);
             }
@@ -1693,10 +1782,12 @@ public class LeakHunterQuery implements IQuery
             }
 
             // provide the common path as details
+            // Only show the paths for the objects in common
+            IMultiplePathsFromGCRootsComputer comp2 = snapshot.getMultiplePathsFromGCRoots(referencedAccumulationPoints, excludeMap);
             QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_CommonPath, //
-                                MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray(), listener));
+                                MultiplePath2GCRootsQuery.create(snapshot, comp2, commonPath.toArray(), listener));
             StringBuilder sb = new StringBuilder("merge_shortest_paths"); //$NON-NLS-1$
-            for (int objId : objectIds)
+            for (int objId : referencedAccumulationPoints)
             {
                 long addr = snapshot.mapIdToAddress(objId);
                 sb.append(" 0x").append(Long.toHexString(addr)); //$NON-NLS-1$
