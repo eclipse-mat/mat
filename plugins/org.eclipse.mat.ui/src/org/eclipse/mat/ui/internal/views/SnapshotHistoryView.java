@@ -10,6 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - opening history with multiple snapshots from a file
+ *    Code from org.eclipse.ui.internal.ide.handlers.ShowInSystemExplorerHandler.java
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
@@ -19,14 +20,19 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -37,6 +43,7 @@ import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.util.Util;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
@@ -448,6 +455,9 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         actionOpenFileInFileSystem = new Action()
         {
+            private static final String VARIABLE_RESOURCE = "${selected_resource_loc}"; //$NON-NLS-1$
+            private static final String VARIABLE_RESOURCE_URI = "${selected_resource_uri}"; //$NON-NLS-1$
+            private static final String VARIABLE_FOLDER = "${selected_resource_parent_loc}"; //$NON-NLS-1$
 
             @Override
             public void run()
@@ -460,48 +470,71 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
                 if (file.exists())
                 {
-                    // snapshot history view contains files only, additional
-                    // checks are not needed
-                    String osPath = path.toOSString();
-                    String osName = System.getProperty("os.name").toLowerCase();//$NON-NLS-1$
-                    if (osName.indexOf("windows") != -1)//$NON-NLS-1$
+                    try
                     {
-                        String command = "explorer.exe /SELECT," + "\"" + osPath + "\"";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        try
+                        // snapshot history view contains files only, additional
+                        // checks are not needed
+                        String launchCmd = formShowInSystemExplorerCommand(file);
+                        if ("".equals(launchCmd)) //$NON-NLS-1$
                         {
-                            Runtime.getRuntime().exec(command);
+                            String osName = System.getProperty("os.name","");//$NON-NLS-1$ //$NON-NLS-2$
+                            displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_OperationNotImplemented,
+                                            osName));
+                            return;
                         }
-                        catch (IOException ex)
+                        Job job = new Job(Messages.SnapshotHistoryView_ExploreFileSystem)
                         {
-                            ErrorHelper.showErrorMessage(ex);
-                        }
-                    }
-                    else if (osName.indexOf("mac") != -1)//$NON-NLS-1$
-                    {
-                        execute("open", osPath, file);//$NON-NLS-1$
-                    }
-                    else if (osName.indexOf("linux") != -1)//$NON-NLS-1$
-                    {
-                        String desktop = System.getProperty("sun.desktop");//$NON-NLS-1$
-                        desktop = desktop == null ? "" : desktop.toLowerCase();//$NON-NLS-1$
+                            @Override
+                            protected IStatus run(IProgressMonitor monitor)
+                            {
+                                try
+                                {
+                                    File dir = file.getParentFile();
+                                    if (dir != null )
+                                        dir = dir.getCanonicalFile();
+                                    Process p;
+                                    if (Util.isLinux() || Util.isMac())
+                                    {
+                                        p = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", launchCmd }, null, dir); //$NON-NLS-1$ //$NON-NLS-2$
+                                    }
+                                    else
+                                    {
+                                        p = Runtime.getRuntime().exec(launchCmd, null, dir);
+                                    }
+                                    int r = p.waitFor();
+                                    if (r != 0)
+                                    {
+                                        CharBuffer cb = CharBuffer.allocate(4096);
+                                        cb.append(launchCmd);
+                                        int pos = cb.position();
+                                        cb.append('\n');
+                                        p.inputReader().read(cb);
+                                        cb.append('\n');
+                                        p.errorReader().read(cb);
+                                        /*
+                                         * Windows returns 1 from explorer.exe even when no problem,
+                                         * so look for some error text.
+                                         */
+                                        if (!Util.isWindows() || cb.position() > pos + 2)
+                                        {
+                                            cb.flip();
+                                            return ErrorHelper.createErrorStatus(cb.toString());
+                                        }
+                                    }
+                                }
+                                catch (IOException | InterruptedException ex)
+                                {
+                                    return ErrorHelper.createErrorStatus(ex);
+                                }
+                                return Status.OK_STATUS;
+                            }
 
-                        if (desktop.indexOf("gnome") != -1)//$NON-NLS-1$
-                        {
-                            execute("gnome-open", osPath, file);//$NON-NLS-1$
-                        }
-                        else if (desktop.indexOf("konqueror") != -1 || desktop.indexOf("kde") != -1)//$NON-NLS-1$//$NON-NLS-2$
-                        {
-                            execute("konqueror", osPath, file);//$NON-NLS-1$
-                        }
-                        else
-                        {
-                            displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_TryToUseGnome, desktop));
-                            execute("gnome-open", osPath, file);//$NON-NLS-1$
-                        }
+                        };
+                        job.schedule();
                     }
-                    else
+                    catch (IOException ex)
                     {
-                        displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_OperationNotImplemented, osName));
+                        ErrorHelper.showErrorMessage(ex);
                     }
                 }
                 else
@@ -531,6 +564,66 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             {
                 MessageDialog.openInformation(table.getParent().getShell(),
                                 Messages.SnapshotHistoryView_ExploreFileSystem, message);
+            }
+
+            /**
+             * Prepare command for launching system explorer to show a path
+             *
+             * @param path
+             *            the path to show
+             * @return the command that shows the path
+             */
+            private String formShowInSystemExplorerCommand(File path) throws IOException
+            {
+                String command = Platform.getPreferencesService().getString("org.eclipse.ui.ide", "SYSTEM_EXPLORER", getShowInSystemExplorerCommand(), //$NON-NLS-1$ //$NON-NLS-2$
+                                null);
+
+                command = Util.replaceAll(command, VARIABLE_RESOURCE, quotePath(path.getCanonicalPath()));
+                command = Util.replaceAll(command, VARIABLE_RESOURCE_URI, path.getCanonicalFile().toURI().toString());
+                File parent = path.getParentFile();
+                if (parent != null)
+                {
+                    command = Util.replaceAll(command, VARIABLE_FOLDER, quotePath(parent.getCanonicalPath()));
+                }
+                return command;
+            }
+
+            private String quotePath(String path)
+            {
+                if (Util.isLinux() || Util.isMac())
+                {
+                    // Quote for usage inside "", man sh, topic QUOTING:
+                    path = path.replaceAll("[\"$`]", "\\\\$0"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                // Windows: Can't quote, since explorer.exe has a very special
+                // command line parsing strategy.
+                return path;
+            }
+
+            /**
+             * The default command for launching the system explorer on this
+             * platform.
+             *
+             * @return The default command which launches the system explorer on
+             *         this system, or an empty string if no default exists
+             */
+            public String getShowInSystemExplorerCommand()
+            {
+                if (Util.isGtk())
+                {
+                    return "dbus-send --print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:\"${selected_resource_uri}\" string:\"\""; //$NON-NLS-1$
+                }
+                else if (Util.isWindows())
+                {
+                    return "explorer /E,/select=${selected_resource_loc}"; //$NON-NLS-1$
+                }
+                else if (Util.isMac())
+                {
+                    return "open -R \"${selected_resource_loc}\""; //$NON-NLS-1$
+                }
+
+                // if all else fails, return empty default
+                return ""; //$NON-NLS-1$
             }
         };
         actionOpenFileInFileSystem.setText(Messages.SnapshotHistoryView_ExploreInFileSystem);
@@ -696,8 +789,9 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             SnapshotHistoryService.Entry entry = (SnapshotHistoryService.Entry) selection[0].getData();
             Path path = new Path(entry.getFilePath());
             Serializable ss = entry.getInfo();
-            if (ss instanceof SnapshotInfo) {
-                SnapshotInfo info = (SnapshotInfo)ss;
+            if (ss instanceof SnapshotInfo)
+            {
+                SnapshotInfo info = (SnapshotInfo) ss;
                 if (info.getProperty("$runtimeId") != null) //$NON-NLS-1$
                 {
                     String prefix = info.getPrefix();
