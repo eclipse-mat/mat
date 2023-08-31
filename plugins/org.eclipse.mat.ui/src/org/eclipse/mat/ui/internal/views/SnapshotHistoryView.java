@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Serializable;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -508,9 +510,15 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                                         cb.append(launchCmd);
                                         int pos = cb.position();
                                         cb.append('\n');
-                                        p.inputReader().read(cb);
+                                        try (Reader rd = new InputStreamReader(p.getInputStream()))
+                                        {
+                                            rd.read(cb);
+                                        }
                                         cb.append('\n');
-                                        p.errorReader().read(cb);
+                                        try (Reader rd = new InputStreamReader(p.getErrorStream()))
+                                        {
+                                            rd.read(cb);
+                                        }
                                         /*
                                          * Windows returns 1 from explorer.exe even when no problem,
                                          * so look for some error text.
