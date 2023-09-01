@@ -482,7 +482,8 @@ public class LeakHunterQuery implements IQuery
                             isThreadRelated = true;
                             int accObjId = (r[2] >= 0 && isStackFrame(r[1]) && isStackFrameLocal(r[1], r[2])) ? r[2] : r[1];
                             AccumulationPoint ap = accObjId >= 0 ? new AccumulationPoint(snapshot.getObject(accObjId)) : null;
-                            SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(r[0]), totalHeap, ap);
+                            IObject suspectObject = snapshot.getObject(r[0]);
+                            SuspectRecord suspect2 = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), ap);
                             objectsForTroubleTicketInfo.add(suspect2.getSuspect());
 
                             overview.append("<p>"); //$NON-NLS-1$
@@ -919,7 +920,8 @@ public class LeakHunterQuery implements IQuery
                     {
                         ap = null;
                     }
-                    SuspectRecord suspect2 = new SuspectRecord(snapshot.getObject(path[0]), totalHeap, ap);
+                    IObject suspectObject = snapshot.getObject(path[0]);
+                    SuspectRecord suspect2 = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), ap);
                     objectsForTroubleTicketInfo.add(suspect2.getSuspect());
                     // Description
                     builder.append("<p>"); //$NON-NLS-1$
@@ -1361,6 +1363,9 @@ public class LeakHunterQuery implements IQuery
                                             if (o3 >= 0)
                                                 locals.add(o3);
                                         }
+                                        // Allow for accumulation point being the frame itself
+                                        if (o2 == acc.getObjectId())
+                                            locals.add(o2);
                                     }
                                     else
                                     {

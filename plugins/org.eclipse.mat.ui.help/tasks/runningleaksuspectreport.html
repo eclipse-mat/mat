@@ -91,11 +91,14 @@
 				object. These are places where the memory of many
 				small objects is
 				accumulated under one object.
+			</p>
+
+			<p class="p">
 				If the leak suspect is a thread then
 				thread related information such
 				as
 				the call stack is shown, together
-				with interesting stack frames which
+				with interesting stack frames
 				which have local variables
 				referring to objects on the path to the
 				accumulation point.
@@ -114,7 +117,9 @@
 				The
 				<span class="keyword wintitle">Shortest Paths To the Accumulation Point</span>
 				shows a
-				path from a garbage collection route to the accumulation
+				path from a 
+				<a class="xref" href="../concepts/gcroots.html">garbage collection root</a>
+				to the accumulation
 				point.
 				There will be other paths, otherwise an object on the path
 				would
@@ -141,7 +146,7 @@
 				by
 				class. This is useful if there are many objects, as
 				there will be fewer
-				types.
+				types than objects.
 				<span class="keyword wintitle">All Accumulated Objects by Class</span>
 				shows all the objects
 				retained by the accumulation point, including
@@ -153,22 +158,13 @@
 
 			<p class="p">
 				If the leak suspect is a group of objects then
-				the biggest few
-				objects are shown by
-				<span class="keyword wintitle">Biggest Instances</span>
-				.
-				If there are many objects and none uses more than 1% of the leak
-				then this is omitted.
-			</p>
-
-			<p class="p">
-				If the leak suspect is a group of objects then the query
+				these objects are all of the same type (class) which are
+				at the top level of the dominator tree. Each individual
+				object is not retained by a single other object.
+				The query
 				attempts to
 				find an
-				<em class="ph i">interesting</em>
-				(not a standard Java class
-				<code class="ph codeph">java.</code>
-				) object which indirectly refers to all of those
+				object which indirectly refers to all of those
 				objects. This is
 				also called an
 				<dfn class="term">accumulation point</dfn>
@@ -176,15 +172,101 @@
 				below the leak suspects in the dominator tree, rather than
 				above
 				the leak suspect object in the single object case.
+
+				The accumulation point is a single object through which 
+				there is a path from the GC roots to most of the objects.
+				There will be other paths to the suspect objects, otherwise
+				the accumulation point would be a leak suspect in its own
+				right.
+				The accumulation point is useful in understanding the leak
+				as it shows one reason that the suspect objects are 
+				<a class="xref" href="../concepts/reachability.html">reachable</a>
+				and so alive.
+				The standard options for the query ignore weak, soft, phantom and finalizer
+				references when finding paths.
+				In the report, the text <samp class="ph systemoutput">Most of these instances are referenced from one instance of</samp>
+				introduces the accumulation point.
+			</p>
+ 
+			<p class="p">
+				The query also attempts to find an <em class="ph i">interesting</em>
+				(not a standard Java class
+				<code class="ph codeph">java.</code> <code class="ph codeph">javax.</code> <code class="ph codeph">com.sun.</code> <code class="ph codeph">jdk.</code>) Java object which directly or indirectly refers
+				to the accumulation point. This means that if the accumulation
+				point is a array or object inside a standard Java collection then
+				the interesting object might be part of the application itself.
+				The text in the report <samp class="ph systemoutput">The instance is referenced by</samp> introduces this interesting object.
+			</p>
+
+			<p class="p">
+				If the shortest path from the GC roots to accumulation point starts with a thread,
+				then thread related information such as the call stack is shown, together
+				with interesting stack frames which have local variables referring to objects on the path to the accumulation point.
+			</p>
+
+			<p class="p">
+				If the leak suspect is a group of objects then
+				the biggest few
+				objects are shown by
+				<span class="keyword wintitle">Biggest Instances (Overview)</span> which is a pie chart and
+				<span class="keyword wintitle">Biggest Instances</span>
+				which is a histogram.
+				If there are many objects and none uses more than 1% of the leak
+				then these is omitted.
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">Suspect Objects by Class</span>
+				This is a histogram showing the suspect objects. They
+				will all be of the same type. This section makes it easy to
+				continue analysis of the leak by click on the link
+				to view the suspects interactively.
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">All Objects by Class Retained by Suspect Objects</span>
+				This shows all the objects retained by the suspect and helps explain
+				why all the memory is being used. Perhaps instead of removing
+				the leak the problem can be reduced by changing the application
+				code to have fewer or smaller objects referenced from the suspects.
+			</p>
+
+			<p class="p">
 				<span class="keyword wintitle">Common Path To the Accumulation Point</span>
 				shows a shortest path
 				from a GC root to the accumulation point,
 				giving a guide as to
 				what in the application refers to the
 				accumulation point.
+				By default this path ignores weak, soft, phantom and finalizer
+				references when finding paths.
 				If the root of this path is a thread then some
 				interesting thread
 				related information is also extracted.
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">Accumulated Objects in Dominator Tree</span>
+				<span class="keyword wintitle">Accumulated Objects by Class in Dominator Tree</span>
+				These show the accumulation point in the dominator tree, showing
+				how it is retained, and the objects it retains.
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">All Accumulated Objects by Class</span>
+				This shows the objects retained by the accumulation point.
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">Reference Pattern </span>
+				If the leak suspect is a group of objects but there is not an
+				accumulation point then the reference pattern shows the
+				merged shortest paths to GC roots 
+			</p>
+
+			<p class="p">
+				<span class="keyword wintitle">Keywords </span>
+				The keyword section has words which could be useful to match this problem to previous problem instances.
 			</p>
 
 
@@ -217,7 +299,27 @@
 
 		</div>
 
+		<div class="li step p">
+				<span class="ph cmd">
+			In the toolbar select the drop-down menu
+			<span class="ph menucascade"><span class="ph uicontrol">Run Expert System Test</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Leak Suspects</span></span>
+			and generate the report.
+				</span>
+			</div>
+
 		<div class="section result">
+			The result is an HTML page giving information on of all the suspects.
+			Various sections can be expanded to give more detail.
+			If the HTML page is viewed inside of Eclipse Memory Analyzer then links allow
+			further examination of objects.
+		</div>
+
+		<div class="section tasktroubleshooting">
+			If the HTML page does not display properly inside Eclipse Memory Analyzer, consult
+			<a class="xref" href="report.html">Problems displaying reports</a>.
+		</div>
+
+		<div class="example">
 			<p class="p">
 				Examples of summaries of leak suspects:
 			</p>
@@ -318,6 +420,39 @@ Keywords<br />
 java.util.concurrent.ForkJoinTask[]<br />
 java.util.concurrent.ForkJoinPool$WorkQueue.execLocalTasks()V<br />
 ForkJoinPool.java:1040<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 9</span><br />
+1,417 instances of "org.eclipse.mat.hprof.SeekableStream$PosStream", loaded by "org.eclipse.mat.hprof" occupy 74,697,464 (31.80%) bytes. <br />
+<br />
+Most of these instances are referenced from one instance of "java.util.TreeMap$Entry", loaded by "&lt;system class loader&gt;", which occupies 56,560 (0.02%) bytes. The instance is referenced by "org.eclipse.mat.hprof.SeekableStream @ 0x6053cd130", loaded by "org.eclipse.mat.hprof". <br />
+<br />
+Keywords<br />
+org.eclipse.mat.hprof.SeekableStream$PosStream<br />
+org.eclipse.mat.hprof<br />
+java.util.TreeMap$Entry<br />
+org.eclipse.mat.hprof.SeekableStream<br />
+				</samp></p>
+
+				<p class="lines"><samp class="ph systemoutput"><span class="keyword wintitle">Problem Suspect 10</span><br />
+				84,857 instances of "org.eclipse.swt.widgets.TreeItem", loaded by "org.eclipse.swt" occupy 30,539,432 (13.00%) bytes. <br />
+<br />
+Most of these instances are referenced from one instance of "org.eclipse.swt.widgets.TreeItem[]", loaded by "org.eclipse.swt", which occupies 339,216 (0.14%) bytes. <br />
+<br />
+Thread "java.lang.Thread @ 0x604802e10 main" has a local variable or reference to "org.eclipse.swt.widgets.Shell @ 0x604e4d848" which is on the shortest path to "org.eclipse.swt.widgets.TreeItem[84800] @ 0x61bc96500". The thread java.lang.Thread @ 0x604802e10 main keeps local variables with total size 41,544 (0.02%) bytes.<br />
+<br />
+Significant stack frames and local variables<br />
+	org.eclipse.mat.ui.internal.diagnostics.DiagnosticsWizardAction.run()V (DiagnosticsWizardAction.java:45)<br />
+		org.eclipse.swt.widgets.Shell @ 0x604e4d848 retains 2,616 (0.00%) bytes<br />
+<br />
+The stacktrace of this Thread is available. See stacktrace. See stacktrace with involved local variables.<br />
+<br />
+Keywords<br />
+org.eclipse.swt.widgets.TreeItem<br />
+org.eclipse.swt<br />
+org.eclipse.swt.widgets.TreeItem[]<br />
+org.eclipse.mat.ui.internal.diagnostics.DiagnosticsWizardAction.run()V<br />
+DiagnosticsWizardAction.java:45<br />
 				</samp></p>
 
 		</div>
