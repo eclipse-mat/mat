@@ -985,8 +985,12 @@ public class LeakHunterQuery implements IQuery
                 IObject io = suspect.getSuspect();
                 if (io instanceof IClass)
                 {
+                    // Suspect has paths computer with supplied excludes
                     String cn = OQLclassName((IClass)io);
-                    qs.setCommand("merge_shortest_paths SELECT * FROM " + cn + " s WHERE dominatorof(s) = null; -groupby FROM_GC_ROOTS_BY_CLASS -excludes ;"); //$NON-NLS-1$ //$NON-NLS-2$
+                    StringBuilder sb = new StringBuilder("merge_shortest_paths SELECT * FROM "); //$NON-NLS-1$ 
+                    sb.append(cn).append(" s WHERE dominatorof(s) = null; -groupby FROM_GC_ROOTS_BY_CLASS"); //$NON-NLS-1$ 
+                    addExcludes(sb);
+                    qs.setCommand(sb.toString());
                 }
                 composite.addResult(qs);
             }
