@@ -528,6 +528,76 @@ The size of a stack frame is estimated as 8 bytes times the maximum number of ob
 				</dt>
 				<dd>Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>General</uicontrol>
+						<uicontrol>Workspace</uicontrol>
+						<uicontrol>Command for launching System Explorer</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+			This is an option from the Eclipse IDE.
+			Use this option to specify what system command is executed in
+					<wintitle>Heap
+				Dump
+				History</wintitle>
+			for
+					<uicontrol>Show in File System</uicontrol>
+			. The main use is for
+					<menucascade>
+						<uicontrol>Show In</uicontrol>
+						<uicontrol>System Explorer</uicontrol>
+					</menucascade>
+			Platform defaults:
+					<dl>
+						<dlentry>
+							<dt>Windows</dt>
+							<dd>
+								<userinput>explorer /E,/select=${selected_resource_loc}</userinput>
+							</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Linux</dt>
+							<dd>
+								<userinput>dbus-send --print-reply
+							--dest=org.freedesktop.FileManager1
+							/org/freedesktop/FileManager1org.freedesktop.FileManager1.ShowItems
+							array:string:"${selected_resource_uri}" string:""</userinput>
+							</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Mac</dt>
+							<dd>
+								<userinput>open -R "${selected_resource_loc}"</userinput>
+							</dd>
+						</dlentry>
+					</dl>
+			Supported variables:
+					<dl>
+						<dlentry>
+							<dt>
+								<parmname>${selected_resource_loc}</parmname>
+							</dt>
+							<dd>absolute path to the resource</dd>
+						</dlentry>
+						<dlentry>
+							<dt>
+								<parmname>${selected_resource_uri}</parmname>
+							</dt>
+							<dd>file: URI for the resource</dd>
+						</dlentry>
+						<dlentry>
+							<dt>
+								<parmname>${selected_resource_parent_loc}</parmname>
+							</dt>
+							<dd>absolute path to the parent directory</dd>
+						</dlentry>
+					</dl>
+			For older versions of Linux, you can use the nautilus command:
+					<userinput>nautilus "${selected_resource_parent_loc}"</userinput>
+				</dd>
+			</dlentry>
 			</dl>
 			</p>
 		</context>
