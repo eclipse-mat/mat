@@ -560,6 +560,85 @@ The size of a stack frame is estimated as 8 bytes times the maximum number of ob
 				<dd class="dd">Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 
 			
+			
+				<dt class="dt dlterm">
+					<span class="ph menucascade"><span class="ph uicontrol">General</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Workspace</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Command for launching System Explorer</span></span>
+				</dt>
+
+				<dd class="dd">
+			This is an option from the Eclipse IDE.
+			Use this option to specify what system command is executed in
+					<span class="keyword wintitle">Heap
+				Dump
+				History</span>
+			for
+					<span class="ph uicontrol">Show in File System</span>
+			. The main use is for
+					<span class="ph menucascade"><span class="ph uicontrol">Show In</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">System Explorer</span></span>
+			Platform defaults:
+					<dl class="dl">
+						
+							<dt class="dt dlterm">Windows</dt>
+
+							<dd class="dd">
+								<kbd class="ph userinput">explorer /E,/select=${selected_resource_loc}</kbd>
+							</dd>
+
+						
+						
+							<dt class="dt dlterm">Linux</dt>
+
+							<dd class="dd">
+								<kbd class="ph userinput">dbus-send --print-reply
+							--dest=org.freedesktop.FileManager1
+							/org/freedesktop/FileManager1org.freedesktop.FileManager1.ShowItems
+							array:string:"${selected_resource_uri}" string:""</kbd>
+							</dd>
+
+						
+						
+							<dt class="dt dlterm">Mac</dt>
+
+							<dd class="dd">
+								<kbd class="ph userinput">open -R "${selected_resource_loc}"</kbd>
+							</dd>
+
+						
+					</dl>
+
+			Supported variables:
+					<dl class="dl">
+						
+							<dt class="dt dlterm">
+								<span class="keyword parmname">${selected_resource_loc}</span>
+							</dt>
+
+							<dd class="dd">absolute path to the resource</dd>
+
+						
+						
+							<dt class="dt dlterm">
+								<span class="keyword parmname">${selected_resource_uri}</span>
+							</dt>
+
+							<dd class="dd">file: URI for the resource</dd>
+
+						
+						
+							<dt class="dt dlterm">
+								<span class="keyword parmname">${selected_resource_parent_loc}</span>
+							</dt>
+
+							<dd class="dd">absolute path to the parent directory</dd>
+
+						
+					</dl>
+
+			For older versions of Linux, you can use the nautilus command:
+					<kbd class="ph userinput">nautilus "${selected_resource_parent_loc}"</kbd>
+				</dd>
+
+			
 			</dl>
 
 			</div>
