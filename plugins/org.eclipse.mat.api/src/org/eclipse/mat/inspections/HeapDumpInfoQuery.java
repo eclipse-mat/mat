@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,13 @@ import java.beans.SimpleBeanInfo;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.collections.HashEntriesQuery;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -29,7 +34,9 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.ListResult;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
@@ -106,6 +113,9 @@ public class HeapDumpInfoQuery implements IQuery
     @Argument
     public SnapshotInfo info;
 
+    @Argument
+    public ISnapshot snapshot;
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         if (listener.isCanceled())
@@ -114,7 +124,7 @@ public class HeapDumpInfoQuery implements IQuery
         List<TextEntry> entries = new ArrayList<TextEntry>(12);
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_UsedHeapDump, getUsedHeapInMb(info
                         .getUsedHeapSize())));
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumObjects, MessageUtil.format(Messages.HeapDumpInfoQuery_NumObjectsFormat, 
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumObjects, MessageUtil.format(Messages.HeapDumpInfoQuery_NumObjectsFormat,
                         info.getNumberOfObjects())));
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClasses, MessageUtil.format(Messages.HeapDumpInfoQuery_NumClassesFormat,
                         info.getNumberOfClasses())));
@@ -123,7 +133,7 @@ public class HeapDumpInfoQuery implements IQuery
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumGCRoots, MessageUtil.format(Messages.HeapDumpInfoQuery_NumGCRootsFormat,
                         info.getNumberOfGCRoots())));
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_HeapFormat, info.getProperty("$heapFormat").toString())); //$NON-NLS-1$
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_JVMVersion, info.getJvmInfo()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_JVMVersion, getJvmInfo(listener)));
         if (info.getCreationDate() != null)
         {
             entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Time, MessageUtil.format(Messages.HeapDumpInfoQuery_TimeFormat, info.getCreationDate())));
@@ -135,7 +145,7 @@ public class HeapDumpInfoQuery implements IQuery
             entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Date, null));
         }
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_IdentifierSize, getSize(info.getIdentifierSize())));
-        if (info.getIdentifierSize() == 8) 
+        if (info.getIdentifierSize() == 8)
         {
             Boolean useCompressedOops = (Boolean) info.getProperty("$useCompressedOops"); //$NON-NLS-1$
             if (useCompressedOops != null)
@@ -194,6 +204,76 @@ public class HeapDumpInfoQuery implements IQuery
                 return Messages.HeapDumpInfoQuery_64bit;
             default:
                 return String.valueOf(identifierSize);
+        }
+    }
+
+    /**
+     * Return the typical result from 'java -version'.
+     * @return a String with the JVM version information
+     */
+    private String getJvmInfo(IProgressListener listener) throws SnapshotException
+    {
+        // Available directly from the snapshot info?
+        String v = info.getJvmInfo();
+        if (v != null)
+            return v;
+        // Try from the system properties instead.
+        try
+        {
+            HashEntriesQuery.Result result = (HashEntriesQuery.Result)SnapshotQuery.lookup("system_properties", snapshot).execute(listener); //$NON-NLS-1$
+            if (result == null)
+                return null;
+            int rows = result.getRowCount();
+            Map <String,String> props = new HashMap<String, String>();
+            for (int i = 0; i < rows; ++i)
+            {
+                Object row = result.getRow(i);
+                String key = (String)result.getColumnValue(row, 1);
+                String value = (String)result.getColumnValue(row, 2);
+                props.put(key, value);
+            }
+            StringBuilder sb = new StringBuilder();
+            /*
+             * For example:
+               openjdk version "17.0.4" 2022-07-19
+               OpenJDK Runtime Environment (17.0.4+8)
+               OpenJDK 64-Bit Server VM (build 17.0.4+8, mixed mode)
+             */
+            String version = props.get("java.version"); //$NON-NLS-1$
+            if (version == null || "<null>".equals(version)) //$NON-NLS-1$
+                version = props.get("java.specification.version"); //$NON-NLS-1$
+            if (version == null || "<null>".equals(version)) //$NON-NLS-1$
+                return null;
+            String versionDate = props.get("java.version.date"); //$NON-NLS-1$
+            String runtimeName = props.get("java.runtime.name"); //$NON-NLS-1$
+            String runtimeVersion = props.get("java.runtime.version"); //$NON-NLS-1$
+            String vmName = props.get("java.vm.name"); //$NON-NLS-1$
+            String vminfo = props.get("java.vm.info"); //$NON-NLS-1$
+
+            // java/openjdk (but doesn't do jre)
+            String vname;
+            if (runtimeName != null)
+                vname = runtimeName;
+            else if (vmName != null)
+                vname = vmName;
+            else
+                vname = "java"; //$NON-NLS-1$
+            vname = vname.split("[ (]")[0].toLowerCase(Locale.ROOT); //$NON-NLS-1$
+            sb.append(vname).append(" version \"").append(version).append('"'); //$NON-NLS-1$
+            if (versionDate != null)
+                sb.append(' ').append(versionDate);
+
+            sb.append('\n').append(runtimeName).append(" (") //$NON-NLS-1$
+                .append(runtimeVersion).append(')');
+
+            sb.append('\n').append(vmName).append(" (build ") //$NON-NLS-1$
+                .append(props.get("java.vm.version")).append(", ").append(vminfo) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(')');
+            return sb.toString();
+        }
+        catch (SnapshotException e)
+        {
+            return null;
         }
     }
 }

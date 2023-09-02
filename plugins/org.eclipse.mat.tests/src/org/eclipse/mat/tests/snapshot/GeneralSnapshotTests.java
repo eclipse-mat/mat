@@ -500,6 +500,28 @@ public class GeneralSnapshotTests
     }
 
     @Test
+    public void testHeapDumpOverviewQuery() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("heap_dump_overview", snapshot);
+        IResult result = query.execute(new CheckedProgressListener(collector));
+        assertTrue(result != null);
+        assertThat(result, instanceOf(IResultTable.class));
+        IResultTable t = (IResultTable)result;
+        for (int i = 0; i < t.getRowCount(); ++i)
+        {
+            Object row = t.getRow(i);
+            String key = (String)t.getColumnValue(row, 0);
+            String value = (String)t.getColumnValue(row, 1);
+            if ("JVM version".equals(key))
+            {
+                assertNotNull(value);
+                assertThat(value, not(equalTo("")));
+                return;
+            }
+        }
+    }
+
+    @Test
     public void testOverviewReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
