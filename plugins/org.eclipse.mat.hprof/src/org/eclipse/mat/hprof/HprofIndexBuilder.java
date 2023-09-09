@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -114,6 +114,8 @@ public class HprofIndexBuilder implements IIndexBuilder
         boolean parallel = maxFree > memestimate;
 
         Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference, streamLength, parallel);
+        pass2.stackFrameAlign = pass1.stackFrameAlign;
+        pass2.stackFrameBase = pass1.stackFrameBase;
         pass2.read(file, prefix, dumpNrToRead);
 
         if (listener.isCanceled())

@@ -452,6 +452,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             if (next == 0)
                 continue;
             long diff = next - prev;
+            if (diff == 0)
+                throw new IllegalStateException("dup " + next);
             prev = next;
             if (next == diff)
                 continue;
@@ -1044,6 +1046,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private void addObject(HeapObject object, boolean prepared) throws IOException
     {
+        if (object.objectAddress == 0xcfd6d0)
+            System.out.println("add "+object);
         if (!prepared)
             prepareHeapObject(object);
 

@@ -806,7 +806,7 @@ public class QueriesTest
         RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
         // Check size is filterable
 
-        builder.setFilter(0, "java.lang");
+        builder.setFilter(0, "java\\.lang");
         RefinedTable table = (RefinedTable) builder.build();
         int found = 0;
         for (int i = 0; i < table.getRowCount(); ++i)

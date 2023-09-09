@@ -17,6 +17,7 @@ package org.eclipse.mat.hprof;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
@@ -25,13 +26,14 @@ import java.util.stream.StreamSupport;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
-import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
@@ -53,6 +55,7 @@ public class Pass2Parser extends AbstractParser
     private final String METHODSASCLASSES = HprofPreferences.methodsAsClasses();
     private final boolean READFRAMES = HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
                     || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES);
+    private SetLong frameAddresses = new SetLong();
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference, long streamLength, boolean parallel)
@@ -218,6 +221,16 @@ public class Pass2Parser extends AbstractParser
         return null;
     }
 
+    /**
+     * Converts a frame ID to a pseudo-object address.
+     * @param frameId the ID
+     * @return the address 
+     */
+    private long frameIdToAddress(long frameId)
+    {
+        return stackFrameBase + frameId * stackFrameAlign;
+    }
+
     /*
      * Note the stack frames.
      * Used for methods as classes.
@@ -235,7 +248,7 @@ public class Pass2Parser extends AbstractParser
         String methodSigS = constantPool.get(methodSig);
         IClass decClass = handler.lookupClass(typeAddressO);
         long typeAddress = 0;
-        if (decClass != null)
+        if (decClass != null && HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
         {
             String fullMethodName = decClass.getName() + '.' + methodNameS + methodSigS;
             IClass methodCls = handler.lookupClassByName(fullMethodName, false);
@@ -280,9 +293,8 @@ public class Pass2Parser extends AbstractParser
             }
         }
         // Must match pass 1
-        final long stackFrameBase = 0x100;
-        final long stackFrameAlign = 0x100;
-        long frameAddress = stackFrameBase + frameId * stackFrameAlign;
+        long frameAddress = frameIdToAddress(frameId);
+        frameAddresses.add(frameAddress);
         byte dummyData[] = new byte[100];
         HeapObject heapObject = HeapObject.forInstance(frameAddress, typeAddress, dummyData, filePos, idSize);
         this.handler.addObject(heapObject);
@@ -461,6 +473,14 @@ public class Pass2Parser extends AbstractParser
         byte[] objectData = new byte[bytesFollowing];
         in.readFully(objectData);
 
+        /*
+         * An ExportHPROF dump might already contain stack frame
+         * pseudo-objects as heap objects.
+         * Skip those objects here, as they will also be created
+         * from the stack frame.
+         */
+        if (READFRAMES && frameAddresses.contains(id))
+            return null;
         return HeapObject.forInstance(id, classID, objectData, segmentStartPos, idSize);
     }
 

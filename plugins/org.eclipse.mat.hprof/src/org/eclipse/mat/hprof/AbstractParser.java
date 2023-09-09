@@ -74,6 +74,10 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     // The size of identifiers in the dump file
     protected int idSize;
     protected final HprofPreferences.HprofStrictness strictnessPreference;
+    /** First stack frame address */
+    protected long stackFrameBase = 0x100;
+    /** Alignment of stack frames - should not be stricter than rest of heap */
+    protected long stackFrameAlign = 0x100;
     /*
      * Names used as pseudo-class names
      * Not translatable
@@ -96,6 +100,8 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     static final String DECLARING_CLASS = "declaringClass"; //$NON-NLS-1$
     static final String METHOD_NAME = "methodName"; //$NON-NLS-1$
     static final String FILE_NAME = "fileName"; //$NON-NLS-1$
+    static final String STACK_FRAME_BASE = "stackFrameBase"; //$NON-NLS-1$
+    static final String STACK_FRAME_ALIGN = "stackFrameAlign"; //$NON-NLS-1$
 
     /* package */AbstractParser(HprofPreferences.HprofStrictness strictnessPreference)
     {
