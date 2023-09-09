@@ -29,7 +29,7 @@ public class HprofPreferences
     /** Additional references for classes */
     public static final String ADDITIONAL_CLASS_REFERENCES = "hprofAddClassRefs"; //$NON-NLS-1$
 
-    /** Whether to treat stack frames as psuedo-objects and methods as pseudo-classes */
+    /** Whether to treat stack frames as pseudo-objects and methods as pseudo-classes */
     public static final String P_METHODS = "methodsAsClasses"; //$NON-NLS-1$
     public static final String NO_METHODS_AS_CLASSES = "none"; //$NON-NLS-1$
     public static final String RUNNING_METHODS_AS_CLASSES = "running"; //$NON-NLS-1$

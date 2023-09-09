@@ -1378,6 +1378,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         try
                                         {
                                             newMethodName = getMethodName(jm, listener);
+                                            String newMethodMod =  getModifiers(jm, listener);
+                                            if (!newMethodMod.isEmpty())
+                                                newMethodName = newMethodMod + " " + newMethodName;
                                         }
                                         catch (CorruptDataException e)
                                         {
@@ -1391,6 +1394,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             if (oldJm != null)
                                             {
                                                 oldMethodName = getMethodName(oldJm, listener);
+                                                String oldMethodMod =  getModifiers(oldJm, listener);
+                                                if (!oldMethodMod.isEmpty())
+                                                    oldMethodName = oldMethodMod + " " + oldMethodName;
                                             }
                                             else
                                             {
@@ -2806,8 +2812,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             frameAddress = 0;
         }
-        if (frameAddress == 0 && prevFrameAddress != 0)
-        {  
+        // Native methods sometimes have the same frame address as the caller
+        if (frameAddress == 0 && prevFrameAddress != 0 || frameAddress == prevFrameAddress)
+        {
             frameAddress = prevFrameAddress + (pointerSize + 31) / 32 * 4;
         }
         return frameAddress;

@@ -1362,9 +1362,6 @@ public class GeneralSnapshotTests
     {
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
-        // Currently can't export methods as classes properly
-        if (redact)
-            assumeThat(hasMethods,equalTo(Methods.NONE));
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
         File tmpdir = TestSnapshots.createGeneratedName(fn.getName(), null);
         File newSnapshotFile = new File(tmpdir, fn.getName() + (compress ? "hprof.gz" : "hprof"));
@@ -1420,7 +1417,7 @@ public class GeneralSnapshotTests
                 if (redact)
                 {
                     // Check redaction
-                    String excluded = "java\\..*|(boolean|byte|char|short|int|long|float|double|void)(\\[\\])*";
+                    String excluded = "java\\..*|(boolean|byte|char|short|int|long|float|double|void|<[a-z ]+>)(\\[\\])*";
                     for (IClass cl : snapshot.getClasses())
                     {
                         if (cl.getName().matches(excluded))

@@ -61,6 +61,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.hprof.AbstractParser.Constants;
@@ -142,7 +143,7 @@ public class ExportHprof implements IQuery
     public File mapFile;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    public Pattern skipPattern = Pattern.compile("java\\..*|boolean|byte|char|short|int|long|float|double|void"); //$NON-NLS-1$
+    public Pattern skipPattern = Pattern.compile("java\\..*|boolean|byte|char|short|int|long|float|double|void|<[a-z ]+>"); //$NON-NLS-1$
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "avoid")
     public Pattern avoidPattern = Pattern.compile(Messages.ExportHprof_AvoidExample);
@@ -810,7 +811,7 @@ public class ExportHprof implements IQuery
                     throws SnapshotException, IOException
     {
         dummyStackTrace(os, UNKNOWN_STACK_TRACE_SERIAL, 1);
-        int frameid = 1;
+        long nextFrameid = 1;
         int serialid = UNKNOWN_STACK_TRACE_SERIAL + 1;
         // Find the threads
         for (int i : snapshot.getGCRoots())
@@ -825,9 +826,34 @@ public class ExportHprof implements IQuery
                     if (its == null)
                         continue;
                     // Find the stack frames
-                    int firstframeid = frameid;
+                    ArrayLong frameIds = new ArrayLong();
+                    IObject thread = snapshot.getObject(i);
+                    int frameNumber = 0;
                     for (IStackFrame isf : its.getStackFrames())
                     {
+                        long frameid = 0;
+                        for (NamedReference ref : thread.getOutboundReferences())
+                        {
+                            if (ref instanceof ThreadToLocalReference)
+                            {
+                                ThreadToLocalReference tlr = (ThreadToLocalReference)ref;
+                                for (GCRootInfo rootInfo : tlr.getGcRootInfo())
+                                {
+                                    if (rootInfo.getType() == GCRootInfo.Type.JAVA_STACK_FRAME)
+                                    {
+                                        if (Integer.valueOf(frameNumber).equals(tlr.getObject().resolveValue("frameNumber")))
+                                        {
+                                            frameid = tlr.getObjectAddress();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (frameid == 0)
+                        {
+                            frameid = nextFrameid++;
+                        }
                         String frametext = isf.getText();
                         Frame f = Frame.parse(frametext);
                         String classname = f.clazz;
@@ -858,19 +884,20 @@ public class ExportHprof implements IQuery
                         writeString(os, sourcefile);
                         os.writeInt(clsid);
                         os.writeInt(linenum);
-                        ++frameid;
+                        frameIds.add(frameid);
+                        ++frameNumber;
                     }
                     os.writeByte(Constants.Record.STACK_TRACE);
                     os.writeInt((int) (System.currentTimeMillis() - startTime));
-                    os.writeInt(3 * 4 + (frameid - firstframeid) * idsize);
+                    os.writeInt(3 * 4 + frameIds.size() * idsize);
                     os.writeInt(serialid);
                     Integer prev = threadToStack.put(i, serialid);
                     //if (prev != null && prev != serialid)
                     //    throw new IllegalStateException("thread " + i + "0x" + Long.toHexString(gr.getObjectAddress()) + " " + serialid + " != " + prev); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     ++serialid;
                     os.writeInt(threadToSerial.get(i));
-                    os.writeInt(frameid - firstframeid);
-                    for (int j = firstframeid; j < frameid; ++j)
+                    os.writeInt(frameIds.size());
+                    for (long j : frameIds.toArray())
                     {
                         writeID(os, j);
                     }

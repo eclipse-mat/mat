@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
@@ -55,6 +56,8 @@ public class Pass1Parser extends AbstractParser
     // New size of classes including per-instance fields
     private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
     private final String METHODSASCLASSES = HprofPreferences.methodsAsClasses();
+    private final boolean READFRAMES = HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
+                    || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES);
 
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
     private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
@@ -63,6 +66,7 @@ public class Pass1Parser extends AbstractParser
     private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private HashMapLongObject<String> constantPool = new HashMapLongObject<String>();
+    private SetLong frameObjs;
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
     private long previousArrayStart;
@@ -73,10 +77,10 @@ public class Pass1Parser extends AbstractParser
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
     private BufferingRafPositionInputStream in;
-    /** First stack frame address */
-    private static final long stackFrameBase = 0x100;
-    /** Alignment of stack frames - should not be stricter than rest of heap */
-    private static final long stackFrameAlign = 0x100;
+    /** First stack frame class address */
+    private long stackFrameClassBase = 0x100;
+    /** Alignment of stack frame classes frames - should not be stricter than rest of heap */
+    private long stackFrameClassAlign = 0x100;
 
     public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -587,12 +591,17 @@ public class Pass1Parser extends AbstractParser
         long id = in.readID(idSize);
         int threadSerialNo = in.readInt();
         Long tid = thread2id.get(threadSerialNo);
+        int lineNumber;
+        if (hasLineInfo)
+            lineNumber = in.readInt();
+        else
+            lineNumber = -1;
         if (tid != null)
         {
             // With METHODSASCLASSES instead we add references from the stack
             // frame to the local
             if (!((HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
-                            || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES)) && hasLineInfo))
+                            || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES)) && hasLineInfo && lineNumber >= 0))
                 handler.addGCRoot(id, tid, gcType);
         }
         else
@@ -602,7 +611,6 @@ public class Pass1Parser extends AbstractParser
 
         if (hasLineInfo)
         {
-            int lineNumber = in.readInt();
             List<JavaLocal> locals = thread2locals.get(threadSerialNo);
             if (locals == null)
             {
@@ -803,7 +811,8 @@ public class Pass1Parser extends AbstractParser
 
         checkSkipBytes(payload);
 
-        handler.reportInstanceWithClass(address, segmentStartPos, classID, payload);
+        if (!skipFrameObject(address))
+            handler.reportInstanceWithClass(address, segmentStartPos, classID, payload);
     }
 
     private void readObjectArrayDump(long segmentStartPos) throws IOException
@@ -903,7 +912,7 @@ public class Pass1Parser extends AbstractParser
                         long frameI = stack.frameIds[i];
                         StackFrame frame = id2frame.get(frameI);
                         {
-                            long frameAddress = stackFrameBase + frame.frameId * stackFrameAlign;
+                            long frameAddress = frameIdToAddress(frame.frameId);
                             out.println("    objectId=0x" + Long.toHexString(frameAddress) + ", line=" + (i)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
@@ -975,7 +984,11 @@ public class Pass1Parser extends AbstractParser
     {
         IClass existing = handler.lookupClassByName(className, false);
         if (existing instanceof ClassImpl)
+        {
+            if (clsType instanceof ClassImpl)
+                ((ClassImpl)existing).setClassInstance((ClassImpl) clsType);
             return (ClassImpl)existing;
+        }
         ClassImpl newClass = new ClassImpl(nextAddress, className, superClass, classLoader, flds, desc);
         class2name.put(nextAddress, className);
         // This will be replaced by a size calculated from the field sizes
@@ -990,24 +1003,82 @@ public class Pass1Parser extends AbstractParser
     {
         while (class2name.containsKey(addr))
         {
-            addr += stackFrameAlign;
+            addr += stackFrameClassAlign;
         }
         return addr;
     }
 
-    private void stackFramesAsObjects() throws IOException
+    private void initFrameToAddress()
     {
-        final long rootLoader = 0;
         // Find the biggest frameId
         long maxFrameId = 0;
-        for (long a : id2frame.getAllKeys())
+        long ids[] = id2frame.getAllKeys().clone();
+        Arrays.sort(ids);
+        if (ids.length >= 1)
         {
-            if (a > maxFrameId)
-                maxFrameId = a;
+            maxFrameId = ids[ids.length - 1];
+            long idBits = 0;
+            for (long id : ids)
+            {
+                idBits |= id;
+            }
+            if ((idBits & 0x3) != 0)
+            {
+                stackFrameAlign = 0x100;
+                stackFrameBase = 0x100;
+            }
+            else
+            {
+                stackFrameAlign = 1;
+                stackFrameBase = 0;
+            }
         }
+        long next = frameIdToAddress(maxFrameId + 1);
+        stackFrameClassBase = next + Math.floorMod(next + stackFrameClassAlign, stackFrameClassAlign);
+    }
 
+    /**
+     * Converts a frame ID to a pseudo-object address.
+     * @param frameId the ID
+     * @return the address
+     */
+    private long frameIdToAddress(long frameId)
+    {
+        return stackFrameBase + frameId * stackFrameAlign;
+    }
+
+    private boolean skipFrameObject(long addr)
+    {
+        if (frameObjs == null)
+        {
+            frameObjs = new SetLong();
+            if (READFRAMES)
+            {
+                initFrameToAddress();
+                long ids[] = id2frame.getAllKeys();
+                for (long id : ids)
+                {
+                    frameObjs.add(frameIdToAddress(id));
+                }
+            }
+        }
+        return frameObjs.contains(addr);
+    }
+
+    private long systemClassLoader()
+    {
+        IClass c = handler.lookupClassByName(ClassImpl.JAVA_LANG_CLASS, false);
+        if (c == null)
+            return 0;
+        return c.getClassLoaderAddress();
+    }
+
+    private void stackFramesAsObjects() throws IOException
+    {
+        final long rootLoader = systemClassLoader();
+
+        long nextAddress = stackFrameClassBase;
         // The method addresses come after the stack frames
-        long nextAddress = stackFrameBase + (maxFrameId + 1) * stackFrameAlign;
         nextAddress = nextFreeAddr(nextAddress);
 
         // Equivalent to java.lang.Object
@@ -1026,6 +1097,7 @@ public class Pass1Parser extends AbstractParser
 
         ClassImpl clazzMethod;
         ClassImpl clazzStackFrame;
+        Field[] frameStatics = new Field[0];
         if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
         {
             clazzMethodType = genClass(nextAddress, METHOD_TYPE, clazzNativeMemoryType.getObjectAddress(), rootLoader, new Field[0], new FieldDescriptor[0], clazzNativeMemoryType);
@@ -1037,7 +1109,7 @@ public class Pass1Parser extends AbstractParser
                             new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),
                             new FieldDescriptor(STACK_DEPTH, IObject.Type.INT),
             };
-            clazzMethod = genClass(nextAddress, METHOD, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fldm, clazzMethodType);
+            clazzMethod = genClass(nextAddress, METHOD, clazzNativeMemory.getObjectAddress(), rootLoader, frameStatics, fldm, clazzMethodType);
             nextAddress = nextFreeAddr(nextAddress);
             clazzStackFrame = null;
         }
@@ -1054,7 +1126,7 @@ public class Pass1Parser extends AbstractParser
                             new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
                             new FieldDescriptor(METHOD_NAME, IObject.Type.OBJECT),
             };
-            clazzStackFrame = genClass(nextAddress, STACK_FRAME, clazzNativeMemory.getObjectAddress(), rootLoader, new Field[0], fld, clazzNativeMemoryType);
+            clazzStackFrame = genClass(nextAddress, STACK_FRAME, clazzNativeMemory.getObjectAddress(), rootLoader, frameStatics, fld, clazzNativeMemoryType);
             nextAddress = nextFreeAddr(nextAddress);
         }
 
@@ -1070,7 +1142,7 @@ public class Pass1Parser extends AbstractParser
             {
                 long frameId = st.frameIds[linenum];
                 StackFrame frame = id2frame.get(frameId);
-                long frameAddress = stackFrameBase + frame.frameId * stackFrameAlign;
+                long frameAddress = frameIdToAddress(frame.frameId);
                 long frameType = 0;
                 ClassImpl frameClazz = null;
                 if (HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
@@ -1103,7 +1175,10 @@ public class Pass1Parser extends AbstractParser
                                     {
                                         frameType = e.getKey();
                                         if (cls instanceof ClassImpl)
+                                        {
                                             frameClazz = (ClassImpl)cls;
+                                            frameClazz.setClassInstance(clazzMethodType);
+                                        }
                                         break;
                                     }
                                 }

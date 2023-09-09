@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2013 IBM Corporation.
+ * Copyright (c) 2011,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ package org.eclipse.mat.dtfj;
  */
 public class PreferenceConstants
 {
-	/** Whether to treat stack frames as psuedo-objects and methods as pseudo-classes */
+	/** Whether to treat stack frames as pseudo-objects and methods as pseudo-classes */
     public static final String P_METHODS = "methodsAsClasses"; //$NON-NLS-1$
     public static final String P_SUPPRESS_CLASS_NATIVE_SIZES = "suppressClassNativeSizes"; //$NON-NLS-1$
     public static final String P_RELIABILITY_CHECK = "reliabilityCheck"; //$NON-NLS-1$

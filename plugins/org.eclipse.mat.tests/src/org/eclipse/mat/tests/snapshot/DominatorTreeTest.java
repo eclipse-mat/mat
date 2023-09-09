@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -143,7 +145,7 @@ public class DominatorTreeTest
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_32BIT, false);
         SnapshotQuery query = SnapshotQuery.parse("immediate_dominators char[]", snapshot);
         IResultTable t = (IResultTable) query.execute(new VoidProgressListener());
-        assert t.getRowCount() == 18 : "Expected 18 immediate dominators";
+        assertThat("Immediate dominators char[]", t.getRowCount(), equalTo(18));
     }
     
     @Test
@@ -152,7 +154,7 @@ public class DominatorTreeTest
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_32BIT, false);
         SnapshotQuery query = SnapshotQuery.parse("show_dominator_tree char[]", snapshot);
         IResultTree t = (IResultTree) query.execute(new VoidProgressListener());
-        assert t.getElements().size() == 1341 : "Expected 1341 immediate dominators";
+        assertThat("show dominator tree char[]", t.getElements().size(), equalTo(1341));
     }
     
     private String name(int id, ISnapshot snapshot) throws UnsupportedOperationException, SnapshotException
