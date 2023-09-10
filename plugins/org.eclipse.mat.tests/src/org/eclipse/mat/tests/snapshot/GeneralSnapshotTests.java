@@ -1152,10 +1152,14 @@ public class GeneralSnapshotTests
                         }
                         catch (IllegalArgumentException e)
                         {
-                            if (cmdname.equals("simple_comparison") && snapshot.getSnapshotInfo().getProperty("$heapFormat")
+                            if (cmdname.equals("simplecomparison") && snapshot.getSnapshotInfo().getProperty("$heapFormat")
                                             .equals("DTFJ-PHD") && t.contains("-query system_properties"))
                             {
                                 // This is an acceptable exception
+                            }
+                            else
+                            {
+                                throw new SnapshotException(t, e);
                             }
                         }
                     }
