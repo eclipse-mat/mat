@@ -1157,6 +1157,10 @@ public class GeneralSnapshotTests
                             {
                                 // This is an acceptable exception
                             }
+                            else
+                            {
+                                throw new SnapshotException(t, e);
+                            }
                         }
                     }
                     else if (link.getType() == QueryObjectLink.Type.DETAIL_RESULT)
