@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation.
+ * Copyright (c) 2022,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -77,12 +77,16 @@ public class AllQueries
     }
 
     /**
-     * Everything should have a category.
+     * Nearly everything should have a category.
      */
-    @Ignore
     @Test
     public void testCategory()
     {
+        assumeThat(command, not(equalTo("comparetablesquery")));
+        assumeThat(command, not(equalTo("export_hprof")));
+        assumeThat(command, not(equalTo("show_retained_set")));
+        assumeThat(command, not(equalTo("open_source_file")));
+        assumeThat(command, not(equalTo("immediate_dominators")));
         assertNotNull(qd.getCategory());
     }
 

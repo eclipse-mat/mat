@@ -540,7 +540,6 @@ public class GeneralSnapshotTests
     @Test
     public void testLeakSuspects2Report1() throws SnapshotException, IOException
     {
-        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
@@ -554,7 +553,6 @@ public class GeneralSnapshotTests
     @Test
     public void testLeakSuspects2Report2() throws SnapshotException, IOException
     {
-        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
@@ -568,7 +566,6 @@ public class GeneralSnapshotTests
     @Test
     public void testLeakSuspects2Report3() throws SnapshotException, IOException
     {
-        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-PHD")));
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo("DTFJ-Javacore")));
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
@@ -1151,6 +1148,14 @@ public class GeneralSnapshotTests
                             else
                             {
                                 throw new SnapshotException(t, e);
+                            }
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            if (cmdname.equals("simple_comparison") && snapshot.getSnapshotInfo().getProperty("$heapFormat")
+                                            .equals("DTFJ-PHD") && t.contains("-query system_properties"))
+                            {
+                                // This is an acceptable exception
                             }
                         }
                     }

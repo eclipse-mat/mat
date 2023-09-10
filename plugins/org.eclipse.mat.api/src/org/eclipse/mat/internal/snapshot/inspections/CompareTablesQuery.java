@@ -193,7 +193,7 @@ public class CompareTablesQuery implements IQuery
         // Check key column is present
         for (int i = 0; i < tables.length; ++i)
         {
-            if (keyColumn > tables[i].getColumns().length || keyColumn < 1)
+            if (tables[i] == null || keyColumn > tables[i].getColumns().length || keyColumn < 1)
                 throw new IllegalArgumentException(MessageUtil.format(Messages.CompareTablesQuery_MissingKeyColumn, keyColumn, i + 1));
         }
 
