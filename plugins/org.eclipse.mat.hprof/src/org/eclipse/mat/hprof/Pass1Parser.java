@@ -600,8 +600,7 @@ public class Pass1Parser extends AbstractParser
         {
             // With METHODSASCLASSES instead we add references from the stack
             // frame to the local
-            if (!((HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
-                            || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES)) && hasLineInfo && lineNumber >= 0))
+            if (!(READFRAMES && hasLineInfo && lineNumber >= 0))
                 handler.addGCRoot(id, tid, gcType);
         }
         else
@@ -903,8 +902,7 @@ public class Pass1Parser extends AbstractParser
 
                     }
                 }
-                if (HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
-                                || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+                if (READFRAMES)
                 {
                     // Add the stack frames as extra locals
                     for (int i = 0; i < stack.frameIds.length; ++i)
@@ -943,8 +941,7 @@ public class Pass1Parser extends AbstractParser
             }
         }
 
-        if (HprofPreferences.FRAMES_ONLY.equals(METHODSASCLASSES)
-                        || HprofPreferences.RUNNING_METHODS_AS_CLASSES.equals(METHODSASCLASSES))
+        if (READFRAMES)
         {
             stackFramesAsObjects();
         }
@@ -1178,6 +1175,14 @@ public class Pass1Parser extends AbstractParser
                                         {
                                             frameClazz = (ClassImpl)cls;
                                             frameClazz.setClassInstance(clazzMethodType);
+                                            for (Field f : cls.getStaticFields())
+                                            {
+                                                // The file name is not a real heap java.lang.String object, so fix it up here.
+                                                if (f.getName().equals(FILE_NAME) && f.getType() == Type.OBJECT)
+                                                {
+                                                    f.setValue(frame.sourceFile);
+                                                }
+                                            }
                                         }
                                         break;
                                     }

@@ -143,7 +143,7 @@ public class ExportHprof implements IQuery
     public File mapFile;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    public Pattern skipPattern = Pattern.compile("java\\..*|boolean|byte|char|short|int|long|float|double|void|<[a-z ]+>"); //$NON-NLS-1$
+    public Pattern skipPattern = Pattern.compile("java\\..*|boolean|byte|char|short|int|long|float|double|void|<[a-z ]+>|.*:<[a-zA-Z]+>|.*\\(.*:declaringClass"); //$NON-NLS-1$
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "avoid")
     public Pattern avoidPattern = Pattern.compile(Messages.ExportHprof_AvoidExample);
@@ -920,7 +920,7 @@ public class ExportHprof implements IQuery
         writeID(os, cls.getObjectAddress());
         os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         String classname = cls.getName();
-        classname = remap.renameClassName(classname);
+        classname = remap.renameClassOrMethodName(classname);
         writeString(os, classname);
     }
 
@@ -941,7 +941,7 @@ public class ExportHprof implements IQuery
         if (nextStringID != str)
         {
             String classname = cls.getName();
-            classname = remap.renameClassName(classname);
+            classname = remap.renameClassOrMethodName(classname);
             writeStringUTF(os, os2, startTime, classname, str);
         }
 
@@ -2395,6 +2395,8 @@ public class ExportHprof implements IQuery
             }
             if (!isRemapped(className))
                 return method;
+            if (!isRemapped(className + ":" + method)) //$NON-NLS-1$
+                return method;
             String newcls = renameClassName(className);
             String newmn = remap(mn, newcls + methodSep, method, "", true, upper); //$NON-NLS-1$
             return newmn.substring(newmn.indexOf(methodSep) + 1);
@@ -2495,6 +2497,32 @@ public class ExportHprof implements IQuery
             return remap(classname, newpack, cn, last, false, false);
         }
 
+        /**
+         * Renames a class, or a method pseudo-class.
+         * @param classname the class or class+method name
+         * @return the renamed class name, or the original name if no renaming is to be done for this class
+         */
+        public String renameClassOrMethodName(String classname)
+        {
+            if (obfuscated.containsKey(classname))
+                return obfuscated.get(classname);
+            if (classname.contains("(")) //$NON-NLS-1$
+            {
+                Frame f = Frame.parse("at " + classname); //$NON-NLS-1$
+                String classname1 = f.clazz;
+                String method = f.method;
+                String sig = f.signature;
+                method = renameMethodName(classname1, method, false);
+                sig = renameSignature(sig);
+                String classname2 = renameClassName(classname1) + '.' + method + sig;
+                obfuscated.put(classname, classname2);
+                return classname2;
+            }
+            else
+            {
+                return renameClassName(classname);
+            }
+        }
 
         /**
          * Map a class name or package name to a new name

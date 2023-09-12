@@ -23,11 +23,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
 import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -1384,7 +1383,38 @@ public class GeneralSnapshotTests
             CheckedProgressListener checkListener = new CheckedProgressListener(collector);
             IResult t = query.execute(checkListener);
             assertNotNull(t);
-            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), checkListener);
+
+            /* Also try sometimes re-parsing new HPROF as frames as pseudo-objects */  
+            final String key = "methodsAsClasses";
+            final String hprofPlugin = "org.eclipse.mat.hprof";
+            IEclipsePreferences preferences2 = InstanceScope.INSTANCE.getNode(hprofPlugin);
+            String prev2 = preferences2.get(key, null);
+            if (redact)
+            {
+                if (hasMethods == Methods.RUNNING_METHODS)
+                {
+                    preferences2.put(key, "running");
+                }
+                else if (hasMethods == Methods.FRAMES_ONLY)
+                {
+                    preferences2.put(key, "frames");
+                }
+            }
+
+            ISnapshot newSnapshot;
+            try
+            {
+                newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), checkListener);
+            }
+            finally 
+            {
+                // Restore HPROF
+                if (prev2 != null)
+                    preferences2.put(key, prev2);
+                else
+                    preferences2.remove(key);
+            }
+
             try {
                 assertEquals("Snapshot prefix filename", new File(tmpdir, fn.getName()).getName(), new File(newSnapshot.getSnapshotInfo().getPrefix()).getName());
                 SnapshotInfo oldInfo = snapshot.getSnapshotInfo();
