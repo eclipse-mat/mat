@@ -434,13 +434,31 @@ public class GeneralSnapshotTests
     {
         int methods = 0;
         int methodsWithObjects = 0;
+        int methodObjects = 0;
+        int methodObjectsWithName = 0;
         for (IClass cls : snapshot.getClasses())
         {
             if (cls.getName().contains("(") || cls.getName().equals("<stack frame>"))
             {
                 ++methods;
-                if (cls.getObjectIds().length > 0)
+                int[] objectIds = cls.getObjectIds();
+                if (objectIds.length > 0)
+                {
                     ++methodsWithObjects;
+                   
+                }
+                for (int id : objectIds)
+                {
+                    IObject frame = cls.getSnapshot().getObject(id);
+                    ++methodObjects;
+                    String desc = frame.getClassSpecificName();
+                    if (desc != null && desc.contains(".java"))
+                        ++methodObjectsWithName;
+                    assertThat(frame.getClassSpecificName(), not(nullValue()));
+                    // Get the count of failures instead of the first.
+                    // Every frame should have a source file (unless compiled without debug information.)
+                    //assertThat(frame.getClassSpecificName(), containsString(".java"));
+                }
             }
         }
         if (hasMethods == Methods.ALL_METHODS)
@@ -463,6 +481,7 @@ public class GeneralSnapshotTests
             assertEquals(0, methodsWithObjects);
             assertEquals(0, methods);
         }
+        assertThat(methodObjectsWithName, equalTo(methodObjects));
     }
 
     @Test
