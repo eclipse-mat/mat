@@ -8166,7 +8166,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         long loader = bootLoaderAddress;
         Field statics[] = new Field[0];
-        FieldDescriptor[] fld = new FieldDescriptor[0];
+        FieldDescriptor[] fld = fields;
         ClassImpl ci = new ClassImpl(claddr, cname, superType, loader, statics, fld);
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();

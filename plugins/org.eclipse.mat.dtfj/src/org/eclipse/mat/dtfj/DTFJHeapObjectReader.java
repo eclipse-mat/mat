@@ -33,6 +33,8 @@ import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.Field;
+import org.eclipse.mat.snapshot.model.FieldDescriptor;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -304,74 +306,127 @@ public class DTFJHeapObjectReader implements IObjectReader
                         // These fields should match those in the method
                         // class
                         List<Field> fields = new ArrayList<Field>();
-                        if (!cls.getName().contains(DTFJIndexBuilder.METHOD_NAME_SIG))
+                        boolean useMethodName = false;
+                        for (IClass cls1  = cls; cls1 != null && !useMethodName; cls1 = cls1.getSuperClass())
                         {
+                            for (FieldDescriptor fd : cls1.getFieldDescriptors())
+                            {
+                                if (fd.getName().equals(DTFJIndexBuilder.METHOD_NAME))
+                                {
+                                    useMethodName = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (useMethodName)
+                        {
+                            String methodName;
                             try
                             {
                                 JavaLocation jl = jsf.getLocation();
                                 JavaMethod jm = jl.getMethod();
                                 JavaClass jc = jm.getDeclaringClass();
                                 String name = jc.getName().replace('/', '.');
-                                String methodName = name
+                                methodName = name
                                                 + DTFJIndexBuilder.METHOD_NAME_PREFIX
                                                 + DTFJIndexBuilder.getMethodName(jl.getMethod(),
                                                                 new VoidProgressListener());
-                                Field f = new Field(DTFJIndexBuilder.METHOD_NAME, IObject.Type.OBJECT, methodName);
-                                fields.add(f);
                             }
                             catch (DataUnavailable e)
-                            {}
+                            {
+                                methodName = null;
+                            }
                             catch (CorruptDataException e)
-                            {}
+                            {
+                                methodName = null;
+                            }
+                            Field f = new Field(DTFJIndexBuilder.METHOD_NAME, IObject.Type.OBJECT, methodName);
+                            fields.add(f);
                         }
+                        String fileName;
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field(DTFJIndexBuilder.FILE_NAME, IObject.Type.OBJECT, jl.getFilename());
-                            fields.add(f);
-                        }
-                        catch (DataUnavailable e)
-                        {}
-                        catch (CorruptDataException e)
-                        {}
-                        try
-                        {
-                            JavaLocation jl = jsf.getLocation();
-                            Field f = new Field(DTFJIndexBuilder.LINE_NUMBER, IObject.Type.INT, Integer.valueOf(jl.getLineNumber()));
-                            fields.add(f);
+                            fileName = jl.getFilename();
                         }
                         catch (DataUnavailable e)
-                        {}
+                        {
+                            fileName = null;
+                        }
                         catch (CorruptDataException e)
-                        {}
+                        {
+                            fileName = null;
+                        }
+                        Field f = new Field(DTFJIndexBuilder.FILE_NAME, IObject.Type.OBJECT, fileName);
+                        fields.add(f);
+                        int lineNumber;
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field(DTFJIndexBuilder.COMPILATION_LEVEL, IObject.Type.INT, Integer.valueOf(jl.getCompilationLevel()));
-                            fields.add(f);
-                            boolean nativ = Modifier.isNative(jl.getMethod().getModifiers());
-                            Field f2 = new Field(DTFJIndexBuilder.NATIVE, IObject.Type.BOOLEAN, Boolean.valueOf(nativ));
-                            fields.add(f2);
+                            lineNumber = jl.getLineNumber(); 
+                        }
+                        catch (DataUnavailable e)
+                        {
+                            lineNumber = -1;
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            lineNumber = -1;
+                        }
+                        f = new Field(DTFJIndexBuilder.LINE_NUMBER, IObject.Type.INT, Integer.valueOf(lineNumber));
+                        fields.add(f);
+                        int compLevel;
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            compLevel = jl.getCompilationLevel();
                         }
                         catch (ClassCastException e)
                         {
                             // Sov problem
+                            compLevel = 0;
                         }
                         catch (CorruptDataException e)
-                        {}
+                        {
+                            compLevel = 0;
+                        }
+                        f = new Field(DTFJIndexBuilder.COMPILATION_LEVEL, IObject.Type.INT, Integer.valueOf(compLevel));
+                        fields.add(f);
+                        boolean nativ;
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field(DTFJIndexBuilder.LOCATION_ADDRESS, IObject.Type.LONG, Long.valueOf(jl.getAddress().getAddress()));
-                            fields.add(f);
+                            nativ = Modifier.isNative(jl.getMethod().getModifiers());
                         }
                         catch (ClassCastException e)
                         {
                             // Sov problem
+                            nativ = false;
                         }
                         catch (CorruptDataException e)
-                        {}
-                        Field f = new Field(DTFJIndexBuilder.FRAME_NUMBER, IObject.Type.INT, Integer.valueOf(depth));
+                        {
+                            nativ = false;
+                        }
+                        Field f2 = new Field(DTFJIndexBuilder.NATIVE, IObject.Type.BOOLEAN, Boolean.valueOf(nativ));
+                        fields.add(f2);
+                        long locaddr;
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            locaddr = jl.getAddress().getAddress();
+                        }
+                        catch (ClassCastException e)
+                        {
+                            // Sov problem
+                            locaddr = 0;
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            locaddr = 0;
+                        }
+                        f = new Field(DTFJIndexBuilder.LOCATION_ADDRESS, IObject.Type.LONG, Long.valueOf(locaddr));
+                        fields.add(f);
+                        f = new Field(DTFJIndexBuilder.FRAME_NUMBER, IObject.Type.INT, Integer.valueOf(depth));
                         fields.add(f);
                         f = new Field(DTFJIndexBuilder.STACK_DEPTH, IObject.Type.INT, Integer.valueOf(totalDepth - depth));
                         fields.add(f);

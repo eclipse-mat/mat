@@ -152,19 +152,26 @@ public class HprofRandomAccessParser extends AbstractParser
                             fields.add(f);
                             f = new Field(STACK_DEPTH, IObject.Type.INT, stack.getStackFrames().length - fm);
                             fields.add(f);
-                            for (FieldDescriptor fd : classImpl.getFieldDescriptors())
+                            // For HPROF from DTFJ, <method> might declare FILE_NAME field
+                            for (IClass cls = classImpl; cls != null; cls = cls.getSuperClass())
                             {
-                                if (fd.getName().equals(METHOD_NAME))
+                                for (FieldDescriptor fd : cls.getFieldDescriptors())
                                 {
-                                    String stkLine = frm.getText().replaceFirst("\\s*at\\s+([^ ]+).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
-                                    f = new Field(METHOD_NAME, IObject.Type.OBJECT, stkLine);
-                                    fields.add(f);
-                                }
-                                else if (fd.getName().equals(FILE_NAME))
-                                {
-                                    String stkLine = frm.getText().replaceFirst("\\s*at\\s+[^ ]+\\s+\\(([^:()]+).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
-                                    f = new Field(FILE_NAME, IObject.Type.OBJECT, stkLine);
-                                    fields.add(f);
+                                    if (fd.getName().equals(METHOD_NAME))
+                                    {
+                                        String stkLine = frm.getText().replaceFirst("\\s*at\\s+([^ ]+).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
+                                        f = new Field(METHOD_NAME, IObject.Type.OBJECT, stkLine);
+                                        fields.add(f);
+                                    }
+                                    else if (fd.getName().equals(FILE_NAME))
+                                    {
+                                        String stkLine = frm.getText().replaceFirst("\\s*at\\s+[^ ]+\\s+\\(([^:()]*).*", "$1");  //$NON-NLS-1$ //$NON-NLS-2$
+                                        // E.g. from: at com.ibm.misc.SignalDispatcher.waitForSignal()I ((Native Method))
+                                        if (stkLine.isEmpty())
+                                            stkLine = null;
+                                        f = new Field(FILE_NAME, IObject.Type.OBJECT, stkLine);
+                                        fields.add(f);
+                                    }
                                 }
                             }
                             break l;
