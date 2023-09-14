@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Andrew Johnson/IBM Corporation - com.ibm.icu fixes
+ *    Andrew Johnson/IBM Corporation - com.ibm.icu fixes, notes
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views;
 
@@ -32,6 +32,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
+import org.eclipse.mat.ui.internal.views.NotesView;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.util.MessageUtil;
@@ -378,6 +379,10 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                 Serializable bDiscard_seed = bInfo.getProperty("discard_seed"); //$NON-NLS-1$
                 category.addChild(new Label(org.eclipse.mat.ui.Messages.UIPreferencePage_DiscardSeed, discard_seed, bDiscard_seed));
             }
+            String note = getNotes(info);
+            String noteb = getNotes(bInfo);
+            if (note != null)  
+                category.addChild(new Label(Messages.notes, note, noteb));
 
             category = new Category(Messages.statistic_info);
             elements.add(category);
@@ -421,7 +426,9 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
             final Double fileLength = Double.valueOf((double) osFile.length() / (1024 * 1024));
             category.addChild(new Label(Messages.file_length, fileLength, null));
-
+            String note = getNotes(osFile);
+            if (note != null)
+                category.addChild(new Label(Messages.notes, note, null));
         }
 
         treeViewer.getTree().setRedraw(false);
@@ -430,6 +437,36 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         treeViewer.getTree().setRedraw(true);
     }
 
+    private String getNotes(SnapshotInfo info)
+    {
+        if (info != null)
+        {
+            String path = info.getPath();
+            String pfx = info.getPrefix();
+            if (path == null)
+                return null;
+            // See SnapshotHistoryFile#openFile
+            if (pfx != null && info.getProperty("$runtimeId") != null) //$NON-NLS-1$
+            {
+                return getNotes(new File(pfx + "index")); //$NON-NLS-1$
+            }
+            else
+            {
+                return getNotes(new File(path));
+            }
+        }
+        return null;
+    }
+
+    private String getNotes(File snapshotFile)
+    {
+        String notes = NotesView.readNotes(snapshotFile);
+        // Just use the first line
+        if (notes != null)
+            return notes.split("\n", 2)[0]; //$NON-NLS-1$
+        return null;
+    }
+    
     private long[] unreachableObjects(SnapshotInfo info)
     {
         long discardedObjects = 0;
