@@ -100,6 +100,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         @Override
         protected IPath getSnapshotPath()
         {
+            if (snapshotInput == null)
+                return null;
             return this.snapshotInput.getPath();
         }
 
@@ -381,7 +383,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             }
             String note = getNotes(info);
             String noteb = getNotes(bInfo);
-            if (note != null)
+            if (note != null || noteb != null)
                 category.addChild(new Label(Messages.notes, note, noteb));
 
             category = new Category(Messages.statistic_info);
