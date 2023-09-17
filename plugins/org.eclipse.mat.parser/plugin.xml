@@ -22,7 +22,7 @@
 	
 	<extension point="org.eclipse.core.contenttype.contentTypes">
         <!-- declares a content type for MAT index files -->
-        <content-type id="org.eclipse.mat.Index" name="Eclipse Memory Analyzer index file" 
+        <content-type id="org.eclipse.mat.Index" name="%content-type.name.index.file Eclipse Memory Analyzer index file" 
             priority="normal"
             base-type="org.eclipse.mat.JavaHeapDump"
             file-extensions="index"
