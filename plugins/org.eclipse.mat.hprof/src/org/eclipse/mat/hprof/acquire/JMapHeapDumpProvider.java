@@ -13,17 +13,12 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof.acquire;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.zip.GZIPOutputStream;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -234,11 +229,11 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
             }
             catch (IOException ioe)
             {
-                throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ioe);
+                throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, 0, ioe.getLocalizedMessage(), execLine), ioe);
             }
             catch (InterruptedException ie)
             {
-                throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, ie);
+                throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, 0, ie.getLocalizedMessage(), execLine), ie);
             }
             finally
             {
@@ -255,7 +250,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
             }
             catch (IOException e)
             {
-                throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, e);
+                throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, 0, e.getLocalizedMessage(), preferredLocation), e);
             }
         }
 
@@ -296,24 +291,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
         }
         else
         {
-            int bufsize = 64 * 1024;
-            try (FileInputStream in = new FileInputStream(dump);
-                            InputStream inb = new BufferedInputStream(in, bufsize);
-                            FileOutputStream out = new FileOutputStream(dumpout);
-                            GZIPOutputStream outb = new GZIPOutputStream(out, bufsize))
-            {
-                byte b[] = new byte[bufsize];
-                for (;;)
-                {
-                    if (listener.isCanceled())
-                        return null;
-                    int r = in.read(b);
-                    if (r <= 0)
-                        break;
-                    outb.write(b, 0, r);
-                }
-                outb.flush();
-            }
+            ChunkedGZIPRandomAccessFile.compressFileUnchunked(dump, dumpout);
         }
         if (dump.delete())
         {

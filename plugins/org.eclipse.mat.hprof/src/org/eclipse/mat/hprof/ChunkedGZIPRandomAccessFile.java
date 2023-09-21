@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -508,6 +509,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     {
         Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
         CRC32 crc = new CRC32();
+        /** Chunk size for multi-member gzip files, 0 means no chunks */
         int chunkSize = 1024 * 1024;
         String comment = HPROF_BLOCKSIZE + chunkSize;
         boolean writtenComment = false;
@@ -519,16 +521,43 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
         DeflaterOutputStream dos;
         String fn;
 
+        /**
+         * Create a chunked (multi-member) GZIP output stream. 
+         * @param os The stream into which to put the compressed data.
+         */
         public ChunkedGZIPOutputStream(OutputStream os)
         {
             super(os);
         }
 
+        /**
+         * Create a chunked (multi-member) GZIP output stream. 
+         * @param os The stream into which to put the compressed data.
+         * @param originalFile The original file, for a name and time-stamp in the header, 
+         * or null for no name and the current time.
+         * @param chunkSize the chunk size, or 0 for no multiple members.
+         */
+        public ChunkedGZIPOutputStream(OutputStream os, File originalFile, int chunkSize)
+        {
+            this(os, originalFile);
+            this.chunkSize = chunkSize;
+        }
+
+        /**
+         * Create a chunked (multi-member) GZIP output stream. 
+         * @param os The stream into which to put the compressed data.
+         * @param originalFile The original file, for a name and time-stamp in the header, 
+         * or null for no name and the current time.
+         */
         public ChunkedGZIPOutputStream(OutputStream os, File originalFile)
         {
             super(os);
-            fn = originalFile.getName().replaceFirst(".gz(ip)?$", ""); //$NON-NLS-1$ //$NON-NLS-2$
-            long lastMod = originalFile.lastModified();
+            long lastMod = 0;
+            if (originalFile != null)
+            {
+                fn = originalFile.getName().replaceFirst(".gz(ip)?$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                lastMod = originalFile.lastModified();
+            }
             if (lastMod == 0)
                 lastMod = System.currentTimeMillis();
             lastMod /= 1000;
@@ -538,6 +567,7 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             defaultHeader[5] = (byte)(lastMod >> 8);
             defaultHeader[6] = (byte)(lastMod >> 16);
             defaultHeader[7] = (byte)(lastMod >> 24);
+            // defaultHeader[8] is set to 0 as haven't used Deflater.BEST_COMPRESSION or Deflator.BEST_SPEED
             String opsys = System.getProperty("os.name").toLowerCase(Locale.ROOT); //$NON-NLS-1$
             if (opsys.contains("linux") || opsys.contains("unix") || opsys.contains("aix")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 defaultHeader[9] = 3;
@@ -545,8 +575,25 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
                 defaultHeader[9] = 7;
             else if (opsys.contains("win")) //$NON-NLS-1$
             {
-                // Can't yet distinguish NTFS/FAT/HPFS
-                defaultHeader[9] = 11;
+                // Try to distinguish NTFS/FAT/HPFS
+                String type;
+                try
+                {
+                    if (originalFile != null)
+                        type = Files.getFileStore(originalFile.toPath()).type();
+                    else
+                        type = "NTFS"; //$NON-NLS-1$
+                }
+                catch (IOException e)
+                {
+                    type = "NTFS"; //$NON-NLS-1$
+                }
+                if ("FAT".equals(type)) //$NON-NLS-1$
+                    defaultHeader[9] = 0;
+                else if ("HPFS".equals(type)) //$NON-NLS-1$
+                    defaultHeader[9] = 6;
+                else
+                    defaultHeader[9] = 11;
             } else
                 defaultHeader[9] = (byte)255;
         }
@@ -559,7 +606,8 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             }
             dos.write(b);
             crc.update(b);
-            if (--left <= 0)
+            --left;
+            if (chunkSize != 0 && left <= 0)
             {
                 flush();
             }
@@ -571,13 +619,13 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             {
                 if (writeHeader)
                     header();
-                int len1 = Math.min(len, left);
+                int len1 = chunkSize != 0 ? Math.min(len, left) : len;
                 dos.write(b, offset, len1);
                 crc.update(b, offset, len1);
                 offset += len1;
                 len -= len1;
                 left -= len1;
-                if (left <= 0)
+                if (chunkSize != 0 && left <= 0)
                     flush();
             }
         }
@@ -597,7 +645,9 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
             {
                 out.write(defaultHeader, 0, 3);
                 crc.update(defaultHeader, 0, 3);
-                int flags = defaultHeader[3] | 16; // We have a comment
+                int flags = defaultHeader[3];
+                if (chunkSize != 0)
+                    flags |= 16; // We have a comment
                 if (fn != null)
                     flags |= 8;
                 out.write(flags);
@@ -606,15 +656,22 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
                 crc.update(defaultHeader, 4, 6);
                 if (fn != null)
                 {
-                    out.write(fn.getBytes(StandardCharsets.UTF_8));
-                    crc.update(fn.getBytes(StandardCharsets.UTF_8));
+                    // RFC 1952 requires ISO 8859-1 (LATIN-1)
+                    byte[] fnBytes = fn.getBytes(StandardCharsets.ISO_8859_1);
+                    out.write(fnBytes);
+                    crc.update(fnBytes);
                     out.write(0); // Zero terminate file name
                     crc.update(0);
                 }
-                out.write(comment.getBytes(StandardCharsets.US_ASCII));
-                crc.update(comment.getBytes(StandardCharsets.US_ASCII));
-                out.write(0); // Zero terminate comment
-                crc.update(0);
+                if (chunkSize != 0)
+                {
+                    // RFC 1952 requires ISO 8859-1 (LATIN-1)
+                    byte[] commentBytes = comment.getBytes(StandardCharsets.ISO_8859_1);
+                    out.write(commentBytes);
+                    crc.update(commentBytes);
+                    out.write(0); // Zero terminate comment
+                    crc.update(0);
+                }
                 writtenComment = true;
             }
             if ((defaultHeader[3] & 2) != 0)
@@ -678,8 +735,26 @@ public class ChunkedGZIPRandomAccessFile extends RandomAccessFile
     }
 
     /**
-     * Compressed a file to a chunked gzipped file.
+     * Compressed a file to an unchunked gzipped file, but with more header fields
+     * compared to {@link java.util.zip.GZIPOutputStream}.
      *
+     * @param toCompress The file to gzip.
+     * @param compressed The gzipped file.
+     * @throws IOException On error.
+     */
+    public static void compressFileUnchunked(File toCompress, File compressed) throws IOException
+    {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(toCompress), 64 * 1024);
+             FileOutputStream fos = new FileOutputStream(compressed);
+             OutputStream os = new ChunkedGZIPOutputStream(new BufferedOutputStream(fos, 64 * 1024), toCompress, 0))
+        {
+            FileUtils.copy(is, os);
+        }
+    }
+
+    /**
+     * Compressed a file to a chunked gzipped file.
+     * Note that there is no header CRC.
      * @param toCompress The file to gzip.
      * @param compressed The gzipped file.
      * @throws IOException On error.

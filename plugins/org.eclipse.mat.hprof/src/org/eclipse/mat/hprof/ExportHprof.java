@@ -57,7 +57,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.mat.SnapshotException;
@@ -373,9 +372,13 @@ public class ExportHprof implements IQuery
         if (compress)
         {
             if (chunked)
-                outstream = new ChunkedGZIPRandomAccessFile.ChunkedGZIPOutputStream(outstream);
+            {
+                outstream = new ChunkedGZIPRandomAccessFile.ChunkedGZIPOutputStream(outstream, output);
+            }
             else
-                outstream = new GZIPOutputStream(outstream);
+            {
+                outstream = new ChunkedGZIPRandomAccessFile.ChunkedGZIPOutputStream(outstream, output, 0);
+            }
             // Speeds up compression
             outstream = new BufferedOutputStream(outstream);
         }
@@ -728,7 +731,7 @@ public class ExportHprof implements IQuery
          * at
          * The last sometimes appears from DTFJ dumps in error.
          *
-         * @param frame
+         * @param frame a line of text for stack frame from {@link IStackFrame#getText()}
          * @return a new Frame object holding the parsed components
          */
         public static Frame parse(String frame)
@@ -841,7 +844,7 @@ public class ExportHprof implements IQuery
                                 {
                                     if (rootInfo.getType() == GCRootInfo.Type.JAVA_STACK_FRAME)
                                     {
-                                        if (Integer.valueOf(frameNumber).equals(tlr.getObject().resolveValue("frameNumber")))
+                                        if (Integer.valueOf(frameNumber).equals(tlr.getObject().resolveValue("frameNumber"))) //$NON-NLS-1$
                                         {
                                             frameid = tlr.getObjectAddress();
                                             break;
@@ -1466,8 +1469,8 @@ public class ExportHprof implements IQuery
     /**
      * Find the stack frame in which an object is referenced.
      * Remove it from the list.
-     * @param id
-     * @param objid
+     * @param id the object ID
+     * @param objid an array of frames and their object ids
      * @return the frame number (0-based)
      */
     public int findID(int id, int objid[][])
@@ -2077,7 +2080,7 @@ public class ExportHprof implements IQuery
          * Create a remapper
          * @param skipPattern Remap names unless they match this
          * @param avoidPattern Avoid remapping to names which match this
-         * @param matchFields TODO
+         * @param matchFields matvch field names across classes
          * @param undo Just use existing remappings
          */
         public Remap(Pattern skipPattern, Pattern avoidPattern, boolean matchFields, boolean undo)
@@ -2098,7 +2101,7 @@ public class ExportHprof implements IQuery
          * original.package.Classname=new.package.Classname
          * @param mapFile the Java format properties file
          * @param undo whether to reverse the mappings contained in the file
-         * @throws IOException
+         * @throws IOException if there is a problem reading the mapping file
          */
         public void loadMapping(File mapFile, boolean undo) throws IOException
         {
@@ -2216,7 +2219,7 @@ public class ExportHprof implements IQuery
 
         /**
          * Return the renamed version of a method/type signature
-         * @param sig
+         * @param sig the signature
          * @return null if not renamed
          */
         public String mapSignature(String sig)
@@ -2306,8 +2309,8 @@ public class ExportHprof implements IQuery
 
         /**
          * Rename a file name based on a class name.
-         * @param classname
-         * @param filename
+         * @param classname the class name in Memory Analyzer format
+         * @param filename the Java source file name
          * @return the renamed file name
          */
         public String renameFileName(String classname, String filename)
@@ -2338,7 +2341,7 @@ public class ExportHprof implements IQuery
         /**
          * Rename a method signature.
          * Extract the class names from the Lpack1.class1;II)VLpack2.class2;
-         * @param signature
+         * @param signature the method signature in Memory Analyzer format 
          * @return renamed signature
          */
         public String renameSignature(String signature)
@@ -2380,7 +2383,7 @@ public class ExportHprof implements IQuery
          * HistogramQuery$Grouping.values()
          * HistogramQuery.$SWITCH_TABLE$org$eclipse$mat$inspections$HistogramQuery$Grouping()
          *
-         * @param className
+         * @param className the class name in Memory Analyzer format
          * @param method method name or field name
          * @param upper static field in upper case, else all lower case.
          * @return the renamed method or field name
@@ -2423,7 +2426,7 @@ public class ExportHprof implements IQuery
          * Translates inner classes with '$' piece by piece, reusing existing
          * mapping of outer class.
          *
-         * @param classname
+         * @param classname the class name in Memory Analyzer format
          * @return the renamed class name, or the original name if no renaming is to be done for this class
          */
 
