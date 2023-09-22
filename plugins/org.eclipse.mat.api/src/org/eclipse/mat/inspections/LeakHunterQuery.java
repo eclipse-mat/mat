@@ -1018,12 +1018,16 @@ public class LeakHunterQuery implements IQuery
 
     void addExcludes(StringBuilder sb)
     {
-        if (excludes != null && !excludes.isEmpty())
+        boolean hasDefault = true;
+        if (excludes != null && !excludes.isEmpty() || hasDefault)
         {
             sb.append(" -excludes"); //$NON-NLS-1$
-            for (String ex : excludes)
+            if (excludes != null)
             {
-                sb.append(' ').append(Converters.convertAndEscape(String.class, ex));
+                for (String ex : excludes)
+                {
+                    sb.append(' ').append(Converters.convertAndEscape(String.class, ex));
+                }
             }
             sb.append(';');
         }

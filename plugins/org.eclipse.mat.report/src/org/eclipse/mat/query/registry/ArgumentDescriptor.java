@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - documentation
+ *    IBM Corporation - documentation and more argument processing
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -222,8 +222,13 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 			return;
 		}
 
-		if (isMultiple() && (value == null || ((List<?>) value).isEmpty())) return;
+		// If the supplied argument is missing/null/empty, saying the value of this argument is  we cannot omit it if is non-mandatory and the default is non-empty
+		// Otherwise the default will take effect
+        if (isMultiple() && (value == null || isList() && ((List<?>) value).isEmpty()) && !isMandatory()
+                        && getDefaultValue() == null)
+            return;
 
+        
 		buf.append(" ");
 
 		if (isBoolean())
@@ -257,6 +262,7 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 						buf.append(Converters.convertAndEscape(type, v)).append(" ");
 					}
 				}
+				buf.append("; ");
 			}
 			else
 			{
