@@ -15,6 +15,7 @@ package org.eclipse.mat.ui.snapshot.views;
 
 import java.io.File;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -462,7 +463,15 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
     private String getNotes(File snapshotFile)
     {
-        String notes = NotesView.readNotes(snapshotFile);
+        String notes;
+        try
+        {
+            notes = NotesView.readNotes(snapshotFile);
+        }
+        catch (UncheckedIOException e)
+        {
+            return null;
+        }
         // Just use the first line
         if (notes != null)
             return notes.split("\n", 2)[0]; //$NON-NLS-1$

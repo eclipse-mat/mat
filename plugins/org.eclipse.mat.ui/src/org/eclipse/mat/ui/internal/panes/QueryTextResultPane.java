@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -240,7 +240,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                         File p = r.getFile().getParentFile();
                         File styles = new File(p, "styles.css"); //$NON-NLS-1$
                         File stylesDark = new File(p, "styles-dark.css"); //$NON-NLS-1$
-                        if (styles.canWrite() && stylesDark.canRead())
+                        if (styles.canWrite() && stylesDark.canRead() && stylesDark.isFile())
                         {
                             try
                             {
