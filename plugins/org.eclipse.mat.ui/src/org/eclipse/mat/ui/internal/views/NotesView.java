@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -598,59 +599,51 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
      * snapshot resource.
      * @param resourcePath The editor file (snapshot or index file).
      * @return The contents of the notes file, lines separated by \n.
+     * @throws {@link UncheckedIOException} for some IO errors.
      */
     public static String readNotes(File resourcePath)
     {
-        try
+        if (resourcePath != null)
         {
-            if (resourcePath != null)
+            File notesFile = getDefaultNotesFile(resourcePath);
+            if (notesFile.canRead() && notesFile.isFile())
             {
-                File notesFile = getDefaultNotesFile(resourcePath);
-                if (notesFile.canRead())
+                try (FileInputStream fileInput = new FileInputStream(notesFile))
                 {
-                    FileInputStream fileInput = new FileInputStream(getDefaultNotesFile(resourcePath));
+                    BufferedReader myInput = new BufferedReader(new InputStreamReader(fileInput, NOTES_ENCODING));
+
                     try
                     {
-                        BufferedReader myInput = new BufferedReader(new InputStreamReader(fileInput, NOTES_ENCODING));
-
-                        try
+                        String s;
+                        StringBuffer b = new StringBuffer();
+                        while ((s = myInput.readLine()) != null)
                         {
-                            String s;
-                            StringBuffer b = new StringBuffer();
-                            while ((s = myInput.readLine()) != null)
-                            {
-                                b.append(s);
-                                b.append("\n");//$NON-NLS-1$
-                            }
-                            return b.toString();
+                            b.append(s);
+                            b.append("\n");//$NON-NLS-1$
                         }
-                        finally
-                        {
-                            try
-                            {
-                                myInput.close();
-                            }
-                            catch (IOException ignore)
-                            {}
-                        }
-                    } 
+                        return b.toString();
+                    }
                     finally
                     {
-                        fileInput.close();
+                        try
+                        {
+                            myInput.close();
+                        }
+                        catch (IOException ignore)
+                        {}
                     }
                 }
+                catch (FileNotFoundException e)
+                {
+                    throw new UncheckedIOException(notesFile.getPath(), e);
+                }
+                catch (IOException e)
+                {
+                    throw new UncheckedIOException(notesFile.getPath(), e);
+                }
             }
-
-            return null;
         }
-        catch (FileNotFoundException e)
-        {
-            throw new RuntimeException(e);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        return null;
     }
 
     private static void saveNotes(File resource, String notes)

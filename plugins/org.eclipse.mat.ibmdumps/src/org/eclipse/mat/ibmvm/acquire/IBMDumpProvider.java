@@ -621,7 +621,7 @@ public class IBMDumpProvider extends BaseProvider
                     {
                         f = new File(f, "lib"); //$NON-NLS-1$
                         f = new File(f, "tools.jar"); //$NON-NLS-1$
-                        if (f.canRead())
+                        if (f.canRead() && f.isFile())
                         {
                             try
                             {
@@ -1118,7 +1118,7 @@ public class IBMDumpProvider extends BaseProvider
 
     private static synchronized File getAgentJar() throws IOException
     {
-        if (agentJar == null || !agentJar.canRead())
+        if (agentJar == null || !agentJar.canRead() || !agentJar.isFile())
         {
             agentJar = makeAgentJar();
         }

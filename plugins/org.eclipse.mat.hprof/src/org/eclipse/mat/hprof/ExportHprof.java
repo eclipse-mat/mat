@@ -2105,7 +2105,7 @@ public class ExportHprof implements IQuery
          */
         public void loadMapping(File mapFile, boolean undo) throws IOException
         {
-            if (mapFile != null && mapFile.canRead())
+            if (mapFile != null && mapFile.canRead() && mapFile.isFile())
             {
                 Properties p = new Properties();
                 // Properties always written in ISO8859_1, so use stream

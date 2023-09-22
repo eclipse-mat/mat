@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 IBM Corporation
+ * Copyright (c) 2010, 2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -196,7 +196,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                             .getString("IBMSystemDumpProvider.ReturnCode"), jextract.getAbsolutePath(), exitCode, errorBuf.toString())); //$NON-NLS-1$
             }
 
-            if (!dumpout.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
+            if (!(dumpout.canRead() && dumpout.isFile())) { throw new FileNotFoundException(MessageFormat.format(Messages
                             .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
             }
 

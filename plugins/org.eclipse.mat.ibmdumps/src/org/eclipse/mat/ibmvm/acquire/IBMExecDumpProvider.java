@@ -242,7 +242,7 @@ public class IBMExecDumpProvider extends BaseProvider
                     }
                     listener.done();
                     File file = new File(filename);
-                    if (!file.canRead())
+                    if (!file.canRead() || !file.isFile())
                     {
                         // Does it looks like an error message?
                         if (err.length() > 0 || ss.length > 1)
@@ -832,7 +832,7 @@ public class IBMExecDumpProvider extends BaseProvider
 
     static synchronized File getExecJar() throws IOException
     {
-        if (execJar == null || !execJar.canRead())
+        if (execJar == null || !execJar.canRead() || !execJar.isFile())
         {
             String jarname = "org.eclipse.mat.ibmexecdumps"; //$NON-NLS-1$
             // Must add all classes in IBMDumpProvider.java
