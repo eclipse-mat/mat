@@ -461,11 +461,12 @@ public class LeakHunterQuery implements IQuery
         {
             IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
                             .setArgument("object", describedObject) //$NON-NLS-1$
+                            .setArgument("excludes", excludes) //$NON-NLS-1$
                             .execute(listener);
             qspath = new QuerySpec(Messages.LeakHunterQuery_ShortestPaths, result);
             StringBuilder sb = new StringBuilder("path2gc"); //$NON-NLS-1$
             sb.append(" 0x").append(Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
-            //addExcludes(sb);
+            addExcludes(sb);
             qspath.setCommand(sb.toString());
             // See if the end of the path is a thread
             if (!isThreadRelated && result instanceof IResultTree && result instanceof ISelectionProvider)
@@ -1022,12 +1023,16 @@ public class LeakHunterQuery implements IQuery
         if (excludes != null && !excludes.isEmpty() || hasDefault)
         {
             sb.append(" -excludes"); //$NON-NLS-1$
-            if (excludes != null)
+            if (excludes != null && !excludes.isEmpty())
             {
                 for (String ex : excludes)
                 {
                     sb.append(' ').append(Converters.convertAndEscape(String.class, ex));
                 }
+            }
+            else
+            {
+                sb.append(' ');
             }
             sb.append(';');
         }
@@ -1345,6 +1350,7 @@ public class LeakHunterQuery implements IQuery
                 {
                     IResultTree tree = (IResultTree) SnapshotQuery.lookup("merge_shortest_paths", snapshot) //$NON-NLS-1$
                                     .setArgument("objects", acc) //$NON-NLS-1$
+                                    .setArgument("excludes", excludes) //$NON-NLS-1$
                                     .execute(listener);
                     for (Object row : tree.getElements())
                     {
