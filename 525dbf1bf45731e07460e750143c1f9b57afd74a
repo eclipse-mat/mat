@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb92793e_819c1475",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-09-25T14:23:37Z",
+      "side": 1,
+      "message": "I think the problem now is that the original file is seen as binary, even if the latest isn\u0027t. Compare Patchset 3 and Patchset 4 gives a text compare.\nPerhaps it will be better on the next change to those files.",
+      "revId": "525dbf1bf45731e07460e750143c1f9b57afd74a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
