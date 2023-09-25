@@ -16,6 +16,24 @@
       "message": "This works on my machine.\nDoes it work for you?",
       "revId": "0173060a5e06484b27bef8eb2a755b710fb39f6a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67dd635e_e8147177",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2023-09-25T11:06:28Z",
+      "side": 1,
+      "message": "Yes, this worked also for me after removing the cmd line arguments from my workaround (it is already merged). I think you can remove my workaround in parent/pom.xml and merge these changes. Or merge them as they are and I\u0027ll remove my workaround.",
+      "parentUuid": "e313064c_e8d1b684",
+      "revId": "0173060a5e06484b27bef8eb2a755b710fb39f6a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
