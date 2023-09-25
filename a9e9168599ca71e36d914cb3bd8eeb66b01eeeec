@@ -33,6 +33,24 @@
       "message": "A guess is that some files have a mixture of line endings. E.g. o.e.mat.hprof/pom.xml\n\nline 2: CR\nline 8,9: LF\nothers: CR/LF (for me on Windows).\n\nPerhaps Gerrit has got stricter. Try standardizing the line endings.",
       "revId": "a9e9168599ca71e36d914cb3bd8eeb66b01eeeec",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc3efaff_fe7eb8f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2023-09-25T14:20:00Z",
+      "side": 1,
+      "message": "I tried on plugins/org.eclipse.mat.hprof/pom.xml . As far as I can see in my editor all endings are now the same (CRLF). Still the file is shown as binary...",
+      "parentUuid": "d633d830_4c022251",
+      "revId": "a9e9168599ca71e36d914cb3bd8eeb66b01eeeec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
