@@ -317,7 +317,7 @@
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<argLine>-ea -Xmx1536m --add-exports=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED</argLine>
+						<argLine>-ea -Xmx1536m --add-exports=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED -Duser.language=en -Duser.region=US</argLine>
 						<!--  debugging OOM on CI - make the temp files appear in the workspace -->
 						<!--  <argLine>-ea -Xmx1024m -Djava.io.tmpdir=. -XX:+HeapDumpOnOutOfMemoryError</argLine>-->
 						<!-- <testFailureIgnore>true</testFailureIgnore> -->
