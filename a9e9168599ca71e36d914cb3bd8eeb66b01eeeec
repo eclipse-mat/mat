@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adf00b85_50f2e3b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2023-09-25T13:18:32Z",
+      "side": 1,
+      "message": "@Andrew, I see a few of the files marked as binary (e.g. o.e.m.hprof/pom.xml). Do you have issues with viewing these as text? Looking around I found some posts that it might be because of utf-16, but as far as I can see my local files still have utf-8...\nI am just wondering if this is something I brought with this change, or if it was as this already before...",
+      "revId": "a9e9168599ca71e36d914cb3bd8eeb66b01eeeec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
