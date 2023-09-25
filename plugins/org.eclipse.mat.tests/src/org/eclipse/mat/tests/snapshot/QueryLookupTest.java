@@ -19,6 +19,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -750,9 +751,28 @@ public class QueryLookupTest
                      * approximate values outside limit range can't be
                      * converted to a plain number which can be printed
                      * without conversion.
+                     * Note: Unicode Character 'ALMOST EQUAL TO' (U+2248)
                      */
                     if (v < limit && v >= -limit || !s.contains("\u2248"))
-                        assertTrue(colIdx+":"+c.getLabel()+" "+f.toString() +" " + vc + "\n" + v + "\n" + d2 + "\n" + s + "\n" + s2, s2.matches("[+-]?[0-9,]+(\\.[0-9]{1,20})?(\\s?%)?"));
+                    {
+                        /*
+                         * Allow:
+                         *  plus
+                         *  minus             US,GB,IN,DE,FR
+                         *  minus sign \u2212 NO
+                         * Allow:
+                         *  comma US,GB,IN
+                         *  dot   DE,FR
+                         *  non-breaking space NO
+                         * for grouping separator.
+                         * Allow
+                         *  dot   US,GB,IN
+                         *  comma DE,FR,NO
+                         * for decimal separator.
+                         * Might break for obscure locales.
+                         */
+                        assertThat(colIdx+":"+c.getLabel()+" "+f.toString() +" " + vc + "\n" + v + "\n" + d2 + "\n" + s + "\n" + s2, s2, matchesPattern("[+-\u2212]?[0-9,.\u00A0]+([.,][0-9]{1,20})?(\\s?%)?"));
+                    }
                 }
             }
         }
