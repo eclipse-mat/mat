@@ -92,6 +92,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.AfterParam;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.ibm.icu.text.DecimalFormatSymbols;
+
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
 {
@@ -1243,6 +1245,8 @@ public class GeneralSnapshotTests
 
     /**
      * Check a CSV (comma separated value) file.
+     * Checks that each line has the same number of fields as
+     * the first line, which is probably the header row.
      */
     private void checkCSV(File f, String s)
     {
@@ -1253,10 +1257,11 @@ public class GeneralSnapshotTests
         }
     }
 
+    private static final char SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ';' : ',';
     /**
      * Split a CSV file into lines and fields
-     * @param f
-     * @param s
+     * @param f the file
+     * @param s the contents of the file
      * @return a list of lists of fields
      */
     public List<List<String>>split(File f, String s) {
@@ -1293,11 +1298,6 @@ public class GeneralSnapshotTests
                             prevquote = false;
                         }
                         break;
-                    case ',':
-                        assertFalse(f+" "+s, prevcr);
-                        res.add(sb.toString());
-                        sb.setLength(0);
-                        break;
                     case '\r':
                         assertFalse(f+" "+s, prevcr);
                         prevcr = true;
@@ -1309,6 +1309,18 @@ public class GeneralSnapshotTests
                         res1.add(res);
                         res = new ArrayList<String>();
                         break;
+                    case ',':
+                    case ';':
+                        // CSVOutputter is locale dependent.
+                        // The field separator depends on the locale.
+                        if (c == SEPARATOR)
+                        {
+                            assertFalse(f+" "+s, prevcr);
+                            res.add(sb.toString());
+                            sb.setLength(0);
+                            break;
+                        }
+                        //$FALL-THROUGH$
                     default:
                         assertFalse(f+" "+s, prevcr);
                         sb.append(c);
