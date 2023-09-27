@@ -375,8 +375,6 @@
 								<removeAll />
 							</filter>
 						</filters>
-
-						<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					</configuration>
 				</plugin>
 				<plugin>
