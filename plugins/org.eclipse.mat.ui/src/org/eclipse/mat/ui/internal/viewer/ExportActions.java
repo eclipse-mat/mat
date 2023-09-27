@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,15 +14,21 @@
 package org.eclipse.mat.ui.internal.viewer;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -240,29 +246,36 @@ import org.eclipse.swt.widgets.TreeItem;
                 @Override
                 protected IStatus run(IProgressMonitor monitor)
                 {
-                    PrintWriter writer = null;
-
                     try
                     {
                         IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());//$NON-NLS-1$
                         if (outputter == null)
                             throw new UnsupportedOperationException(Messages.ExportActions_ExportCSV);
-                        writer = new PrintWriter(new FileWriter(fileName));
-                        outputter.process(new ContextImpl(queryContext, //
-                                        new File(fileName).getParentFile()), result, writer);
-                        writer.flush();
-                        writer.close();
+                        Charset cs;
+                        try
+                        {   
+                            String encoding = ResourcesPlugin.getEncoding();
+                            if (encoding != null)
+                                cs = Charset.forName(encoding);
+                            else
+                                cs = StandardCharsets.UTF_8;
+                        }
+                        catch (UnsupportedCharsetException e)
+                        {
+                            cs = StandardCharsets.UTF_8;
+                        }
+                        try (FileOutputStream fos = new FileOutputStream(fileName);
+                             Writer w = new OutputStreamWriter(fos, cs);
+                             PrintWriter writer = new PrintWriter(w))
+                        {
+                            outputter.process(new ContextImpl(queryContext, //
+                                            new File(fileName).getParentFile()), result, writer);
+                        }
                     }
                     catch (IOException | UnsupportedOperationException e)
                     {
                         return ErrorHelper.createErrorStatus(e);
                     }
-                    finally
-                    {
-                        if (writer != null)
-                            writer.close();
-                    }
-
                     return Status.OK_STATUS;
                 }
 
@@ -308,27 +321,35 @@ import org.eclipse.swt.widgets.TreeItem;
                 @Override
                 protected IStatus run(IProgressMonitor monitor)
                 {
-                    PrintWriter writer = null;
-
                     try
                     {
                         IOutputter outputter = RendererRegistry.instance().match("txt", result.getClass());//$NON-NLS-1$
                         if (outputter == null)
                             throw new UnsupportedOperationException(Messages.ExportActions_ExportTXT);
-                        writer = new PrintWriter(new FileWriter(fileName));
-                        outputter.process(new ContextImpl(queryContext, //
-                                        new File(fileName).getParentFile()), result, writer);
-                        writer.flush();
-                        writer.close();
+                        Charset cs;
+                        try
+                        {   
+                            String encoding = ResourcesPlugin.getEncoding();
+                            if (encoding != null)
+                                cs = Charset.forName(encoding);
+                            else
+                                cs = StandardCharsets.UTF_8;
+                        }
+                        catch (UnsupportedCharsetException e)
+                        {
+                            cs = StandardCharsets.UTF_8;
+                        }
+                        try (FileOutputStream fos = new FileOutputStream(fileName);
+                             Writer w = new OutputStreamWriter(fos, cs);
+                             PrintWriter writer = new PrintWriter(fos))
+                        {
+                            outputter.process(new ContextImpl(queryContext, //
+                                            new File(fileName).getParentFile()), result, writer);
+                        }
                     }
                     catch (IOException | UnsupportedOperationException e)
                     {
                         return ErrorHelper.createErrorStatus(e);
-                    }
-                    finally
-                    {
-                        if (writer != null)
-                            writer.close();
                     }
 
                     return Status.OK_STATUS;
