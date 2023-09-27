@@ -8,10 +8,11 @@ Require-Bundle: org.eclipse.mat.api;bundle-version="1.0.0",
  org.eclipse.mat.parser;bundle-version="1.15.0",
  org.eclipse.mat.hprof;bundle-version="1.15.0",
  org.eclipse.core.runtime;bundle-version="3.4",
+ org.eclipse.core.resources;bundle-version="3.3.0",
  org.apache.ant;bundle-version="1.7.0",
  org.eclipse.mat.ui;bundle-version="1.15.0",
  org.hamcrest.core,
- org.hamcrest.library 
+ org.hamcrest.library
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
  junit.framework;version="4.3.1",

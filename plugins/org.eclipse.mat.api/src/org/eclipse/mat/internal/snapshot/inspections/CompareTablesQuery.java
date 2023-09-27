@@ -14,11 +14,15 @@ package org.eclipse.mat.internal.snapshot.inspections;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
@@ -36,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
@@ -493,7 +498,8 @@ public class CompareTablesQuery implements IQuery
 
     /**
      * Read from a file.
-     * @return
+     * @return an array of strings of lines from the file,
+     * not including line termination characters.
      * @throws IOException
      */
     private String[] getLinesFromFile() throws IOException
@@ -501,25 +507,31 @@ public class CompareTablesQuery implements IQuery
         if (extraReferencesListFile == null)
             return null;
 
-        BufferedReader in = null;
         List<String> result = new ArrayList<String>();
+        Charset cs;
         try
+        {   
+            String encoding = ResourcesPlugin.getEncoding();
+            if (encoding != null)
+                cs = Charset.forName(encoding);
+            else
+                cs = StandardCharsets.UTF_8;
+        }
+        catch (UnsupportedCharsetException e)
         {
-            in = new BufferedReader(new FileReader(extraReferencesListFile));
+            cs = StandardCharsets.UTF_8;
+        }
+        try (FileInputStream fis = new FileInputStream(extraReferencesListFile);
+             InputStreamReader isr = new InputStreamReader(fis, cs);
+             BufferedReader in = new BufferedReader(isr))
+        {
             String line = null;
             while ((line = in.readLine()) != null)
             {
                 result.add(line);
             }
         }
-        finally
-        {
-            if (in != null)
-            {
-                in.close();
-            }
-        }
-        return result.toArray(new String[0]);
+        return result.toArray(new String[result.size()]);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2023 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,12 +9,18 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - charset
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.internal.Messages;
@@ -145,30 +152,36 @@ public class CustomizedRetainedSetQuery implements IQuery
         return result;
     }
 
-    private String[] getLinesFromFile() throws Exception
+    private String[] getLinesFromFile() throws IOException
     {
         if (excludedReferencesListFile == null)
             return null;
 
-        BufferedReader in = null;
         List<String> result = new ArrayList<String>();
+        Charset cs;
         try
+        {   
+            String encoding = ResourcesPlugin.getEncoding();
+            if (encoding != null)
+                cs = Charset.forName(encoding);
+            else
+                cs = StandardCharsets.UTF_8;
+        }
+        catch (UnsupportedCharsetException e)
         {
-            in = new BufferedReader(new FileReader(excludedReferencesListFile));
+            cs = StandardCharsets.UTF_8;
+        }
+        try (FileInputStream fis = new FileInputStream(excludedReferencesListFile);
+             InputStreamReader isr = new InputStreamReader(fis, cs);
+             BufferedReader in = new BufferedReader(isr))
+        {
             String line = null;
             while ((line = in.readLine()) != null)
             {
                 result.add(line);
             }
         }
-        finally
-        {
-            if (in != null)
-            {
-                in.close();
-            }
-        }
-        return result.toArray(new String[0]);
+        return result.toArray(new String[result.size()]);
     }
 
 }

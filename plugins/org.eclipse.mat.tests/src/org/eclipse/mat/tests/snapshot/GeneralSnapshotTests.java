@@ -45,7 +45,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +58,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
@@ -845,7 +847,20 @@ public class GeneralSnapshotTests
         if (seenFile && (anchor == null || seen.containsKey(new File(canonfile.getPath() + "#" + anchor))))
             return;
         String s = seen.get(canonfile);
-        String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+        Charset cs;
+        try
+        {   
+            String encoding = ResourcesPlugin.getEncoding();
+            if (encoding != null)
+                cs = Charset.forName(encoding);
+            else
+                cs = StandardCharsets.UTF_8;
+        }
+        catch (UnsupportedCharsetException e)
+        {
+            cs = StandardCharsets.UTF_8;
+        }
+        String encoding = cs.name();
         if (s == null)
         {
             FileInputStream fis = new FileInputStream(f);
@@ -858,17 +873,8 @@ public class GeneralSnapshotTests
                     // Not HTML or CSV or text
                     return;
                 }
-                try
-                {
-                    // Convert to canonical form
-                    encoding = Charset.forName(encoding).name();
-                }
-                catch (IllegalCharsetNameException e)
-                {
-                    // Ignore
-                }
                 // Read the file into a string
-                try (InputStreamReader ir = new InputStreamReader(fis, encoding);)
+                try (InputStreamReader ir = new InputStreamReader(fis, cs);)
                 {
                     char cbuf[] = new char[(int) f.length()];
                     int l = ir.read(cbuf);
