@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
@@ -102,14 +106,27 @@ public class SaveValueAsQuery implements IQuery
 
     private void writeStringData(IProgressListener listener) throws Exception
     {
-        FileOutputStream out = new FileOutputStream(file);
-
         try
         {
             listener.beginTask(Messages.SaveValueAsQuery_Saving, objects.size());
-            PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, System
-                            .getProperty("file.encoding")))); //$NON-NLS-1$
+            Charset cs;
             try
+            {
+                String encoding = ResourcesPlugin.getEncoding();
+                if (encoding != null)
+                    cs = Charset.forName(encoding);
+                else
+                    cs = StandardCharsets.UTF_8;
+            }
+            catch (UnsupportedCharsetException e)
+            {
+                cs = StandardCharsets.UTF_8;
+            }
+            try (FileOutputStream out = new FileOutputStream(file);
+                 OutputStreamWriter os = new OutputStreamWriter(out, cs);
+                 BufferedWriter br = new BufferedWriter(os);
+                 PrintWriter writer = new PrintWriter(br);
+            )
             {
 
                 boolean isFirst = true;
@@ -155,15 +172,10 @@ public class SaveValueAsQuery implements IQuery
 
                 writer.flush();
             }
-            finally
-            {
-                writer.close();
-            }
         }
         finally
         {
             listener.done();
-            out.close();
         }
     }
 
