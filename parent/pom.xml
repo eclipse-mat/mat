@@ -54,6 +54,10 @@
 		<cbi-repo-url>https://repo.eclipse.org/content/repositories/cbi-releases/</cbi-repo-url>
 		<cbi-plugins.version>1.3.1</cbi-plugins.version>
 		<macSigner.forceContinue>false</macSigner.forceContinue>
+
+		<!-- license check -->
+		<dash.fail>true</dash.fail>
+		<dash.projectId>tools.mat</dash.projectId>
 	</properties>
 
 	<profiles>
@@ -64,6 +68,16 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
+			<pluginRepositories>
+				<!-- Following https://github.com/eclipse/dash-licenses#example-maven-plugin -->
+				<pluginRepository>
+					<id>dash-licenses</id>
+					<url>https://repo.eclipse.org/content/repositories/dash-licenses/</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
 			<modules>
 				<!-- target definition -->
 				<module>../org.eclipse.mat.targetdef</module>
@@ -292,6 +306,48 @@
 						</environment>
 					</environments>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.dash</groupId>
+				<artifactId>license-tool-plugin</artifactId>
+				<version>1.0.2</version>
+				<executions>
+					<execution>
+						<id>license-check</id>
+						<goals>
+							<goal>license-check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.cyclonedx</groupId>
+				<artifactId>cyclonedx-maven-plugin</artifactId>
+				<version>2.7.9</version>
+				<configuration>
+					<projectType>library</projectType>
+					<schemaVersion>1.4</schemaVersion>
+					<includeBomSerialNumber>true</includeBomSerialNumber>
+					<includeCompileScope>true</includeCompileScope>
+					<includeProvidedScope>true</includeProvidedScope>
+					<includeRuntimeScope>true</includeRuntimeScope>
+					<includeSystemScope>true</includeSystemScope>
+					<includeTestScope>false</includeTestScope>
+					<includeLicenseText>false</includeLicenseText>
+					<outputReactorProjects>true</outputReactorProjects>
+					<outputFormat>json</outputFormat>
+					<outputName>bom</outputName>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+					<verbose>false</verbose>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>makeAggregateBom</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
