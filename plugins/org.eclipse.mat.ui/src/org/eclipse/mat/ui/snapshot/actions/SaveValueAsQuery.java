@@ -14,11 +14,9 @@
 package org.eclipse.mat.ui.snapshot.actions;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -122,11 +120,7 @@ public class SaveValueAsQuery implements IQuery
             {
                 cs = StandardCharsets.UTF_8;
             }
-            try (FileOutputStream out = new FileOutputStream(file);
-                 OutputStreamWriter os = new OutputStreamWriter(out, cs);
-                 BufferedWriter br = new BufferedWriter(os);
-                 PrintWriter writer = new PrintWriter(br);
-            )
+            try (PrintWriter writer = new PrintWriter(file, cs.name()))
             {
 
                 boolean isFirst = true;
