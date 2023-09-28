@@ -20,10 +20,10 @@
 			<copyryear year=""></copyryear>
 			<copyrholder>
 				Copyright (c) 2008, 2023 SAP AG and others.
-			    All rights reserved. This program and the accompanying materials
-			    are made available under the terms of the Eclipse Public License 2.0
-			    which accompanies this distribution, and is available at
-			    https://www.eclipse.org/legal/epl-2.0/
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License 2.0
+				which accompanies this distribution, and is available at
+				https://www.eclipse.org/legal/epl-2.0/
 			</copyrholder>
 		</copyright>
 	</prolog>
@@ -596,6 +596,36 @@ The size of a stack frame is estimated as 8 bytes times the maximum number of ob
 					</dl>
 			For older versions of Linux, you can use the nautilus command:
 					<userinput>nautilus "${selected_resource_parent_loc}"</userinput>
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>General</uicontrol>
+						<uicontrol>Workspace</uicontrol>
+						<uicontrol>Text file encoding</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>This configures the file encoding used for the following:
+					<ul>
+						<li>Report HTML/CSV/Text file output</li>
+						<li>Export HTML/CSV/Text file output</li>
+						<li>
+							<menucascade>
+								<uicontrol>Copy</uicontrol>
+								<uicontrol>Save Value to File</uicontrol>
+							</menucascade>
+						</li>
+						<li>Queries reading settings from files:
+							<ul>
+								<li>Customized Retained Set -xfile</li>
+								<li>Compare Tables and Trees</li>
+								<li>Find Leaks between Snapshots</li>
+							</ul>
+						</li>
+					</ul>
+					The initial setting is UTF-8, but this may be changed, for example to windows-1252.
+					However, some characters in HTML reports might then not be properly displayed.
 				</dd>
 			</dlentry>
 			</dl>
