@@ -341,7 +341,7 @@ import org.eclipse.swt.widgets.TreeItem;
                         }
                         try (FileOutputStream fos = new FileOutputStream(fileName);
                              Writer w = new OutputStreamWriter(fos, cs);
-                             PrintWriter writer = new PrintWriter(fos))
+                             PrintWriter writer = new PrintWriter(w))
                         {
                             outputter.process(new ContextImpl(queryContext, //
                                             new File(fileName).getParentFile()), result, writer);
