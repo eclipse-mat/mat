@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG.
+    Copyright (c) 2008, 2023 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -50,7 +50,11 @@
 						a good starting point for further analysis.
 						Histogram can be opened by pressing the toolbar
 						button
-						<image href="../mimes/i-histogram.png" />
+						<image href="../mimes/i-histogram.png">
+							<alt>
+								Histogram toolbar button with three vertical bars.
+							</alt>
+						</image>
 						or by activating the action link on the Overview
 						pane. See the <xref href="../gettingstarted/basictutorial.dita#task_basictutorial/histogram">Basic Tutorial</xref>
 						for more information.
@@ -85,7 +89,11 @@
 							The Heap Dump Overview report can be opened
 							via the toolbar:
 						</p>
-						<image href="../mimes/6f9c3893.png"></image>
+						<image href="../mimes/6f9c3893.png">
+							<alt>
+								Heap Dump Overview menu item from Run Expert System Test drop-down menu.
+							</alt>
+						</image>
 						<p>Overview report contains a histogram and a top consumers overview.</p>
 					</stentry>
 				</strow>
@@ -104,22 +112,51 @@
 						The <xref href="iconassist.dita">icon</xref> shows whether the object is a
 						<dl>
 						<dlentry>
-						<dt><image href="../mimes/i-arrayobject.png"></image>
+						<dt>
+							<xref href="iconassist.dita">
+							<image href="../mimes/i-arrayobject.png">
+								<alt>
+									Icon for an array using brackets
+								</alt>
+							</image>
+							</xref>
 						</dt>
 						<dd>an array object</dd>
 						</dlentry>
 						<dlentry>
-						<dt><image href="../mimes/i-classloaderobject.png"></image>
+						<dt>
+							<xref href="iconassist.dita">
+							<image href="../mimes/i-classloaderobject.png">
+								<alt>
+									Icon for a class loader showing a jar container.
+								</alt>
+							</image>
+							</xref>
 						</dt>
 						<dd>a class loader object</dd>
 						</dlentry>
 						<dlentry>
-						<dt><image href="../mimes/i-classobject.png"></image>
+						<dt>
+							<xref href="iconassist.dita">
+							<image href="../mimes/i-classobject.png">
+								<alt>
+									Icon for a class object showing a letter 'C'.
+								</alt>
+							</image>
+							</xref>
 						</dt>
 						<dd>a class object</dd>
 						</dlentry>
 						<dlentry>
-						<dt><image href="../mimes/i-otherobject.png"></image>
+						<dt>
+							<xref href="iconassist.dita">
+							<image href="../mimes/i-otherobject.png">
+								<alt>
+									An icon for a standard object as a blank
+									piece of paper.
+								</alt>
+							</image>
+							</xref>
 						</dt>
 						<dd>a standard object</dd>
 						</dlentry>
@@ -131,13 +168,29 @@
 						and to the right of the object,
 						indicated by
 						the field name or array index as a prefix in <b>bold</b>.
-						The <xref href="iconassist.dita">icons</xref> have an arrow which points down and to the right 
-						<image href="../mimes/i-horefbelow.png"></image>.
+						The <xref href="iconassist.dita">icons</xref> have an arrow which points down and to the right
+							<xref href="iconassist.dita"> 
+							<image href="../mimes/i-horefbelow.png">
+								<alt>
+									Icon of a piece of paper
+									with an arrow at the bottom right pointing down and to the right.
+								</alt>
+							</image>
+							</xref>
+							.
 						</p>
 						<p>
 						In inbound mode the query shows which objects point to the
 						expanded object. In this mode the arrows on the <xref href="iconassist.dita">icons</xref>
-						point up and to the left <image href="../mimes/i-horefabove.png"></image>.
+						point up and to the left
+							<xref href="iconassist.dita"> 
+							<image href="../mimes/i-horefabove.png">
+								<alt>
+									Icon of a piece of paper
+									with an arrow at the top left pointing up and to the left.
+								</alt>
+							</image>.
+							</xref>
 						</p>
 					</stentry>
 				</strow>
@@ -150,11 +203,36 @@
 					The inspector view shows the actual class; the context menu
 					allows operations on all the objects of that class in that row.
 					<p>The color of the class <xref href="iconassist.dita">icon</xref> shows if all the objects in that
-					row are new or not. If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class.png"></image> green
+					row are new or not. If the <xref href="iconassist.dita">icon</xref> is 
+					<xref href="iconassist.dita">
+					<image href="../mimes/i-class.png">
+						<alt>
+							Green circle icon with a letter 'C'.
+						</alt>
+					</image>
+					</xref>
+					green
 					then none of the objects have been shown further up the tree.
-					If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class_old.png"></image> gray
+					If the <xref href="iconassist.dita">icon</xref> is
+					<xref href="iconassist.dita">
+					<image href="../mimes/i-class_old.png">
+						<alt>
+							Gray circle icon with a letter 'C'.
+						</alt>
+					</image>
+					</xref>
+					gray
 					then all of the objects have been shown further up the tree.
-					If the <xref href="iconassist.dita">icon</xref> is <image href="../mimes/i-class_mixed.png"></image>green and gray
+					If the <xref href="iconassist.dita">icon</xref> is
+					<xref href="iconassist.dita">
+					<image href="../mimes/i-class_mixed.png">
+						<alt>
+							Circle icon with a letter 'C',
+							green on the top half and gray at the bottom.
+						</alt>
+					</image>
+					</xref>
+					green and gray
 					then some of the objects have been shown further up the tree.
 					This can be useful when expanding the tree to see whether you
 					are still finding new objects or whether they link back to

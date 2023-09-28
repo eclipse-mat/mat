@@ -20,13 +20,20 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeThat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
@@ -38,7 +45,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.swt.widgets.Display;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -114,16 +120,37 @@ public class AllQueries
 
     /**
      * Not really a URL - just a path into the help.
+     * Like: /org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html
      * @throws MalformedURLException
      */
     @Test
-    public void testHelpUrl() throws MalformedURLException
+    public void testHelpUrl() throws MalformedURLException, IOException
     {
         String helpUrl = qd.getHelpUrl();
+        // Tests don't have help
         assumeThat(qd.getCommandType().getName(),not(startsWith("org.eclipse.mat.tests.")));
-        assumeThat(helpUrl, not(nullValue()));
-        URL url = new URL(new URL("file:///"), helpUrl);
-        assertNotNull(url);
+        // Not all queries have help yet, so skip rather than fail those.
+        assumeThat("Normally should be some help", helpUrl, not(nullValue()));
+        // All the help is currently in the help plugin
+        assertThat(helpUrl, startsWith("/org.eclipse.mat.ui.help/"));
+        URL url = new URL(new URL("platform:/plugin/"), helpUrl.substring(1));
+        URL url2 = FileLocator.find(url);
+        assertThat(url2, not(nullValue()));
+        String encoding = StandardCharsets.UTF_8.name();
+        String s;
+        try (InputStream is = url2.openStream();
+             InputStreamReader isr = new InputStreamReader(is);
+             BufferedReader br = new BufferedReader(isr))
+        {
+            StringBuilder sb = new StringBuilder();
+            String r;
+            while ((r = br.readLine()) != null)
+            {
+                sb.append(r).append('\n');
+            }
+            s = sb.toString();
+        }
+        GeneralSnapshotTests.basicHTMLcheck(url2, s, encoding);
     }
 
     /**

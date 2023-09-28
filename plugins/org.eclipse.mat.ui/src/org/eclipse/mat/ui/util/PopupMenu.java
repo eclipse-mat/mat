@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,12 +23,17 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
+import org.eclipse.mat.ui.util.QueryContextMenu.QueryAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.HelpEvent;
+import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.PlatformUI;
 
 public final class PopupMenu
 {
@@ -151,6 +156,30 @@ public final class PopupMenu
                 menuItem.setData(action);
                 menuItem.addListener(SWT.Selection, selection);
                 menuItem.addListener(SWT.Arm, arm);
+                String help;
+                if (action instanceof QueryAction)
+                {
+                    help = ((QueryAction) action).query.getHelpUrl();
+                }
+                else if (action instanceof ExecuteQueryAction)
+                {
+                    help = ((ExecuteQueryAction) action).getHelpUrl();
+                }
+                else
+                {
+                    help = null;
+                }
+                if (help != null)
+                {
+                    menuItem.addHelpListener(new HelpListener()
+                    {
+                        @Override
+                        public void helpRequested(HelpEvent e)
+                        {
+                            PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(help);
+                        }
+                    });
+                }
             }
             else if (item instanceof PopupMenu)
             {

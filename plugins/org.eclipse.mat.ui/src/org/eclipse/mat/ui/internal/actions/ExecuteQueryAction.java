@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,14 @@ public class ExecuteQueryAction extends Action
         // Allow the prompt to be forced even if the query is ready to execute
         boolean forcePrompt = (e.stateMask & SWT.MOD2) == SWT.MOD2 || (e.stateMask & SWT.BUTTON3) == SWT.BUTTON3;
         run(forcePrompt);
+    }
+
+    public String getHelpUrl()
+    {
+        if (descriptor != null)
+            return descriptor.getHelpUrl();
+        else
+            return null;
     }
 
     private void run(boolean forcePrompt)

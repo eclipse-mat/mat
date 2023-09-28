@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2020 IBM Corporation.
+    Copyright (c) 2020, 2023 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2020 IBM Corporation.
+				Copyright (c) 2020, 2023 IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -138,7 +138,12 @@
 				examined with other queries.
 			</p>
 			<wintitle>Merge shortest paths from GC roots</wintitle>
-			<image href="../../mimes/merge_shortest_paths1.png" scale="75"></image>
+			<image href="../../mimes/merge_shortest_paths1.png" scale="75">
+				<alt>
+					Result of a merge shortest paths query, showing a
+					tree view starting from GC roots.
+				</alt>
+			</image>
 			<note>
 				With
 				<parmname>Merge Paths from GC Roots</parmname>
@@ -146,7 +151,12 @@
 				<parmname>Merge from GC Roots on Class</parmname>
 				the arrows in each
 				<xref href="../../reference/iconassist.dita">
-					<image href="../../mimes/i-horefbelow.png"></image>
+					<image href="../../mimes/i-horefbelow.png">
+						<alt>
+							Icon of a piece of paper
+							with an arrow at the bottom right pointing down and to the right.
+						</alt>
+					</image>
 					icon
 				</xref>
 				points down and to the right, showing
@@ -164,17 +174,33 @@
 				following objects by different fields.
 			</note>
 			<wintitle>Merge shortest paths from GC roots on class</wintitle>
-			<image href="../../mimes/merge_shortest_paths2.png" scale="75"></image>
+			<image href="../../mimes/merge_shortest_paths2.png" scale="75">
+				<alt>
+					Result of a merge shortest paths query, showing a
+					tree view starting from GC roots, but merged on classes.
+				</alt>
+			</image>
 			<note>See the menu option to switch between the different <parmname>groupby</parmname>
 				options.</note>
 			<wintitle>Merge shortest paths to GC roots on class</wintitle>
-			<image href="../../mimes/merge_shortest_paths3.png" scale="75"></image>
+			<image href="../../mimes/merge_shortest_paths3.png" scale="75">
+				<alt>
+					Result of a merge shortest paths query, showing a
+					tree view starting from the objects, merged on classes,
+					going to GC roots.
+				</alt>
+			</image>
 			<note>
 				With
 				<parmname>Merge to GC Roots on Class</parmname>
 				the arrows in each
 				<xref href="../../reference/iconassist.dita">
-					<image href="../../mimes/i-horefabove.png"></image>
+					<image href="../../mimes/i-horefabove.png">
+						<alt>
+							Icon of a piece of paper
+							with an arrow at the top left pointing up and to the left.
+						</alt>
+					</image>
 					icon
 				</xref>
 				points up and to the left, showing

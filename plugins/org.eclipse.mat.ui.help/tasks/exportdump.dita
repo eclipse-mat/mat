@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2018,2020 IBM Corporation.
+    Copyright (c) 2018,2023 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2018,2020 IBM Corporation.
+				Copyright (c) 2018,2023 IBM Corporation.
 				All rights reserved. This program and the accompanying materials
 				are made available under the terms of the Eclipse Public License 2.0
 				which accompanies this distribution, and is available at
@@ -147,7 +147,11 @@
 								confirm that no sensitive data is visible.
 							</howtoavoid>
 						</messagepanel>
-						<hazardsymbol href="../mimes/message_warning.png" />
+						<hazardsymbol href="../mimes/message_warning.png">
+							<alt>
+								Warning triangle
+							</alt>
+						</hazardsymbol>
 					</hazardstatement>
 				</li>
 				<li>
@@ -227,7 +231,11 @@
 								the true names of classes, fields and methods of the application.
 							</howtoavoid>
 						</messagepanel>
-						<hazardsymbol href="../mimes/message_warning.png" />
+						<hazardsymbol href="../mimes/message_warning.png">
+							<alt>
+								Warning triangle
+							</alt>
+						</hazardsymbol>
 					</hazardstatement>
 					<hazardstatement type="notice">
 						<messagepanel>
@@ -247,7 +255,11 @@
 								export the dump again. 
 							</howtoavoid>
 						</messagepanel>
-						<hazardsymbol href="../mimes/message_warning.png" />
+						<hazardsymbol href="../mimes/message_warning.png">
+							<alt>
+								Warning triangle
+							</alt>
+						</hazardsymbol>
 					</hazardstatement>
 				</li>
 				<li>
