@@ -14,11 +14,8 @@
 package org.eclipse.mat.ui.internal.viewer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -264,9 +261,7 @@ import org.eclipse.swt.widgets.TreeItem;
                         {
                             cs = StandardCharsets.UTF_8;
                         }
-                        try (FileOutputStream fos = new FileOutputStream(fileName);
-                             Writer w = new OutputStreamWriter(fos, cs);
-                             PrintWriter writer = new PrintWriter(w))
+                        try (PrintWriter writer = new PrintWriter(fileName, cs.name()))
                         {
                             outputter.process(new ContextImpl(queryContext, //
                                             new File(fileName).getParentFile()), result, writer);
@@ -339,9 +334,7 @@ import org.eclipse.swt.widgets.TreeItem;
                         {
                             cs = StandardCharsets.UTF_8;
                         }
-                        try (FileOutputStream fos = new FileOutputStream(fileName);
-                             Writer w = new OutputStreamWriter(fos, cs);
-                             PrintWriter writer = new PrintWriter(w))
+                        try (PrintWriter writer = new PrintWriter(fileName, cs.name()))
                         {
                             outputter.process(new ContextImpl(queryContext, //
                                             new File(fileName).getParentFile()), result, writer);

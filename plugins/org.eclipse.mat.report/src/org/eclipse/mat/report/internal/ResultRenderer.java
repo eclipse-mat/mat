@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,19 +14,22 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +39,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -72,8 +76,21 @@ public class ResultRenderer
         {
             this.file = new File(directory, relativeURL.replace('/', File.separatorChar));
             // Should the encoding be hard-coded to UTF-8?
-            String encoding = System.getProperty("file.encoding"); //$NON-NLS-1$
-            this.writer = new PrintWriter(file, encoding);
+            Charset cs;
+            try
+            {   
+                String encoding = ResourcesPlugin.getEncoding();
+                if (encoding != null)
+                    cs = Charset.forName(encoding);
+                else
+                    cs = StandardCharsets.UTF_8;
+            }
+            catch (UnsupportedCharsetException e)
+            {
+                cs = StandardCharsets.UTF_8;
+            }
+            String encoding = cs.name();
+            this.writer = new PrintWriter(file, cs.name());
 
             this.pathToRoot = ""; //$NON-NLS-1$
             for (int ii = 0; ii < relativeURL.length(); ii++)
@@ -278,14 +295,24 @@ public class ResultRenderer
 
         PageSnippets.linkedHeading(artefact, test, 5, filename);
 
-        Writer writer = new FileWriter(new File(this.directory, filename));
+        Charset cs;
         try
         {
-            outputter.process(info, result, writer);
+            String encoding = ResourcesPlugin.getEncoding();
+            if (encoding != null)
+                cs = Charset.forName(encoding);
+            else
+                cs = StandardCharsets.UTF_8;
         }
-        finally
+        catch (UnsupportedCharsetException e)
         {
-            writer.close();
+            cs = StandardCharsets.UTF_8;
+        }
+        try (FileOutputStream fos = new FileOutputStream(new File(this.directory, filename));
+             OutputStreamWriter osw = new OutputStreamWriter(fos, cs);
+             BufferedWriter writer = new BufferedWriter(osw))
+        {
+            outputter.process(info, result, writer);
         }
     }
 
