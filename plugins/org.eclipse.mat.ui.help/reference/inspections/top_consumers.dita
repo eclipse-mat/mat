@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and others.
+    Copyright (c) 2008, 2023 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
    
     Contributors:
         SAP AG - initial implementation
+        IBM Corporation - alt text
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_inspections_top_consumers" xml:lang="en-us">
@@ -53,7 +54,13 @@
 		</section>
 		<section id="result">
 			<title>Result</title>
-			<image href="../../mimes/m3131b4b6.png"></image>
+			<image href="../../mimes/m3131b4b6.png">
+				<alt>
+					The result of the query, showing a pie chart of the biggest objects
+					and a tree view of the biggest objects, showing the shallow heap
+					and retained size.
+				</alt>
+			</image>
 			<p>See <xref href="../../tasks/listbiggestobjects.dita">List Biggest Objects</xref>
 			for more information. 
 			See <xref href="../tipsandtricks.dita#ref_tips/piechartlinks">Pie Chart Links</xref>
