@@ -8,8 +8,8 @@
 <meta name="DC.title" content="Merge Shortest Paths" />
 <meta name="abstract" content="Find out who is keeping alive a set of objects." />
 <meta name="description" content="Find out who is keeping alive a set of objects." />
-<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
-<meta name="DC.rights.owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="copyright" content="Copyright (c) 2020, 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2020, 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
 <meta name="DC.identifier" content="ref_inspections_path_to_gc_roots" />
 <meta name="DC.language" content="en-us" />
@@ -60,26 +60,26 @@
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
-					<th style="vertical-align:bottom;text-align:left;" id="d10389e63" class="stentry">Argument</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d10637e63" class="stentry">Argument</th>
 
-					<th style="vertical-align:bottom;text-align:left;" id="d10389e66" class="stentry">Description</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d10637e66" class="stentry">Description</th>
 
 				</tr>
 </thead><tbody><tr class="strow">
-					<td style="vertical-align:top;" headers="d10389e63" class="stentry">objects</td>
+					<td style="vertical-align:top;" headers="d10637e63" class="stentry">objects</td>
 
-					<td style="vertical-align:top;" headers="d10389e66" class="stentry">Objects for which paths to garbage collection roots should
+					<td style="vertical-align:top;" headers="d10637e66" class="stentry">Objects for which paths to garbage collection roots should
 						be
 						found.
 					</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d10389e63" class="stentry">
+					<td style="vertical-align:top;" headers="d10637e63" class="stentry">
 						<span class="keyword parmname">-excludes</span>
 					</td>
 
-					<td style="vertical-align:top;" headers="d10389e66" class="stentry">
+					<td style="vertical-align:top;" headers="d10637e66" class="stentry">
 						Fields of certain classes which should be ignored when finding
 						paths. For example this allows paths through Weak or Soft
 						Reference referents to be ignored.
@@ -98,11 +98,11 @@
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d10389e63" class="stentry">
+					<td style="vertical-align:top;" headers="d10637e63" class="stentry">
 						<span class="keyword parmname">-groupby</span>
 					</td>
 
-					<td style="vertical-align:top;" headers="d10389e66" class="stentry">
+					<td style="vertical-align:top;" headers="d10637e66" class="stentry">
 						Whether to show:
 						<ul class="ul">
 							<li class="li">
@@ -152,7 +152,7 @@
 			</p>
 
 			<span class="keyword wintitle">Merge shortest paths from GC roots</span>
-			<img class="image" src="../../mimes/merge_shortest_paths1.png" height="393" width="768" />
+			<img class="image" src="../../mimes/merge_shortest_paths1.png" height="393" width="768" alt="Result of a merge shortest paths query, showing a tree view starting from GC roots." />
 			<div class="note"><span class="notetitle">Note:</span> 
 				With
 				<span class="keyword parmname">Merge Paths from GC Roots</span>
@@ -160,7 +160,7 @@
 				<span class="keyword parmname">Merge from GC Roots on Class</span>
 				the arrows in each
 				<a class="xref" href="../iconassist.html">
-					<img class="image" src="../../mimes/i-horefbelow.png" />
+					<img class="image" src="../../mimes/i-horefbelow.png" alt="Icon of a piece of paper with an arrow at the bottom right pointing down and to the right." />
 					icon
 				</a>
 				points down and to the right, showing
@@ -179,18 +179,18 @@
 			</div>
 
 			<span class="keyword wintitle">Merge shortest paths from GC roots on class</span>
-			<img class="image" src="../../mimes/merge_shortest_paths2.png" height="418" width="675" />
+			<img class="image" src="../../mimes/merge_shortest_paths2.png" height="418" width="675" alt="Result of a merge shortest paths query, showing a tree view starting from GC roots, but merged on classes." />
 			<div class="note"><span class="notetitle">Note:</span> See the menu option to switch between the different <span class="keyword parmname">groupby</span>
 				options.</div>
 
 			<span class="keyword wintitle">Merge shortest paths to GC roots on class</span>
-			<img class="image" src="../../mimes/merge_shortest_paths3.png" height="393" width="579" />
+			<img class="image" src="../../mimes/merge_shortest_paths3.png" height="393" width="579" alt="Result of a merge shortest paths query, showing a tree view starting from the objects, merged on classes, going to GC roots." />
 			<div class="note"><span class="notetitle">Note:</span> 
 				With
 				<span class="keyword parmname">Merge to GC Roots on Class</span>
 				the arrows in each
 				<a class="xref" href="../iconassist.html">
-					<img class="image" src="../../mimes/i-horefabove.png" />
+					<img class="image" src="../../mimes/i-horefabove.png" alt="Icon of a piece of paper with an arrow at the top left pointing up and to the left." />
 					icon
 				</a>
 				points up and to the left, showing

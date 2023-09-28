@@ -62,7 +62,7 @@ import com.ibm.icu.text.NumberFormat;
 @CommandName("find_leaks")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/leak.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectsreport.html")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html")
 public class FindLeaksQuery implements IQuery
 {
 
@@ -380,9 +380,9 @@ public class FindLeaksQuery implements IQuery
         if (objectIds.length <= max_paths)
             return objectIds;
 
-        MATPlugin.log(new Status(Status.INFO, MATPlugin.PLUGIN_ID, MessageUtil.format(
-                        Messages.FindLeaksQuery_TooManySuspects,
-                        objectIds.length, max_paths)));
+        //MATPlugin.log(new Status(Status.INFO, MATPlugin.PLUGIN_ID, MessageUtil.format(
+        //                Messages.FindLeaksQuery_TooManySuspects,
+        //                objectIds.length, max_paths)));
 
         Random random = new Random();
         int length = objectIds.length;
@@ -401,6 +401,14 @@ public class FindLeaksQuery implements IQuery
         return result;
     }
 
+    public static void main(String args[])
+    {
+        int nn[] = new int[10000000]; 
+        FindLeaksQuery flq = new FindLeaksQuery();
+        flq.max_paths = nn.length - 1;
+        flq.getRandomIds(nn);
+    }
+    
     public static class AccumulationPoint
     {
         IObject object;

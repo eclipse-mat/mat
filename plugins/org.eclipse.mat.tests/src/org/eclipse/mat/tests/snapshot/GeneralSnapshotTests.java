@@ -44,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
@@ -932,158 +933,7 @@ public class GeneralSnapshotTests
             }
         }
 
-        // Some basic checks
-        assertThat(f + " Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
-        assertThat(f + " Possible double escaping <", s, not(containsString("&amp;lt;")));
-        assertThat(f + " Possible double escaping &", s, not(containsString("&amp;amp;")));
-
-        /*
-         * Rough test for bad tag - might indicate unescaped '<'.
-         * Find a less-than sign
-         *  Negative lookahead for:
-         *   optional / or !
-         *   series of letters
-         *   then optional digits
-         *   ending with a space or greater-than
-         *   or !DOCTYPE
-         *  then match all until next space or greater-than
-         * We normally have lower case tags and no self-closed tags.
-         */
-        Pattern p = Pattern.compile("<(?!(/?[a-z]+[0-9]*)[ >]|!DOCTYPE )[^ >]*");
-        Matcher m = p.matcher(s);
-        String v;
-        if (m.find())
-        {
-            v = m.group(0);
-        }
-        else
-        {
-            v = null;
-        }
-        assertThat("Bad tag in "+f, v, equalTo(null));
-
-        /*
-         * Rough test for bad entity or unescaped ampersand.
-         * Negative lookahead for
-         * entity name followed by semicolon
-         * entity number preceded by # followed by semicolon 
-         */
-        p = Pattern.compile("&(?!([a-z]+;)|(#[0-9]+;))[^a-z#]+");
-        m = p.matcher(s);
-        if (m.find())
-        {
-            v = m.group(0);
-        }
-        else
-        {
-            v = null;
-        }
-        assertThat("Bad entity in "+f, v, equalTo(null));
-
-        /*
-         * Check for alt text for images.
-         */
-        p = Pattern.compile("<img (?![^>]*alt)[^>]*>");
-        m = p.matcher(s);
-        if (m.find())
-        {
-            v = m.group(0);
-        }
-        else
-        {
-            v = null;
-        }
-        assertThat("No alt for img in "+f, v, equalTo(null));
-
-        /*
-         * Check for alt text for areas.
-         */
-        p = Pattern.compile("<area (?![^>]*alt)[^>]*>");
-        m = p.matcher(s);
-        if (m.find())
-        {
-            v = m.group(0);
-        }
-        else
-        {
-            v = null;
-        }
-        assertThat("No alt for area in "+f, v, equalTo(null));
-
-        /*
-         * Check for id attribute in elements
-         */
-        p = Pattern.compile("<([a-zA-Z][a-zA-Z0-9]+) id=\"([^\"]*)\"");
-        m = p.matcher(s);
-        while (m.find())
-        {
-            String elem = m.group(1);
-            v = m.group(2);
-            assertThat("Invalid id in "+f+" for "+elem, v, matchesPattern("[a-zA-Z][a-zA-Z0-9:._-]+"));
-        }
-
-        /*
-         * Rough check for nesting of tags.
-         */
-        Stack<String> stk = new Stack<String>();
-        Stack<Integer> stki = new Stack<Integer>();
-        // Matches tags
-        p = Pattern.compile("</?[a-zA-Z]+[1-6]?");
-        m = p.matcher(s);
-        while (m.find())
-        {
-            String tag = m.group().substring(1);
-            if (tag.startsWith("/"))
-            {
-                // Closing tag
-                assertThat("Stack for "+tag, stk.size(), greaterThan(0));
-                tag = tag.substring(1);
-                String tag2 = stk.pop();
-                int si = stki.pop();
-                if (tag2.equals("p") && !tag.equals("a") && !tag.equals("p"))
-                {
-                    // <p> closed by any outer tag except <a>
-                    tag2 = stk.pop();
-                    si = stki.pop();
-                    assertThat("Stack for "+tag, stk.size(), greaterThan(0));
-                }
-                String range = s.substring(si, m.end());
-                assertThat("Tag closing at " + m.start()+" "+range+" "+f, tag, equalTo(tag2));
-            }
-            else
-            {
-                // Self closing tag?
-                if (!(tag.equals("br") 
-                                || tag.equals("hr")
-                                || tag.equals("img")
-                                || tag.equals("link")
-                                || tag.equals("input")
-                                || tag.equals("meta")
-                                || tag.equals("area")))
-                {
-                    // <p> is closed by following block tag
-                    if (stk.size() >= 1 && stk.peek().equals("p") && (
-                                    tag.equals("h1") ||
-                                    tag.equals("h2") ||
-                                    tag.equals("h3") ||
-                                    tag.equals("h4") ||
-                                    tag.equals("h5") ||
-                                    tag.equals("h6") ||
-                                    tag.equals("pre") ||
-                                    tag.equals("ol") ||
-                                    tag.equals("ul") ||
-                                    tag.equals("div")))
-                    {
-                        // Close the <p> tag
-                        stk.pop();
-                        stki.pop();
-                    }
-                    stk.push(tag);
-                    stki.push(m.start());
-                }
-            }
-        }
-        assertThat("Stack should be empty", stk.size(), equalTo(0));
+        basicHTMLcheck(f.toURI().toURL(), s, encoding);
 
         // Look for references to other files
         for (int i = 0; i >= 0; )
@@ -1201,6 +1051,166 @@ public class GeneralSnapshotTests
                 i = j;
             }
         }
+    }
+
+    static void basicHTMLcheck(URL f, String s, String encoding)
+    {
+        // Some basic checks
+        assertThat(f + " Expected charset", s, anyOf(containsString("content=\"text/html;charset=" + encoding + "\""),
+                                                     containsString("content=\"text/html; charset=" + encoding + "\"")));
+        assertThat(f + " Possible double escaping <", s, not(containsString("&amp;lt;")));
+        assertThat(f + " Possible double escaping &", s, not(containsString("&amp;amp;")));
+
+        /*
+         * Rough test for bad tag - might indicate unescaped '<'.
+         * Find a less-than sign
+         *  Negative lookahead for:
+         *   optional / or !
+         *   series of letters
+         *   then optional digits
+         *   ending with a space or greater-than
+         *   or !DOCTYPE
+         *  then match all until next space or greater-than
+         * We normally have lower case tags and no self-closed tags.
+         * Also allow <?xml 
+         */
+        Pattern p = Pattern.compile("<(?!(/?[a-z?]+[0-9]*)[ >]|!DOCTYPE )[^ >]*");
+        Matcher m = p.matcher(s);
+        String v;
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("Bad tag in "+f, v, equalTo(null));
+
+        /*
+         * Rough test for bad entity or unescaped ampersand.
+         * Negative lookahead for
+         * entity name followed by semicolon
+         * entity number preceded by # followed by semicolon 
+         */
+        p = Pattern.compile("&(?!([a-z]+;)|(#[0-9]+;))[^a-z#]+");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("Bad entity in "+f, v, equalTo(null));
+
+        /*
+         * Check for alt text for images.
+         */
+        p = Pattern.compile("<img (?![^>]*alt)[^>]*>");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("No alt for img in "+f, v, equalTo(null));
+
+        /*
+         * Check for alt text for areas.
+         */
+        p = Pattern.compile("<area (?![^>]*alt)[^>]*>");
+        m = p.matcher(s);
+        if (m.find())
+        {
+            v = m.group(0);
+        }
+        else
+        {
+            v = null;
+        }
+        assertThat("No alt for area in "+f, v, equalTo(null));
+
+        /*
+         * Check for id attribute in elements
+         */
+        p = Pattern.compile("<([a-zA-Z][a-zA-Z0-9]+) id=\"([^\"]*)\"");
+        m = p.matcher(s);
+        while (m.find())
+        {
+            String elem = m.group(1);
+            v = m.group(2);
+            assertThat("Invalid id in "+f+" for "+elem, v, matchesPattern("[a-zA-Z][a-zA-Z0-9:._-]+"));
+        }
+
+        /*
+         * Rough check for nesting of tags.
+         */
+        Stack<String> stk = new Stack<String>();
+        Stack<Integer> stki = new Stack<Integer>();
+        // Matches tags
+        p = Pattern.compile("(</?[a-zA-Z]+[1-6]?)([^>]*>)");
+        m = p.matcher(s);
+        while (m.find())
+        {
+            String tag = m.group(1).substring(1);
+            if (tag.startsWith("/"))
+            {
+                // Closing tag
+                assertThat("Stack for "+tag, stk.size(), greaterThan(0));
+                tag = tag.substring(1);
+                String tag2 = stk.pop();
+                int si = stki.pop();
+                if (tag2.equals("p") && !tag.equals("a") && !tag.equals("p"))
+                {
+                    // <p> closed by any outer tag except <a>
+                    tag2 = stk.pop();
+                    si = stki.pop();
+                    assertThat("Stack for "+tag, stk.size(), greaterThan(0));
+                }
+                String range = s.substring(si, m.end());
+                assertThat("Tag closing in "+f+" at " + m.start()+" "+range, tag, equalTo(tag2));
+            }
+            else
+            {
+                // Self closing tag?
+                String end = m.group(2);
+                boolean closed = (end.length() >= 2 && end.charAt(end.length() - 2) == '/');
+                if (!closed && !(tag.equals("br") 
+                                || tag.equals("hr")
+                                || tag.equals("img")
+                                || tag.equals("link")
+                                || tag.equals("input")
+                                || tag.equals("meta")
+                                || tag.equals("area")))
+                {
+                    // <p> is closed by following block tag
+                    if (stk.size() >= 1 && stk.peek().equals("p") && (
+                                    tag.equals("h1") ||
+                                    tag.equals("h2") ||
+                                    tag.equals("h3") ||
+                                    tag.equals("h4") ||
+                                    tag.equals("h5") ||
+                                    tag.equals("h6") ||
+                                    tag.equals("pre") ||
+                                    tag.equals("ol") ||
+                                    tag.equals("ul") ||
+                                    tag.equals("div")))
+                    {
+                        // Close the <p> tag
+                        stk.pop();
+                        stki.pop();
+                    }
+                    stk.push(tag);
+                    stki.push(m.start());
+                }
+            }
+        }
+        assertThat("Stack should be empty for " + f, stk.size(), equalTo(0));
     }
 
     /**
