@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2023 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
@@ -33,6 +34,7 @@ import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("find_strings")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/find_strings.html")
 @Icon("/META-INF/icons/find_strings.gif")
 @Subject("java.lang.String")
 public class FindStringsQuery implements IQuery
@@ -64,6 +66,7 @@ public class FindStringsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        boolean onlyStrings = false;
         ArrayInt result = new ArrayInt();
 
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false); //$NON-NLS-1$
@@ -117,10 +120,10 @@ public class FindStringsQuery implements IQuery
 
                         IObject instance = snapshot.getObject(id);
                         // if (!classes.contains(instance.getClazz()))
-                        if (!javaLangString.equals(instance.getClazz()))
+                        if (onlyStrings && !javaLangString.equals(instance.getClazz()))
                         {
                             listener.worked(hot.work());
-                            continue;
+                           continue;
                         }
 
                         String value = instance.getClassSpecificName();

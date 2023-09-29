@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 IBM Corporation and others.
+ * Copyright (c) 2009, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
@@ -25,6 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("phantom_references_statistics")
 @Icon("/META-INF/icons/phantom_reference.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_leak.html")
 @Subject("java.lang.ref.PhantomReference")
 public class PhantomReferenceStatQuery implements IQuery
 {
