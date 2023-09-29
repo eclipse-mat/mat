@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2023 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+    
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        IBM Corporation - initial implementation
+ -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_system_properties" xml:lang="en-us">
+	<title>System Properties</title>
+	<shortdesc>The Java system properties available to the application.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2023 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License 2.0
+			    which accompanies this distribution, and is available at
+			    https://www.eclipse.org/legal/epl-2.0/
+			</copyrholder>
+		</copyright>
+	</prolog>
+	
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			Sometimes it is useful to see the values of system properties which were available to the application.
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>None</stentry>
+					<stentry>No arguments are supplied to this query</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>A table with three columns, one the Java collection holding the properties,
+			then the key and value. The key and value are Java Strings, so the resolved
+			value is shown.
+			The collection, key and value items are all Java objects, and the investigation can
+			be continued by using the context menu to select a further query to run on the item.
+			</p>
+		</section>
+	</refbody>
+</reference>

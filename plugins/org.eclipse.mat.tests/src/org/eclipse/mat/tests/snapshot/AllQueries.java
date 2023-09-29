@@ -139,7 +139,7 @@ public class AllQueries
         String encoding = StandardCharsets.UTF_8.name();
         String s;
         try (InputStream is = url2.openStream();
-             InputStreamReader isr = new InputStreamReader(is);
+             InputStreamReader isr = new InputStreamReader(is, encoding);
              BufferedReader br = new BufferedReader(isr))
         {
             StringBuilder sb = new StringBuilder();

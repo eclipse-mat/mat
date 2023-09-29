@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - help url
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -18,6 +19,7 @@ import org.eclipse.mat.inspections.collections.HashEntriesQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
@@ -28,6 +30,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Subject("java.lang.System")
 @CommandName("system_properties")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/system_properties.html")
 @Icon("/META-INF/icons/osgi/property.gif")
 public class SystemPropertiesQuery implements IQuery
 {

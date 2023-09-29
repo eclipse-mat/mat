@@ -86,6 +86,10 @@
 				type="reference" />
 			<topicref href="reference/inspections/query_report.dita"
 				type="reference" />
+			<topicref href="reference/inspections/system_properties.dita"
+				type="reference" />
+			<topicref href="reference/inspections/find_strings.dita"
+				type="reference" />
 		</topicref>
 		<topicref href="reference/querymatrix.dita" type="reference">
 			<topicref href="reference/findingmemoryleak.dita" type="reference" />
