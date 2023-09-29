@@ -12,8 +12,8 @@
         IBM Corporation - initial implementation
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference id="ref_system_properties" xml:lang="en-us">
-	<title>System Properties</title>
+<reference id="ref_find_strings" xml:lang="en-us">
+	<title>Find Strings</title>
 	<shortdesc>Find strings which match a regular expression.
 	</shortdesc>
 	<prolog>
