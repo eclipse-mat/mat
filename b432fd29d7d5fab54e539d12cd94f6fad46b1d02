@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6438d3e_b43c6fa9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-09-30T09:10:07Z",
+      "side": 1,
+      "message": "Medium sized, but mainly help.\nSome local testing.",
+      "revId": "b432fd29d7d5fab54e539d12cd94f6fad46b1d02",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
