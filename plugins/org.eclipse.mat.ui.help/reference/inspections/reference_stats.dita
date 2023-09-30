@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2020,2023 IBM Corporation.
+    Copyright (c) 2023 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -12,15 +12,15 @@
         IBM Corporation - initial implementation
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference id="ref_inspections_reference_leak" xml:lang="en-us">
+<reference id="ref_inspections_reference_stats" xml:lang="en-us">
 	<title>Reference Leak</title>
-	<shortdesc>Find incorrect uses of soft or weak references.
+	<shortdesc>Find infomration about and possible incorrect uses of soft, weak or phantom references.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2020,2023 IBM Corporation.
+				Copyright (c) 2023 IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -31,8 +31,9 @@
 	<refbody>
 		<section>
 			<title>Motivation</title>
-			<p>Soft references <codeph>java.lang.ref.SoftReference</codeph> and
-			weak references <codeph>java.lang.ref.WeakReference</codeph> are used
+			<p>Soft references <codeph>java.lang.ref.SoftReference</codeph>,
+			weak references <codeph>java.lang.ref.WeakReference</codeph> and
+			Phantom references <codeph>java.lang.ref.PhantomReference</codeph> are used
 			to keep references to objects which can be cleared by garbage collection
 			if there are no other strong references.</p>
 			<p>Soft references can be used for object caching, so that
@@ -49,6 +50,9 @@
 			key of a weak hash map is weakly retained, but if there is a strong
 			reference to it from the value of the weak hash map entry then the
 			object will never be freed.</p>
+			<p>Phantom references are used to trigger an event when 
+			an object is garbage collected.
+			The object itself cannot be obtained from the PhantomReference.</p>
 		</section>
 		<section>
 			<title>Operation</title>
@@ -56,20 +60,17 @@
 			<ol>
 			<li>For each reference object supplied to the query, 
 			find the object referred to by the reference object via the
-			reference field.</li>
-			<li>Find all the objects strongly retained by the reference object.</li>
-			<li>Find if the object from the first step is also in the
-			second list. If so:
-				<ol>
-					<li>Generate a tree with a path showing the reference object, the referent
-					and the strong path to the referent.</li>
-					<li>Generate a tree showing paths from GC roots to the
-					reference object including showing field names.</li>
-				</ol>
-			</li>
+			reference field, and return those objects as a histogram.</li>
+			<li>For each reference object supplied to the query,
+			find all the objects only retained by those reference objects via the
+			reference field, and return those objects as a histogram.</li>
+			<li>Find all the objects strongly retained by these reference objects,
+			and then find all the referenced objects in the first step which are in this set,
+			and returned those objects as a histogram. This might indicate a possible
+			reference leak, as for example normally a Weak Hash Map should not have a
+			reference from the value to the key as that would stop the entry from being freed
+			when the reference was no longer accessible.</li>
 			</ol>
-			</p>
-			<p>This type of query is also performed by the component report.
 			</p>
 		</section>
 		<section>
@@ -81,24 +82,12 @@
 				</sthead>
 				<strow>
 					<stentry>objects</stentry>
-					<stentry>Reference objects for which the reference leaks query should be run.</stentry>
+					<stentry>Reference objects for which the reference statistics query should be run.</stentry>
 				</strow>
 				<strow>
 					<stentry><parmname>-referent_attribute</parmname></stentry>
 					<stentry>The referent field name for the reference objects.
 					The default is <codeph>referent</codeph></stentry>
-				</strow>
-				<strow>
-					<stentry><parmname>-maxresults</parmname></stentry>
-					<stentry>The maximum number of objects for which a tree should be shown.</stentry>
-				</strow>
-				<strow>
-					<stentry><parmname>-maxobjs</parmname></stentry>
-					<stentry>The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</stentry>
-				</strow>
-				<strow>
-					<stentry><parmname>-factor</parmname></stentry>
-					<stentry>For common paths, how much to truncate the path as the number of objects reduces.</stentry>
 				</strow>
 			</simpletable>
 		</section>

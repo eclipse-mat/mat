@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Reference Leak" />
+<meta name="abstract" content="Find infomration about and possible incorrect uses of soft, weak or phantom references." />
+<meta name="description" content="Find infomration about and possible incorrect uses of soft, weak or phantom references." />
+<meta name="copyright" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_inspections_reference_stats" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css" />
+<title>Reference Leak</title>
+</head>
+<body id="ref_inspections_reference_stats">
+
+	<h1 class="title topictitle1" id="ariaid-title1">Reference Leak</h1>
+
+	
+	
+	<div class="body refbody"><p class="shortdesc">Find infomration about and possible incorrect uses of soft, weak or phantom references.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			<p class="p">Soft references <code class="ph codeph">java.lang.ref.SoftReference</code>,
+			weak references <code class="ph codeph">java.lang.ref.WeakReference</code> and
+			Phantom references <code class="ph codeph">java.lang.ref.PhantomReference</code> are used
+			to keep references to objects which can be cleared by garbage collection
+			if there are no other strong references.</p>
+
+			<p class="p">Soft references can be used for object caching, so that
+			an object can usually be retained for fast access, but if
+			memory is tight then garbage collection can break the link and free the
+			object. Next time it is needed then the application program can
+			regenerate the object.</p>
+
+			<p class="p">Weak references can be used in a weak hash map <code class="ph codeph">java.util.WeakHashMap</code> to hold information associated with
+			another object, but if that object is no longer available
+			then the associated information can be freed too.</p>
+
+			<p class="p">Sometimes an error in the application program can mean that
+			the object which is supposed to be softly or weakly referenced is 
+			also strongly retained by the reference object. For example the
+			key of a weak hash map is weakly retained, but if there is a strong
+			reference to it from the value of the weak hash map entry then the
+			object will never be freed.</p>
+
+			<p class="p">Phantom references are used to trigger an event when 
+			an object is garbage collected.
+			The object itself cannot be obtained from the PhantomReference.</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Operation</h2>
+			
+			<div class="p">This query performs the following steps:
+			<ol class="ol">
+			<li class="li">For each reference object supplied to the query, 
+			find the object referred to by the reference object via the
+			reference field, and return those objects as a histogram.</li>
+
+			<li class="li">For each reference object supplied to the query,
+			find all the objects only retained by those reference objects via the
+			reference field, and return those objects as a histogram.</li>
+
+			<li class="li">Find all the objects strongly retained by these reference objects,
+			and then find all the referenced objects in the first step which are in this set,
+			and returned those objects as a histogram. This might indicate a possible
+			reference leak, as for example normally a Weak Hash Map should not have a
+			reference from the value to the key as that would stop the entry from being freed
+			when the reference was no longer accessible.</li>
+
+			</ol>
+
+			</div>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
+			
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
+					<th style="vertical-align:bottom;text-align:left;" id="d1531e93" class="stentry">Argument</th>
+
+					<th style="vertical-align:bottom;text-align:left;" id="d1531e96" class="stentry">Description</th>
+
+				</tr>
+</thead><tbody><tr class="strow">
+					<td style="vertical-align:top;" headers="d1531e93" class="stentry">objects</td>
+
+					<td style="vertical-align:top;" headers="d1531e96" class="stentry">Reference objects for which the reference statistics query should be run.</td>
+
+				</tr>
+<tr class="strow">
+					<td style="vertical-align:top;" headers="d1531e93" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
+
+					<td style="vertical-align:top;" headers="d1531e96" class="stentry">The referent field name for the reference objects.
+					The default is <code class="ph codeph">referent</code></td>
+
+				</tr>
+</tbody></table>
+
+		</div>
+
+		<div class="section" id="ref_inspections_reference_stats__result"><h2 class="title sectiontitle">Result</h2>
+			
+		</div>
+
+	</div>
+
+</body>
+</html>

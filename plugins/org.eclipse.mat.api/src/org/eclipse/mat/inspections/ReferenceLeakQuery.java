@@ -31,6 +31,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -55,6 +56,7 @@ import org.eclipse.mat.util.SimpleMonitor;
  */
 @CommandName("reference_leak")
 @Icon("/META-INF/icons/reference.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_leak.html")
 @Subject("java.lang.ref.Reference")
 public class ReferenceLeakQuery implements IQuery
 {

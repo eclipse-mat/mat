@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Display;
 
 @CommandName("open_source_file")
 @Icon("/icons/open_source_file.gif") // Icon from org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/open_source_file.html")
 public class OpenSourceFileQuery implements IQuery
 {
     @Argument

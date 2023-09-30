@@ -8,15 +8,15 @@
 <meta name="DC.title" content="Reference Leak" />
 <meta name="abstract" content="Find incorrect uses of soft or weak references." />
 <meta name="description" content="Find incorrect uses of soft or weak references." />
-<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
-<meta name="DC.rights.owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="copyright" content="Copyright (c) 2020,2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2020,2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
-<meta name="DC.identifier" content="ref_inspections_group_by_value" />
+<meta name="DC.identifier" content="ref_inspections_reference_leak" />
 <meta name="DC.language" content="en-us" />
 <link rel="stylesheet" type="text/css" href="../../styles/commonltr.css" />
 <title>Reference Leak</title>
 </head>
-<body id="ref_inspections_group_by_value">
+<body id="ref_inspections_reference_leak">
 
 	<h1 class="title topictitle1" id="ariaid-title1">Reference Leak</h1>
 
@@ -86,47 +86,47 @@
 		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
-					<th style="vertical-align:bottom;text-align:left;" id="d6870e98" class="stentry">Argument</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d7358e98" class="stentry">Argument</th>
 
-					<th style="vertical-align:bottom;text-align:left;" id="d6870e101" class="stentry">Description</th>
+					<th style="vertical-align:bottom;text-align:left;" id="d7358e101" class="stentry">Description</th>
 
 				</tr>
 </thead><tbody><tr class="strow">
-					<td style="vertical-align:top;" headers="d6870e98" class="stentry">objects</td>
+					<td style="vertical-align:top;" headers="d7358e98" class="stentry">objects</td>
 
-					<td style="vertical-align:top;" headers="d6870e101" class="stentry">Reference objects for which the reference leaks query should be run.</td>
+					<td style="vertical-align:top;" headers="d7358e101" class="stentry">Reference objects for which the reference leaks query should be run.</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
+					<td style="vertical-align:top;" headers="d7358e98" class="stentry"><span class="keyword parmname">-referent_attribute</span></td>
 
-					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The referent field name for the reference objects.
+					<td style="vertical-align:top;" headers="d7358e101" class="stentry">The referent field name for the reference objects.
 					The default is <code class="ph codeph">referent</code></td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-maxresults</span></td>
+					<td style="vertical-align:top;" headers="d7358e98" class="stentry"><span class="keyword parmname">-maxresults</span></td>
 
-					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The maximum number of objects for which a tree should be shown.</td>
-
-				</tr>
-<tr class="strow">
-					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-maxobjs</span></td>
-
-					<td style="vertical-align:top;" headers="d6870e101" class="stentry">The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</td>
+					<td style="vertical-align:top;" headers="d7358e101" class="stentry">The maximum number of objects for which a tree should be shown.</td>
 
 				</tr>
 <tr class="strow">
-					<td style="vertical-align:top;" headers="d6870e98" class="stentry"><span class="keyword parmname">-factor</span></td>
+					<td style="vertical-align:top;" headers="d7358e98" class="stentry"><span class="keyword parmname">-maxobjs</span></td>
 
-					<td style="vertical-align:top;" headers="d6870e101" class="stentry">For common paths, how much to truncate the path as the number of objects reduces.</td>
+					<td style="vertical-align:top;" headers="d7358e101" class="stentry">The maximum number of objects to be examined for leaks. A random selection of the total objects will be chosen.</td>
+
+				</tr>
+<tr class="strow">
+					<td style="vertical-align:top;" headers="d7358e98" class="stentry"><span class="keyword parmname">-factor</span></td>
+
+					<td style="vertical-align:top;" headers="d7358e101" class="stentry">For common paths, how much to truncate the path as the number of objects reduces.</td>
 
 				</tr>
 </tbody></table>
 
 		</div>
 
-		<div class="section" id="ref_inspections_group_by_value__result"><h2 class="title sectiontitle">Result</h2>
+		<div class="section" id="ref_inspections_reference_leak__result"><h2 class="title sectiontitle">Result</h2>
 			
 		</div>
 

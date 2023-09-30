@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Copy queries" />
+<meta name="abstract" content="Queries which copy data from selections." />
+<meta name="description" content="Queries which copy data from selections." />
+<meta name="copyright" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_inspections_copy" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css" />
+<title>Copy queries</title>
+</head>
+<body id="ref_inspections_copy">
+
+	<h1 class="title topictitle1" id="ariaid-title1">Copy queries</h1>
+
+	
+	
+	
+	<div class="body refbody"><p class="shortdesc">Queries which copy data from selections.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			It can be useful to copy data from the results of a query by selecting objects.
+			The data can then be pasted from the clipboard into other applications, or back into
+			Eclipse Memory Analyzer for other queries.
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Commands</h2>
+			
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><col style="width:50%" /><col style="width:50%" /><thead><tr class="sthead">
+					<th style="vertical-align:bottom;text-align:left;" id="d302e44" class="stentry">Command</th>
+
+					<th style="vertical-align:bottom;text-align:left;" id="d302e47" class="stentry">Description</th>
+
+				</tr>
+</thead><tbody><tr id="ref_inspections_copy__address" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Copy Address</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Copies the address of an object, as a hexadecimal number with a 0x prefix to the clipboard.
+					If there are multiple objects, they are on separate lines.
+					</td>
+
+				</tr>
+<tr id="ref_inspections_copy__fqclassname" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Copy Class Name</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Copies the class name of an object to the clipboard.
+					If there are multiple objects, then the class names are on separate lines.
+					If some of the objects are of the same class, duplicate class names will appear in the clipboard.
+					If the source is a histogram, then the class name of the row will be copied.
+					</td>
+
+				</tr>
+<tr id="ref_inspections_copy__value" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Copy Value</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Copies the value that Eclipse Memory Analyzer displays for the object.
+					For example, the string contents for a java.lang.String, the integer valeu as a decimal
+					for an Integer.
+					If the object does not have a value because no name resolve generates one, then the
+					technical name will be returned, which is a combination of the class name and object address.
+					</td>
+
+				</tr>
+<tr id="ref_inspections_copy__copyoql" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Copy OQL Query</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Copies an OQL query representing all the selected objects to the clipboard.
+					If there are a large number of objects and they are not all the instances of a class or
+					something else which can be represented succinctly in OQL then the copy might fail with an
+					error message <samp class="ph systemoutput">OQL statement is too big to use</samp>.
+					</td>
+
+				</tr>
+<tr id="ref_inspections_copy__savevalueas" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Save Value to File</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Save to a file the value of char[], String, StringBuffer or StringBuilder into a text file,
+					or for a single primitive array store the elements as binary, or for other types,
+					the printable value or the class name and address.
+					</td>
+
+				</tr>
+<tr id="ref_inspections_copy__selection" class="strow">
+					<td style="vertical-align:top;" headers="d302e44" class="stentry">Copy Selection</td>
+
+					<td style="vertical-align:top;" headers="d302e47" class="stentry">
+					Copies a text representation of the selected rows of the tree or table, together with the heading.
+					</td>
+
+				</tr>
+</tbody></table>
+
+		</div>
+
+		<div class="section" id="ref_inspections_copy__result"><h2 class="title sectiontitle">Result</h2>
+			
+			<p class="p">The clipboard contains the appropriate values, or for save as the file contains the appropriate values.
+			</p>
+
+		</div>
+
+	</div>
+
+</body>
+</html>

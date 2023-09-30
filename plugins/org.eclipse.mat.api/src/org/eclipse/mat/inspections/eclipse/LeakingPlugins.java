@@ -20,6 +20,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -32,6 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("leaking_bundles")
 @Icon("/META-INF/icons/osgi/registry.gif")
+@HelpUrl("/org.eclipse.mat/help/reference/findingmemoryleak.html#leaking_bundles")
 @Subjects({"org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", "org.eclipse.osgi.internal.loader.BundleLoaderProxy"})
 public class LeakingPlugins implements IQuery
 {

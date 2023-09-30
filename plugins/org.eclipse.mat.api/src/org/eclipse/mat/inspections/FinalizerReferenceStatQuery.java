@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
@@ -25,6 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("finalizer_references_statistics")
 @Icon("/META-INF/icons/finalizer.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_leak.html")
 @Subject("java.lang.ref.Finalizer")
 public class FinalizerReferenceStatQuery implements IQuery
 {

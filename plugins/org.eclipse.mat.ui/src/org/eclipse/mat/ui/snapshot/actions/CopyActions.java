@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
@@ -104,6 +105,7 @@ public abstract class CopyActions implements IQuery
     // //////////////////////////////////////////////////////////////
 
     @Icon("/icons/copy.gif")
+    @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/copy.html#ref_inspections_copy__address")
     public static class Address extends CopyActions
     {
         protected void appendValue(StringBuilder buf, IObject object)
@@ -166,6 +168,7 @@ public abstract class CopyActions implements IQuery
     }
 
     @Icon("/icons/copy.gif")
+    @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/copy.html#ref_inspections_copy__fqclassname")
     public static class FQClassName extends CopyActions2
     {
         protected void appendValue(StringBuilder buf, IObject object)
@@ -178,6 +181,7 @@ public abstract class CopyActions implements IQuery
     }
 
     @Icon("/icons/copy.gif")
+    @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/copy.html#ref_inspections_copy__value")
     public static class Value extends CopyActions2
     {
         protected void appendValue(StringBuilder buf, IObject object) throws SnapshotException
