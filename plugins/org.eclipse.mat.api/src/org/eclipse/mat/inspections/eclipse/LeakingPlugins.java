@@ -33,7 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("leaking_bundles")
 @Icon("/META-INF/icons/osgi/registry.gif")
-@HelpUrl("/org.eclipse.mat/help/reference/findingmemoryleak.html#leaking_bundles")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/findingmemoryleak.html#ref_findingmemoryleak__leaking_bundles")
 @Subjects({"org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", "org.eclipse.osgi.internal.loader.BundleLoaderProxy"})
 public class LeakingPlugins implements IQuery
 {
