@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2020 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@
 			<table rowsep="1" colsep="1">
 				<tgroup cols="2">
 					<tbody>
-						<row>
+						<row id="finalizer_in_processing">
 							<entry>
 								<b>Finalizer in Processing</b>
 							</entry>
@@ -61,7 +61,7 @@
 								<p> Use the finalizer queue query to check the queue.</p>
 							</entry>
 						</row>
-						<row>
+						<row id="ready_for_finalizer_thread">
 							<entry>
 								<b>Ready for Finalizer Thread</b>
 							</entry>
@@ -102,14 +102,14 @@
 								<p> Additionally a class-level summary of the objects is provided</p>
 							</entry>
 						</row>
-						<row>
+						<row id="finalizer_thread">
 							<entry>
 								<b>Finalizer Thread</b>
 							</entry>
 							<entry> This query shows the daemon thread which performs the
 								object finalizations.</entry>
 						</row>
-						<row>
+						<row id="finalizer_thread_locals">
 							<entry>
 								<b>Finalizer Thread Locals</b>
 							</entry>

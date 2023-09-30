@@ -33,7 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("finalizer_thread")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/finalizer.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.html")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.html#task_analyzingfinalizer__finalizer_thread")
 public class FinalizerThreadQuery implements IQuery
 {
     @Argument

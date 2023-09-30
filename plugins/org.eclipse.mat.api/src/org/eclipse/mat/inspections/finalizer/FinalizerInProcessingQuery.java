@@ -63,7 +63,7 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("finalizer_in_processing")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/finalizer.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.html")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.html#task_analyzingfinalizer__finalizer_in_processing")
 public class FinalizerInProcessingQuery implements IQuery
 {
     @Argument
