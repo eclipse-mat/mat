@@ -46,7 +46,7 @@ import org.eclipse.mat.util.MessageUtil;
  */
 @CommandName("references_statistics")
 @Icon("/META-INF/icons/reference.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_leak.html")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_stats.html")
 @Subject("java.lang.ref.Reference")
 public class ReferenceQuery implements IQuery
 {

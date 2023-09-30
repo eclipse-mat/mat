@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2023 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+    
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        IBM Corporation - initial implementation
+ -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_copy" xml:lang="en-us">
+	<title>Copy queries</title>
+	<shortdesc>Queries which copy data from selections.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2023 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License 2.0
+			    which accompanies this distribution, and is available at
+			    https://www.eclipse.org/legal/epl-2.0/
+			</copyrholder>
+		</copyright>
+	</prolog>
+	
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			It can be useful to copy data from the results of a query by selecting objects.
+			The data can then be pasted from the clipboard into other applications, or back into
+			Eclipse Memory Analyzer for other queries.
+		</section>
+		<section>
+			<title>Commands</title>
+			<simpletable>
+				<sthead>
+					<stentry>Command</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow id="address">
+					<stentry>Copy Address</stentry>
+					<stentry>
+					Copies the address of an object, as a hexadecimal number with a 0x prefix to the clipboard.
+					If there are multiple objects, they are on separate lines.
+					</stentry>
+				</strow>
+				<strow id="fqclassname">
+					<stentry>Copy Class Name</stentry>
+					<stentry>
+					Copies the class name of an object to the clipboard.
+					If there are multiple objects, then the class names are on separate lines.
+					If some of the objects are of the same class, duplicate class names will appear in the clipboard.
+					If the source is a histogram, then the class name of the row will be copied.
+					</stentry>
+				</strow>
+				<strow id="value">
+					<stentry>Copy Value</stentry>
+					<stentry>
+					Copies the value that Eclipse Memory Analyzer displays for the object.
+					For example, the string contents for a java.lang.String, the integer valeu as a decimal
+					for an Integer.
+					If the object does not have a value because no name resolve generates one, then the
+					technical name will be returned, which is a combination of the class name and object address.
+					</stentry>
+				</strow>
+				<strow id="copyoql">
+					<stentry>Copy OQL Query</stentry>
+					<stentry>
+					Copies an OQL query representing all the selected objects to the clipboard.
+					If there are a large number of objects and they are not all the instances of a class or
+					something else which can be represented succinctly in OQL then the copy might fail with an
+					error message <systemoutput>OQL statement is too big to use</systemoutput>.
+					</stentry>
+				</strow>
+				<strow id="savevalueas">
+					<stentry>Save Value to File</stentry>
+					<stentry>
+					Save to a file the value of char[], String, StringBuffer or StringBuilder into a text file,
+					or for a single primitive array store the elements as binary, or for other types,
+					the printable value or the class name and address.
+					</stentry>
+				</strow>
+				<strow id="selection">
+					<stentry>Copy Selection</stentry>
+					<stentry>
+					Copies a text representation of the selected rows of the tree or table, together with the heading.
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>The clipboard contains the appropriate values, or for save as the file contains the appropriate values.
+			</p>
+		</section>
+	</refbody>
+</reference>

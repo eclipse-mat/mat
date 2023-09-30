@@ -78,6 +78,8 @@
 				type="reference" />
 			<topicref href="reference/inspections/retained_set.dita"
 				type="reference" />
+			<topicref href="reference/inspections/reference_stats.dita"
+				type="reference" />
 			<topicref href="reference/inspections/duplicate_classes.dita"
 				type="reference" />
 			<topicref href="reference/inspections/top_consumers.dita"
@@ -89,6 +91,10 @@
 			<topicref href="reference/inspections/system_properties.dita"
 				type="reference" />
 			<topicref href="reference/inspections/find_strings.dita"
+				type="reference" />
+			<topicref href="reference/inspections/copy.dita"
+				type="reference" />
+			<topicref href="reference/inspections/open_source_file.dita"
 				type="reference" />
 		</topicref>
 		<topicref href="reference/querymatrix.dita" type="reference">

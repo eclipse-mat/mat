@@ -26,7 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("soft_references_statistics")
 @Icon("/META-INF/icons/soft_reference.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_leak.html")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/reference_stats.html")
 @Subject("java.lang.ref.SoftReference")
 public class SoftReferenceStatQuery implements IQuery
 {

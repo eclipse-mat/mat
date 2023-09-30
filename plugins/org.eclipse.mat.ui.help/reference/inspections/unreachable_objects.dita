@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
         SAP AG - initial implementation
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
-<reference id="ref_inspections_path_to_gc_roots" xml:lang="en-us">
+<reference id="ref_inspections_unreachable_objects" xml:lang="en-us">
 	<title>Unreachable objects</title>
 	<shortdesc>Find out more about objects that could or should be garbage collected.
 	</shortdesc>
@@ -20,7 +20,7 @@
 		<copyright>
 			<copyryear year="2018"></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at

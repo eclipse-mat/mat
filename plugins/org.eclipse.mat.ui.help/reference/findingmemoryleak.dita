@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG and others.
+    Copyright (c) 2008, 2023 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - more links
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_findingmemoryleak" xml:lang="en-us">
@@ -20,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -96,6 +97,14 @@
 				    <stentry>Duplicate Classes</stentry>
 					<stentry>
 						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
+					</stentry>
+					</strow>
+				<strow id="leaking_bundles">
+					<stentry>Leaking Bundles</stentry>
+					<stentry>
+					   For snapshots for older versions of Eclopse, list bundles which are stale and 
+					   should have been garbage collected.
+					   For newer versions of Eclipse, the duplicate classes query might be an alternative.
 					</stentry>
 				</strow>
 				<strow id="big_drops">

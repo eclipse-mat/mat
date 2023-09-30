@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2021 IBM Corporation.
+ * Copyright (c) 2011,2023 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.ui.Messages;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
  * Combines all the OQL queries associated with the IContextObjectSets into one big query.
  */
 @Icon("/icons/copy.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/copy.html#ref_inspections_copy__copyoql")
 public class CopyOQL implements IQuery
 {
     @Argument

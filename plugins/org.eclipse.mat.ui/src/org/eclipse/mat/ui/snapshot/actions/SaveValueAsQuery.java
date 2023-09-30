@@ -29,6 +29,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
 @Icon("/icons/copy.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/copy.html#ref_inspections_copy__savevalueas")
 public class SaveValueAsQuery implements IQuery
 {
     @Argument
