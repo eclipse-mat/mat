@@ -74,10 +74,10 @@ public class SimpleComparison implements IQuery
         IStructuredResult currTable = callQuery(listener, snapshot);
 
         String queryId = "comparetablesquery"; //$NON-NLS-1$
-        if (options != null && options.length() > 0)
-            queryId += " " + options; //$NON-NLS-1$
         if (defaultoptions != null && defaultoptions.length() > 0)
             queryId += " " + defaultoptions; //$NON-NLS-1$
+        if (options != null && options.length() > 0)
+            queryId += " " + options; //$NON-NLS-1$
 
         SnapshotQuery queryc = SnapshotQuery.parse(queryId, snapshot);
 

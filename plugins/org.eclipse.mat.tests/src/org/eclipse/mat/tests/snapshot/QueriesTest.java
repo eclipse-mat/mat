@@ -1435,7 +1435,8 @@ public class QueriesTest
                 QuerySpec qs = (QuerySpec)s;
                 if (qs.getName().equals("Compared Dominator Trees"))
                 {
-                    assertThat(qs.getCommand(), startsWith("find_leaks2 "));
+                    assertThat(qs.getCommand(), startsWith("simplecomparison "));
+                    assertThat(qs.getCommand(), containsString("dominator_tree"));
                     SnapshotQuery query2 = SnapshotQuery.parse(qs.getCommand(), snapshot2);
                     IResult t2 = query2.execute(new CheckedProgressListener(collector));
                     assertNotNull(t2);

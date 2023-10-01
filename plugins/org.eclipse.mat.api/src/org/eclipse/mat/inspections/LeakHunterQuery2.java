@@ -21,10 +21,10 @@ import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
-import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
+import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
@@ -85,6 +85,27 @@ public class LeakHunterQuery2 extends LeakHunterQuery
             QuerySpec spec = new QuerySpec(savedResult.getName());
             spec.setResult(savedResult.getResult());
             spec.setCommand(savedcmd);
+            StringBuilder opts = new StringBuilder("-mode DIFF_RATIO_TO_FIRST"); //$NON-NLS-1$
+            if (options != null)
+                opts.append(' ').append(options);
+            if (mask != null)
+                opts.append(" -mask ").append(Converters.convertAndEscape(Pattern.class, mask)); //$NON-NLS-1$
+            if (extraReferences != null)
+            {
+                opts.append(" -x "); //$NON-NLS-1$
+                for (String e : extraReferences)
+                    opts.append(" ").append(Converters.convertAndEscape(String.class, e)); //$NON-NLS-1$
+            }
+            if (extraReferencesListFile != null)
+            {
+                opts.append(" -xfile ").append(Converters.convertAndEscape(File.class, extraReferencesListFile)); //$NON-NLS-1$
+            }
+            spec.setCommand("simplecomparison -query \"dominator_tree -groupby NONE\" -retained PRECISE -baseline " + //$NON-NLS-1$
+                            Converters.convertAndEscape(String.class, baseline.getSnapshotInfo().getPath())
+                            + " -defaultoptions \"\"" //$NON-NLS-1$
+                            + " -options " + Converters.convertAndEscape(String.class, opts.toString()) //$NON-NLS-1$
+            );
+            System.out.println(spec.getCommand());
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             spec.set(Params.Rendering.SORT_COLUMN, "#5"); //$NON-NLS-1$
             spec.set(Params.Rendering.HIDE_COLUMN, "#7,#8,#9"); //$NON-NLS-1$
@@ -99,14 +120,14 @@ public class LeakHunterQuery2 extends LeakHunterQuery
     FindLeaksQuery.SuspectsResultTable callFindLeaks(IProgressListener listener) throws Exception
     {
         String querycmd = "find_leaks2"; //$NON-NLS-1$
-        if (options != null)
-            querycmd += " -options " + options; //$NON-NLS-1$
         StringBuilder cmd = new StringBuilder(querycmd);
         SnapshotQuery query = SnapshotQuery.parse(querycmd, snapshot)
                         .setArgument("threshold_percent", threshold_percent) //$NON-NLS-1$
                         .setArgument("max_paths", max_paths) //$NON-NLS-1$
                         .setArgument("excludes", excludes) //$NON-NLS-1$
                         .setArgument("baseline", baseline); //$NON-NLS-1$
+        if (options != null)
+            query.setArgument("options", options); //$NON-NLS-1$
 
         cmd.append(" -threshold_percent ").append(threshold_percent); //$NON-NLS-1$
         cmd.append(" -max_paths ").append(max_paths); //$NON-NLS-1$
