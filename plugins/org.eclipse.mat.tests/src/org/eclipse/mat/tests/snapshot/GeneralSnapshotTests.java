@@ -909,22 +909,7 @@ public class GeneralSnapshotTests
         {
             if (anchor.length() > 0)
             {
-                // The fragment should exist as an id or name
-                Pattern p = Pattern.compile(" (id|name)=\"" + Pattern.quote(anchor) + "\"");
-                Matcher m = p.matcher(s);
-                String v;
-                int id = 0;
-                int name = 0;
-                while (m.find())
-                {
-                    if ("id".equals(m.group(1)))
-                        ++id;
-                    else if ("name".equals(m.group(1)))
-                        ++name;
-                }
-                if (id == 0 && name > 0)
-                    id = 1;
-                assertThat(f + " from " + referrer + " Expected anchor "+ anchor + " to occur once: " + s, id, equalTo(1));
+                checkAnchor(f.toURI().toURL(), referrer.toURI().toURL(), anchor, s);
             }
             seen.put(new File(canonfile.getPath() + "#" + anchor), s);
             if (seenFile)
@@ -1051,6 +1036,26 @@ public class GeneralSnapshotTests
                 i = j;
             }
         }
+    }
+
+    static void checkAnchor(URL f, URL referrer, String anchor, String s)
+    {
+        // The fragment should exist as an id or name
+        Pattern p = Pattern.compile(" (id|name)=\"" + Pattern.quote(anchor) + "\"");
+        Matcher m = p.matcher(s);
+        String v;
+        int id = 0;
+        int name = 0;
+        while (m.find())
+        {
+            if ("id".equals(m.group(1)))
+                ++id;
+            else if ("name".equals(m.group(1)))
+                ++name;
+        }
+        if (id == 0 && name > 0)
+            id = 1;
+        assertThat(f + " from " + referrer + " Expected anchor "+ anchor + " to occur once: " + s, id, equalTo(1));
     }
 
     static void basicHTMLcheck(URL f, String s, String encoding)

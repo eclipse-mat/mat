@@ -38,6 +38,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
@@ -130,12 +131,19 @@ public class AllQueries
         // Tests don't have help
         assumeThat(qd.getCommandType().getName(),not(startsWith("org.eclipse.mat.tests.")));
         // Not all queries have help yet, so skip rather than fail those.
-        assumeThat("Normally should be some help", helpUrl, not(nullValue()));
+        if (Category.HIDDEN.equals(qd.getCategory()))
+        {
+            assumeThat("Normally should be some help", helpUrl, not(nullValue()));
+        }
+        else
+        {
+            assertThat("Should be some help", helpUrl, not(nullValue()));
+        }
         // All the help is currently in the help plugin
         assertThat(helpUrl, startsWith("/org.eclipse.mat.ui.help/"));
         URL url = new URL(new URL("platform:/plugin/"), helpUrl.substring(1));
         URL url2 = FileLocator.find(url);
-        assertThat(url2, not(nullValue()));
+        assertThat("Should find help URL in bundle "+url, url2, not(nullValue()));
         String encoding = StandardCharsets.UTF_8.name();
         String s;
         try (InputStream is = url2.openStream();
@@ -151,6 +159,9 @@ public class AllQueries
             s = sb.toString();
         }
         GeneralSnapshotTests.basicHTMLcheck(url2, s, encoding);
+        String anchor = url.getRef();
+        if (anchor != null)
+            GeneralSnapshotTests.checkAnchor(url2, url, anchor, s);
     }
 
     /**
