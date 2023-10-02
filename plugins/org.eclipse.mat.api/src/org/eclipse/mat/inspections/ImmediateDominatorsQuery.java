@@ -52,7 +52,7 @@ public class ImmediateDominatorsQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    public Pattern skipPattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|jdk\\..*"); //$NON-NLS-1$
+    public Pattern skipPattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|sun\\..*|jdk\\..*"); //$NON-NLS-1$
 
     public IResult execute(IProgressListener listener) throws Exception
     {
