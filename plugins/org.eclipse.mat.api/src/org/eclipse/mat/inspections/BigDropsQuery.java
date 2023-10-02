@@ -50,7 +50,7 @@ public class BigDropsQuery implements IQuery, IResultTree
     public ISnapshot snapshot;
 
     @Argument(advice = Advice.CLASS_NAME_PATTERN, isMandatory = false, flag = "skip")
-    public Pattern pattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|jdk\\..*"); //$NON-NLS-1$
+    public Pattern pattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|sun\\..*|jdk\\..*"); //$NON-NLS-1$
 
     // @Argument(isMandatory = false, flag = "t")
     // @Help("Differences in the retained sizes of the parent and the children

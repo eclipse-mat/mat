@@ -145,7 +145,8 @@ public class DominatorTreeTest
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_32BIT, false);
         SnapshotQuery query = SnapshotQuery.parse("immediate_dominators char[]", snapshot);
         IResultTable t = (IResultTable) query.execute(new VoidProgressListener());
-        assertThat("Immediate dominators char[]", t.getRowCount(), equalTo(18));
+        // 2 now that sun. is skipped
+        assertThat("Immediate dominators char[]", t.getRowCount(), equalTo(2));
     }
     
     @Test

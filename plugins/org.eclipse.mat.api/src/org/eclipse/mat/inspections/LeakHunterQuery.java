@@ -120,7 +120,7 @@ public class LeakHunterQuery implements IQuery
     public int max_paths = 10000;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    public Pattern skipPattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|jdk\\..*"); //$NON-NLS-1$
+    public Pattern skipPattern = Pattern.compile("java\\..*|javax\\..*|com\\.sun\\..*|sun\\..*|jdk\\..*"); //$NON-NLS-1$
 
     @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
