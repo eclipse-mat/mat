@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69ba0b3c_40d2f99d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-10-07T09:06:44Z",
+      "side": 1,
+      "message": "Looks okay but needs a Mac to test.",
+      "revId": "0fd9941d6d0870b1e81aa42873b99c5bd505ba2b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
