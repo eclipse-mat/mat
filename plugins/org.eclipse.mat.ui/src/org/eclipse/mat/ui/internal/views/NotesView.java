@@ -63,7 +63,12 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
+import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput.IChangeListener;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
@@ -93,6 +98,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
     private static final int UNDO_LEVEL = 25;
 
     private File resource;
+    private File prefix;
 
     private Action undo;
     private Action redo;
@@ -232,6 +238,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         textViewer.getControl().setFocus();
     }
 
+    @Override
     public void partActivated(IWorkbenchPart part)
     {
         if (!supportsNotes(part))
@@ -246,15 +253,95 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
             if (isDirty())
                 saveNotes();
             resource = path;
+            IQueryContext icq = editor.getQueryContext();
+            if (icq != null)
+            {
+                prefix = new File(icq.getPrefix());
+            }
+            else
+            {
+                prefix = null;
+                if (editor instanceof HeapEditor)
+                {
+                    HeapEditor heapEditor = (HeapEditor) editor;
+                    ISnapshotEditorInput input = heapEditor.getSnapshotInput();
+                    if (input != null && input.hasSnapshot())
+                    {
+                        prefix = new File(input.getSnapshot().getSnapshotInfo().getPrefix());
+                    }
+                    else
+                    {
+                        IChangeListener l = new IChangeListener()
+                        {
+                            @Override
+                            public void onSnapshotLoaded(ISnapshot snapshot)
+                            {
+                                if (!textViewer.getControl().isDisposed() && prefix == null && resource != null
+                                                && resource.getPath().equals(snapshot.getSnapshotInfo().getPath()))
+                                {
+                                    File prefix1 = new File(snapshot.getSnapshotInfo().getPrefix());
+                                    File prefixNotesFile = getDefaultNotesFile(prefix1);
+                                    if (!getDefaultNotesFile(resource).equals(prefixNotesFile))
+                                    {
+                                        /*
+                                         * Change in notes file, and there is an
+                                         * existing notes file. Save the old
+                                         * file, use the new file. Otherwise,
+                                         * keep the data read, and use it for
+                                         * the new file.
+                                         */
+                                        if (prefixNotesFile.canRead() && prefixNotesFile.isFile()
+                                                        && prefixNotesFile.length() > 0)
+                                        {
+                                            // Save the old file
+                                            if (isDirty())
+                                                saveNotes();
+                                            // Use the new file
+                                            prefix = prefix1;
+                                            updateTextViewer();
+                                        }
+                                        else
+                                        {
+                                            // The file to save to is empty /
+                                            // doesn't exist.
+                                            String text = textViewer.getDocument().get();
+                                            prefix = prefix1;
+                                            if (text != null && !text.isEmpty())
+                                            {
+                                                /*
+                                                 * The old file had some data,
+                                                 * so make it to be saved in the
+                                                 * new file.
+                                                 */
+                                                modified = true;
+                                                hash = 0;
+                                                firePropertyChange(PROP_DIRTY);
+                                            }
+                                        }
+                                    }
+                                }
+                                input.removeChangeListener(this);
+                            }
+
+                            @Override
+                            public void onBaselineLoaded(ISnapshot snapshot)
+                            {}
+                        };
+                        input.addChangeListener(l);
+                    }
+                }
+            }
             updateTextViewer();
         }
     }
 
+    @Override
     public void partBroughtToTop(IWorkbenchPart part)
     {
         partActivated(part);
     }
 
+    @Override
     public void partClosed(IWorkbenchPart part)
     {
         if (!supportsNotes(part)) { return; }
@@ -267,15 +354,18 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
             // Saving usually done as SaveablePart except when snapshot is closed
             if (isDirty())
                 saveNotes();
+            this.prefix = null;
             this.resource = null;
             this.editor = null;
             this.updateTextViewer();
         }
     }
 
+    @Override
     public void partDeactivated(IWorkbenchPart part)
     {}
 
+    @Override
     public void partOpened(IWorkbenchPart part)
     {}
 
@@ -318,7 +408,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         // get notes.txt and if it's not null set is as input
         if (resource != null)
         {
-            String buffer = readNotes(resource);
+            String buffer = readNotes(prefix != null ? prefix : resource);
             if (buffer != null)
             {
                 Document document = new Document(buffer);
@@ -382,7 +472,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         {
             String text = textViewer.getDocument().get();
             if (text != null)
-                saveNotes(resource, text);
+                saveNotes(prefix != null ? prefix : resource, text);
             resetUndoManager();
             hash = hash();
             modified = false;
@@ -440,21 +530,25 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
             this.region = region;
         }
 
+        @Override
         public IRegion getHyperlinkRegion()
         {
             return region;
         }
 
+        @Override
         public String getHyperlinkText()
         {
             return null;
         }
 
+        @Override
         public String getTypeLabel()
         {
             return null;
         }
 
+        @Override
         public void open()
         {
             try
@@ -583,6 +677,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
             return textViewer.canDoOperation(actionId);
         }
 
+        @Override
         public void run()
         {
             textViewer.doOperation(actionId);
@@ -599,7 +694,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
      * snapshot resource.
      * @param resourcePath The editor file (snapshot or index file).
      * @return The contents of the notes file, lines separated by \n.
-     * @throws {@link UncheckedIOException} for some IO errors.
+     * @throws UncheckedIOException for some IO errors.
      */
     public static String readNotes(File resourcePath)
     {
@@ -668,11 +763,11 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         }
         catch (FileNotFoundException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         finally
         {
@@ -695,31 +790,37 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         return new File(resource.getParentFile(), filename + ".notes.txt");//$NON-NLS-1$
     }
 
+    @Override
     public void doSave(IProgressMonitor monitor)
     {
         saveNotes();
         firePropertyChange(PROP_DIRTY); 
     }
 
+    @Override
     public void doSaveAs()
     {
     }
 
+    @Override
     public boolean isDirty()
     {
         return undoManager.undoable() || modified && hash != hash();
     }
 
+    @Override
     public boolean isSaveAsAllowed()
     {
         return false;
     }
 
+    @Override
     public boolean isSaveOnCloseNeeded()
     {
         return true;
     }
 
+    @Override
     public int promptToSaveOnClose()
     {
         return ISaveablePart2.YES;
