@@ -60,6 +60,9 @@
 						<product>
 							<id>org.eclipse.mat.ui.rcp.MemoryAnalyzer</id>
 							<rootFolder>mat</rootFolder>
+							<rootFolders>
+								<macosx>MemoryAnalyzer.app</macosx>
+							</rootFolders>
 						</product>
 					</products>
 				</configuration>
@@ -112,13 +115,13 @@
 									<target>
 										<!--  Remove unneeded executable -->
 										<delete includeemptydirs="false" failonerror="false">
-											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/mat.app/Contents/Eclipse/p2/org.eclipse.equinox.p2.core/cache/">
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/MemoryAnalyzer.app/Contents/Eclipse/p2/org.eclipse.equinox.p2.core/cache/">
 												<include name="**" />
 											</fileset>
 										</delete>
 										<!--  Sign library -->
 										<first id="eclipse.so">
-											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/mat.app/Contents/Eclipse/plugins" includes="**/*.so" />
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/x86_64/MemoryAnalyzer.app/Contents/Eclipse/plugins" includes="**/*.so" />
 										</first>
 										<exec dir="${project.build.directory}" executable="curl">
 											<arg value="--output"/>
@@ -143,13 +146,13 @@
 									<target>
 										<!--  Remove unneeded executable -->
 										<delete includeemptydirs="false" failonerror="false">
-											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/aarch64/mat.app/Contents/Eclipse/p2/org.eclipse.equinox.p2.core/cache/">
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/aarch64/MemoryAnalyzer.app/Contents/Eclipse/p2/org.eclipse.equinox.p2.core/cache/">
 												<include name="**" />
 											</fileset>
 										</delete>
 										<!--  Sign library -->
 										<first id="eclipse.so">
-											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/aarch64/mat.app/Contents/Eclipse/plugins" includes="**/*.so" />
+											<fileset dir="${project.build.directory}/products/org.eclipse.mat.ui.rcp.MemoryAnalyzer/macosx/cocoa/aarch64/MemoryAnalyzer.app/Contents/Eclipse/plugins" includes="**/*.so" />
 										</first>
 										<exec dir="${project.build.directory}" executable="curl">
 											<arg value="--output"/>
@@ -221,7 +224,7 @@
 								<phase>package</phase>
 								<configuration>
 									<fileNames>
-										<fileName>mat.app</fileName>
+										<fileName>MemoryAnalyzer.app</fileName>
 									</fileNames>
 									<timeoutMillis>300000</timeoutMillis> <!-- 5 min -->
 									<continueOnFail>${macSigner.forceContinue}</continueOnFail>
