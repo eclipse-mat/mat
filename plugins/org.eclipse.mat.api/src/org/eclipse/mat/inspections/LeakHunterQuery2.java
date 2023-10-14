@@ -17,6 +17,7 @@ import java.text.Format;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -33,6 +34,8 @@ import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 /**
  * Looks for leaks based on a delta in retained sizes of
@@ -69,8 +72,9 @@ public class LeakHunterQuery2 extends LeakHunterQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(Messages.LeakHunterQuery2_ProgressName, listener, new int[] { 1, 999 });
         // Get a signed bytes formatter
-        Histogram dummy = snapshot.getHistogram(new int[0], listener);
+        Histogram dummy = snapshot.getHistogram(new int[0], monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
         dummy = dummy.diffWithBaseline(dummy);
@@ -78,7 +82,7 @@ public class LeakHunterQuery2 extends LeakHunterQuery
         if (f instanceof BytesFormat)
             bytesFormatter = (BytesFormat)f;
 
-        IResult res = super.execute(listener);
+        IResult res = super.execute(monitor.nextMonitor());
         if (res instanceof SectionSpec)
         {
             // Add in saved dominator tree
@@ -111,6 +115,7 @@ public class LeakHunterQuery2 extends LeakHunterQuery
             spec.set(Params.Rendering.HIDE_COLUMN, "#7,#8,#9"); //$NON-NLS-1$
             ((SectionSpec) res).add(spec);
         }
+        listener.done();
         return res;
     }
 

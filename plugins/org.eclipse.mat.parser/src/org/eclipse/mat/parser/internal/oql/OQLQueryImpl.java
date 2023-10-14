@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -2063,8 +2063,9 @@ public class OQLQueryImpl implements IOQLQuery
      */
     private Object doMethodCall(IProgressListener listener) throws SnapshotException
     {
-        int percentages[] = new int[] {300,100};
+        int percentages[] = new int[] {300,100,100};
         SimpleMonitor smlistener = new SimpleMonitor(query.toString(), listener, percentages);
+        IProgressListener listener0 = listener;
         Expression method = query.getFromClause().getCall();
         this.ctx.setSubject(this.ctx.getSnapshot());
         IProgressListener old = ctx.getProgressListener();
@@ -2079,6 +2080,7 @@ public class OQLQueryImpl implements IOQLQuery
         {
             if (result == null)
             {
+                listener0.done();
                 return null;
             }
             else if (result instanceof Iterable)
@@ -2090,17 +2092,21 @@ public class OQLQueryImpl implements IOQLQuery
                     String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
                     listener.beginTask(task, length);
                 }
+                SilentProgressListener acceptListener = new SilentProgressListener(listener);
                 for (Object obj : (Iterable<?>) result)
                 {
-                    if (accept(obj, listener))
+                    if (accept(obj, acceptListener))
                         r.add(obj);
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
                     if (result instanceof Collection)
                         listener.worked(1);
                 }
-
-                return r.isEmpty() ? null : select(r, listener);
+                listener.done();
+                listener = smlistener.nextMonitor();
+                Object ret = r.isEmpty() ? null : select(r, listener);
+                listener0.done();
+                return ret;
             }
             else if (result.getClass().isArray())
             {
@@ -2109,25 +2115,33 @@ public class OQLQueryImpl implements IOQLQuery
                 int length = Array.getLength(result);
                 String task = query.getWhereClause() != null ? "WHERE " + query.getWhereClause() : Messages.OQLQueryImpl_Selecting; //$NON-NLS-1$
                 listener.beginTask(task, length);
+                SilentProgressListener acceptListener = new SilentProgressListener(listener);
                 for (int ii = 0; ii < length; ii++)
                 {
                     Object obj = Array.get(result, ii);
-                    if (accept(obj, listener))
+                    if (accept(obj, acceptListener))
                         r.add(obj);
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
                     listener.worked(1);
                 }
-
-                return r.isEmpty() ? null : select(r, listener);
+                listener.done();
+                listener = smlistener.nextMonitor();
+                Object ret = r.isEmpty() ? null : select(r, listener);
+                listener0.done();
+                return ret;
             }
             else if (result instanceof IResultTable || result instanceof IResultTree)
             {
-                return filterAndSelect((IStructuredResult)result, listener);
+                Object ret = filterAndSelect((IStructuredResult)result, listener);
+                listener0.done();
+                return ret;
             }
             else
             {
-                return accept(result, listener) ? select(result, listener) : null;
+                Object ret = accept(result, listener) ? select(result, smlistener.nextMonitor()) : null;
+                listener0.done();
+                return ret;
             }
         }
         else
@@ -2141,6 +2155,7 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 if (result == null)
                 {
+                    listener0.done();
                     return null;
                 }
                 else if (result instanceof Iterable)
@@ -2265,7 +2280,9 @@ public class OQLQueryImpl implements IOQLQuery
                                 query.getFromClause().toString(), e.getMessage()), e);
             }
 
-            return filterClasses(listener, classes);
+            Object ret = filterClasses(listener, classes);
+            listener0.done();
+            return ret;
         }
     }
 
@@ -2334,7 +2351,9 @@ public class OQLQueryImpl implements IOQLQuery
                     listener.worked(1);
             }
 
-            return filteredSet.isEmpty() ? null : select(filteredSet, listener);
+            Object ret = filteredSet.isEmpty() ? null : select(filteredSet, listener);
+            listener.done();
+            return ret;
         }
     }
 

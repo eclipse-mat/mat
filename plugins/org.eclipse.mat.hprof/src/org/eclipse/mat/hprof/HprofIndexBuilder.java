@@ -60,8 +60,6 @@ public class HprofIndexBuilder implements IIndexBuilder
         SimpleMonitor monitor = new SimpleMonitor(MessageUtil.format(Messages.HprofIndexBuilder_Parsing,
                         new Object[] { file.getAbsolutePath() }), listener, new int[] { 500, 1500 });
 
-        listener.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Parsing, file.getName()), 3000);
-
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
         long estimatedLength = CompressedRandomAccessFile.estimatedLength(file);

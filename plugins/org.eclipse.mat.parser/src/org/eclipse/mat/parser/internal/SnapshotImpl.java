@@ -87,6 +87,8 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SilentProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
 
 /**
@@ -588,7 +590,8 @@ public final class SnapshotImpl implements ISnapshot
 
         HistogramBuilder histogramBuilder = new HistogramBuilder(Messages.SnapshotImpl_Histogram);
 
-        progressMonitor.beginTask(Messages.SnapshotImpl_BuildingHistogram, objectIds.length >>> 8);
+        // Round up count
+        progressMonitor.beginTask(Messages.SnapshotImpl_BuildingHistogram, (objectIds.length >>> 8) + ((objectIds.length & 0xff) > 0 ? 1 : 0));
 
         // Arrays.sort(objectIds);
         // int[] classIds = indexManager.o2class().getAll(objectIds);
@@ -941,6 +944,7 @@ public final class SnapshotImpl implements ISnapshot
     {
         if (progressMonitor == null)
             progressMonitor = new VoidProgressListener();
+        SimpleMonitor monitor = new SimpleMonitor(Messages.SnapshotImpl_RetainedSetProgressName, progressMonitor, new int[] {50,50});
         /*
          * first pass - mark starting from the GC roots, avoiding
          * excludedReferences, until initial are reached. The non-marked objects
@@ -954,7 +958,7 @@ public final class SnapshotImpl implements ISnapshot
         }
         ObjectMarker marker = new ObjectMarker(getGCRoots(), firstPass, getIndexManager().outbound,
                         IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
-                        progressMonitor);
+                        monitor.nextMonitor());
         marker.markSingleThreaded(excludedReferences, this);
 
         // un-mark initial - they have to go into the retained set
@@ -971,7 +975,7 @@ public final class SnapshotImpl implements ISnapshot
         System.arraycopy(firstPass, 0, secondPass, 0, firstPass.length);
 
         ObjectMarker secondMarker = new ObjectMarker(objectIds, secondPass, getIndexManager().outbound,
-                        progressMonitor);
+                        monitor.nextMonitor());
         secondMarker.markSingleThreaded();
 
         // Clear to make space
@@ -1688,12 +1692,14 @@ public final class SnapshotImpl implements ISnapshot
      * @throws SnapshotException if there is a problem
      */
     public void calculateMinRetainedHeapSizeForClasses(IProgressListener listener) throws SnapshotException {
-        listener.subTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses);
 
         // too expensive to do accurate search
         boolean approximate = true;
         boolean calculate = true;
 
+        int size = classCache.size();
+        listener.beginTask(Messages.SnapshotImpl_CalculatingRetainedHeapSizeForClasses, size);
+        IProgressListener l2 = new SilentProgressListener(listener);
         Iterator<ClassImpl> classes = classCache.values();
         while (classes.hasNext())
         {
@@ -1702,8 +1708,10 @@ public final class SnapshotImpl implements ISnapshot
             }
 
             IClass theClass = classes.next();
-            theClass.getRetainedHeapSizeOfObjects(calculate, approximate, listener);
+            theClass.getRetainedHeapSizeOfObjects(calculate, approximate, l2);
+            listener.worked(1);
         }
+        listener.done();
     }
 
     @Override

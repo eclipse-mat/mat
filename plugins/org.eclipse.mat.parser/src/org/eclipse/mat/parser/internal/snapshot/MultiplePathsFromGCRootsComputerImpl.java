@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -278,7 +278,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 		// used for the progress listener
 		int countVisitedObjects = 0;
 		final int steps = 1000;
-		int reportFrequency = Math.max(10, numObjects / steps);
+		int reportFrequency = Math.max(10, (numObjects + steps - 1) / steps);
 
 		progressListener.beginTask(Messages.MultiplePathsFromGCRootsComputerImpl_FindingPaths, steps);
 

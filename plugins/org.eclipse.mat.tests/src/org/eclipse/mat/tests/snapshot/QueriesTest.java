@@ -120,6 +120,7 @@ public class QueriesTest
     {
         int total;
         int work;
+        String task;
         public CheckedWorkProgressListener(ErrorCollector collector)
         {
             super(collector);
@@ -127,14 +128,22 @@ public class QueriesTest
         @Override
         public void beginTask(String s, int total)
         {
-            collector.checkThat("Total work should be non-negative", total, greaterThanOrEqualTo(0));
+            collector.checkThat(s + ": Total work should be non-negative", total, greaterThanOrEqualTo(0));
+            collector.checkThat(s + ": beginTask() should not have already been called, total: ", this.total, equalTo(0));
             this.total = total;
+            this.task = s;
         }
         @Override
         public void worked(int w)
         {
-            collector.checkThat("Work should be non-negative", w, greaterThanOrEqualTo(0));
+            collector.checkThat(task + ": Work should be non-negative", w, greaterThanOrEqualTo(0));
+            collector.checkThat(task + ": Work should be less than or equal to remaining work "+total+" - " + work, w, lessThanOrEqualTo(total - work));
             work += w;
+        }
+        @Override
+        public void done()
+        {
+            collector.checkThat(task + ": Work done should be less than or equal to total work", work, lessThanOrEqualTo(total));
         }
     }
 
@@ -147,7 +156,7 @@ public class QueriesTest
     public void testDominatorByLoader() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree -groupby BY_CLASSLOADER", snapshot);
-        IResultTree t = (IResultTree) query.execute(new CheckedProgressListener(collector));
+        IResultTree t = (IResultTree) query.execute(new CheckedWorkProgressListener(collector));
         // class loaders
         for (Object o : t.getElements())
         {
@@ -181,7 +190,7 @@ public class QueriesTest
     public void testOQLFormatting() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         RefinedTable table = (RefinedTable) builder.build();
         
         for (int i = 0; i < table.getRowCount(); ++i)
@@ -201,7 +210,7 @@ public class QueriesTest
     public void testOQLFiltering() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, ">-9E99");
         RefinedTable table = (RefinedTable) builder.build();
         
@@ -218,7 +227,7 @@ public class QueriesTest
     public void testOQLFiltering2() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, ">");
     }
 
@@ -226,7 +235,7 @@ public class QueriesTest
     public void testOQLFiltering3() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, ">=");
     }
 
@@ -234,7 +243,7 @@ public class QueriesTest
     public void testOQLFiltering4() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "<=");
     }
 
@@ -242,7 +251,7 @@ public class QueriesTest
     public void testOQLFiltering5() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "<");
     }
 
@@ -250,7 +259,7 @@ public class QueriesTest
     public void testOQLFiltering6() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "<>");
     }
 
@@ -258,7 +267,7 @@ public class QueriesTest
     public void testOQLFiltering7() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "!=");
     }
 
@@ -266,7 +275,7 @@ public class QueriesTest
     public void testOQLFiltering8() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "..");
     }
 
@@ -274,7 +283,7 @@ public class QueriesTest
     public void testOQLFiltering9() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setFilter(0, "!");
     }
 
@@ -286,7 +295,7 @@ public class QueriesTest
     public void testFiltering10() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         builder.setFilter(2, ">=0");
         RefinedTable table = (RefinedTable) builder.build();
@@ -311,7 +320,7 @@ public class QueriesTest
     public void testFiltering11ge() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, ">="+sz);
@@ -343,7 +352,7 @@ public class QueriesTest
     public void testFiltering11gt() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, ">"+sz);
@@ -371,7 +380,7 @@ public class QueriesTest
     public void testFiltering11lt() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "<"+sz);
@@ -399,7 +408,7 @@ public class QueriesTest
     public void testFiltering11le() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "<="+sz);
@@ -431,7 +440,7 @@ public class QueriesTest
     public void testFiltering11eq() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, ""+sz);
@@ -459,7 +468,7 @@ public class QueriesTest
     public void testFiltering11ne() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "!="+sz);
@@ -487,7 +496,7 @@ public class QueriesTest
     public void testFiltering11ne2() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "<>"+sz);
@@ -515,7 +524,7 @@ public class QueriesTest
     public void testFiltering11rangea() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, sz+"..");
@@ -547,7 +556,7 @@ public class QueriesTest
     public void testFiltering11rangeb() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, ".."+sz);
@@ -579,7 +588,7 @@ public class QueriesTest
     public void testFiltering11rangeab() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sza = 32;
         long szb = 256;
@@ -617,7 +626,7 @@ public class QueriesTest
     public void testFiltering11urangea() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "U\\"+sz+"..");
@@ -649,7 +658,7 @@ public class QueriesTest
     public void testFiltering11urangeb() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sz = 32;
         builder.setFilter(2, "U\\.."+sz);
@@ -682,7 +691,7 @@ public class QueriesTest
     public void testFiltering11urangeab() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sza = 32;
         long szb = 256;
@@ -721,7 +730,7 @@ public class QueriesTest
     public void testOQLFiltering11urangeabnan() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sza = 32;
         long szb = 256;
@@ -760,7 +769,7 @@ public class QueriesTest
     public void testOQLFiltering11notrangeabnan() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
         long sza = 32;
         long szb = 256;
@@ -803,7 +812,7 @@ public class QueriesTest
     public void testFiltering11regex() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check size is filterable
 
         builder.setFilter(0, "java\\.lang");
@@ -823,7 +832,7 @@ public class QueriesTest
     public void testFiltering12percent() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         // Use default locale
         double comp = 0.03;
@@ -844,7 +853,7 @@ public class QueriesTest
     public void testFiltering12percentNumPercent() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         // Use default locale
         double comp = 0.03;
@@ -865,7 +874,7 @@ public class QueriesTest
     public void testFiltering12percentFr() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
         double comp = 0.03;
@@ -886,7 +895,7 @@ public class QueriesTest
     public void testFiltering12percentAsNum() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         // Allow for current locale by using formatting
         double comp = 0.03;
@@ -908,7 +917,7 @@ public class QueriesTest
     public void testFiltering12percentAsNumNoFr() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         // Ignore this formatting locale as don't use percent sign in filter
         builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
@@ -931,7 +940,7 @@ public class QueriesTest
     public void testFiltering12percentAsNumFr() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         // Check percentage is filterable
         builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
         // Allow for current locale by using formatting, rather than French for the percentage
@@ -957,7 +966,7 @@ public class QueriesTest
     public void testOQLSorting() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
-        RefinedResultBuilder builder = query.refine(new CheckedProgressListener(collector));
+        RefinedResultBuilder builder = query.refine(new CheckedWorkProgressListener(collector));
         builder.setSortOrder(0, Column.SortDirection.ASC);
         RefinedTable table = (RefinedTable) builder.build();
         
@@ -1030,7 +1039,7 @@ public class QueriesTest
     public void testCustomRetainedSet() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("customized_retained_set -x java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent; 0x2ca48ee8", snapshot);
-        Histogram t = (Histogram)query.execute(new CheckedProgressListener(collector));
+        Histogram t = (Histogram)query.execute(new CheckedWorkProgressListener(collector));
         assertTrue(t != null);
         assertEquals(17, t.getRowCount());
     }
@@ -1099,7 +1108,7 @@ public class QueriesTest
     public void testHeapArguments1() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram .*", snapshot);
-        Histogram t = (Histogram)query.execute(new CheckedProgressListener(collector));
+        Histogram t = (Histogram)query.execute(new CheckedWorkProgressListener(collector));
         long objs = 0;
         for (ClassHistogramRecord chr : t.getClassHistogramRecords())
         {
@@ -1117,7 +1126,7 @@ public class QueriesTest
     {
         // Escape the quotes in the command line to pass them to OQL
         SnapshotQuery query = SnapshotQuery.parse("histogram select * from \\\".*\\\"", snapshot);
-        Histogram t = (Histogram)query.execute(new CheckedProgressListener(collector));
+        Histogram t = (Histogram)query.execute(new CheckedWorkProgressListener(collector));
         long objs = 0;
         for (ClassHistogramRecord chr : t.getClassHistogramRecords())
         {
@@ -1140,9 +1149,9 @@ public class QueriesTest
         try
         {
             SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.hprof:export -params output="+fn.getPath(), snapshot);
-            IResult t = query.execute(new CheckedProgressListener(collector));
+            IResult t = query.execute(new CheckedWorkProgressListener(collector));
             assertNotNull(t);
-            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String,String>emptyMap(), new CheckedProgressListener(collector));
+            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String,String>emptyMap(), new CheckedWorkProgressListener(collector));
             assertNotNull(newSnapshot);
             SnapshotFactory.dispose(newSnapshot);
             assertThat(fn.toString(), fn.delete(), equalTo(true));
@@ -1201,10 +1210,10 @@ public class QueriesTest
             {
                 SnapshotQuery query = SnapshotQuery.parse(
                                 "create_report "+rep.getPath()+" -params output=" + fn.getPath(), snapshot);
-                IResult t = query.execute(new CheckedProgressListener(collector));
+                IResult t = query.execute(new CheckedWorkProgressListener(collector));
                 assertNotNull(t);
                 ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String, String> emptyMap(),
-                                new CheckedProgressListener(collector));
+                                new CheckedWorkProgressListener(collector));
                 assertNotNull(newSnapshot);
                 SnapshotFactory.dispose(newSnapshot);
                 assertThat(fn.toString(), fn.delete(), equalTo(true));
@@ -1234,7 +1243,7 @@ public class QueriesTest
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
         SnapshotQuery query = SnapshotQuery.parse("delta_histogram -baseline "+snapshot2.getSnapshotInfo().getPath(), snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         int intplus = 0;
         int intminus = 0;
@@ -1289,7 +1298,7 @@ public class QueriesTest
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:compare -params snapshot2="+snapshot2.getSnapshotInfo().getPath(), snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         if (t instanceof DisplayFileResult)
         {
@@ -1308,7 +1317,7 @@ public class QueriesTest
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview2 -params baseline="+snapshot.getSnapshotInfo().getPath(), snapshot2);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         if (t instanceof DisplayFileResult)
         {
@@ -1327,7 +1336,7 @@ public class QueriesTest
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params baseline="+snapshot.getSnapshotInfo().getPath(), snapshot2);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
     }
 
@@ -1415,7 +1424,7 @@ public class QueriesTest
     public IResult testLeakHunter2Report(ISnapshot snapshot1, ISnapshot snapshot2, int expectedProbs, int expectedDomTree, int expectedSubCommands) throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("leakhunter2 -baseline "+snapshot1.getSnapshotInfo().getPath(), snapshot2);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         if (expectedProbs == 0)
         {
@@ -1440,7 +1449,7 @@ public class QueriesTest
                     assertThat(qs.getCommand(), startsWith("simplecomparison "));
                     assertThat(qs.getCommand(), containsString("dominator_tree"));
                     SnapshotQuery query2 = SnapshotQuery.parse(qs.getCommand(), snapshot2);
-                    IResult t2 = query2.execute(new CheckedProgressListener(collector));
+                    IResult t2 = query2.execute(new CheckedWorkProgressListener(collector));
                     assertNotNull(t2);
                     ++domtree;
                 }
@@ -1456,7 +1465,7 @@ public class QueriesTest
                             if (qs2.getCommand() != null)
                             {
                                 SnapshotQuery query2 = SnapshotQuery.parse(qs2.getCommand(), snapshot2);
-                                IResult t2 = query2.execute(new CheckedProgressListener(collector));
+                                IResult t2 = query2.execute(new CheckedWorkProgressListener(collector));
                                 assertNotNull(t2);
                                 ++subcommands;
                             }
@@ -1475,16 +1484,16 @@ public class QueriesTest
     public void testCompareThreads1() throws SnapshotException
     {
         SnapshotQuery query1 = SnapshotQuery.parse("thread_overview", snapshot);
-        IResultTree tree1 = (IResultTree)query1.execute(new CheckedProgressListener(collector));
+        IResultTree tree1 = (IResultTree)query1.execute(new CheckedWorkProgressListener(collector));
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
         SnapshotQuery query2 = SnapshotQuery.parse("thread_overview", snapshot2);
-        IResultTree tree2 = (IResultTree)query2.execute(new CheckedProgressListener(collector));
+        IResultTree tree2 = (IResultTree)query2.execute(new CheckedWorkProgressListener(collector));
         SnapshotQuery query3 = SnapshotQuery.parse("comparetablesquery -mode ABSOLUTE -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key", snapshot2);
         IStructuredResult r[] = new IStructuredResult[] {tree1, tree2};
         query3.setArgument("tables", Arrays.asList(r));
         ISnapshot s[] = new ISnapshot[] {snapshot, snapshot2};
         query3.setArgument("snapshots", Arrays.asList(s));
-        IResult compres = query3.execute(new CheckedProgressListener(collector));
+        IResult compres = query3.execute(new CheckedWorkProgressListener(collector));
         IResultTree tree = (IResultTree)compres;
         assertThat(tree.getElements().size(), equalTo(Math.max(tree1.getElements().size(), tree2.getElements().size())));
         int same = 0;
@@ -1502,16 +1511,16 @@ public class QueriesTest
     public void testCompareHistogram1() throws SnapshotException
     {
         SnapshotQuery query1 = SnapshotQuery.parse("histogram", snapshot);
-        IResultTable table1 = (IResultTable)query1.execute(new CheckedProgressListener(collector));
+        IResultTable table1 = (IResultTable)query1.execute(new CheckedWorkProgressListener(collector));
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
         SnapshotQuery query2 = SnapshotQuery.parse("histogram", snapshot2);
-        IResultTable table2 = (IResultTable)query2.execute(new CheckedProgressListener(collector));
+        IResultTable table2 = (IResultTable)query2.execute(new CheckedWorkProgressListener(collector));
         SnapshotQuery query3 = SnapshotQuery.parse("comparetablesquery -mode ABSOLUTE -prefix -mask \"\\s@ 0x[0-9a-f]+|^(\\[[0-9]+\\], )*\\[[0-9]+\\]$|(?<=\\p{javaJavaIdentifierPart}\\[)\\d+(?=\\])\" -x java.util.HashMap$Node:key java.util.Hashtable$Entry:key java.util.WeakHashMap$Entry:referent java.util.concurrent.ConcurrentHashMap$Node:key", snapshot2);
         IStructuredResult r[] = new IStructuredResult[] {table1, table2};
         query3.setArgument("tables", Arrays.asList(r));
         ISnapshot s[] = new ISnapshot[] {snapshot, snapshot2};
         query3.setArgument("snapshots", Arrays.asList(s));
-        IResult compres = query3.execute(new CheckedProgressListener(collector));
+        IResult compres = query3.execute(new CheckedWorkProgressListener(collector));
         IResultTable table = (IResultTable)compres;
         assertThat(table.getRowCount(), greaterThanOrEqualTo(Math.max(table1.getRowCount(), table2.getRowCount())));
         assertThat(table.getRowCount(), lessThanOrEqualTo(table1.getRowCount() + table2.getRowCount()));
@@ -1526,7 +1535,7 @@ public class QueriesTest
     public void testQueryReport1() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params command=histogram", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         assertThat(t, instanceOf(DisplayFileResult.class));
         if (t instanceof DisplayFileResult)
@@ -1545,7 +1554,7 @@ public class QueriesTest
     public void testQueryReport2() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params \"command=oql \\\"select * from java.lang.String\\\"\"", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         assertThat(t, instanceOf(DisplayFileResult.class));
         if (t instanceof DisplayFileResult)
@@ -1567,7 +1576,7 @@ public class QueriesTest
                         "\"command=oql \\\"SELECT s AS Object, toString(s) as \\\\\\\"String value\\\\\\\" FROM \\\\\\\"java.lang.String.*\\\\\\\" s WHERE toString(s) LIKE \\\\\\\".*\\.\\\\\\\"\\\"\"",
                         snapshot);
 
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         assertThat(t, instanceOf(DisplayFileResult.class));
         if (t instanceof DisplayFileResult)
@@ -1593,7 +1602,7 @@ public class QueriesTest
         String commandLine = "secondary -baseline \"" + snf.getPath() + "\" -command system_properties";
         SnapshotQuery query = SnapshotQuery.parse(commandLine, snapshot);
         // Use count = 2 while executing command
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         // Use count = 1 now command finished
         assertNotNull(t);
         SnapshotFactory.dispose(snapshot2);
