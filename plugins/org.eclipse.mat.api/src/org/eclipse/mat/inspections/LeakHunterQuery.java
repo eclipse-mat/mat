@@ -129,11 +129,8 @@ public class LeakHunterQuery implements IQuery
 
     private long totalHeap;
 
-    private IProgressListener listener;
-
     public IResult execute(IProgressListener listener) throws Exception
     {
-        this.listener = listener;
         totalHeap = snapshot.getSnapshotInfo().getUsedHeapSize();
 
         /**

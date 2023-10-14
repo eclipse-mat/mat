@@ -133,6 +133,7 @@ public class TopConsumers2Query implements IQuery
         listener = monitor.nextMonitor();
         addPackageTree(spec, listener);
 
+        listener0.done();
         return spec;
     }
 

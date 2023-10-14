@@ -112,21 +112,24 @@ public class SimpleMonitor
             // Round up for !isSmaller so the division later rounds down
             workPerUnit = isSmaller ? majorUnits / totalWork : (totalWork + majorUnits -1) / majorUnits;
             unitsReported = 0;
-            //System.out.println("Begin task " + super.toString() + " " + this);
         }
 
         public void subTask(String name)
         {
             // Nest the names so the user can see what is happening.
             if (this.name != null && !this.name.isEmpty())
-                delegate.subTask(this.name + '\n' + name);
+            {
+                // No more than two lines, as in the UI a third line is partially cut-off or invisible.
+                delegate.subTask(this.name + '\n' + name.replaceAll("\n", ": ")); //$NON-NLS-1$//$NON-NLS-2$
+            }
             else
+            {
                 delegate.subTask(name);
+            }
         }
 
         public void done()
         {
-            //System.out.println("done " + super.toString() + " " + task);
             if (majorUnits - unitsReported > 0)
             {
                 delegate.worked(majorUnits - unitsReported);
