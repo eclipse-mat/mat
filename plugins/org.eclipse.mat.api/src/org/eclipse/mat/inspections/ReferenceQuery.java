@@ -39,6 +39,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 /**
  * Extract information about objects extending java.lang.ref.Reference, e.g.
@@ -159,9 +160,12 @@ public class ReferenceQuery implements IQuery
                     String labelHistogramReferenced, String labelHistogramRetained, String labelHistogramStronglyRetainedReferents, String referentField, IProgressListener listener)
                     throws SnapshotException
     {
+        SimpleMonitor monitor = new SimpleMonitor(
+                        Messages.ReferenceQuery_ProgressName, listener,
+                        new int[] { 100, 300, 100, 300, 100 });
         CompositeResult result = new CompositeResult();
 
-        Histogram histogram = snapshot.getHistogram(referentSet.toArray(), listener);
+        Histogram histogram = snapshot.getHistogram(referentSet.toArray(), monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
@@ -169,10 +173,10 @@ public class ReferenceQuery implements IQuery
         result.addResult(labelHistogramReferenced, histogram);
 
         listener.subTask(Messages.ReferenceQuery_Msg_ComputingRetainedSet);
-        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { referentField }, listener);
+        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { referentField }, monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        histogram = snapshot.getHistogram(retainedSet, listener);
+        histogram = snapshot.getHistogram(retainedSet, monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
@@ -180,7 +184,7 @@ public class ReferenceQuery implements IQuery
         result.addResult(labelHistogramRetained, histogram);
 
         listener.subTask(Messages.ReferenceQuery_Msg_ComputingStronglyRetainedSet);
-        int[] allRetainedSet = snapshot.getRetainedSet(instanceSet.toArray(), listener);
+        int[] allRetainedSet = snapshot.getRetainedSet(instanceSet.toArray(), monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
@@ -220,12 +224,13 @@ public class ReferenceQuery implements IQuery
         int leakingReferents[] = new int[d];
         System.arraycopy(referents, 0, leakingReferents, 0, d);
 
-        histogram = snapshot.getHistogram(leakingReferents, listener);
+        histogram = snapshot.getHistogram(leakingReferents, monitor.nextMonitor());
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
         histogram.setLabel(labelHistogramStronglyRetainedReferents);
         result.addResult(labelHistogramStronglyRetainedReferents, histogram);
+        listener.done();
         return result;
     }
 

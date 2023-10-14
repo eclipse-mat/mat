@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -60,6 +60,7 @@ import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
 import com.ibm.icu.text.NumberFormat;
@@ -97,9 +98,13 @@ public class TopConsumers2Query implements IQuery
     {
         if (objects != null && objects.length == 0)
             return new TextResult(Messages.TopConsumers2Query_MsgNoObjects);
+        SimpleMonitor monitor = new SimpleMonitor(Messages.TopConsumers2Query_TopConsumers, listener,
+                        new int[] { 100, 100, 100, 100, 100 });
+        IProgressListener listener0 = listener;
 
         SectionSpec spec = new SectionSpec(Messages.TopConsumers2Query_TopConsumers);
 
+        listener = monitor.nextMonitor();
         setup(listener);
 
         if (listener.isCanceled())
@@ -110,18 +115,22 @@ public class TopConsumers2Query implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
+        listener = monitor.nextMonitor();
         Histogram histogram = getDominatedHistogramWithRetainedSizes(listener);
 
+        listener = monitor.nextMonitor();
         addTopLevelDominatorClasses(spec, histogram, listener);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
+        listener = monitor.nextMonitor();
         addTopLevelDominatorClassloader(spec, histogram, listener);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
+        listener = monitor.nextMonitor();
         addPackageTree(spec, listener);
 
         return spec;
@@ -489,7 +498,7 @@ public class TopConsumers2Query implements IQuery
 
     private Histogram getDominatedHistogramWithRetainedSizes(IProgressListener listener) throws SnapshotException
     {
-        listener.beginTask(Messages.TopConsumers2Query_CreatingHistogram, topDominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_CreatingHistogram, (topDominators.length + 999) / 1000);
 
         // calculate histogram ourselves -> keep id:retained size relation
         HashMapIntObject<ClassHistogramRecordWithObjIds> id2class = new HashMapIntObject<ClassHistogramRecordWithObjIds>();
@@ -641,7 +650,7 @@ public class TopConsumers2Query implements IQuery
         PackageTreeNode root = new PackageTreeNode(Messages.TopConsumers2Query_Label_all);
         PackageTreeNode current;
 
-        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, topDominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, (topDominators.length + 999) / 1000);
 
         for (int ii = 0; ii < topDominators.length; ii++)
         {

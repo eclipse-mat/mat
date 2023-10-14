@@ -45,6 +45,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("customized_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
@@ -65,12 +66,15 @@ public class CustomizedRetainedSetQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(MessageUtil.format(Messages.CustomizedRetainedSetQuery_QueryName, objects.getLabel()),
+                        listener, new int[] { 10, 950, 50 });
         int[] retainedSet;
 
         if (excludedReferences == null && excludedReferencesListFile == null)
         {
             // normal retained set
-            retainedSet = snapshot.getRetainedSet(objects.getIds(listener), listener);
+            int objs[] = objects.getIds(monitor.nextMonitor());
+            retainedSet = snapshot.getRetainedSet(objs, monitor.nextMonitor());
         }
         else
         {
@@ -93,18 +97,20 @@ public class CustomizedRetainedSetQuery implements IQuery
                 }
             }
             ExcludedReferencesDescriptor[] excludedRefDescriptors = getExcludedReferenceDescriptors(excludedReferences);
-            retainedSet = snapshot.getRetainedSet(objects.getIds(listener), excludedRefDescriptors, listener);
+            int objs[] = objects.getIds(monitor.nextMonitor());
+            retainedSet = snapshot.getRetainedSet(objs, excludedRefDescriptors, monitor.nextMonitor());
         }
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        Histogram histogram = snapshot.getHistogram(retainedSet, listener);
+        Histogram histogram = snapshot.getHistogram(retainedSet, monitor.nextMonitor());
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
         histogram.setLabel(MessageUtil.format(Messages.CustomizedRetainedSetQuery_RetainedBy, objects.getLabel()));
+        listener.done();
         return histogram;
     }
 

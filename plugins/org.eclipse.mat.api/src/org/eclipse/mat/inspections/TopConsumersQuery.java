@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 import com.ibm.icu.text.NumberFormat;
 
@@ -74,12 +75,16 @@ public class TopConsumersQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(Messages.TopConsumers2Query_TopConsumers, listener,
+                        new int[] { 100, 100, 100 });
+        IProgressListener listener0 = listener;
         CharArrayWriter outWriter = new CharArrayWriter(1000);
         PrintWriter out = new PrintWriter(outWriter);
 
         long totalHeap;
         int[] topDominators;
 
+        listener = monitor.nextMonitor();
         // nothing specified ->
         // use the top-level dominators
         if (objects == null)
@@ -129,6 +134,7 @@ public class TopConsumersQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
+        listener = monitor.nextMonitor();
         Histogram histogram = groupByClasses(topDominators, listener);
 
         // find suspect classes
@@ -160,6 +166,7 @@ public class TopConsumersQuery implements IQuery
         }
 
         // group by packages
+        listener = monitor.nextMonitor();
         PackageTreeNode root = groupByPackage(topDominators, snapshot, listener);
         root.retainedSize = totalHeap;
         root.dominators = new ArrayInt(topDominators);
@@ -233,6 +240,7 @@ public class TopConsumersQuery implements IQuery
         printPackageTree(root, new StringBuilder(), totalHeap, threshold, out, snapshot);
 
         out.close();
+        listener0.done();
         return new TextResult(outWriter.toString());
     }
 
@@ -335,7 +343,7 @@ public class TopConsumersQuery implements IQuery
         PackageTreeNode root = new PackageTreeNode(Messages.TopConsumers2Query_Label_all);
         PackageTreeNode current;
 
-        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, dominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, (dominators.length + 999) / 1000);
         int counter = 0;
 
         for (int dominatorId : dominators)
@@ -377,7 +385,7 @@ public class TopConsumersQuery implements IQuery
                 listener.worked(1);
             }
         }
-
+        listener.done();
         return root;
     }
 

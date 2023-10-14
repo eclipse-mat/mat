@@ -839,7 +839,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.sendUserMessage(Severity.ERROR, Messages.DTFJIndexBuilder_NullPurgedMapping, null);
             return;
         }
-        listener.beginTask(Messages.DTFJIndexBuilder_PurgingDeadObjectsFromImage, purgedMapping.length / 10000);
+        listener.beginTask(Messages.DTFJIndexBuilder_PurgingDeadObjectsFromImage, (purgedMapping.length + 9999) / 10000);
         int count = 0;
         long memFree = 0;
         for (int i = 0; i < purgedMapping.length; ++i)

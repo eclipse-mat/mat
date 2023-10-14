@@ -12,12 +12,15 @@
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("show_dominator_tree")
 @Icon("/META-INF/icons/dominator_tree.gif")
@@ -29,7 +32,12 @@ public class ShowInDominatorQuery extends DominatorQuery
 
     public DominatorQuery.Tree execute(IProgressListener listener) throws Exception
     {
-        return create(snapshot.getTopAncestorsInDominatorTree(objects.getIds(listener), listener), listener);
+        SimpleMonitor monitor = new SimpleMonitor(
+                        MessageUtil.format(Messages.ShowInDominatorQuery_ProgressName, objects.getLabel()), listener,
+                        new int[] { 20, 100 });
+        Tree ret = create(snapshot.getTopAncestorsInDominatorTree(objects.getIds(monitor.nextMonitor()), listener), monitor.nextMonitor());
+        listener.done();
+        return ret;
     }
 
 }

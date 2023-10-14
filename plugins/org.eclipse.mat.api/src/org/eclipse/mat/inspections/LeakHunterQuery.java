@@ -88,6 +88,7 @@ import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 import com.ibm.icu.text.NumberFormat;
 
@@ -135,9 +136,17 @@ public class LeakHunterQuery implements IQuery
         this.listener = listener;
         totalHeap = snapshot.getSnapshotInfo().getUsedHeapSize();
 
+        /**
+         * Find Leaks
+         * remainder
+         */
+        SimpleMonitor monitor = new SimpleMonitor(
+                        Messages.LeakHunterQuery_ProgressName, listener,
+                        new int[] { 30, 70 });
+
         /* call find_leaks */
         listener.subTask(Messages.LeakHunterQuery_FindingProblemSuspects);
-        FindLeaksQuery.SuspectsResultTable findLeaksResult = callFindLeaks(listener);
+        FindLeaksQuery.SuspectsResultTable findLeaksResult = callFindLeaks(monitor.nextMonitor());
         SuspectRecord[] leakSuspects = findLeaksResult.getData();
 
         SectionSpec result = new SectionSpec(Messages.LeakHunterQuery_LeakHunter);
@@ -145,6 +154,17 @@ public class LeakHunterQuery implements IQuery
 
         if (leakSuspects.length > 0)
         {
+            /**
+             * Find Leaks
+             */
+            int ticks2[] = new int[leakSuspects.length + 1];
+            for (int i = 0; i < leakSuspects.length - 1; ++i)
+            {
+                ticks2[i] = 100;
+            }
+            ticks2[leakSuspects.length] = 50;
+            SimpleMonitor monitor2 = new SimpleMonitor(Messages.LeakHunterQuery_ProgressName, monitor.nextMonitor(),
+                            ticks2);
             PieFactory pie = new PieFactory(snapshot);
             for (int num = 0; num < leakSuspects.length; num++)
             {
@@ -172,7 +192,7 @@ public class LeakHunterQuery implements IQuery
                     numbers.add(problemNum);
                 }
 
-                CompositeResult suspectDetails = getLeakSuspectDescription(rec, listener);
+                CompositeResult suspectDetails = getLeakSuspectDescription(rec, monitor2.nextMonitor());
                 suspectDetails.setStatus(ITestResult.Status.ERROR);
 
                 QuerySpec spec = new QuerySpec(MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, problemNum));
@@ -183,7 +203,7 @@ public class LeakHunterQuery implements IQuery
             }
 
             // give hints for problems which could be related
-            List<CompositeResult> hints = findCommonPathForSuspects(accPoint2ProblemNr);
+            List<CompositeResult> hints = findCommonPathForSuspects(accPoint2ProblemNr, monitor2.nextMonitor());
             for (int k = 0; k < hints.size(); k++)
             {
                 QuerySpec spec = new QuerySpec(MessageUtil.format(Messages.LeakHunterQuery_Hint, (k + 1)));
@@ -194,6 +214,7 @@ public class LeakHunterQuery implements IQuery
             }
         }
 
+        listener.done();
         if (result.getChildren().size() != 0)
         {
             return result;
@@ -281,6 +302,10 @@ public class LeakHunterQuery implements IQuery
     private CompositeResult getLeakDescriptionSingleObject(SuspectRecord suspect, IProgressListener listener)
                     throws SnapshotException
     {
+        int subq = 5;
+        int ticks[] = new int[subq];
+        Arrays.fill(ticks, 100);
+        SimpleMonitor monitor = new SimpleMonitor(Messages.LeakHunterQuery_DescriptionSingleObject, listener, ticks);
         StringBuilder overview = new StringBuilder(256);
         TextResult overviewResult = new TextResult(); // used to create links
         // from it to other
@@ -448,7 +473,7 @@ public class LeakHunterQuery implements IQuery
         IObject threadObj = null;
         if (isThreadRelated)
         {
-            threadDetails = extractThreadData(suspect, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
+            threadDetails = extractThreadData(suspect, keywords, objectsForTroubleTicketInfo, overview, overviewResult, monitor.nextMonitor());
             threadObj = suspect.getSuspect();
         }
 
@@ -462,7 +487,7 @@ public class LeakHunterQuery implements IQuery
             IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
                             .setArgument("object", describedObject) //$NON-NLS-1$
                             .setArgument("excludes", excludes) //$NON-NLS-1$
-                            .execute(listener);
+                            .execute(monitor.nextMonitor());
             qspath = new QuerySpec(Messages.LeakHunterQuery_ShortestPaths, result);
             StringBuilder sb = new StringBuilder("path2gc"); //$NON-NLS-1$
             sb.append(" 0x").append(Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
@@ -506,7 +531,7 @@ public class LeakHunterQuery implements IQuery
                                             HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()), //
                                             formatRetainedHeap(suspect2.getSuspectRetained(), totalHeap)));
                             overview.append("</p>"); //$NON-NLS-1$
-                            threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
+                            threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, overview, overviewResult, monitor.nextMonitor());
                             threadObj = suspect2.getSuspect();
                             break;
                         }
@@ -523,7 +548,7 @@ public class LeakHunterQuery implements IQuery
         appendKeywords(keywords, overview);
 
         // add CSN components data
-        appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview);
+        appendTroubleTicketInformation(objectsForTroubleTicketInfo, overview, monitor.nextMonitor());
 
         /*
          * Prepare the composite result from the different pieces
@@ -542,7 +567,7 @@ public class LeakHunterQuery implements IQuery
         composite.addResult(qs);
 
         // add histogram of dominated.
-        IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId());
+        IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId(), monitor.nextMonitor());
         if (histogramOfDominated != null)
         {
             qs = new QuerySpec(Messages.LeakHunterQuery_AccumulatedObjectsByClass, histogramOfDominated);
@@ -551,7 +576,7 @@ public class LeakHunterQuery implements IQuery
 
             IResult result = SnapshotQuery.lookup("show_retained_set", snapshot) //$NON-NLS-1$
                             .setArgument("objects", describedObject) //$NON-NLS-1$
-                            .execute(listener);
+                            .execute(monitor.nextMonitor());
             qs = new QuerySpec(Messages.LeakHunterQuery_AllAccumulatedObjectsByClass, result);
             qs.setCommand("show_retained_set 0x" + Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
             composite.addResult(qs);
@@ -564,6 +589,7 @@ public class LeakHunterQuery implements IQuery
             composite.addResult(qs);
         }
 
+        listener.done();
         return composite;
     }
 
@@ -621,6 +647,12 @@ public class LeakHunterQuery implements IQuery
     private CompositeResult getLeakDescriptionGroupOfObjects(SuspectRecordGroupOfObjects suspect, IProgressListener listener)
                     throws SnapshotException
     {
+        int subq = 4;
+        if (suspect.getAccumulationPoint() != null)
+            subq += 3;
+        int ticks[] = new int[subq];
+        Arrays.fill(ticks, 100);
+        SimpleMonitor monitor = new SimpleMonitor(Messages.LeakHunterQuery_DescriptionGroupObjects, listener, ticks);
         StringBuilder builder = new StringBuilder(256);
         Set<String> keywords = new LinkedHashSet<String>();
         List<IObject> objectsForTroubleTicketInfo = new ArrayList<IObject>(2);
@@ -842,7 +874,7 @@ public class LeakHunterQuery implements IQuery
 
             RefinedResultBuilder rbuilder = SnapshotQuery.lookup("histogram", snapshot) //$NON-NLS-1$
                             .setArgument("objects", suspectInstances) //$NON-NLS-1$
-                            .refine(listener);
+                            .refine(monitor.nextMonitor());
             rbuilder.setInlineRetainedSizeCalculation(true);
             rbuilder.addDefaultContextDerivedColumn(RetainedSizeDerivedData.PRECISE);
             IResult result = rbuilder.build();
@@ -857,7 +889,7 @@ public class LeakHunterQuery implements IQuery
 
             rbuilder = SnapshotQuery.lookup("show_retained_set", snapshot) //$NON-NLS-1$
                             .setArgument("objects", suspectInstances) //$NON-NLS-1$
-                            .refine(listener);
+                            .refine(monitor.nextMonitor());
             rbuilder.setInlineRetainedSizeCalculation(true);
             rbuilder.addDefaultContextDerivedColumn(RetainedSizeDerivedData.APPROXIMATE);
             result = rbuilder.build();
@@ -865,7 +897,7 @@ public class LeakHunterQuery implements IQuery
             addCommand(qs, "show_retained_set", suspectInstances); //$NON-NLS-1$
             if (qs.getCommand() == null)
             {
-                qs.setCommand("show_retained_set " + oql +";"); //$NON-NLS-1$
+                qs.setCommand("show_retained_set " + oql +';'); //$NON-NLS-1$
             }
             qs.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.addResult(qs);
@@ -875,7 +907,7 @@ public class LeakHunterQuery implements IQuery
         if (accPoint != null)
         {
             QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_CommonPath, //
-                                MultiplePath2GCRootsQuery.create(snapshot, suspect.getPathsComputer(), suspect.getCommonPath(), listener));
+                                MultiplePath2GCRootsQuery.create(snapshot, suspect.getPathsComputer(), suspect.getCommonPath(), monitor.nextMonitor()));
             int paths[];
             if (suspect.suspectInstances.length <= 25)
             {
@@ -944,7 +976,7 @@ public class LeakHunterQuery implements IQuery
                                     HTMLUtils.escapeText(suspect2.getSuspect().getDisplayName()), //
                                     formatRetainedHeap(suspect2.getSuspectRetained(), totalHeap)));
                     builder.append("</p>"); //$NON-NLS-1$
-                    threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, builder, overviewResult);
+                    threadDetails = extractThreadData(suspect2, keywords, objectsForTroubleTicketInfo, builder, overviewResult, monitor.nextMonitor());
                     threadObj = suspect2.getSuspect();
                     // add keywords to builder later
                     // add CSN components data to builder later
@@ -959,7 +991,7 @@ public class LeakHunterQuery implements IQuery
             composite.addResult(qs2);
 
             // add histogram of dominated.
-            IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId());
+            IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId(), monitor.nextMonitor());
             if (histogramOfDominated != null)
             {
                 qs = new QuerySpec(Messages.LeakHunterQuery_AccumulatedObjectsByClass, histogramOfDominated);
@@ -968,7 +1000,7 @@ public class LeakHunterQuery implements IQuery
 
                 IResult result = SnapshotQuery.lookup("show_retained_set", snapshot) //$NON-NLS-1$
                                 .setArgument("objects", describedObject) //$NON-NLS-1$
-                                .execute(listener);
+                                .execute(monitor.nextMonitor());
                 qs = new QuerySpec(Messages.LeakHunterQuery_AllAccumulatedObjectsByClass, result);
                 qs.setCommand("show_retained_set 0x" + Long.toHexString(describedObject.getObjectAddress())); //$NON-NLS-1$
                 composite.addResult(qs);
@@ -976,7 +1008,7 @@ public class LeakHunterQuery implements IQuery
         }
         else
         {
-            IResult result = findReferencePattern(suspect);
+            IResult result = findReferencePattern(suspect, monitor.nextMonitor());
             if (result != null)
             {
                 String msg = (suspect.getSuspectInstances().length > max_paths) ?
@@ -1003,8 +1035,7 @@ public class LeakHunterQuery implements IQuery
         appendKeywords(keywords, builder);
 
         // add CSN components data
-        appendTroubleTicketInformation(objectsForTroubleTicketInfo, builder);
-
+        appendTroubleTicketInformation(objectsForTroubleTicketInfo, builder, monitor.nextMonitor());
         overviewResult.setText(builder.toString());
 
         if (threadDetails != null)
@@ -1013,7 +1044,7 @@ public class LeakHunterQuery implements IQuery
             qs.setCommand("thread_details 0x" + Long.toHexString(threadObj.getObjectAddress())); //$NON-NLS-1$
             composite.addResult(qs);
         }
-
+        listener.done();
         return composite;
     }
 
@@ -1110,7 +1141,7 @@ public class LeakHunterQuery implements IQuery
                         + percentFormatter.format((double) retained / (double) totalHeap) + ")"; //$NON-NLS-1$
     }
 
-    private Map<String, String> getTroubleTicketMapping(ITroubleTicketResolver resolver, List<IObject> classloaders)
+    private Map<String, String> getTroubleTicketMapping(ITroubleTicketResolver resolver, List<IObject> classloaders, IProgressListener listener)
                     throws SnapshotException
     {
         Map<String, String> mapping = new HashMap<String, String>();
@@ -1211,7 +1242,7 @@ public class LeakHunterQuery implements IQuery
         return treeBuilder.build(snapshot);
     }
 
-    private IResult getHistogramOfDominated(int objectId) throws SnapshotException
+    private IResult getHistogramOfDominated(int objectId, IProgressListener listener) throws SnapshotException
     {
         int[] dominatedByAccPoint = snapshot.getImmediateDominatedIds(objectId);
         Histogram h = snapshot.getHistogram(dominatedByAccPoint, listener);
@@ -1284,12 +1315,12 @@ public class LeakHunterQuery implements IQuery
         builder.append("</ul>"); //$NON-NLS-1$
     }
 
-    private void appendTroubleTicketInformation(List<IObject> classloaders, StringBuilder builder)
+    private void appendTroubleTicketInformation(List<IObject> classloaders, StringBuilder builder, IProgressListener listener)
                     throws SnapshotException
     {
         for (ITroubleTicketResolver resolver : TroubleTicketResolverRegistry.instance().delegates())
         {
-            Map<String, String> mapping = getTroubleTicketMapping(resolver, classloaders);
+            Map<String, String> mapping = getTroubleTicketMapping(resolver, classloaders, listener);
 
             if (!mapping.isEmpty())
             {
@@ -1309,7 +1340,7 @@ public class LeakHunterQuery implements IQuery
     }
 
     private ThreadInfoQuery.Result extractThreadData(SuspectRecord suspect, Set<String> keywords,
-                    List<IObject> involvedClassloaders, StringBuilder builder, TextResult textResult)
+                    List<IObject> involvedClassloaders, StringBuilder builder, TextResult textResult, IProgressListener listener)
     {
         final int threadId = suspect.getSuspect().getObjectId();
         ThreadInfoQuery.Result threadDetails = null;
@@ -1681,7 +1712,7 @@ public class LeakHunterQuery implements IQuery
         return threadDetails;
     }
 
-    private IResult findReferencePattern(SuspectRecordGroupOfObjects suspect) throws SnapshotException
+    private IResult findReferencePattern(SuspectRecordGroupOfObjects suspect, IProgressListener listener) throws SnapshotException
     {
         MultiplePathsFromGCRootsClassRecord dummy = new MultiplePathsFromGCRootsClassRecord(null, -1, true, snapshot);
 
@@ -1727,7 +1758,7 @@ public class LeakHunterQuery implements IQuery
 
     }
 
-    private List<CompositeResult> findCommonPathForSuspects(HashMap<Integer, List<Integer>> accPoint2ProblemNr)
+    private List<CompositeResult> findCommonPathForSuspects(HashMap<Integer, List<Integer>> accPoint2ProblemNr, IProgressListener listener)
                     throws SnapshotException
     {
         List<CompositeResult> result = new ArrayList<CompositeResult>(2);

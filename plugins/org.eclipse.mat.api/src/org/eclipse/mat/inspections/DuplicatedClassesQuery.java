@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -64,7 +64,8 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
     {
         IClass[] allClasses = snapshot.getClasses().toArray(new IClass[0]);
         int length = allClasses.length;
-        listener.beginTask(Messages.DuplicatedClassesQuery_Checking, length / 100);
+        int taskScale = 100;
+        listener.beginTask(Messages.DuplicatedClassesQuery_Checking, (length + taskScale - 1) / taskScale);
 
         Arrays.sort(allClasses, ObjectComparators.getComparatorForTechnicalNameAscending());
 
@@ -88,13 +89,14 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
             if (ii < length)
                 previousName = allClasses[ii].getName();
 
-            if (ii % 100 == 0)
+            if (ii % taskScale == 0)
                 listener.worked(1);
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
         }
 
+        listener.done();
         return this;
     }
 

@@ -23,12 +23,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
-import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.query.Bytes;
@@ -56,6 +54,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SilentProgressListener;
 
 import com.ibm.icu.text.NumberFormat;
 
@@ -130,7 +129,7 @@ public class FindLeaksQuery implements IQuery
          */
         listener.subTask(Messages.FindLeaksQuery_SearchingGroupsOfObjects);
 
-        Histogram histogram = groupByClasses(topDominators, listener);
+        Histogram histogram = groupByClasses(topDominators, new SilentProgressListener(listener));
         ArrayList<ClassHistogramRecord> suspiciousClasses = new ArrayList<ClassHistogramRecord>();
 
         ClassHistogramRecord[] classRecords = histogram.getClassHistogramRecords().toArray(new ClassHistogramRecord[0]);
@@ -154,7 +153,8 @@ public class FindLeaksQuery implements IQuery
         /*
          * build the results
          */
-        return buildResult(suspiciousObjects, suspiciousClasses, totalHeap, listener);
+        IResult result = buildResult(suspiciousObjects, suspiciousClasses, totalHeap, listener);
+        return result;
 
     }
 
@@ -344,6 +344,7 @@ public class FindLeaksQuery implements IQuery
                     long totalHeap, IProgressListener listener) throws SnapshotException
     {
         SuspectRecord[] allSuspects = new SuspectRecord[suspiciousObjects.size() + suspiciousClasses.size()];
+        listener.beginTask(Messages.FindLeaksQuery_BuildResult, allSuspects.length);
         int j = 0;
         int[] suspectObjIds = suspiciousObjects.toArray();
         for (int objectId : suspectObjIds)
@@ -356,6 +357,7 @@ public class FindLeaksQuery implements IQuery
             SuspectRecord r = new SuspectRecord(suspectObject, suspectObject.getRetainedHeapSize(), accPoint);
 
             allSuspects[j++] = r;
+            listener.worked(1);
         }
 
         for (ClassHistogramRecord record : suspiciousClasses)
@@ -368,10 +370,12 @@ public class FindLeaksQuery implements IQuery
                                                                         * (
                                                                         * threshold
                                                                         * 0.7),
-                                                                        */listener);
+                                                                        */new SilentProgressListener(listener));
             allSuspects[j++] = r;
+            listener.worked(1);
         }
 
+        listener.done();
         return new SuspectsResultTable(allSuspects, totalHeap);
     }
 

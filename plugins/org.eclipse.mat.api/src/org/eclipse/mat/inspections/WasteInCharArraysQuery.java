@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2023 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class WasteInCharArraysQuery implements IQuery
             {
                 int[] objectIds = clasz.getObjectIds();
 
-                listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 10);
+                listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, (objectIds.length + 9) / 10);
 
                 for (int ii = 0; ii < objectIds.length; ii++)
                 {
