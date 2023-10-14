@@ -62,6 +62,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 import com.ibm.icu.text.NumberFormat;
 
@@ -132,13 +133,14 @@ public class FindLeaksQuery2 implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(Messages.FindLeaksQuery2_ProgressName, listener, new int[] { 5, 5, 30, 5, 5, 50 });
         long totalHeap;
 
         totalHeap = baseline.getSnapshotInfo().getUsedHeapSize();
         long threshold = threshold_percent * totalHeap / 100;
 
-        IResultTree baseTree = callDominatorTree(listener, baseline);
-        IResultTree currTree = callDominatorTree(listener, snapshot);
+        IResultTree baseTree = callDominatorTree(monitor.nextMonitor(), baseline);
+        IResultTree currTree = callDominatorTree(monitor.nextMonitor(), snapshot);
 
         String queryId = "comparetablesquery -mode DIFF_RATIO_TO_FIRST"; //$NON-NLS-1$
         if (options != null && options.length() > 0)
@@ -162,7 +164,7 @@ public class FindLeaksQuery2 implements IQuery
         if (extraReferencesListFile != null)
             queryc.setArgument("extraReferencesListFile", extraReferencesListFile); //$NON-NLS-1$
 
-        RefinedResultBuilder rbc = queryc.refine(listener);
+        RefinedResultBuilder rbc = queryc.refine(monitor.nextMonitor());
         rbc.setSortOrder(retainedDiffCol, SortDirection.DESC);
         final RefinedTree compTree = (RefinedTree)rbc.build();
         List<?>topDominators = compTree.getElements();
@@ -170,7 +172,8 @@ public class FindLeaksQuery2 implements IQuery
         /*
          * find suspect single objects
          */
-        listener.subTask(Messages.FindLeaksQuery_SearchingSingleObjects);
+        IProgressListener single = monitor.nextMonitor();
+        single.beginTask(Messages.FindLeaksQuery_SearchingSingleObjects, topDominators.size());
 
         List<ContextProvider> provs = compTree.getResultMetaData().getContextProviders();
         // Get the last - in case the first is also this snapshot, so has a context provider
@@ -211,7 +214,9 @@ public class FindLeaksQuery2 implements IQuery
                 }
             }
             i++;
+            single.worked(1);
         }
+        single.done();
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -219,7 +224,8 @@ public class FindLeaksQuery2 implements IQuery
         /*
          * Find suspect classes
          */
-        listener.subTask(Messages.FindLeaksQuery_SearchingGroupsOfObjects);
+        IProgressListener group = monitor.nextMonitor();
+        group.beginTask(Messages.FindLeaksQuery_SearchingGroupsOfObjects, map.size());
 
         ArrayList<ClassHistogramRecord> suspiciousClasses = new ArrayList<ClassHistogramRecord>();
 
@@ -231,7 +237,9 @@ public class FindLeaksQuery2 implements IQuery
                 ClassHistogramRecord chr = new ClassHistogramRecord(cr.name, cr.clsId, cr.objs.toArray(), cr.simple, cr.retained);
                 suspiciousClasses.add(chr);
             }
+            group.worked(1);
         }
+        group.done();
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -239,7 +247,7 @@ public class FindLeaksQuery2 implements IQuery
         /*
          * build the results
          */
-        final SuspectsResultTable ret = buildResult(suspiciousObjects, suspiciousClasses, totalHeap, compTree, rowmap, listener);
+        final SuspectsResultTable ret = buildResult(suspiciousObjects, suspiciousClasses, totalHeap, compTree, rowmap, monitor.nextMonitor());
 
         // Indicate some interesting rows
         compTree.setSelectionProvider(new ISelectionProvider() {
@@ -325,6 +333,7 @@ public class FindLeaksQuery2 implements IQuery
         CompositeResult cr = new CompositeResult();
         cr.addResult(Messages.FindLeaksQuery2_ComparedDominatorTrees, compTree);
         cr.addResult(Messages.FindLeaksQuery2_Leaks, ret);
+        listener.done();
         return cr;
     }
 

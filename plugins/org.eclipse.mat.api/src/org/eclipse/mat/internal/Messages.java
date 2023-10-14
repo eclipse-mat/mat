@@ -200,6 +200,8 @@ public class Messages extends NLS
     public static String ComponentReportQuery_TopElementsInclude;
     public static String ComponentReportQuery_WeakReferenceStatistics;
     public static String ComponentReportQuery_ZeroLengthArrays;
+
+    public static String CustomizedRetainedSetQuery_QueryName;
     public static String CustomizedRetainedSetQuery_RetainedBy;
 
     public static String DeltaHistogram_Progress;
@@ -267,6 +269,7 @@ public class Messages extends NLS
 
     public static String FinalizerQueueQuery_ErrorMsg_MultipleFinalizerClasses;
     public static String FinalizerQueueQuery_Msg_ExtractingObjects;
+    public static String FinalizerQueueQuery_ProgressName;
     public static String FinalizerQueueQuery_ReadyForFinalizerThread;
     public static String FinalizerQueueQuery_ReadyForFinalizerThread_Histogram;
     public static String FinalizerQueueQuery_ReadyForFinalizerThread_List;
@@ -286,6 +289,7 @@ public class Messages extends NLS
     public static String FinalizerThreadQuery_SecondaryFinalizer;
 
     public static String FindLeaksQuery_AccumulationPoint;
+    public static String FindLeaksQuery_BuildResult;
     public static String FindLeaksQuery_Column_AccPointPercent;
     public static String FindLeaksQuery_Column_AccPointRetainedHeap;
     public static String FindLeaksQuery_Column_AccumulationPoint;
@@ -304,6 +308,7 @@ public class Messages extends NLS
     public static String FindLeaksQuery2_Column_SuspectRetainedHeap;
     public static String FindLeaksQuery2_ComparedDominatorTrees;
     public static String FindLeaksQuery2_Leaks;
+    public static String FindLeaksQuery2_ProgressName;
 
     public static String FindStringsQuery_SearchingStrings;
 
@@ -411,6 +416,7 @@ public class Messages extends NLS
     public static String HistogramQuery_GroupBySuperclass;
     public static String HistogramQuery_HistogramOf;
     public static String HistogramQuery_IllegalArgument;
+    public static String HistogramQuery_ProgressName;
 
     public static String HistogramRecordBeanInfo_Label;
     public static String HistogramRecordBeanInfo_NumberOfObjects;
@@ -421,6 +427,7 @@ public class Messages extends NLS
     public static String ImmediateDominatorsQuery_ColumnDominatedObjects;
     public static String ImmediateDominatorsQuery_DominatedObjects;
     public static String ImmediateDominatorsQuery_Objects;
+    public static String ImmediateDominatorsQuery_ProgressName;
 
     public static String InspectionAssert_NotSupported;
 
@@ -441,6 +448,8 @@ public class Messages extends NLS
     public static String LeakHunterQuery_BiggestInstancesOverview;
     public static String LeakHunterQuery_CommonPath;
     public static String LeakHunterQuery_Description;
+    public static String LeakHunterQuery_DescriptionSingleObject;
+    public static String LeakHunterQuery_DescriptionGroupObjects;
     public static String LeakHunterQuery_ErrorRetrievingRequestDetails;
     public static String LeakHunterQuery_ErrorShortestPaths;
     public static String LeakHunterQuery_FindingProblemSuspects;
@@ -468,6 +477,7 @@ public class Messages extends NLS
     public static String LeakHunterQuery_OtherSuspectInstances;
     public static String LeakHunterQuery_PreparingResults;
     public static String LeakHunterQuery_ProblemSuspect;
+    public static String LeakHunterQuery_ProgressName;
     public static String LeakHunterQuery_ReferencePattern;
     public static String LeakHunterQuery_ReferencePatternFor;
     public static String LeakHunterQuery_RequestDetails;
@@ -486,6 +496,8 @@ public class Messages extends NLS
     public static String LeakHunterQuery_ThreadStack;
     public static String LeakHunterQuery_ThreadStackAndLocals;
     public static String LeakHunterQuery_TicketForSuspect;
+
+    public static String LeakHunterQuery2_ProgressName;
 
     public static String LeakingPlugins_NoLeakingPlugInsDetected;
 
@@ -506,6 +518,7 @@ public class Messages extends NLS
     public static String MultiplePath2GCRootsQuery_Group_ToGCRoots;
     public static String MultiplePath2GCRootsQuery_PathNodeObject;
     public static String MultiplePath2GCRootsQuery_PathNodeObjects;
+    public static String MultiplePath2GCRootsQuery_ProgressName;
     public static String MultiplePath2GCRootsQuery_ReferencedObjects;
 
     public static String ObjectTreeFactory_Column_Percentage;
@@ -558,9 +571,12 @@ public class Messages extends NLS
     public static String ReferenceQuery_Msg_ComputingRetainedSet;
     public static String ReferenceQuery_Msg_ComputingStronglyRetainedSet;
     public static String ReferenceQuery_OnlyRetainedByReferents;
+
+    public static String ReferenceQuery_ProgressName;
     public static String ReferenceQuery_StronglyRetainedByReferences;
 
     public static String RetainedSetQuery_RetainedBy;
+    public static String RetainedSetQuery_ProgressName;
 
     public static String RetainedSizeDerivedData_Approximate;
     public static String RetainedSizeDerivedData_Error_IllegalContext;
@@ -571,6 +587,10 @@ public class Messages extends NLS
     public static String RetainedSizeDerivedData_Label_Precise;
 
     public static String Service_ErrorMsg_MismatchKeysServices;
+
+    public static String ShowInDominatorQuery_ProgressName;
+
+    public static String SimpleComparison_ProgressName;
 
     public static String SnapshotFactory_Error;
     public static String SnapshotFactory_ErrorMsg_FactoryCreation;

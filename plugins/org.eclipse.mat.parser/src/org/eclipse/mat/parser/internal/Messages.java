@@ -79,6 +79,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_ObjDescObjType;
     public static String SnapshotFactoryImpl_ObjDescObjTypeAddress;
     public static String SnapshotFactoryImpl_ObjectsFoundButClassesHadObjectsAndClassesInTotal;
+    public static String SnapshotFactoryImpl_ParsingHeapDump;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex;
     public static String SnapshotFactoryImpl_UnableToDeleteIndexFile;
@@ -97,6 +98,7 @@ public class Messages extends NLS
     public static String SnapshotImpl_ReadingInboundReferrers;
     public static String SnapshotImpl_ReadingOutboundReferrers;
     public static String SnapshotImpl_ReopeningParsedHeapDumpFile;
+    public static String SnapshotImpl_RetainedSetProgressName;
     public static String SnapshotImpl_RetrievingDominators;
     public static String ObjectArrayImpl_forArray;
     public static String ObjectMarker_MarkingObjects;

@@ -20,13 +20,13 @@ import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
 import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -785,10 +785,41 @@ public class GeneralSnapshotTests
         }
     }; 
 
+    static class CheckedWorkProgressListener extends CheckedProgressListener
+    {
+        int total;
+        int work;
+        String task;
+        public CheckedWorkProgressListener(ErrorCollector collector)
+        {
+            super(collector);
+        }
+        @Override
+        public void beginTask(String s, int total)
+        {
+            collector.checkThat(s + ": Total work should be non-negative", total, greaterThanOrEqualTo(0));
+            collector.checkThat(s + ": beginTask() should not have already been called, total: ", this.total, equalTo(0));
+            this.total = total;
+            this.task = s;
+        }
+        @Override
+        public void worked(int w)
+        {
+            collector.checkThat(task + ": Work should be non-negative", w, greaterThanOrEqualTo(0));
+            collector.checkThat(task + ": Work should be less than or equal to remaining work "+total+" - " + work, w, lessThanOrEqualTo(total - work));
+            work += w;
+        }
+        @Override
+        public void done()
+        {
+            collector.checkThat(task + ": Work done should be less than or equal to total work", work, lessThanOrEqualTo(total));
+        }
+    }
+
     @Test
     public void testAllQueriesReport() throws SnapshotException, IOException
     {
-        IProgressListener checkListener = new CheckedProgressListener(collector);
+        IProgressListener checkListener = new CheckedWorkProgressListener(collector);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all", snapshot);
         IResult t = query.execute(checkListener);
         assertNotNull(t);
@@ -965,7 +996,7 @@ public class GeneralSnapshotTests
                         IResult r;
                         try
                         {
-                            r = q.execute(new CheckedProgressListener(collector));
+                            r = q.execute(new CheckedWorkProgressListener(collector));
                             if ((cmdname.equals("system_properties") 
                                             || cmdname.equals("thread_overview")
                                             || cmdname.equals("finalizer_thread")

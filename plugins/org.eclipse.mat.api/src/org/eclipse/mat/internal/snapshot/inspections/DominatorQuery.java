@@ -986,7 +986,7 @@ public class DominatorQuery implements IQuery
             PackageNode root = new PackageNode(Messages.DominatorQuery_LabelAll);
             PackageNode current;
 
-            listener.beginTask(Messages.DominatorQuery_Msg_Grouping, roots.length / 100);
+            listener.beginTask(Messages.DominatorQuery_Msg_Grouping, (roots.length + 99) / 100);
             int index = 0;
             for (int dominatorId : roots)
             {

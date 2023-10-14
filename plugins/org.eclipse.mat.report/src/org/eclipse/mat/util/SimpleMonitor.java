@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class SimpleMonitor
         long workPerUnit;
 
         boolean isSmaller;
+        String name;
 
         public Listener(int majorUnits)
         {
@@ -85,7 +86,10 @@ public class SimpleMonitor
         public void beginTask(String name, int totalWork)
         {
             if (name != null)
+            {
+                this.name = name;
                 delegate.subTask(name);
+            }
 
             if (totalWork == 0)
                 return;
@@ -105,19 +109,29 @@ public class SimpleMonitor
             }
 
             isSmaller = totalWork < majorUnits || majorUnits == 0;
-            workPerUnit = isSmaller ? majorUnits / totalWork : totalWork / majorUnits;
+            // Round up for !isSmaller so the division later rounds down
+            workPerUnit = isSmaller ? majorUnits / totalWork : (totalWork + majorUnits -1) / majorUnits;
             unitsReported = 0;
+            //System.out.println("Begin task " + super.toString() + " " + this);
         }
 
         public void subTask(String name)
         {
-            delegate.subTask(name);
+            // Nest the names so the user can see what is happening.
+            if (this.name != null && !this.name.isEmpty())
+                delegate.subTask(this.name + '\n' + name);
+            else
+                delegate.subTask(name);
         }
 
         public void done()
         {
+            //System.out.println("done " + super.toString() + " " + task);
             if (majorUnits - unitsReported > 0)
+            {
                 delegate.worked(majorUnits - unitsReported);
+                unitsReported = majorUnits;
+            }
         }
 
         public boolean isCanceled()
@@ -171,6 +185,11 @@ public class SimpleMonitor
             return workDone;
         }
 
+        public String toString()
+        {
+            return name + " isSmaller=" + isSmaller + " workDone=" + workDone + " workPerUnit=" + workPerUnit //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            + " unitsReported=" + unitsReported + " majorUnits=" + majorUnits; //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
 }

@@ -102,7 +102,8 @@ public class ReferenceLeakQuery implements IQuery
             nobjs += objs.length;
         }
 
-        SimpleMonitor sm = new SimpleMonitor(Messages.ReferenceLeakQuery_ComputingReferentLeaks, listener, new int[] {400, 100});
+        SimpleMonitor sm = new SimpleMonitor(Messages.ReferenceLeakQuery_ComputingReferentLeaks, listener, new int[] {100, 100, 100, 100});
+        IProgressListener listener0 = listener;
 
         listener = sm.nextMonitor();
         listener.beginTask(Messages.ReferenceLeakQuery_ExaminingReferenceObjects, maxobjs > 0 ? maxobjs : nobjs);
@@ -229,6 +230,7 @@ public class ReferenceLeakQuery implements IQuery
                 }
                 commonpath = path2;
             }
+            listener = sm.nextMonitor();
             IResultTree rt = MultiplePath2GCRootsQuery.create(snapshot, computer, commonpath, listener);
             results.addResult(Messages.ReferenceLeakQuery_PathToReferent, rt);
         }
@@ -246,6 +248,7 @@ public class ReferenceLeakQuery implements IQuery
              */
             dummy = new MultiplePathsFromGCRootsClassRecord(null, -1, true, snapshot);
 
+            listener = sm.nextMonitor();
             Object[] allPaths = computer.getAllPaths(listener);
             for (Object path : allPaths)
                 dummy.addPath((int[]) path);
@@ -279,6 +282,7 @@ public class ReferenceLeakQuery implements IQuery
             {
                 expandedClasses[i] = referencePattern.get(i).getObjectId();
             }
+            listener = sm.nextMonitor();
             IResultTree rt = MultiplePath2GCRootsQuery.create(snapshot, computer, expandedClasses, true, listener);
             String message;
             if (eobjs < nobjs)
@@ -288,7 +292,7 @@ public class ReferenceLeakQuery implements IQuery
             results.addResult(message, rt);
         }
 
-        listener.done();
+        listener0.done();
         return results;
     }
 

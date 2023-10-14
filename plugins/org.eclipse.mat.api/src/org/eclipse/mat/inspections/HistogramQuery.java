@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("histogram")
 @Icon("/META-INF/icons/show_histogram.gif")
@@ -72,8 +73,18 @@ public class HistogramQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        Histogram histogram = objects == null ? snapshot.getHistogram(listener) //
-                        : snapshot.getHistogram(objects.getIds(listener), listener);
+        Histogram histogram;
+        if (objects == null)
+        {
+            histogram = snapshot.getHistogram(listener);
+        }
+        else
+        {
+            SimpleMonitor monitor = new SimpleMonitor(
+                            MessageUtil.format(Messages.HistogramQuery_ProgressName, objects.getLabel()), listener,
+                            new int[] { 100, 200 });
+            histogram = snapshot.getHistogram(objects.getIds(monitor.nextMonitor()), monitor.nextMonitor());
+        }
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -81,6 +92,7 @@ public class HistogramQuery implements IQuery
         if (objects != null)
             histogram.setLabel(MessageUtil.format(Messages.HistogramQuery_HistogramOf, objects.getLabel()));
 
+        listener.done();
         switch (groupBy)
         {
             case BY_CLASS:

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
@@ -28,6 +29,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 /**
  * A simple comparison of the results of running a query on two
@@ -70,8 +72,9 @@ public class SimpleComparison implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        IStructuredResult baseTable = callQuery(listener, baseline);
-        IStructuredResult currTable = callQuery(listener, snapshot);
+        SimpleMonitor monitor = new SimpleMonitor(Messages.SimpleComparison_ProgressName, listener, new int[] {100,100,300});
+        IStructuredResult baseTable = callQuery(monitor.nextMonitor(), baseline);
+        IStructuredResult currTable = callQuery(monitor.nextMonitor(), snapshot);
 
         String queryId = "comparetablesquery"; //$NON-NLS-1$
         if (defaultoptions != null && defaultoptions.length() > 0)
@@ -89,7 +92,7 @@ public class SimpleComparison implements IQuery
         snapshots.add(baseline);
         snapshots.add(snapshot);
         queryc.setArgument("snapshots", snapshots); //$NON-NLS-1$
-        IResult ret = queryc.execute(listener);
+        IResult ret = queryc.execute(monitor.nextMonitor());
         listener.done();
         return ret;
     }

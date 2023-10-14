@@ -38,6 +38,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("immediate_dominators")
 @Icon("/META-INF/icons/immediate_dominators.gif")
@@ -56,7 +58,10 @@ public class ImmediateDominatorsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        DominatorsSummary summary = snapshot.getDominatorsOf(objects.getIds(listener), skipPattern, listener);
+        SimpleMonitor monitor = new SimpleMonitor(
+                        MessageUtil.format(Messages.ImmediateDominatorsQuery_ProgressName, objects.getLabel()), listener,
+                        new int[] { 10, 100 });
+        DominatorsSummary summary = snapshot.getDominatorsOf(objects.getIds(monitor.nextMonitor()), skipPattern, monitor.nextMonitor());
 
         return new ResultImpl(summary);
     }

@@ -52,6 +52,8 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
 
 @CommandName("merge_shortest_paths")
@@ -113,14 +115,18 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(
+                        MessageUtil.format(Messages.MultiplePath2GCRootsQuery_ProgressName, objects.getLabel()), listener,
+                        new int[] { 20, 100 });
+
         // convert excludes into the required format
         Map<IClass, Set<String>> excludeMap = Path2GCRootsQuery.convert(snapshot, excludes);
 
         // calculate the shortest path for each object
-        IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(objects.getIds(listener),
+        IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(objects.getIds(monitor.nextMonitor()),
                         excludeMap);
 
-        Object[] paths = computer.getAllPaths(listener);
+        Object[] paths = computer.getAllPaths(monitor.nextMonitor());
 
         List<int[]> result = new ArrayList<int[]>(paths.length);
         for (int ii = 0; ii < paths.length; ii++)
@@ -129,6 +135,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         if (groupBy == null)
             groupBy = Grouping.FROM_GC_ROOTS;
 
+        listener.done();
         return create(groupBy, snapshot, result);
     }
 

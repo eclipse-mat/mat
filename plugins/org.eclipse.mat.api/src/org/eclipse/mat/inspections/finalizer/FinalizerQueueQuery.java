@@ -36,6 +36,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("finalizer_queue")
 @Category(Category.HIDDEN)
@@ -55,6 +56,8 @@ public class FinalizerQueueQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor monitor = new SimpleMonitor(Messages.FinalizerQueueQuery_ProgressName, listener, new int[] { 100, 100 });
+        IProgressListener listener0 = listener;
         Collection<IClass> finalizerClasses = snapshot.getClassesByName("java.lang.ref.Finalizer", false); //$NON-NLS-1$
 
         // Avoid duplicates by using a set
@@ -80,6 +83,7 @@ public class FinalizerQueueQuery implements IQuery
                 int length = ((Long) queue.resolveValue("queueLength")).intValue(); //$NON-NLS-1$
                 int threshold = length / 100;
                 int worked = 0;
+                listener = monitor.nextMonitor();
                 listener.beginTask(Messages.FinalizerQueueQuery_Msg_ExtractingObjects, length);
 
                 while (item != null)
@@ -133,6 +137,7 @@ public class FinalizerQueueQuery implements IQuery
         objList.setCommand("finalizer_queue -mode "+Mode.LIST.name()); //$NON-NLS-1$
         spec.add(objList);
 
+        listener = monitor.nextMonitor();
         Histogram histogramResult = snapshot.getHistogram(result.toArray(), listener);
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -142,6 +147,7 @@ public class FinalizerQueueQuery implements IQuery
         histogram.set("derived_data_column", "_default_=APPROXIMATE"); //$NON-NLS-1$//$NON-NLS-2$
         histogram.setCommand("finalizer_queue -mode "+Mode.HISTOGRAM.name()); //$NON-NLS-1$
         spec.add(histogram);
+        listener0.done();
         switch (mode)
         {
             case BOTH:

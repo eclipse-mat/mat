@@ -26,7 +26,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,6 +62,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 {
@@ -435,19 +435,23 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 }
 
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
+                SimpleMonitor monitor = new SimpleMonitor(MessageUtil
+                                .format(Messages.SnapshotFactoryImpl_ParsingHeapDump, file.getAbsolutePath()), listener,
+                                new int[] { 700, 30, 90, 20, 150, 10 });
 
-                indexBuilder.fill(idx, listener);
+                indexBuilder.fill(idx, monitor.nextMonitor());
 
+                IProgressListener mon = monitor.nextMonitor();
                 if (ParserPlugin.getDefault().isDebugging())
                 {
-                    validateIndices(idx, listener);
+                    validateIndices(idx, mon);
                 }
 
                 SnapshotImplBuilder builder = new SnapshotImplBuilder(idx.getSnapshotInfo());
 
-                int[] purgedMapping = GarbageCleaner.clean(idx, builder, args, listener);
+                int[] purgedMapping = GarbageCleaner.clean(idx, builder, args, monitor.nextMonitor());
 
-                indexBuilder.clean(purgedMapping, listener);
+                indexBuilder.clean(purgedMapping, monitor.nextMonitor());
 
                 purgedMapping = null;
 
@@ -455,8 +459,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 boolean done = false;
                 try
                 {
-                    snapshot.calculateDominatorTree(listener);
-                    snapshot.calculateMinRetainedHeapSizeForClasses(listener);
+                    snapshot.calculateDominatorTree(monitor.nextMonitor());
+                    snapshot.calculateMinRetainedHeapSizeForClasses(monitor.nextMonitor());
                     done = true;
                 }
                 finally
@@ -468,12 +472,18 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     }
                 }
 
+                listener.done();
                 return snapshot;
             }
             catch (IOException ioe)
             {
                 errors.add(ioe);
                 indexBuilder.cancel();
+                /*
+                 * We shouldn'r really attempt to reuse the listener, but this is
+                 * the best we can do. 
+                 */
+                listener.done();
             }
             catch (Exception e)
             {

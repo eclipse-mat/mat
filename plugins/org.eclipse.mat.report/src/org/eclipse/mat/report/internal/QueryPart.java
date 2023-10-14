@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
@@ -88,10 +89,12 @@ public class QueryPart extends AbstractPart
                     throws SnapshotException, IOException
     {
         String sectionName = parent != null ? parent.spec().getName() : Messages.QueryPart_Label_ReportRoot;
-        listener.subTask(MessageUtil.format(Messages.QueryPart_Msg_TestProgress, spec().getName(), sectionName));
+        String subTaskName = MessageUtil.format(Messages.QueryPart_Msg_TestProgress, spec().getName(), sectionName);
+        listener.subTask(subTaskName);
 
         IResult result = spec().getResult();
 
+        SimpleMonitor monitor = new SimpleMonitor(subTaskName, listener, new int[] { 80, 20 });
         if (result == null)
         {
             if (getCommand() == null)
@@ -103,7 +106,7 @@ public class QueryPart extends AbstractPart
             {
                 try
                 {
-                    result = CommandLine.execute(context, getCommand(), listener);
+                    result = CommandLine.execute(context, getCommand(), monitor.nextMonitor());
                 }
                 catch (Exception e)
                 {
@@ -130,7 +133,7 @@ public class QueryPart extends AbstractPart
 
             AbstractPart part = factory.createClone(this, replacement);
 
-            return part.execute(context, renderer, listener);
+            return part.execute(context, renderer, monitor.nextMonitor());
         }
 
         // set status if test discloses one
