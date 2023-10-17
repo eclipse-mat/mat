@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static final String JAVA_EXEC_WINDOWS = "java.exe"; //$NON-NLS-1$
     private static final String JCMD = "jcmd"; //$NON-NLS-1$
-    private static final String ibmmodules[] = {"jdmpview", "jdmpview.exe", "jextract", "jextract.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    private static final String ibmmodules[] = {"jdmpview", "jdmpview.exe", "jpackcore", "jpackcore.exe", "jextract", "jextract.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     private static final String hprofmodules[] = {"jinfo", "jinfo.exe", "jstatd", "jstatd.exe"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     private static boolean abort = false;
     private int lastCount = 20;
@@ -164,122 +165,121 @@ public class IBMExecDumpProvider extends BaseProvider
             }
             pb.command(args);
             p = pb.start();
-            StringBuilder err = new StringBuilder();
-            StringBuilder in = new StringBuilder();
-            InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
+            ByteArrayOutputStream berr = new ByteArrayOutputStream();
+            ByteArrayOutputStream bin = new ByteArrayOutputStream();
             try
             {
-                InputStreamReader es = new InputStreamReader(p.getErrorStream(), encoding);
-                try
+                int rc = 0;
+                do
                 {
-                    int rc = 0;
-                    do
+                    while (p.getInputStream().available() > 0)
                     {
-                        while (os.ready())
-                        {
-                            in.append((char) os.read());
-                        }
-                        while (es.ready())
-                        {
-                            int c = es.read();
-                            if (c == '.')
-                                listener.worked(1);
-                            err.append((char) c);
-                        }
-                        try
-                        {
-                            rc = p.exitValue();
+                        int r = p.getInputStream().read();
+                        if (r < 0)
                             break;
-                        }
-                        catch (IllegalThreadStateException e)
-                        {
-                            try
-                            {
-                                Thread.sleep(SLEEP_TIMEOUT);
-                            }
-                            catch (InterruptedException e1)
-                            {
-                                listener.setCanceled(true);
-                            }
-                        }
-                        if (listener.isCanceled())
-                        {
-                            return null;
-                        }
+                        bin.write(r);
                     }
-                    while (true);
-                    if (rc != 0)
+                    while (p.getErrorStream().available() > 0)
                     {
-                        // Remove the dots as they don't add much to the exception
-                        int dot = 0;
-                        while (err.charAt(dot) == '.')
-                        {
-                            ++dot;
-                        }
-                        err.delete(0, dot);
-                        if (err.indexOf(IBMDumpProvider.AttachNotSupportedException.class.getName()) >= 0)
-                        {
-                            // Trying again won't work
-                            info.setHeapDumpEnabled(false);
-                        }
-                        throw new IOException(MessageUtil.format(Messages
-                                    .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err.toString())); //$NON-NLS-1$
+                        int r = p.getErrorStream().read();
+                        if (r < 0)
+                            break;
+                        if(r == '.')
+                            listener.worked(1);
+                        berr.write(r);
                     }
-                    String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
-                    String filename = ss[0];
-                    if (info2.javaexecutable.getName().startsWith(JCMD))
+                    try
                     {
-                        // OpenJDK
-                        if (filename.matches("^[0-9]+:$")) //$NON-NLS-1$
-                        {
-                            filename = preferredLocation.getAbsolutePath();
-                        }
-                        else
-                        {
-                            // From J9 jcmd.exe
-                            filename = filename.replaceFirst("^Dump written to ", ""); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
+                        rc = p.exitValue();
+                        break;
                     }
-                    listener.done();
-                    File file = new File(filename);
-                    if (!file.canRead() || !file.isFile())
+                    catch (IllegalThreadStateException e)
                     {
-                        // Does it looks like an error message?
-                        if (err.length() > 0 || ss.length > 1)
-                        {
-                            throw new IOException(MessageUtil.format(Messages
-                                            .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err.toString() +"\n" + in.toString())); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
-                        else
-                        {
-                            throw new FileNotFoundException(filename);
-                        }
-                    }
-                    if (info2.javaexecutable.getName().startsWith(JCMD))
-                    {
-                        IBMDumpProvider help1 = new IBMDumpProvider();
-                        IBMDumpProvider helper = help1.getDumpProvider(info2);
-                        List<File>dumps = Collections.singletonList(file);
-                        File javahome = javaexecutable.getParentFile();
-                        if (javahome != null)
-                            javahome = javahome.getParentFile();
                         try
                         {
-                            file = helper.jextract(preferredLocation, info2.compress, dumps, file.getParentFile(), javahome, listener);
+                            Thread.sleep(SLEEP_TIMEOUT);
                         }
-                        catch (InterruptedException e)
+                        catch (InterruptedException e1)
                         {
-                            listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
-                            throw new SnapshotException(Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
+                            listener.setCanceled(true);
                         }
-                        return file;
+                    }
+                    if (listener.isCanceled())
+                    {
+                        return null;
+                    }
+                }
+                while (true);
+                String in = bin.toString(encoding);
+                String err = berr.toString(encoding);
+                if (rc != 0)
+                {
+                    // Remove the dots as they don't add much to the exception
+                    int dot = 0;
+                    while (dot < err.length() && err.charAt(dot) == '.')
+                    {
+                        ++dot;
+                    }
+                    err = err.substring(dot);
+                    if (err.indexOf(IBMDumpProvider.AttachNotSupportedException.class.getName()) >= 0)
+                    {
+                        // Trying again won't work
+                        info.setHeapDumpEnabled(false);
+                    }
+                    throw new IOException(MessageUtil.format(Messages
+                                    .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err)); //$NON-NLS-1$
+                }
+                String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
+                String filename = ss[0];
+                if (info2.javaexecutable.getName().startsWith(JCMD))
+                {
+                    // OpenJDK
+                    if (filename.matches("^[0-9]+:$")) //$NON-NLS-1$
+                    {
+                        filename = preferredLocation.getAbsolutePath();
+                    }
+                    else
+                    {
+                        // From J9 jcmd.exe
+                        filename = filename.replaceFirst("^Dump written to ", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                }
+                listener.done();
+                File file = new File(filename);
+                if (!file.canRead() || !file.isFile())
+                {
+                    // Does it looks like an error message?
+                    if (err.length() > 0 || ss.length > 1)
+                    {
+                        throw new IOException(MessageUtil.format(Messages
+                                        .getString("IBMExecDumpProvider.ReturnCode"), args, rc, err.toString() +"\n" + in.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException(filename);
+                    }
+                }
+                // for java.exe, the IBMDumpProvider should have done the jextract.
+                if (info2.javaexecutable.getName().startsWith(JCMD))
+                {
+                    IBMDumpProvider help1 = new IBMDumpProvider();
+                    IBMDumpProvider helper = help1.getDumpProvider(info2);
+                    List<File>dumps = Collections.singletonList(file);
+                    File javahome = javaexecutable.getParentFile();
+                    if (javahome != null)
+                        javahome = javahome.getParentFile();
+                    try
+                    {
+                        file = helper.jextract(preferredLocation, info2.compress, dumps, file.getParentFile(), javahome, listener);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
+                        throw new SnapshotException(Messages.getString("IBMDumpProvider.Interrupted"), e); //$NON-NLS-1$
                     }
                     return file;
                 }
-                finally
-                {
-                    es.close();
-                }
+                return file;
             }
             finally
             {
@@ -291,7 +291,6 @@ public class IBMExecDumpProvider extends BaseProvider
                 {
                     p.destroy();
                 }
-                os.close();
             }
         }
         catch (FileNotFoundException e)
@@ -684,126 +683,129 @@ public class IBMExecDumpProvider extends BaseProvider
             }
             pb.command(args);
             p = pb.start();
-            StringBuilder err = new StringBuilder();
-            StringBuilder in = new StringBuilder();
-            InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
+            ByteArrayOutputStream berr = new ByteArrayOutputStream();
+            ByteArrayOutputStream bin = new ByteArrayOutputStream();
             try
             {
-                InputStreamReader es = new InputStreamReader(p.getErrorStream(), encoding);
-                try
+                int rc = 0;
+                do
                 {
-                    int rc = 0;
-                    do
+                    while (p.getInputStream().available() > 0)
                     {
-                        while (os.ready())
-                        {
-                            in.append((char) os.read());
-                            if (useJcmd)
-                            {
-                                listener.worked(1);
-                                ++count;
-                            }
-                        }
-                        while (es.ready())
-                        {
-                            char read = (char) es.read();
-                            err.append(read);
-                            if (read == '.')
-                            {
-                                // IBMDumpProvider prints a dot for each thing worked
-                                listener.worked(1);
-                                ++count;
-                            }
-                        }
-                        try
-                        {
-                            rc = p.exitValue();
+                        int r = p.getInputStream().read();
+                        if (r < 0)
                             break;
-                        }
-                        catch (IllegalThreadStateException e)
+                        bin.write(r);
+                        if (useJcmd)
                         {
-                            Thread.sleep(SLEEP_TIMEOUT);
-                        }
-                        if (listener.isCanceled())
-                        {
-                            p.destroy();
-                            // User cancelled, so perhaps attaching for details was a bad idea
-                            listAttach = false;
-                            break;
+                            listener.worked(1);
+                            ++count;
                         }
                     }
-                    while (true);
-                    if (rc != 0)
+                    while (p.getErrorStream().available() > 0)
                     {
-                        listener.sendUserMessage(Severity.WARNING,
-                                        MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString()), null); //$NON-NLS-1$
-                        return ar;
+                        int r = p.getErrorStream().read();
+                        if (r < 0)
+                            break;
+                        // IBMDumpProvider prints a dot for each thing worked
+                        if (r == '.')
+                            listener.worked(1);
+                        berr.write(r);
                     }
-                    String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
-                    for (String s : ss)
+
+                    try
                     {
-                        // pid;dump enabled;dump type;proposed filename;possible directory;description
-                        String s2[] = s.split(INFO_SEPARATOR, 6);
-                        if (s2.length >= 5)
-                        {
-                            // Exclude the helper process
-                            if (execJar == null || !s2[5].contains(execJar.getName()))
-                            {
-                                boolean enableDump = Boolean.parseBoolean(s2[1]);
-                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[5], enableDump, null, this);
-                                ifo.javaexecutable = javaExec;
-                                ifo.vmoptions = vmoptions;
-                                /*
-                                 * Get the suggested dump type from the exec program.
-                                 * If it was an IBM VM, and this is one too, retain our suggested type,
-                                 * otherwise use the type suggested by the exec program.
-                                 */
-                                DumpType t = DumpType.valueOf(s2[2]);
-                                if (isIBMDumpType(t) && isIBMDumpType(defaultType))
-                                    ifo.type = defaultType;
-                                else
-                                    ifo.type = t;
-                                ifo.live = defaultLive;
-                                ifo.compress = defaultCompress;
-                                if (s2[4].length() > 0)
-                                    ifo.dumpdir = new File(s2[4]);
-                                if (s2[3].length() > 0 && !s2[3].equals(ifo.getProposedFileName()))
-                                {
-                                    // Only set the name if the automatic naming is not applied
-                                    ifo.setProposedFileName(s2[3]);
-                                }
-                                ar.add(ifo);
-                            }
-                        }
-                        else
-                        {
-                            // JCmd output
-                            // pid more process details
-                            s2 = s.split(" ", 2); //$NON-NLS-1$
-                            if (s2.length == 2 && s2[0].matches("[0-9]+")) //$NON-NLS-1$
-                            {
-                                boolean enableDump = !s2[1].contains(execPath);
-                                if (s2[1].contains("JCmd -l")) //$NON-NLS-1$
-                                    enableDump = false;
-                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[1], enableDump, null, this);
-                                ifo.javaexecutable = javaExec;
-                                ifo.vmoptions = vmoptions;
-                                ifo.type = defaultType;
-                                ifo.live = defaultLive;
-                                ifo.compress = defaultCompress;
-                                ar.add(ifo);
-                            }
-                        }
+                        rc = p.exitValue();
+                        break;
+                    }
+                    catch (IllegalThreadStateException e)
+                    {
+                        Thread.sleep(SLEEP_TIMEOUT);
+                    }
+                    if (listener.isCanceled())
+                    {
+                        p.destroy();
+                        // User cancelled, so perhaps attaching for details was a bad idea
+                        listAttach = false;
+                        break;
                     }
                 }
-                finally
+                while (true);
+                String in = bin.toString(encoding);
+                String err = berr.toString(encoding);
+                if (rc != 0)
                 {
-                    es.close();
+                    listener.sendUserMessage(Severity.WARNING,
+                                    MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err), null); //$NON-NLS-1$
+                    return ar;
+                }
+                String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
+                for (String s : ss)
+                {
+                    // pid;dump enabled;dump type;proposed filename;possible directory;description
+                    String s2[] = s.split(INFO_SEPARATOR, 6);
+                    if (s2.length >= 5)
+                    {
+                        // Exclude the helper process
+                        if (execJar == null || !s2[5].contains(execJar.getName()))
+                        {
+                            boolean enableDump = Boolean.parseBoolean(s2[1]);
+                            IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[5], enableDump, null, this);
+                            ifo.javaexecutable = javaExec;
+                            ifo.vmoptions = vmoptions;
+                            /*
+                             * Get the suggested dump type from the exec program.
+                             * If it was an IBM VM, and this is one too, retain our suggested type,
+                             * otherwise use the type suggested by the exec program.
+                             */
+                            DumpType t = DumpType.valueOf(s2[2]);
+                            if (isIBMDumpType(t) && isIBMDumpType(defaultType))
+                                ifo.type = defaultType;
+                            else
+                                ifo.type = t;
+                            ifo.live = defaultLive;
+                            ifo.compress = defaultCompress;
+                            if (s2[4].length() > 0)
+                                ifo.dumpdir = new File(s2[4]);
+                            if (s2[3].length() > 0 && !s2[3].equals(ifo.getProposedFileName()))
+                            {
+                                // Only set the name if the automatic naming is not applied
+                                ifo.setProposedFileName(s2[3]);
+                            }
+                            ar.add(ifo);
+                        }
+                    }
+                    else
+                    {
+                        // JCmd output
+                        // pid more process details
+                        s2 = s.split(" ", 2); //$NON-NLS-1$
+                        if (s2.length == 2 && s2[0].matches("[0-9]+")) //$NON-NLS-1$
+                        {
+                            boolean enableDump = !s2[1].contains(execPath);
+                            if (s2[1].contains("JCmd -l")) //$NON-NLS-1$
+                                enableDump = false;
+                            IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[1], enableDump, null, this);
+                            ifo.javaexecutable = javaExec;
+                            ifo.vmoptions = vmoptions;
+                            ifo.type = defaultType;
+                            ifo.live = defaultLive;
+                            ifo.compress = defaultCompress;
+                            ar.add(ifo);
+                        }
+                    }
                 }
             }
             finally
             {
-                os.close();
+                try
+                {
+                    p.exitValue();
+                }
+                catch (IllegalThreadStateException e)
+                {
+                    p.destroy();
+                }
             }
         }
         catch (IOException e)

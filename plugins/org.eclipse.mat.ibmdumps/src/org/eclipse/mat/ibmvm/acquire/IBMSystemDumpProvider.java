@@ -100,6 +100,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         // Only need to run jextract to zip a dump - DTFJ can now read dumps directly
         if (zip)
         {
+            String extractCmds[] = new String[] { "jpackcore", "jpackcore.exe", "jextract", "jextract.exe" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             String dumpname = dump.getName();
             if (dumpname.endsWith(".zip")) //$NON-NLS-1$
             {
@@ -113,17 +114,26 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                           : result;
             long dumpLen = dump.length();
             ProcessBuilder pb = new ProcessBuilder();
-            File jextract;
+            File jextract = null;
             if (home != null)
             {
                 File homebin = new File(home, "bin"); //$NON-NLS-1$
-                jextract = new File(homebin, "jextract"); //$NON-NLS-1$
+                for (String execname : extractCmds)
+                {
+                    jextract = new File(homebin, execname); // $NON-NLS-1$
+                    if (jextract.isFile() && jextract.canExecute())
+                    {
+                        jextract = jextract.getAbsoluteFile();
+                        break;
+                    }
+                }
             }
-            else
+            if (jextract == null)
             {
+                // Find on path?
                 jextract = new File("jextract"); //$NON-NLS-1$
             }
-            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), dumpout.getAbsolutePath());
+            pb.command(jextract.getPath(), encodingOpt, dump.getAbsolutePath(), dumpout.getAbsolutePath());
 
             pb.redirectErrorStream(true);
             pb.directory(udir);
