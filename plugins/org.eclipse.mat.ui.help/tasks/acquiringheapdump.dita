@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -35,7 +35,8 @@
 			* HPROF dumps
 			****************************************************************** -->
 			<p><b>HPROF Binary Heap Dumps</b></p>
-			<p><i>Get Heap Dump on an OutOfMemoryError</i></p>
+			<ul>
+			<li><p><i>Get Heap Dump on an OutOfMemoryError</i></p>
 			<p> One can get a HPROF binary heap dump on an OutOfMemoryError for Sun JVM
 				(1.4.2_12 or higher and 1.5.0_07 or higher), Oracle JVMs,
 				OpenJDK JVMs,
@@ -45,20 +46,31 @@
 			<p>
 				<userinput><option>-XX:+HeapDumpOnOutOfMemoryError</option></userinput>
 			</p>
-			<p>The heap dump is written to the work directory.</p>
-			
+			<p>By default, the heap dump is written to the work directory. This can be controlled using
+			the following option to specify a directory or file name.
+				<userinput><option>-XX:HeapDumpPath=/dumpPath/</option></userinput>
+				<userinput><option>-XX:HeapDumpPath=./java_pidPIDNNN.hprof</option></userinput>
+			</p>
+			</li>
+			<li>
 			<p><i>Interactively Trigger a Heap Dump</i></p>
 			<p> To get heap dump on demand one can add the following parameter to the JVM
 				and press CTRL + BREAK in the preferred moment:</p>
 			<p>
 				<userinput><option>-XX:+HeapDumpOnCtrlBreak</option></userinput>
 			</p>
+			<p>This is only available between Java 1.4.2 and Java 6.</p>
+			</li>
+			<li>
 			<p><i>HPROF agent</i></p>
 			<p>To use the HPROF agent to generate a dump on the end of execution, or on SIGQUIT signal use the following
 			JVM parameter:</p>
 			<p>
 				<userinput><option>-agentlib:hprof=heap=dump,format=b</option></userinput>
 			</p>
+			<p>This was removed in Java 9 and later.</p>
+			</li>
+			<li>
 			<p> Alternatively, other tools can be used to acquire a heap dump:
 			</p>
 			<ul>
@@ -69,9 +81,12 @@
 					<userinput><cmdname>jcmd</cmdname> <varname>&lt;pid&gt;</varname> <option>GC.heap_dump</option> <varname>&lt;filename.hprof&gt;</varname></userinput>
 				</li>
 				<li>JConsole (see sample usage in <xref href="../gettingstarted/basictutorial.dita">Basic Tutorial</xref>)</li>
-				<li>Memory Analyzer (see bottom of page)</li>
+				<li>JVisualVM This was available with a Java 7 or Java 8, but is now
+				available from a separate <xref format="html" scope="external" href="https://visualvm.github.io/">download site</xref>.</li>
+				<li>Memory Analyzer (see <xref href="#./acquire">bottom of page</xref>)</li>
 			</ul>
-				
+			</li>
+			</ul>
 			<!-- ***************************************************************
 			* IBM dumps
 			****************************************************************** -->
@@ -236,8 +251,8 @@
 		providers may work with their default settings and in this case a list of
 		running Java processes should appear:
 		To make selection easier, 
-        the order of the Java processes can be altered by clicking on the column titles
-        for <uicontrol>pid</uicontrol> or <uicontrol>Heap Dump Provider</uicontrol>.
+		the order of the Java processes can be altered by clicking on the column titles
+		for <uicontrol>pid</uicontrol> or <uicontrol>Heap Dump Provider</uicontrol>.
 	</p>
 	<image href="../mimes/acquire.png">
 		<alt>Select a process to be dumped</alt>
@@ -730,7 +745,7 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry morerows="2">Oracle, OpenJDK, HP, Amazon Corretto</entry>
+							<entry morerows="3">Oracle, OpenJDK, Eclipse Temurin, HP, Amazon Corretto</entry>
 							<entry>1.8.0</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
@@ -755,7 +770,19 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry>15</entry>
+							<entry>17</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry></entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>21</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
 							<entry>No</entry>
@@ -865,12 +892,12 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry morerows="1">OpenJ9</entry>
+							<entry morerows="2">OpenJ9, IBM Semeru</entry>
 							<entry>1.8.0</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
-							<entry>Yes</entry>
+							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry>Yes (PHD only)</entry>
 							<entry>No</entry>
@@ -882,9 +909,21 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
+							<entry>No</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
-							<entry>Yes (PHD only)</entry>
+							<entry>No</entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>17</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
 							<entry>No</entry>
 							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
