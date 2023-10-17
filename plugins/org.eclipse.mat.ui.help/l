@@ -1,0 +1,758 @@
+Buildfile: C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\DitaBuild.xml
+
+eclipsehelpdita3:
+     [exec] Searching for integrator.xml ...
+     [exec] 
+     [exec] init:
+     [exec] 
+     [exec] dita.eclipsehelp.init:
+     [exec] 
+     [exec] init-properties:
+     [exec] [init-project] Initializing project
+     [exec] 
+     [exec] check-arg:
+     [exec]     [mkdir] Created dir: C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec]     [mkdir] Created dir: C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec] 
+     [exec] log-arg:
+     [exec]      [echo] *****************************************************************
+     [exec]      [echo] * basedir = C:\Users\andre\Downloads\dita\dita-ot-3.7.4
+     [exec]      [echo] * dita.dir = C:\Users\andre\Downloads\dita\dita-ot-3.7.4\bin\..
+     [exec]      [echo] * transtype = eclipsehelp
+     [exec]      [echo] * tempdir = C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec]      [echo] * outputdir = C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec]      [echo] * clean.temp = yes
+     [exec]      [echo] * DITA-OT version = 3.7.4
+     [exec]      [echo] * XML parser = Xerces
+     [exec]      [echo] * XSLT processor = Saxon
+     [exec]      [echo] * collator = ICU
+     [exec]      [echo] *****************************************************************
+     [exec]      [echo] #Ant properties
+     [exec]      [echo] #Tue Oct 17 20:58:39 BST 2023
+     [exec]      [echo] dita.plugin.org.dita.base.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.base
+     [exec]      [echo] dita.temp.dir=C\:\\Users\\andre\\git\\org.eclipse.mat\\plugins\\org.eclipse.mat.ui.help\\temp
+     [exec]      [echo] args.xsl=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.eclipsehelp/xsl/dita2xhtml_eclipsehelp.xsl
+     [exec]      [echo] args.grammar.cache=yes
+     [exec]      [echo] dita.plugin.org.oasis-open.xdita.v0_2_2.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.oasis-open.xdita.v0_2_2
+     [exec]      [echo] dita.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\bin\\..
+     [exec]      [echo] dita.plugin.org.dita.pdf2.axf.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.pdf2.axf
+     [exec]      [echo] args.eclipse.provider=Eclipse Memory Analyzer
+     [exec]      [echo] args.csspath=styles
+     [exec]      [echo] dita.plugin.org.oasis-open.dita.v1_3.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.oasis-open.dita.v1_3
+     [exec]      [echo] dita.plugin.org.lwdita.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.lwdita
+     [exec]      [echo] dita.eclipse.plugin=no
+     [exec]      [echo] dita.plugin.org.oasis-open.dita.v2_0.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.oasis-open.dita.v2_0
+     [exec]      [echo] dita.plugin.org.dita.htmlhelp.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.htmlhelp
+     [exec]      [echo] dita.output.dir=C\:\\Users\\andre\\git\\org.eclipse.mat\\plugins\\org.eclipse.mat.ui.help\\out
+     [exec]      [echo] dita.plugin.org.dita.eclipsehelp.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.eclipsehelp
+     [exec]      [echo] dita.plugin.org.dita.normalize.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.normalize
+     [exec]      [echo] dita.plugin.org.dita.xhtml.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.xhtml
+     [exec]      [echo] dita.plugin.org.dita.pdf2.xep.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.pdf2.xep
+     [exec]      [echo] dita.plugin.org.dita.specialization.dita11.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.specialization.dita11
+     [exec]      [echo] dita.plugin.org.oasis-open.dita.v1_2.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.oasis-open.dita.v1_2
+     [exec]      [echo] dita.plugin.org.dita.pdf2.fop.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.pdf2.fop
+     [exec]      [echo] args.input=C\:\\Users\\andre\\git\\org.eclipse.mat\\plugins\\org.eclipse.mat.ui.help\\toc.ditamap
+     [exec]      [echo] args.xml.systemid.set=yes
+     [exec]      [echo] dita.plugin.org.dita.pdf2.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.pdf2
+     [exec]      [echo] dita.plugin.org.dita.html5.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.html5
+     [exec]      [echo] dita.plugin.org.oasis-open.dita.techcomm.v2_0.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.oasis-open.dita.techcomm.v2_0
+     [exec]      [echo] args.eclipse.version=1.12
+     [exec]      [echo] dita.plugin.org.dita.index.dir=C\:\\Users\\andre\\Downloads\\dita\\dita-ot-3.7.4\\plugins\\org.dita.index
+     [exec]      [echo] dita.extname=.dita
+     [exec]      [echo] *****************************************************************
+     [exec] 
+     [exec] build-init:
+     [exec] 
+     [exec] preprocess.init:
+     [exec]      [echo] *****************************************************************
+     [exec]      [echo] * input = C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\toc.ditamap
+     [exec]      [echo] * resources = ${args.resources}
+     [exec]      [echo] *****************************************************************
+     [exec] 
+     [exec] ditaval-merge:
+     [exec] 
+     [exec] gen-list:
+     [exec]  [gen-list] Using Xerces grammar pool for DTD and schema caching.
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/toc.ditamap
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/apidoc.ditamap
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/dominatortree.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/gcroots.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/heapdump.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/reachability.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/shallowretainedheap.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/gettingstarted/basictutorial.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/legal.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/noteworthy.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/analyzingmemoryconsumption.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/bnfofoql.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/extendingmat.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/findingmemoryleak.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/iconassist.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/component_report.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/copy.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/duplicate_classes.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/find_strings.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/group_by_value.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/immediate_dominators.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/merge_shortest_paths.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/open_source_file.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/path_to_gc_roots.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/query_report.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/reference_leak.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/reference_stats.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/retained_set.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/system_properties.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/top_consumers.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/unreachable_objects.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntax.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxfrom.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxselect.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxunion.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxwhere.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/propertyaccessors.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/querymatrix.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/selectingqueries.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/support.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/tipsandtricks.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/acquiringheapdump.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingclassloader.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingthreads.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/batch.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/bundleregistry.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/comparingdata.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/configure_mat.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/exportdata.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/exportdump.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/findingresponsibleobjects.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/installDTFJ.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/listbiggestobjects.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/queryingheapobjects.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/report.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.dita
+     [exec]  [gen-list] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/welcome.dita
+     [exec]  [gen-list] Serializing job specification
+     [exec] 
+     [exec] debug-filter:
+     [exec]    [filter] Using Xerces grammar pool for DTD and schema caching.
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/copy.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/copy.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingclassloader.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingclassloader.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/legal.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/legal.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/gcroots.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/gcroots.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/exportdata.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdata.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/comparingdata.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/comparingdata.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/reference_stats.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_stats.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/shallowretainedheap.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/shallowretainedheap.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/welcome.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/welcome.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingjavacollectionusage.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingfinalizer.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingfinalizer.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/duplicate_classes.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/duplicate_classes.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/support.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/support.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/retained_set.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/retained_set.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/unreachable_objects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/unreachable_objects.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/analyzingthreads.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingthreads.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/immediate_dominators.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/immediate_dominators.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/gettingstarted/basictutorial.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/gettingstarted/basictutorial.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/top_consumers.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/top_consumers.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/query_report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/query_report.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/bundleregistry.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/bundleregistry.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/report.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/reference_leak.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_leak.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/batch.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/batch.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/path_to_gc_roots.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/path_to_gc_roots.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/extendingmat.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/extendingmat.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/listbiggestobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/listbiggestobjects.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/tipsandtricks.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/tipsandtricks.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/findingresponsibleobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/findingresponsibleobjects.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntax.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntax.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxfrom.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxfrom.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/exportdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdump.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/merge_shortest_paths.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/merge_shortest_paths.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/analyzingmemoryconsumption.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/analyzingmemoryconsumption.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/installDTFJ.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/installDTFJ.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/bnfofoql.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/bnfofoql.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/queryingheapobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/queryingheapobjects.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/apidoc.ditamap to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/apidoc.ditamap
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/configure_mat.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/configure_mat.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/selectingqueries.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/selectingqueries.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxselect.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxselect.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/system_properties.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/system_properties.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxwhere.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxwhere.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/oqlsyntaxunion.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxunion.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/heapdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/heapdump.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/noteworthy.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/noteworthy.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/runningleaksuspectreport.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/find_strings.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/find_strings.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/group_by_value.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/group_by_value.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/findingmemoryleak.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/findingmemoryleak.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/querymatrix.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/querymatrix.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/open_source_file.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/open_source_file.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/toc.ditamap to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/reachability.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/reachability.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/concepts/dominatortree.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/dominatortree.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/propertyaccessors.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/propertyaccessors.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/tasks/acquiringheapdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/acquiringheapdump.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/inspections/component_report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/component_report.dita
+     [exec]    [filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/reference/iconassist.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/iconassist.dita
+     [exec] 
+     [exec] mapref-check:
+     [exec] 
+     [exec] mapref:
+     [exec]    [mapref] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/apidoc.ditamap
+     [exec]    [mapref] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] branch-filter:
+     [exec] [branch-filter] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] keyref:
+     [exec]    [mapref] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec]    [mapref] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/mapref.xsl
+     [exec]    [mapref] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/mapref.xsl
+     [exec]    [mapref] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] copy-to:
+     [exec] 
+     [exec] conrefpush:
+     [exec] 
+     [exec] conref:
+     [exec]    [conref] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec]    [conref] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/conref.xsl
+     [exec]    [conref] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/conref.xsl
+     [exec]    [conref] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] profile-check:
+     [exec] 
+     [exec] profile:
+     [exec] 
+     [exec] topic-fragment:
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/copy.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingclassloader.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/legal.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/gcroots.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdata.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/comparingdata.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_stats.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/shallowretainedheap.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/welcome.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingjavacollectionusage.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingfinalizer.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/duplicate_classes.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/support.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/retained_set.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/unreachable_objects.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingthreads.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/immediate_dominators.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/gettingstarted/basictutorial.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/top_consumers.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/query_report.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/bundleregistry.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/report.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_leak.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/batch.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/path_to_gc_roots.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/extendingmat.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/listbiggestobjects.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/tipsandtricks.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/findingresponsibleobjects.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntax.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxfrom.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdump.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/merge_shortest_paths.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/analyzingmemoryconsumption.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/installDTFJ.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/bnfofoql.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/queryingheapobjects.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/configure_mat.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/selectingqueries.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxselect.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/system_properties.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxwhere.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxunion.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/heapdump.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/noteworthy.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/runningleaksuspectreport.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/find_strings.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/group_by_value.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/findingmemoryleak.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/querymatrix.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/open_source_file.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/reachability.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/dominatortree.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/propertyaccessors.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/acquiringheapdump.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/component_report.dita
+     [exec] [topic-fragment] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/iconassist.dita
+     [exec] 
+     [exec] chunk-check:
+     [exec] 
+     [exec] chunk:
+     [exec]     [chunk] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec]    [chunk2] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] move-meta-entries:
+     [exec] [move-meta] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] [move-meta] Loading stylesheet C:\Users\andre\Downloads\dita\dita-ot-3.7.4\plugins\org.dita.base\xsl\preprocess\mappull.xsl
+     [exec] [move-meta] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] maplink-check:
+     [exec] 
+     [exec] maplink:
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxwhere.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/analyzingmemoryconsumption.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxunion.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxfrom.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntax.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/findingmemoryleak.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/querymatrix.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/bnfofoql.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/propertyaccessors.dita
+     [exec]   [maplink] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxselect.dita
+     [exec] 
+     [exec] topicpull-check:
+     [exec] 
+     [exec] topicpull:
+     [exec] [topicpull] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec] [topicpull] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/topicpull.xsl
+     [exec] [topicpull] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/topicpull.xsl
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/copy.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingclassloader.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/legal.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/gcroots.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdata.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/comparingdata.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_stats.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/shallowretainedheap.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/welcome.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingjavacollectionusage.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingfinalizer.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/duplicate_classes.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/support.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/retained_set.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/unreachable_objects.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingthreads.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/immediate_dominators.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/gettingstarted/basictutorial.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/top_consumers.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/query_report.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/bundleregistry.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/report.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_leak.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/batch.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/path_to_gc_roots.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/extendingmat.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/listbiggestobjects.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/tipsandtricks.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/findingresponsibleobjects.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntax.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxfrom.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdump.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/merge_shortest_paths.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/analyzingmemoryconsumption.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/installDTFJ.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/bnfofoql.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/queryingheapobjects.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/configure_mat.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/selectingqueries.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxselect.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/system_properties.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxwhere.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxunion.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/heapdump.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/noteworthy.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/runningleaksuspectreport.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/find_strings.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/group_by_value.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/findingmemoryleak.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/querymatrix.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/open_source_file.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/reachability.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/dominatortree.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/propertyaccessors.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/acquiringheapdump.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/component_report.dita
+     [exec] [topicpull] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/iconassist.dita
+     [exec] 
+     [exec] clean-map-check:
+     [exec] 
+     [exec] clean-map:
+     [exec] [clean-map] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp
+     [exec] [clean-map] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/clean-map.xsl
+     [exec] [clean-map] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.base/xsl/preprocess/clean-map.xsl
+     [exec] [clean-map] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap
+     [exec] 
+     [exec] clean-preprocess:
+     [exec] 
+     [exec] copy-image:
+     [exec]      [copy] Copying 149 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec] 
+     [exec] copy-html:
+     [exec]      [copy] Copying 17 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec] 
+     [exec] copy-flag-check:
+     [exec] 
+     [exec] copy-flag:
+     [exec] 
+     [exec] copy-files:
+     [exec] 
+     [exec] preprocess:
+     [exec] 
+     [exec] xhtml.init:
+     [exec] 
+     [exec] output-css-warn-message:
+     [exec] 
+     [exec] xhtml.image-metadata:
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\copy.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\analyzingclassloader.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/analyzingclassloader_explorer.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\legal.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\concepts\gcroots.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\exportdata.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/export_to.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/copy.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\comparingdata.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_add_to_compare_basket.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_compare_basket.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_click_compare.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/compare_basket_context_menu.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_compared_tables_absolute.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_select_compare_option.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_select_columns.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_compared_result_delta.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/setops_menu.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\reference_stats.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\concepts\shallowretainedheap.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/62ff1436.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\welcome.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/mat_thumb.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\analyzingjavacollectionusage.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\analyzingfinalizer.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/finalizers.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\duplicate_classes.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/duplicate_classes.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\support.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\retained_set.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\unreachable_objects.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/unreachable_histogram.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\analyzingthreads.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/threads_overview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_details.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_frames0.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_frames1.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_frames2.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_classes2.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/thread_classes3.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\immediate_dominators.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/immediate_dominators_graph.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/icons/obj_blue.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/icons/obj_yellow.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/icons/obj_red.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/immediate_dominators_table.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/immediate_dominators_context.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\gettingstarted\basictutorial.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/me76fc4.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_jconsole_open.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_jconsole_mbean.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-openhd.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_overview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-histogram.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_histogram.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-calcrs.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_calc_retained.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_context_menu.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_group_by.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorail_by_classloader.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorail_by_package.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_by_superclass.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-dominatortree.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_dominator_tree.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_path_menu.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_path.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial_run_leak_suspects.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\top_consumers.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m3131b4b6.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\query_report.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\bundleregistry.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\report.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/leaksuspects.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\reference_leak.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\batch.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\path_to_gc_roots.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-horefabove.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\extendingmat.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\listbiggestobjects.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m34daec6d.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\tipsandtricks.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m65d10c7b.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/filter.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m4d2fff8d.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/1af34c1.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/691a2594.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/7df38219.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/movetab.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/link_with_snapshot.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/inspector_value.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_inspector_imagedata.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_inspector_rgb.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/nn_inspector_class_hierarchy.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/totals_menu.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion1.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion2.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion3.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion4.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion5.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion6.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oql_completion7.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/piechartlinks.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\findingresponsibleobjects.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/exec_immediate_dominators.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/6ac427cd.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\oqlsyntax.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\oqlsyntaxfrom.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/message_warning.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/inspector_unindexed.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\exportdump.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\merge_shortest_paths.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/merge_shortest_paths1.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-horefbelow.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/merge_shortest_paths2.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/merge_shortest_paths3.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\analyzingmemoryconsumption.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/7507ab60.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m317da505.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\installDTFJ.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\bnfofoql.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\queryingheapobjects.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-oqleditor.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m2fd32fba.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/4fd3f07a.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/oqlsaveresult.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\configure_mat.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/preferences.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/size_units_cfg.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/size_units_sample.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\selectingqueries.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/189608b9.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/select_queries.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/search_queries_context.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/search_queries.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/36c94924.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/arguments_wizard.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/arguments_pattern.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/arguments_advanced.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\oqlsyntaxselect.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\system_properties.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\oqlsyntaxwhere.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\oqlsyntaxunion.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\concepts\heapdump.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\noteworthy.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\runningleaksuspectreport.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/leak_report.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/leaksuspects1.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\find_strings.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\group_by_value.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\findingmemoryleak.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\querymatrix.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/6f9c3893.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-arrayobject.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-classloaderobject.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-classobject.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-otherobject.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-class.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-class_old.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-class_mixed.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\open_source_file.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\concepts\reachability.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\concepts\dominatortree.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/m2268b281.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\propertyaccessors.dita
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\tasks\acquiringheapdump.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/acquire.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/multiple_snapshots.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\inspections\component_report.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/component_report_package.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/component_report_classloader.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/component_report_overview.png
+     [exec] [image-metadata] Processing C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\temp\reference\iconassist.dita
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-package.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-superclass.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-heapdump.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-objectaddress.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-hoisgcroot.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-querybrowser.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-retainedset.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-expert.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-compare.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-showhg.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-idominators.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-thread.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-pathtogc.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-export.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-search.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-filter.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-shallow.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-grouping.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-objectinspectorview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-objectinspectorpin.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-oom.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-totalsrow.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-openexportsr.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-overview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-openhdff.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-finalizers.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-export_xls.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-export_html.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-export_txt.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-notesview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-historyview.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-hddetails.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-objectinspector.png
+     [exec] [image-metadata] Reading file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/mimes/i-errorlog.png
+     [exec] 
+     [exec] dita.topics.html.common:
+     [exec] 
+     [exec] dita.inner.topics.html.common:
+     [exec]  [pipeline] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec]  [pipeline] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.eclipsehelp/xsl/dita2xhtml_eclipsehelp.xsl
+     [exec]  [pipeline] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.eclipsehelp/xsl/dita2xhtml_eclipsehelp.xsl
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/copy.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/copy.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingclassloader.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/analyzingclassloader.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/legal.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/legal.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/gcroots.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/concepts/gcroots.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdata.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/exportdata.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/comparingdata.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/comparingdata.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_stats.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/reference_stats.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/shallowretainedheap.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/concepts/shallowretainedheap.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/welcome.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/welcome.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingjavacollectionusage.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/analyzingjavacollectionusage.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingfinalizer.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/analyzingfinalizer.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/duplicate_classes.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/duplicate_classes.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/support.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/support.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/retained_set.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/retained_set.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/unreachable_objects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/unreachable_objects.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/analyzingthreads.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/analyzingthreads.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/immediate_dominators.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/immediate_dominators.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/gettingstarted/basictutorial.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/gettingstarted/basictutorial.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/top_consumers.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/top_consumers.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/query_report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/query_report.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/bundleregistry.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/bundleregistry.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/report.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/reference_leak.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/reference_leak.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/batch.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/batch.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/path_to_gc_roots.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/path_to_gc_roots.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/extendingmat.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/extendingmat.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/listbiggestobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/listbiggestobjects.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/tipsandtricks.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/tipsandtricks.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/findingresponsibleobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/findingresponsibleobjects.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntax.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/oqlsyntax.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxfrom.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/oqlsyntaxfrom.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/exportdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/exportdump.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/merge_shortest_paths.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/merge_shortest_paths.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/analyzingmemoryconsumption.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/analyzingmemoryconsumption.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/installDTFJ.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/installDTFJ.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/bnfofoql.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/bnfofoql.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/queryingheapobjects.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/queryingheapobjects.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/configure_mat.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/configure_mat.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/selectingqueries.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/selectingqueries.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxselect.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/oqlsyntaxselect.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/system_properties.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/system_properties.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxwhere.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/oqlsyntaxwhere.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/oqlsyntaxunion.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/oqlsyntaxunion.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/heapdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/concepts/heapdump.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/noteworthy.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/noteworthy.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/runningleaksuspectreport.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/runningleaksuspectreport.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/find_strings.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/find_strings.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/group_by_value.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/group_by_value.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/findingmemoryleak.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/findingmemoryleak.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/querymatrix.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/querymatrix.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/open_source_file.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/open_source_file.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/reachability.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/concepts/reachability.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/concepts/dominatortree.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/concepts/dominatortree.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/propertyaccessors.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/propertyaccessors.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/tasks/acquiringheapdump.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/tasks/acquiringheapdump.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/inspections/component_report.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/inspections/component_report.html
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/reference/iconassist.dita to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/reference/iconassist.html
+     [exec] 
+     [exec] xhtml.topics:
+     [exec] 
+     [exec] copy-css:
+     [exec]     [mkdir] Created dir: C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out\styles
+     [exec]      [copy] Copying 2 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out\styles
+     [exec] 
+     [exec] copy-css-user:
+     [exec] 
+     [exec] dita.map.eclipse.plugin.init:
+     [exec] 
+     [exec] dita.map.eclipse.init:
+     [exec] XML utils not found from Ant project reference
+     [exec] dita.map.eclipse.plugin.init:
+     [exec] 
+     [exec] dita.map.eclipse.toc:
+     [exec] 
+     [exec] dita.index.eclipsehelp.init:
+     [exec] 
+     [exec] dita.map.eclipse.index:
+     [exec] 
+     [exec] dita.map.eclipse.plugin:
+     [exec] 
+     [exec] dita.map.eclipse.plugin.properties:
+     [exec] 
+     [exec] dita.map.eclipse.manifest.file:
+     [exec] 
+     [exec] dita.out.map.eclipse.plugin.properties:
+     [exec] 
+     [exec] dita.out.map.eclipse.manifest.file:
+     [exec] 
+     [exec] dita.out.map.eclipse.toc:
+     [exec]  [pipeline] Transforming into C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec]  [pipeline] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.eclipsehelp/xsl/map2eclipse.xsl
+     [exec]  [pipeline] Loading stylesheet file:/C:/Users/andre/Downloads/dita/dita-ot-3.7.4/plugins/org.dita.eclipsehelp/xsl/map2eclipse.xsl
+     [exec]  [pipeline] Processing file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/temp/toc.ditamap to file:/C:/Users/andre/git/org.eclipse.mat/plugins/org.eclipse.mat.ui.help/out/toc.xml
+     [exec] 
+     [exec] dita.out.map.eclipse.index:
+     [exec]      [echo]  args.eclipsehelp.indexsee = false 
+     [exec] 
+     [exec] Store not found from Ant project reference
+     [exec] 
+     [exec] dita.out.map.eclipse.plugin:
+     [exec] 
+     [exec] dita.map.eclipse.generate.plugin:
+     [exec] 
+     [exec] copy-plugin-files:
+     [exec]      [copy] Copying 1 file to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+     [exec] 
+     [exec] dita.map.eclipse.fragment.language.init:
+     [exec] 
+     [exec] dita.map.eclipse.fragment.language.country.init:
+     [exec] 
+     [exec] dita.map.eclipse.fragment.error:
+     [exec] 
+     [exec] dita.map.eclipse:
+     [exec] 
+     [exec] build.eclipse.jar:
+     [exec] 
+     [exec] dita2eclipsehelp:
+     [exec] 
+     [exec] clean-temp:
+
+copyjustnew:
+     [copy] Copying 74 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\outnew
+     [copy] Copying 58 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\outorig
+     [copy] Copying 172 files to C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help
+   [delete] Deleting directory C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\out
+   [delete] Deleting directory C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\outnew
+   [delete] Deleting directory C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\outorig
+
+copyall:
+
+eclipsehelp2:
+
+eclipseapidoc2:
+     [exec] XML utils not found from Ant project reference
+     [exec] Store not found from Ant project reference
+   [delete] Deleting: C:\Users\andre\git\org.eclipse.mat\plugins\org.eclipse.mat.ui.help\index.xml
+
+all2:
+
+BUILD SUCCESSFUL
+Total time: 15 seconds

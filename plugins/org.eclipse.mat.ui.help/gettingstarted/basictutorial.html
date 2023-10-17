@@ -8,8 +8,8 @@
 <meta name="DC.title" content="Basic Tutorial" />
 <meta name="DC.relation" scheme="URI" content="../concepts/dominatortree.html" />
 <meta name="DC.relation" scheme="URI" content="../concepts/gcroots.html" />
-<meta name="copyright" content="Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
-<meta name="DC.rights.owner" content="Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="copyright" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
 <meta name="DC.identifier" content="task_basictutorial" />
 <meta name="DC.language" content="en-us" />
@@ -115,6 +115,48 @@
 						</div>
 						<div class="itemgroup stepresult">
 							<img class="image" src="basictutorial_jconsole_mbean.png" alt="Select the dumpHeap method of the HotspotDiagnostics mbean." />
+						</div>
+					</li>
+
+					<li class="li substep substepexpand">
+						<span class="ph cmd">
+							Select the operation
+							<em class="ph i">triggerDumpToFile</em>
+							from the
+							<em class="ph i">openj9.lang.management=OpenJ9Diagnostics</em>
+							MBean.
+						</span>
+						<div class="itemgroup info">
+							<ul class="ul">
+							<li class="li">For OpenJ9/Semeru based JVMs (build openj9-0.18.0 and later), the parameters are:
+							<dl class="dl parml">
+							
+							<dt class="dt pt dlterm">p0</dt>
+
+							<dd class="dd pd">
+							is the dump type and should be one of <kbd class="ph userinput">java</kbd>, <kbd class="ph userinput">heap</kbd> or <kbd class="ph userinput">system</kbd>.
+							</dd>
+
+							
+							
+							<dt class="dt pt dlterm">p1</dt>
+
+							<dd class="dd pd">
+							is the full path to the dump file or directory. Make sure you give it the
+							appropriate file extension <kbd class="ph userinput">.txt</kbd>, <kbd class="ph userinput">.phd</kbd> or <kbd class="ph userinput">.dmp</kbd>.
+							</dd>
+
+							
+							</dl>
+
+							See <a class="xref" href="https://eclipse.dev/openj9/docs/api/jdk17/jdk.management/openj9/lang/management/OpenJ9DiagnosticsMXBean.html" target="_blank">API documentation for <code class="ph codeph">Interface OpenJ9DiagnosticsMXBean</code></a>
+							</li>
+
+							</ul>
+
+						</div>
+						<div class="itemgroup stepresult">
+							Note the name of the file.
 						</div>
 					</li>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <!--
-    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,11 +19,11 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
-			    All rights reserved. This program and the accompanying materials
-			    are made available under the terms of the Eclipse Public License 2.0
-			    which accompanies this distribution, and is available at
-			    https://www.eclipse.org/legal/epl-2.0/
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License 2.0
+				which accompanies this distribution, and is available at
+				https://www.eclipse.org/legal/epl-2.0/
 			</copyrholder>
 		</copyright>
 	</prolog>
@@ -128,6 +128,40 @@
 								<alt>Select the dumpHeap method of the HotspotDiagnostics mbean.
 								</alt>
 							</image>
+						</stepresult>
+					</substep>
+					<substep>
+						<cmd>
+							Select the operation
+							<i>triggerDumpToFile</i>
+							from the
+							<i>openj9.lang.management=OpenJ9Diagnostics</i>
+							MBean.
+						</cmd>
+						<info>
+							<ul>
+							<li>For OpenJ9/Semeru based JVMs (build openj9-0.18.0 and later), the parameters are:
+							<parml>
+							<plentry>
+							<pt>p0</pt>
+							<pd>
+							is the dump type and should be one of <userinput>java</userinput>, <userinput>heap</userinput> or <userinput>system</userinput>.
+							</pd>
+							</plentry>
+							<plentry>
+							<pt>p1</pt>
+							<pd>
+							is the full path to the dump file or directory. Make sure you give it the
+							appropriate file extension <userinput>.txt</userinput>, <userinput>.phd</userinput> or <userinput>.dmp</userinput>.
+							</pd>
+							</plentry>
+							</parml>
+							See <xref format="html" scope="external" href="https://eclipse.dev/openj9/docs/api/jdk17/jdk.management/openj9/lang/management/OpenJ9DiagnosticsMXBean.html">API documentation for <codeph>Interface OpenJ9DiagnosticsMXBean</codeph></xref>
+							</li>
+							</ul>
+						</info>
+						<stepresult>
+							Note the name of the file.
 						</stepresult>
 					</substep>
 					<substep>
