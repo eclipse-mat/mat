@@ -373,7 +373,7 @@ public class GeneralSnapshotTests
     {
         SnapshotQuery query = SnapshotQuery.lookup("component_report_top", snapshot);
         query.setArgument("aggressive", true);
-        IResult result = query.execute(new CheckedProgressListener(collector));
+        IResult result = query.execute(new CheckedWorkProgressListener(collector));
         assertTrue(result != null);
     }
 
@@ -382,7 +382,7 @@ public class GeneralSnapshotTests
     public void topReferenceLeak() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("reference_leak java.lang.ref.WeakReference -include_subclasses -maxpaths 10 -factor 0.2", snapshot);
-        IResult result = query.execute(new CheckedProgressListener(collector));
+        IResult result = query.execute(new CheckedWorkProgressListener(collector));
         assertTrue(result != null);
         if (result instanceof CompositeResult)
         {
@@ -498,7 +498,7 @@ public class GeneralSnapshotTests
     public void testRegressionReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:regression", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -507,7 +507,7 @@ public class GeneralSnapshotTests
     public void testPerformanceReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:performance", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -516,7 +516,7 @@ public class GeneralSnapshotTests
     public void testLeakSuspectsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -525,7 +525,7 @@ public class GeneralSnapshotTests
     public void testHeapDumpOverviewQuery() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("heap_dump_overview", snapshot);
-        IResult result = query.execute(new CheckedProgressListener(collector));
+        IResult result = query.execute(new CheckedWorkProgressListener(collector));
         assertTrue(result != null);
         assertThat(result, instanceOf(IResultTable.class));
         IResultTable t = (IResultTable)result;
@@ -547,7 +547,7 @@ public class GeneralSnapshotTests
     public void testOverviewReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
 
@@ -566,7 +566,7 @@ public class GeneralSnapshotTests
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
                         + "\"", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
         SnapshotFactory.dispose(snapshot2);
@@ -579,7 +579,7 @@ public class GeneralSnapshotTests
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT, true);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
                         + "\"", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         SnapshotFactory.dispose(snapshot2);
         checkHTMLResult(t);
@@ -593,7 +593,7 @@ public class GeneralSnapshotTests
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects2 -params \"baseline=" + snapshot2.getSnapshotInfo().getPath()
                         + "\"", snapshot);
         SnapshotFactory.dispose(snapshot2);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -630,7 +630,7 @@ public class GeneralSnapshotTests
             SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
             try 
             {
-                IResult t = query.execute(new CheckedProgressListener(collector));
+                IResult t = query.execute(new CheckedWorkProgressListener(collector));
                 assertNotNull(t);
                 checkHTMLResult(t);
 
@@ -681,7 +681,7 @@ public class GeneralSnapshotTests
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
         try
         {
-            IResult t = query.execute(new CheckedProgressListener(collector));
+            IResult t = query.execute(new CheckedWorkProgressListener(collector));
             assertNotNull(t);
             checkHTMLResult(t);
             assertThat(out1.toString(), out1.exists(), equalTo(true));
@@ -698,7 +698,7 @@ public class GeneralSnapshotTests
             try
             {
                 query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
-                t = query.execute(new CheckedProgressListener(collector));
+                t = query.execute(new CheckedWorkProgressListener(collector));
                 assertNotNull(t);
                 checkHTMLResult(t);
                 assertThat(out1.toString(), out1.exists(), equalTo(true));
@@ -729,7 +729,7 @@ public class GeneralSnapshotTests
     public void testBug572227() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:query -params command=histogram unzip=true format=txt", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
 
@@ -763,7 +763,7 @@ public class GeneralSnapshotTests
     public void testTopComponentsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         checkHTMLResult(t);
     }
@@ -1390,7 +1390,7 @@ public class GeneralSnapshotTests
     @Test
     public void testAllQueriesReportText() throws SnapshotException, IOException
     {
-        IProgressListener checkListener = new CheckedProgressListener(collector);
+        IProgressListener checkListener = new CheckedWorkProgressListener(collector);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all -params format=txt", snapshot);
         IResult t = query.execute(checkListener);
         assertNotNull(t);
@@ -1400,7 +1400,7 @@ public class GeneralSnapshotTests
     @Test
     public void testAllQueriesReportCSV() throws SnapshotException, IOException
     {
-        IProgressListener checkListener = new CheckedProgressListener(collector);
+        IProgressListener checkListener = new CheckedWorkProgressListener(collector);
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:all -params format=csv", snapshot);
         IResult t = query.execute(checkListener);
         assertNotNull(t);
@@ -1417,7 +1417,7 @@ public class GeneralSnapshotTests
             {
                 SnapshotQuery query = SnapshotQuery.parse("extract_list_values 0x"+Long.toHexString(snapshot.mapIdToAddress(o)), snapshot);
                 try {
-                    IResult t = query.execute(new CheckedProgressListener(collector));
+                    IResult t = query.execute(new CheckedWorkProgressListener(collector));
                     assertNotNull(t);
                 } catch (IllegalArgumentException e) {
                 }
@@ -1429,7 +1429,7 @@ public class GeneralSnapshotTests
     public void groupByValue() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("group_by_value \".*\"", snapshot);
-        IResult t = query.execute(new CheckedProgressListener(collector));
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
         // Will run name resolvers on every object!
         IResultTable table = (IResultTable)t;
@@ -1463,7 +1463,7 @@ public class GeneralSnapshotTests
                             (chunked ? " -chunked" : "") +
                             (mapping != null ? " -redact NAMES -map "+mapping.getPath() : "") +
                             (segsize > 0 ? " -segsize "+segsize : ""), snapshot);
-            CheckedProgressListener checkListener = new CheckedProgressListener(collector);
+            CheckedProgressListener checkListener = new CheckedWorkProgressListener(collector);
             IResult t = query.execute(checkListener);
             assertNotNull(t);
 
@@ -1485,6 +1485,8 @@ public class GeneralSnapshotTests
             }
 
             ISnapshot newSnapshot;
+            // Fresh listener, can't be checked work as sometimes the dump is parsed twice, once as phd.gz and once and hprof.gz
+            checkListener = new CheckedProgressListener(collector);
             try
             {
                 newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), checkListener);
@@ -1603,9 +1605,9 @@ public class GeneralSnapshotTests
                                         (compress ? " -compress" : "") +
                                         (mapping != null ? " -redact NONE -undo -map "+mapping.getPath() : "") +
                                         (segsize > 0 ? " -segsize "+segsize : ""), newSnapshot);
-                        IResult t2 = query2.execute(new CheckedProgressListener(collector));
+                        IResult t2 = query2.execute(new CheckedWorkProgressListener(collector));
                         assertNotNull(t2);
-                        ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new CheckedProgressListener(collector));
+                        ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new CheckedWorkProgressListener(collector));
                         try {
                             for (IClass cl : snapshot.getClasses())
                             {
@@ -1807,10 +1809,10 @@ public class GeneralSnapshotTests
     {
         String path = snapshot.getSnapshotInfo().getPath();
         File file = new File(path);
-        ISnapshot sn2 = SnapshotFactory.openSnapshot(file, new CheckedProgressListener(collector));
+        ISnapshot sn2 = SnapshotFactory.openSnapshot(file, new CheckedWorkProgressListener(collector));
         try
         {
-            ISnapshot sn3 = SnapshotFactory.openSnapshot(file, new CheckedProgressListener(collector));
+            ISnapshot sn3 = SnapshotFactory.openSnapshot(file, new CheckedWorkProgressListener(collector));
             try
             {
                 assertSame(sn2, sn3);
@@ -1876,10 +1878,10 @@ public class GeneralSnapshotTests
                  */
                 assumeTrue(newPath.exists());
                 assumeTrue(f2.exists());
-                ISnapshot sn2 = SnapshotFactory.openSnapshot(f2, new CheckedProgressListener(collector));
+                ISnapshot sn2 = SnapshotFactory.openSnapshot(f2, new CheckedWorkProgressListener(collector));
                 try
                 {
-                    ISnapshot sn3 = SnapshotFactory.openSnapshot(newPath, new CheckedProgressListener(collector));
+                    ISnapshot sn3 = SnapshotFactory.openSnapshot(newPath, new CheckedWorkProgressListener(collector));
                     try
                     {
                         assertThat(sn3.getHeapSize(0), greaterThanOrEqualTo(0L));
