@@ -70,7 +70,15 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
         }
         else
         {
-            return ExtractionUtils.getNumberOfNotNullArrayElements(extractEntryIds(coll));
+            // May not work properly with PHD and null values 
+            int entries[] = extractEntryIds(coll);
+            int count = 0;
+            for (int i = 0; i < entries.length; i += 2)
+            {
+                if (entries[i] >= 0)
+                    ++count;
+            }
+            return count;
         }
     }
 

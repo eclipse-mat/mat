@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018,2019 IBM Corporation
+ * Copyright (c) 2018,2023 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,16 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assume.assumeThat;
+
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +41,7 @@ public class ExtractCollectionEntriesTest4 extends ExtractCollectionEntriesTest2
     {
         Object[][] data = new Object[][] { { TestSnapshots.ORACLE_JDK7_21_64BIT },
                         { TestSnapshots.IBM_JDK8_64BIT_SYSTEM },
-                        // { TestSnapshots.IBM_JDK8_64BIT_HEAP_AND_JAVA }, currently problems with PHD collections
+                        { TestSnapshots.IBM_JDK8_64BIT_HEAP_AND_JAVA }, // currently problems with PHD collections
                         { TestSnapshots.ORACLE_JDK8_05_64BIT },
                         { TestSnapshots.OPENJDK_JDK11_04_64BIT } };
         return Arrays.asList(data);
@@ -44,13 +50,18 @@ public class ExtractCollectionEntriesTest4 extends ExtractCollectionEntriesTest2
     @Test
     public void testCollections1() throws SnapshotException
     {
-        testCollections1(TestSnapshots.getSnapshot(snapfile, false), null);
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapfile, false);
+        // works for PHD!
+        //assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        testCollections1(snapshot, null);
     }
     
     @Test
     public void testCollections2() throws SnapshotException
     {
-        testCollections2(TestSnapshots.getSnapshot(snapfile,false), null);
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapfile, false);
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        testCollections2(snapshot, null);
     }
     
     @Test
@@ -68,12 +79,16 @@ public class ExtractCollectionEntriesTest4 extends ExtractCollectionEntriesTest2
     @Test
     public void testCollections5() throws SnapshotException
     {
-        testCollections5(TestSnapshots.getSnapshot(snapfile,false), null);
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapfile, false);
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        testCollections5(snapshot, null);
     }
     
     @Test
     public void testCollections6() throws SnapshotException
     {
-        testCollections6(TestSnapshots.getSnapshot(snapfile,false), null);
+        ISnapshot snapshot = TestSnapshots.getSnapshot(snapfile, false);
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        testCollections6(snapshot, null);
     }
 }

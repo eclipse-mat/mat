@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,8 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
     {
         IProgressListener listener = new VoidProgressListener();
         // If there isn't a size, then use an upper limit in case there is a loop
-        int size = super.hasSize() ? getSize(list) : 10000000;
+        Integer s;
+        int size = super.hasSize() && (s = super.getSize(list)) != null ? s : 10000000;
 
         String taskMsg = MessageUtil.format(Messages.ExtractListValuesQuery_CollectingElements, size,
                         list.getTechnicalName());
@@ -62,6 +63,29 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         {
             // Look for the only object field
             header = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(leadField, list);
+        }
+        if (header == list)
+        {
+            // Try without using field names
+            IObject first = null;
+            final ISnapshot snapshot = header.getSnapshot();
+            for (int i : snapshot.getOutboundReferentIds(header.getObjectId()))
+            {
+                IObject o = snapshot.getObject(i);
+                // Exclude the class
+                if (i != header.getClazz().getObjectId())
+                {
+                    if (first == null)
+                        first = o;
+                    else if (!first.getClass().equals(o.getClass()))
+                    {
+                        first = null;
+                        break;
+                    }
+                }
+            }
+            if (first != null)
+                header = first;
         }
         if (header == null)
             return new int[0];
@@ -152,6 +176,9 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
 
             if (ref != null)
                 result.add(ref.getObjectId());
+            // Stop looping to start
+            if (header == null)
+                header = current;
             previous = current;
             current = next;
             listener.worked(1);
@@ -174,7 +201,9 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
     {
         if (super.hasSize())
         {
-            return super.getSize(coll);
+            Integer s = super.getSize(coll);
+            if (s != null)
+                return s;
         }
         int entries[] =  extractEntryIds(coll);
         if (entries == null)
