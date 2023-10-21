@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -113,12 +114,10 @@ public class FindLeaksQuery implements IQuery
         listener.subTask(Messages.FindLeaksQuery_SearchingSingleObjects);
 
         ArrayInt suspiciousObjects = new ArrayInt();
-        Set<String> suspectNames = new HashSet<String>();
         int i = 0;
         while (i < topDominators.length && snapshot.getRetainedHeapSize(topDominators[i]) > threshold)
         {
             suspiciousObjects.add(topDominators[i]);
-            suspectNames.add(snapshot.getClassOf(topDominators[i]).getName());
             i++;
         }
 
@@ -498,6 +497,25 @@ public class FindLeaksQuery implements IQuery
 
     public static class SuspectRecord implements Comparable<SuspectRecord>
     {
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(suspect.getObjectId(), suspectRetained);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            SuspectRecord other = (SuspectRecord) obj;
+            return Objects.equals(suspect.getObjectId(), other.suspect.getObjectId()) && Objects.equals(suspectRetained, other.suspectRetained);
+        }
+
         IObject suspect;
 
         Bytes suspectRetained;
