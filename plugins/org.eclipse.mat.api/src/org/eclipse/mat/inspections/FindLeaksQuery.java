@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,11 @@ public class FindLeaksQuery implements IQuery
          */
         listener.subTask(Messages.FindLeaksQuery_SearchingGroupsOfObjects);
 
-        Histogram histogram = groupByClasses(topDominators, new SilentProgressListener(listener));
+        /*
+         * Remove single suspects from list.
+         */
+        int topDominatorsX[] = Arrays.copyOfRange(topDominators, i, topDominators.length);
+        Histogram histogram = groupByClasses(topDominatorsX, new SilentProgressListener(listener));
         ArrayList<ClassHistogramRecord> suspiciousClasses = new ArrayList<ClassHistogramRecord>();
 
         ClassHistogramRecord[] classRecords = histogram.getClassHistogramRecords().toArray(new ClassHistogramRecord[0]);
@@ -138,12 +143,11 @@ public class FindLeaksQuery implements IQuery
         int k = 0;
         while (k < classRecords.length && classRecords[k].getRetainedHeapSize() > threshold)
         {
-            // avoid showing class-suspect for s.th. which was found on object
-            // level
-            if (!suspectNames.contains(classRecords[k].getLabel()))
-            {
-                suspiciousClasses.add(classRecords[k]);
-            }
+            /*
+             * No need to avoid showing class-suspect for s.th. which was found on object
+             * level as we excluded the objects earlier.
+             */
+            suspiciousClasses.add(classRecords[k]);
             k++;
         }
 
@@ -375,6 +379,8 @@ public class FindLeaksQuery implements IQuery
             listener.worked(1);
         }
 
+        // Have single and group of suspects all arranged by size
+        Arrays.sort(allSuspects, Comparator.reverseOrder());
         listener.done();
         return new SuspectsResultTable(allSuspects, totalHeap);
     }
@@ -490,7 +496,7 @@ public class FindLeaksQuery implements IQuery
 
     }
 
-    public static class SuspectRecord
+    public static class SuspectRecord implements Comparable<SuspectRecord>
     {
         IObject suspect;
 
@@ -517,6 +523,32 @@ public class FindLeaksQuery implements IQuery
         public AccumulationPoint getAccumulationPoint()
         {
             return accumulationPoint;
+        }
+
+        @Override
+        public int compareTo(SuspectRecord o)
+        {
+            // First compare retained size
+            int r = Long.compare(getSuspectRetained(), o.getSuspectRetained());
+            if (r != 0)
+                return r;
+            boolean g1 = getClass() == SuspectRecord.class;
+            boolean g2 = o.getClass() == SuspectRecord.class;
+            // Single suspect first
+            if (g1 && !g2)
+                return 1;
+            if (!g1 && g2)
+                return -1;
+            // Now compare simple size
+            r = Long.compare(getSuspect().getUsedHeapSize(), o.getSuspect().getUsedHeapSize());
+            if (r != 0)
+                return r;
+            // Just to get some sort of comparison
+            r = getSuspect().getClazz().getName().compareTo(o.getSuspect().getClazz().getName());
+            if (r != 0)
+                return r;
+            r = Integer.compare(getSuspect().getObjectId(), o.getSuspect().getObjectId());
+            return r;
         }
     }
 
