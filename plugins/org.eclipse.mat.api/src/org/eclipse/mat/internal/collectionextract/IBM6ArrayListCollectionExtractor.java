@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public class IBM6ArrayListCollectionExtractor extends FieldArrayCollectionExtractor
 {
@@ -62,7 +63,16 @@ public class IBM6ArrayListCollectionExtractor extends FieldArrayCollectionExtrac
         Integer lastIndex = (Integer) coll.resolveValue(this.lastIndex);
 
         if (lastIndex == null)
+        {
+            if (firstIndex == null)
+            {
+                IObjectArray arr = extractEntries(coll);
+                if (arr == null)
+                    return null;
+                return ExtractionUtils.getNumberOfNotNullArrayElements(arr);
+            }
             return null;
+        }
         else if (firstIndex == null || lastIndex <= 0)
             return lastIndex;
         else
@@ -87,15 +97,23 @@ public class IBM6ArrayListCollectionExtractor extends FieldArrayCollectionExtrac
         Integer size = getSize(coll);
         if (size == null)
         {
-            return new int[0];
+            // PHD?
+            return ExtractionUtils.referenceArrayToIds(snapshot, referenceArray);
         }
         ArrayInt arr = new ArrayInt(size);
         if (size > 0)
         {
+            Object firstIdx = coll.resolveValue(this.firstIndex);
+            Object lastIdx = coll.resolveValue(this.lastIndex);
+            if (!((firstIdx instanceof Integer) && (lastIdx instanceof Integer)))
+            {
+                // PHD?
+                return ExtractionUtils.referenceArrayToIds(snapshot, referenceArray);
+            }
             // For ArrayBlockingQueue, first == last & size > 0 means do everything
             // For ArrayList, first == last means size == 0, but wouldn't get here
-            int firstIndex = (Integer) coll.resolveValue(this.firstIndex);
-            int lastIndex = (Integer) coll.resolveValue(this.lastIndex);
+            int firstIndex = (Integer) firstIdx;
+            int lastIndex = (Integer) lastIdx;
             int end = getCapacity(coll);
             for (int i = firstIndex; i < (firstIndex < lastIndex  ? lastIndex : end); i++)
             {

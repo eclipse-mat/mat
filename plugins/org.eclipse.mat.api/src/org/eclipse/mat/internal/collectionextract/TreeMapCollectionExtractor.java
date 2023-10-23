@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -60,8 +60,22 @@ public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
             rootf = sizeField.substring(0, dot + 1) + rootf;
         }
         IObject root = (IObject) treeMap.resolveValue(rootf);
+        boolean noFieldNames = root == null;
         if (root == null)
-            return new int[0];
+        {
+            if (dot > 0)
+            {
+                root = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(rootf, treeMap);
+                if (root != null)
+                    root = ExtractionUtils.followOnlyNonArrayOutgoingReference(root);
+            }
+            else
+            {
+                root = ExtractionUtils.followOnlyNonArrayOutgoingReference(treeMap);
+            }
+            if (root == null || !root.getClazz().getName().endsWith("$Entry")) //$NON-NLS-1$
+                return new int[0];
+        }
 
         Stack<IObject> stack = new Stack<IObject>();
         stack.push(root);
@@ -93,6 +107,18 @@ public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
                 {
                     stack.push(right);
                 }
+                else if (noFieldNames)
+                {
+                    // All nodes of same type as root
+                    for (int o : current.getSnapshot().getOutboundReferentIds(current.getObjectId()))
+                    {
+                        if (current.getSnapshot().getClassOf(o).equals(root.getClazz()))
+                        {
+                            if (!visited.contains(o))
+                                stack.push(current.getSnapshot().getObject(o));
+                        }
+                    }
+                }
             }
         }
 
@@ -106,7 +132,13 @@ public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
 
     public Integer getSize(IObject coll) throws SnapshotException
     {
-        return ExtractionUtils.toInteger(coll.resolveValue(sizeField));
+        Integer ret = ExtractionUtils.toInteger(coll.resolveValue(sizeField));
+        if (ret != null)
+            return ret;
+        int e[] = this.extractEntryIds(coll);
+        if (e != null)
+            return e.length;
+        return null;
     }
 
     public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException

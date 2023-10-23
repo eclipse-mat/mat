@@ -88,7 +88,7 @@ public class ExtractCollectionEntriesTest4 extends ExtractCollectionEntriesTest2
     public void testCollections6() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(snapfile, false);
-        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        //assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
         testCollections6(snapshot, null);
     }
 }
