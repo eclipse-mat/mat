@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce4813c6_dd9e2727",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-10-26T12:22:08Z",
+      "side": 1,
+      "message": "Small change but need CI build to test.",
+      "revId": "bc0c541b6453e296514cd108f383aef6f5516136",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
