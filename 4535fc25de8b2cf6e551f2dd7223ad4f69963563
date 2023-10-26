@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c7c712b_8843f5e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2023-10-26T07:05:42Z",
+      "side": 1,
+      "message": "I think we this is good enough as a start.\nBoth dash-license tool dependencies and cyclonedx sbom gets generated.\nWe might need to further fine-tune the results as we learn more details on what is expected from Eclipse projects.",
+      "revId": "4535fc25de8b2cf6e551f2dd7223ad4f69963563",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
