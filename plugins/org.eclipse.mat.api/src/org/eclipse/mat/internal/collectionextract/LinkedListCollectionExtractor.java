@@ -63,11 +63,14 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         {
             // Look for the only object field
             header = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(leadField, list);
+            if (header == null)
+                header = list;
         }
+        IObject tail = null;
         if (header == list)
         {
             // Try without using field names
-            IObject first = null;
+            IObject first = null, second = null;
             final ISnapshot snapshot = header.getSnapshot();
             for (int i : snapshot.getOutboundReferentIds(header.getObjectId()))
             {
@@ -75,17 +78,30 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
                 // Exclude the class
                 if (i != header.getClazz().getObjectId())
                 {
+                    String tn = o.getClazz().getName();
+                    if (!(tn.endsWith("$Entry") || tn.endsWith("$Node")))  //$NON-NLS-1$//$NON-NLS-2$
+                        continue;
                     if (first == null)
+                    {
                         first = o;
-                    else if (!first.getClass().equals(o.getClass()))
+                    }
+                    else if (first.getClass().equals(o.getClass()) && second == null)
+                    {
+                        second = o;
+                    }
+                    else
                     {
                         first = null;
+                        second = null;
                         break;
                     }
                 }
             }
             if (first != null)
+            {
                 header = first;
+                tail = second;
+            }
         }
         if (header == null)
             return new int[0];
@@ -181,6 +197,14 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
                 header = current;
             previous = current;
             current = next;
+            // ConcurrentLinkedQueue without fields ?
+            if (current == null && tail != null && tail.getObjectId() != header.getObjectId()
+                            && tail.getObjectId() != previous.getObjectId())
+            {
+                current = tail;
+                tail = null;
+                header = previous;
+            }
             listener.worked(1);
             // If the user cancels then just return what we have got so far
             if (listener.isCanceled())

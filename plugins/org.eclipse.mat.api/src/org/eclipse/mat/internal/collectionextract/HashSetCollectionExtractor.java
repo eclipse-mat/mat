@@ -19,8 +19,10 @@ import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
@@ -62,6 +64,9 @@ public class HashSetCollectionExtractor implements IMapExtractor
         if (size_attribute != null)
         {
             Integer ret = ExtractionUtils.toInteger(coll.resolveValue(size_attribute));
+            if (ret != null)
+                return ret;
+            ret = createHashMapExtractor().getSize(coll);
             if (ret != null)
                 return ret;
             return getNumberOfNotNullElements(coll);
@@ -154,8 +159,94 @@ public class HashSetCollectionExtractor implements IMapExtractor
                     ret.add(((IObject) f).getObjectId());
                 }
             }
+            if (ret.size() == 0 && entries.length > 0)
+            {
+                // No fields?
+                // Dummy extractor for resolveSameNextField
+                HashMapCollectionExtractor hme2 = new HashMapCollectionExtractor(size_attribute, array_attribute, key_attribute, value_attribute);
+                getSetEntries(coll, hme2, entries, ret);
+            }
         }
         return ret.toArray();
+    }
+
+    int getSetEntries(IObject collection, HashMapCollectionExtractor hme, int[] objects, ArrayInt ret) throws SnapshotException
+    {
+        // Maps have chained buckets in case of clashes
+        // LinkedMaps have additional chains to maintain ordering
+        int count = 0;
+        ISnapshot snapshot = collection.getSnapshot();
+        // Find the possible dummy value reference used to convert map to set
+        ArrayInt collRefs1 = new ArrayInt();
+        for (IClass c = collection.getClazz(); c != null; c = c.getSuperClass())
+        {
+            for (int o : snapshot.getOutboundReferentIds(c.getObjectId()))
+            {
+                if (snapshot.getClassOf(o).getName().equals("java.lang.Object")) //$NON-NLS-1$
+                {
+                    collRefs1.add(o);
+                }
+            }
+        }
+        int collRefs[] = collRefs1.toArray();
+        // Avoid visiting nodes twice
+        BitField seen = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
+        // Used for alternative nodes if there is a choice
+        ArrayInt extra = new ArrayInt();
+        // Eliminate the LinkedHashMap header node
+        // seen.set(array.getObjectId());
+        // Walk over whole array, or all outbounds of header
+        for (int i : objects)
+        {
+            // Ignore classes, outbounds we have seen, and plain Objects (which
+            // can't be buckets e.g. ConcurrentSkipListMap)
+            if (!snapshot.isClass(i) && !seen.get(i) && !snapshot.getClassOf(i).getName().equals("java.lang.Object")) //$NON-NLS-1$
+            {
+                // Found a new outbound
+                // Look at the reachable nodes from this one, remember this
+                extra.clear();
+                extra.add(i);
+                seen.set(i);
+                for (int k = 0; k < extra.size(); ++k)
+                {
+                    for (int j = extra.get(k); j >= 0;)
+                    {
+                        ++count;
+                        int val = -1;
+                        IClass entryClazz = snapshot.getClassOf(j);
+                        l1: for (int o : snapshot.getOutboundReferentIds(j))
+                        {
+                            if (entryClazz.getObjectId() == o)
+                                continue;
+                            IClass c = snapshot.getClassOf(o);
+                            if (entryClazz.equals(c))
+                                continue;
+                            String cname = c.getName();
+                            if (cname.endsWith("$Node") || cname.endsWith("$TreeNode") || cname.endsWith("$Entry")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            {
+                                continue;
+                            }
+                            if (cname.equals("java.lang.Object")) //$NON-NLS-1$
+                            {
+                                for (int o2 : collRefs)
+                                {
+                                    if (o2 == o)
+                                        continue l1;
+                                }
+                            }
+                            if (val == -1)
+                                val = o;
+                            else
+                                val = -2;
+                        }
+                        if (val >= 0)
+                            ret.add(val);
+                        j = hme.resolveNextSameField(snapshot, j, seen, extra);
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException
