@@ -21,6 +21,8 @@
 	<packaging>pom</packaging>
 
 	<name>MAT Parent</name>
+	<description>Java heap analyzer that helps you find memory leaks and reduce memory consumption.</description>
+	<url>https://eclipse.dev/mat/</url>
 
 	<licenses>
 		<license>
@@ -28,6 +30,26 @@
 			<url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
 		</license>
 	</licenses>
+
+	<organization>
+		<name>Eclipse Memory Analyzer Project</name>
+		<url>https://projects.eclipse.org/projects/tools.mat</url>
+	</organization>
+
+	<scm>
+		<url>https://git.eclipse.org/r/mat/org.eclipse.mat</url>
+		<developerConnection>scm:git:https://git.eclipse.org/r/mat/org.eclipse.mat</developerConnection>
+	</scm>
+
+	<issueManagement>
+		<system>Bugzilla</system>
+		<url>https://bugs.eclipse.org/bugs/buglist.cgi?product=MAT</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://ci.eclipse.org/mat</url>
+	</ciManagement>
 
 	<properties>
 		<tycho-version>2.7.5</tycho-version>
