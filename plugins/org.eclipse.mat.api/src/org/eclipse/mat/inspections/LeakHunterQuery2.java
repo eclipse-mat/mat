@@ -109,7 +109,6 @@ public class LeakHunterQuery2 extends LeakHunterQuery
                             + " -defaultoptions \"\"" //$NON-NLS-1$
                             + " -options " + Converters.convertAndEscape(String.class, opts.toString()) //$NON-NLS-1$
             );
-            System.out.println(spec.getCommand());
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             spec.set(Params.Rendering.SORT_COLUMN, "#5"); //$NON-NLS-1$
             spec.set(Params.Rendering.HIDE_COLUMN, "#7,#8,#9"); //$NON-NLS-1$

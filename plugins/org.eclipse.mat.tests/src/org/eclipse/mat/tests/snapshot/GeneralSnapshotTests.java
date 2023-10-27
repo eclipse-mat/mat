@@ -798,7 +798,7 @@ public class GeneralSnapshotTests
         public void beginTask(String s, int total)
         {
             collector.checkThat(s + ": Total work should be non-negative", total, greaterThanOrEqualTo(0));
-            collector.checkThat(s + ": beginTask() should not have already been called, total: ", this.total, equalTo(0));
+            collector.checkThat(s + ": beginTask(\"" + this.task + "\"," + this.total + ") should not have already been called, total: ", this.total, equalTo(0));
             this.total = total;
             this.task = s;
         }
@@ -1485,8 +1485,12 @@ public class GeneralSnapshotTests
             }
 
             ISnapshot newSnapshot;
-            // Fresh listener, can't be checked work as sometimes the dump is parsed twice, once as phd.gz and once and hprof.gz
-            checkListener = new CheckedProgressListener(collector);
+            /* 
+             * Fresh listener.
+             * Checked work okay so long as the dump is parsed by the correct
+             * parser first, e.g. HPROF for hprof.gz rather than as PHD gz first. 
+             */
+            checkListener = new CheckedWorkProgressListener(collector);
             try
             {
                 newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), checkListener);

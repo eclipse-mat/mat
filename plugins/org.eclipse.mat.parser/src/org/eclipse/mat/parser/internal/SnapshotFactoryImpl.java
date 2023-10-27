@@ -151,14 +151,20 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                         cd2 = null;
                     }
                     if (cd1 != null && cd2 == null)
-                        listtypes.add(tp);
-                    for (String ext: tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
                     {
-                        // Does extension itself contains a dot, and matches this file ?
-                        if (ext.indexOf('.') >= 0 && name.endsWith("." + ext)) //$NON-NLS-1$
+                        listtypes.add(tp);
+                        for (String ext: tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
                         {
-                            // It has a dot, so remove
-                            n1 = name.substring(0, name.length() - ext.length());
+                            // Does extension itself contains a dot, and matches this file ?
+                            if (ext.indexOf('.') >= 0 && name.endsWith("." + ext)) //$NON-NLS-1$
+                            {
+                                // It has a dot, so remove
+                                n1 = name.substring(0, name.length() - ext.length());
+                                // This looks a good content type as matches with long extension.
+                                // So put it first.
+                                listtypes.remove(tp);
+                                listtypes.add(0, tp);
+                            }
                         }
                     }
                 }
