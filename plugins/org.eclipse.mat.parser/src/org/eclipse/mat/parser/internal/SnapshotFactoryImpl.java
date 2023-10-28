@@ -371,35 +371,43 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     // Internal implementations
     // //////////////////////////////////////////////////////////////
 
+    private void addAllNew(List<ParserRegistry.Parser> list, List<ParserRegistry.Parser> add)
+    {
+        for (ParserRegistry.Parser p2 : add)
+        {
+            boolean found = false;
+            for (ParserRegistry.Parser p3 : list)
+            {
+                if (p3.getUniqueIdentifier().equals(p2.getUniqueIdentifier()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                list.add(p2);
+        }
+    }
+
     private final ISnapshot parse(File file, String prefix, Map<String, String> args, List<IContentType>listtypes, IProgressListener listener) throws SnapshotException
     {
         ParserRegistry registry = ParserPlugin.getDefault().getParserRegistry();
 
-        List<ParserRegistry.Parser> parsers = registry.matchParser(file.getName());
-        if (parsers.isEmpty())
+        List<ParserRegistry.Parser> parsersfn = registry.matchParser(file.getName());
+        List<ParserRegistry.Parser> parsers = new ArrayList<ParserRegistry.Parser>();
+        if (parsersfn.isEmpty())
             parsers.addAll(registry.delegates()); // try all...
         else
         {
             // Add some extra parsers by content type
+            // Presume content types in preference order, so add first
             for (IContentType type : listtypes)
             {
                 // Parsers don't match for equality
-                List<ParserRegistry.Parser> parsers2 = registry.matchParser(type);
-                for (ParserRegistry.Parser p2 : parsers2)
-                {
-                    boolean found = false;
-                    for (ParserRegistry.Parser p3 : parsers)
-                    {
-                        if (p3.getId().equals(p2.getId()))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                        parsers.add(p2);
-                }
+                List<ParserRegistry.Parser> parsersct = registry.matchParser(type);
+                addAllNew(parsers, parsersct);
             }
+            addAllNew(parsers, parsersfn);
         }
 
         List<IOException> errors = new ArrayList<IOException>();
