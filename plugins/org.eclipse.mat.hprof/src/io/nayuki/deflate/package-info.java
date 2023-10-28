@@ -1,11 +1,11 @@
 /**
-<h1>DEFLATE library (Java)</h1>
+<h2>DEFLATE library (Java)</h2>
 
 <p>This project provides a correct and reasonably efficient DEFLATE decompressor in pure Java. It is an alternative to other Java libraries that wrap over native C code such as zlib.</p>
 
 <p>Home page with detailed description: <a href="https://www.nayuki.io/page/deflate-library-java">https://www.nayuki.io/page/deflate-library-java</a></p>
 
-<h2>License</h2>
+<h3>License</h3>
 
 <p>Copyright &copy; 2016 Project Nayuki. (MIT License)</p>
 
@@ -16,7 +16,7 @@
     <li>The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.</li>
 </ul>
 
-<h2>For the org.eclipse.mat.hprof plug-in:</h2>
+<h3>For the org.eclipse.mat.hprof plug-in:</h3>
 <p>Not an Application Programming Interface (API).</p>
 */
 package io.nayuki.deflate;

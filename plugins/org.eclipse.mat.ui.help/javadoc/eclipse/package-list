@@ -235,7 +235,7 @@ org.eclipse.ui.console
 org.eclipse.ui.console.actions
 org.eclipse.ui.contentassist
 org.eclipse.ui.contexts
-org.eclipse.ui.databinding
+org.eclipse.ui.databinding.typed
 org.eclipse.ui.dialogs
 org.eclipse.ui.dnd
 org.eclipse.ui.editors.text
@@ -279,7 +279,6 @@ org.eclipse.ui.texteditor.spelling
 org.eclipse.ui.texteditor.templates
 org.eclipse.ui.themes
 org.eclipse.ui.views
-org.eclipse.ui.views.bookmarkexplorer
 org.eclipse.ui.views.contentoutline
 org.eclipse.ui.views.framelist
 org.eclipse.ui.views.markers
