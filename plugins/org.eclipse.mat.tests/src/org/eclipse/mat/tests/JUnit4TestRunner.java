@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2020 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,15 +18,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
-import junit.framework.TestListener;
-import junit.framework.TestResult;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
@@ -38,6 +33,12 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.Test;
+import junit.framework.TestListener;
+import junit.framework.TestResult;
 
 public class JUnit4TestRunner implements IApplication
 {
@@ -61,8 +62,8 @@ public class JUnit4TestRunner implements IApplication
 
             ByteArrayOutputStream errStrm = new ByteArrayOutputStream();
             ByteArrayOutputStream outStrm = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outStrm));
-            System.setErr(new PrintStream(errStrm));
+            System.setOut(new PrintStream(outStrm, false, StandardCharsets.UTF_8.name()));
+            System.setErr(new PrintStream(errStrm, false, StandardCharsets.UTF_8.name()));
 
             long start = System.currentTimeMillis();
 
@@ -84,7 +85,7 @@ public class JUnit4TestRunner implements IApplication
             antTest.setCounts(junitTestResult.runCount(), junitTestResult.failureCount(), junitTestResult.errorCount());
             antTest.setRunTime(System.currentTimeMillis() - start);
 
-            sendOutAndErr(new String(outStrm.toByteArray()), new String(errStrm.toByteArray()));
+            sendOutAndErr(new String(outStrm.toByteArray(), StandardCharsets.UTF_8.name()), new String(errStrm.toByteArray(), StandardCharsets.UTF_8.name()));
 
             errStrm.close();
             outStrm.close();

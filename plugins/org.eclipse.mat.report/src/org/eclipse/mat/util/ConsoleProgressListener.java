@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2023 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,9 @@
 package org.eclipse.mat.util;
 
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 
 import org.eclipse.mat.report.internal.Messages;
 
@@ -32,7 +34,7 @@ public class ConsoleProgressListener implements IProgressListener
 
     public ConsoleProgressListener(OutputStream out)
     {
-        this(new PrintWriter(out));
+        this(new PrintWriter(new OutputStreamWriter(out, Charset.defaultCharset())));
     }
 
     public ConsoleProgressListener(PrintWriter out)
