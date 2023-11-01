@@ -3,7 +3,7 @@ Eclipse Memory Analyzer
 
 The Eclipse Memory Analyzer is a fast and feature-rich Java heap dump analyzer that helps you find memory leaks and reduce memory consumption.
 
-- Web site: <http://eclipse.org/mat/>
+- Web site: <http://eclipse.dev/mat/>
 
 Download
 ----------------
