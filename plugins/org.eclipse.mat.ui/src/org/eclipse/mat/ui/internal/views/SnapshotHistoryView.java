@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -510,12 +511,14 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                                         cb.append(launchCmd);
                                         int pos = cb.position();
                                         cb.append('\n');
-                                        try (Reader rd = new InputStreamReader(p.getInputStream()))
+                                        // OS encoding
+                                        try (Reader rd = new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))
                                         {
                                             rd.read(cb);
                                         }
                                         cb.append('\n');
-                                        try (Reader rd = new InputStreamReader(p.getErrorStream()))
+                                        // OS encoding
+                                        try (Reader rd = new InputStreamReader(p.getErrorStream(), Charset.defaultCharset()))
                                         {
                                             rd.read(cb);
                                         }

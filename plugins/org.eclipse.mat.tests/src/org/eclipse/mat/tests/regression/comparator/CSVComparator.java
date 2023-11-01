@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008,2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,11 +15,16 @@ package org.eclipse.mat.tests.regression.comparator;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.mat.tests.regression.Difference;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -39,9 +44,26 @@ public class CSVComparator implements IComparator
                             + testFile.length()));
             System.err.println(MessageUtil.format("ERROR: ({0}) Files have different lengths", testName));
         }
+        /*
+         * Currently Report CSV will have been written in the workspace encoding.
+         * Should the CSV have always been written in UTF-8 ?
+         */
+        Charset cs;
+        try
+        {
+            String encoding = ResourcesPlugin.getEncoding();
+            if (encoding != null)
+                cs = Charset.forName(encoding);
+            else
+                cs = StandardCharsets.UTF_8;
+        }
+        catch (UnsupportedCharsetException e)
+        {
+            cs = StandardCharsets.UTF_8;
+        }
         try (
-            BufferedReader baselineReader = new BufferedReader(new FileReader(baseline.getAbsolutePath()), 1024);
-            BufferedReader testFileReader = new BufferedReader(new FileReader(testFile.getAbsolutePath()), 1024);)
+            BufferedReader baselineReader = new BufferedReader(new InputStreamReader(new FileInputStream(baseline.getAbsolutePath()), cs), 1024);
+            BufferedReader testFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(testFile.getAbsolutePath()), cs), 1024);)
         {
             String baseLine;
             String testLine;

@@ -26,7 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import com.ibm.icu.text.SimpleDateFormat;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +55,8 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.osgi.framework.Bundle;
 import org.xml.sax.helpers.AttributesImpl;
+
+import com.ibm.icu.text.SimpleDateFormat;
 
 public class TestApplication
 {
@@ -88,7 +91,7 @@ public class TestApplication
         {
             try
             {
-                InputStreamReader isr = new InputStreamReader(is);
+                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
                 BufferedReader br = new BufferedReader(isr);
                 String line = null;
                 while ((line = br.readLine()) != null)
@@ -395,7 +398,7 @@ public class TestApplication
         try
         {
             File resultFile = new File(dumpDir, RegTestUtils.RESULT_FILENAME);
-            PrintWriter out = new PrintWriter(resultFile);
+            PrintWriter out = new PrintWriter(resultFile, StandardCharsets.UTF_8.name());
 
             StreamResult streamResult = new StreamResult(out);
             SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
@@ -537,7 +540,7 @@ public class TestApplication
 
         try
         {
-            out = new PrintStream(new FileOutputStream(report));
+            out = new PrintStream(report, StandardCharsets.UTF_8.name());
 
             // add heading
             out.append("Heap Dump").append(RegTestUtils.SEPARATOR) //
