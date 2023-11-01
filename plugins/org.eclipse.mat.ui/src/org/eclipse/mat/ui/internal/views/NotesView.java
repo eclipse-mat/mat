@@ -269,7 +269,7 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
                     {
                         prefix = new File(input.getSnapshot().getSnapshotInfo().getPrefix());
                     }
-                    else
+                    else if (input != null)
                     {
                         IChangeListener l = new IChangeListener()
                         {

@@ -455,10 +455,13 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             }
             else
             {
-                // New location
-                String notes = getNotes(new File(pfx));
-                if (notes != null)
-                    return notes;
+                if (pfx != null)
+                {
+                    // New location
+                    String notes = getNotes(new File(pfx));
+                    if (notes != null)
+                        return notes;
+                }
                 // Old location (might be the same)
                 return getNotes(new File(path));
             }
