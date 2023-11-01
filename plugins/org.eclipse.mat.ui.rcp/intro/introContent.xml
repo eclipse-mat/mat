@@ -65,7 +65,7 @@
 					<text>Learn how to configure your Java VM and/or Engine to get
 						a snapshot.</text>
 				</link>
-				<link label="Memory Analyzer @ Eclipse.org"
+				<link label="Memory Analyzer @ Eclipse.dev"
 					url="http://org.eclipse.ui.intro/openBrowser?url=https://eclipse.dev/mat/">
 					<img src="css/pictograms/web.gif" alt="Memory Analyzer Homepage" />
 					<text>Check our home page for latest news and to download the
