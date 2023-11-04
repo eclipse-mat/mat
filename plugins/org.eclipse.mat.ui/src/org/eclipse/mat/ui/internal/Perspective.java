@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IPlaceholderFolderLayout;
 import org.osgi.framework.Bundle;
 
 public class Perspective implements IPerspectiveFactory
@@ -30,6 +29,7 @@ public class Perspective implements IPerspectiveFactory
         INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), //$NON-NLS-1$
         NAVIGATOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView"), //$NON-NLS-1$
         COMPARE_BASKET_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.CompareBasketView"), //$NON-NLS-1$
+        PROGRESS_VIEW(IPageLayout.ID_PROGRESS_VIEW),
         ERROR_VIEW("org.eclipse.pde.runtime.LogView");//$NON-NLS-1$
 
         private final String id;
@@ -68,6 +68,7 @@ public class Perspective implements IPerspectiveFactory
         layout.addShowViewShortcut(Views.DETAILS_VIEW.getId());
         layout.addShowViewShortcut(Views.INSPECTOR_VIEW.getId());
         layout.addShowViewShortcut(Views.NOTES_VIEW.getId());
+        layout.addShowViewShortcut(Views.PROGRESS_VIEW.getId());
         layout.addShowViewShortcut(Views.ERROR_VIEW.getId());
         layout.addShowViewShortcut(Views.NAVIGATOR_VIEW.getId());
 
