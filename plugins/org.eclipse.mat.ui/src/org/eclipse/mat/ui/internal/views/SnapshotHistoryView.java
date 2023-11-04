@@ -282,6 +282,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 		});
 
         SnapshotHistoryService.getInstance().addChangeListener(this);
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_heapdumphistory"); //$NON-NLS-1$
     }
 
     private void fillTable()

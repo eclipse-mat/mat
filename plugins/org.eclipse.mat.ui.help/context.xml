@@ -74,4 +74,32 @@
 		<topic label="Collect information about the Memory Analyzer tool process"
 			href="reference/support.html" />
 	</context>
+	<context id="workbench_heapeditor">
+		<description>The main editor window for displaying information about a snapshot and running queries and reports.</description>
+		<topic href="reference/workbench.html#ref_workbench__heapeditor" label="Heap Editor"/>
+	</context>
+	<context id="workbench_heapdumphistory">
+		<description>A list of recently opened snapshots.</description>
+		<topic href="reference/workbench.html#ref_workbench__heapdumphistory" label="Heap Dump History"/>
+	</context>
+	<context id="workbench_heapdumpdetails">
+		<description>Summary of information about a snapshot.</description>
+		<topic href="reference/workbench.html#ref_workbench__heapdumpdetails" label="Heap Dump Details"/>
+	</context>
+	<context id="workbench_inspector">
+		<description>This shows details about an individual Java object which has been selected in the main heap editor window.</description>
+		<topic href="reference/workbench.html#ref_workbench__inspector" label="Inspector View"/>
+	</context>
+	<context id="workbench_notes">
+		<description>Notes View for user entered text describing the snapshot.</description>
+		<topic href="reference/workbench.html#ref_workbench__notes" label="Notes View"/>
+	</context>
+	<context id="workbench_navigationhistory">
+		<description>This shows the queries which have been recently been performed on the snapshot.</description>
+		<topic href="reference/workbench.html#ref_workbench__navigationhistory" label="Navigation History"/>
+	</context>
+	<context id="workbench_comparebasket">
+		<description>A container of query results of trees or tables which can then be compared.</description>
+		<topic href="reference/workbench.html#ref_workbench__comparebasket" label="Compare Basket View"/>
+	</context>
 </contexts>
