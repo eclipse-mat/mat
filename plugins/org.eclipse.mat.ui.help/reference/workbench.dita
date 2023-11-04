@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2023 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+    
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        IBM Corporation - initial API and implementation
+ -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_workbench" xml:lang="en-us">
+	<title>Workbench</title>
+	<shortdesc />
+
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2023 IBM Corporation.
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License 2.0
+				which accompanies this distribution, and is available at
+				https://www.eclipse.org/legal/epl-2.0/
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+
+	<refbody>
+		<refsyn>The Eclipse Memory Analyzer main window or workbench is made up of several parts (subwindows), which
+		are Eclipse editors or views. They are part of the 'Memory Analysis' perspective and can be moved or resized
+		at the convenience of the user.
+		</refsyn>
+		<section id="heapeditor">
+			<title>Heap Editor</title>
+			This is the main window for performing queries on the snapshot.
+			It has separate tabs for each snapshot which is open.
+			See <xref href="basictutorial.dita#task_basictutorial/overview">Basic tutorial/overview</xref>.
+			Below that is a toolbar which allows different operations and inspections to be performances on the current snapshot.
+			See <xref href="selectingqueries.dita"></xref>.
+			There is then another series of tabbed panes showing the results of various queries and reports on the current snapshot.
+		</section>
+		<section id="heapdumphistory">
+			<title>Heap Dump History</title>
+			This has a list of recently used snapshots.
+			The most recently opened snapshots are at the top of the list.
+			A snapshot in italics and with a gray icon does not have the associated index files and will need to be reparsed if opened.
+			See <xref href="tipsandtricks.dita#ref_tips/history">Heap Dump History tips and tricks</xref>.
+		</section>
+		<section id="heapdumpdetails">
+			<title>Heap Dump Details</title>
+			This has a summary of information about a snapshot, incuding the number of objects, the
+			size of the heap, the file name, the date the snapshot was taken and other useful global information.
+			This tracks the last selected snapshot in the main heap editor window, or the last selected
+			snapshot in the Heap Dump History.
+		</section>
+		<section id="inspector">
+			<title>Inspector</title>
+			This shows details about an individual Java object which has been selected in the main
+			heap editor window.
+			Multiple inspector views can be opened. This is useful if an inspector view is pinned
+			to a particular object in the Heap Editor view. The other inspector view can then be
+			used to inspect a different object.
+			See <xref href="tipsandtricks.dita#ref_tips/value_tab">Inspector View tips and tricks</xref>.
+		</section>
+		<section id="notes">
+			<title>Notes</title>
+			This is a space for a user to store notes associated with a snapshot. Text can be typed
+			into this, or can be cut from or pasted into here.
+			It is stored in a file associated with the snapshot, but with the suffix
+			.notes.txt.
+			A object address in the notes view has a hyperlink to the context menu.
+			See <xref href="tipsandtricks.dita#ref_tips/notes_hyperlink">Notes view hyperlinks tips and tricks</xref>
+			This view shows the notes for the currently selected snapshot in the heap editor window.
+			The first line of the notes file associated with a snapshot is shown
+			in the Heap Dump Details. This can be useful when going through a 
+			long list of recent snapshots in the Heap Dump History to find the
+			desired snapshot without opening each snapshot in turn.
+		</section>
+		<section id="navigationhistory">
+			<title>Navigation History</title>
+			This shows the queries which have been recently been performed on the snapshot.
+			When a different snapshot is selected in the main heap editor window, the navigation history
+			for that snapshot is then shown.
+		</section>
+		<section id="comparebasket">
+			<title>Compare Basket</title>
+			This allows comparisons of trees and tables from one or more snapshots.
+			Trees or tables can be added to this view from the navigator view.
+			The contents of this view is common whichever snapshot is selected in the heap editor window.
+			More details are at <xref href="../tasks/comparingdata.dita"></xref>.
+		</section>
+		<section id="errorlog">
+			<title>Error Log</title>
+			For initial investigation of problems with Eclipse Memory Analyzer, consult the
+			error log using
+			<menucascade>
+				<uicontrol>Window</uicontrol>
+				<uicontrol>Error Log</uicontrol>
+			</menucascade>.
+			This shows informational, warning and error messages from parsing a heap dump to show a snapshot.
+			It also shows messages generated from running queries and reports.
+			This is a standard Eclipse IDE view, and various filtering and sorting operations are available.
+		</section>
+		<section id="progressmonitor">
+			<title>Progress Monitor</title>
+			Progress of long running operations such as parsing a heap dump is normally shown in a separate dialog window.
+			This can be hidden using the 'run in background option'.
+			The run in background option can also be selected by
+			<menucascade>
+				<uicontrol>Window</uicontrol>
+				<uicontrol>Preferences</uicontrol>
+				<uicontrol>General</uicontrol>
+				<uicontrol>Always run in background</uicontrol>
+			</menucascade>
+			The Progress Monitor can also be shown as a view using
+			<menucascade>
+				<uicontrol>Window</uicontrol>
+				<uicontrol>Progress</uicontrol>
+			</menucascade>.
+			The progress is also shown in the status line at the bottom of the Memory Analyzer window. Clicking on this
+			status line also opens the view.
+		</section>
+	</refbody>
+</reference>

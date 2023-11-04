@@ -126,7 +126,7 @@
 						</ul>
 					</stentry>
 				</strow>
-				<strow>
+				<strow id="notes_hyperlink">
 					<stentry>Notes, Hyperlinks in Notes View</stentry>
 					<stentry>
 						Notes View recognizes and highlights object addresses. Activating
@@ -152,18 +152,22 @@
 						<image href="../mimes/1af34c1.png" align="left" placement="break" />
 					</stentry>
 				</strow>
-				<strow>
+				<strow id="history">
 					<stentry> Manage the history of opened heap dumps</stentry>
 					<stentry>
 						Heap Dump History view offers a set of context menu actions to
 						manage the history of opened heap dumps:
 						<image href="../mimes/691a2594.png" align="left" placement="break" />
 						<p>
-							<uicontrol>Delete Heap Dump</uicontrol>>
+							<uicontrol>Delete Heap Dump</uicontrol>
 							action removes the heap dump from the history, but not from the
 							file system. To find a heap dump in the file system use
-							<uicontrol>Explore in File System</uicontrol>>
-							context menu action
+							<uicontrol>Explore in File System</uicontrol>
+							context menu action.
+							<uicontrol>Delete Index Files</uicontrol> deletes the index files
+							for a snapshot. The heap dump will be reparsed if reopened.
+							This command could be useful to save disk space, or
+							to reparse the heap dump with new options.
 						</p>
 					</stentry>
 				</strow>

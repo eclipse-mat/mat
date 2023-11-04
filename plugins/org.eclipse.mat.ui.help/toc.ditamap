@@ -110,6 +110,7 @@
 			<topicref href="reference/propertyaccessors.dita" type="reference" />
 			<topicref href="reference/bnfofoql.dita" type="reference" />
 		</topicref>
+		<topicref href="reference/workbench.dita" type="reference" />
 		<topicref href="reference/selectingqueries.dita" type="reference" />
 		<topicref href="reference/iconassist.dita" type="reference" />
 		<topicref href="reference/tipsandtricks.dita" type="reference" />

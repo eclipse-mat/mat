@@ -368,6 +368,8 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         createContributors();
         createInitialPanes();
 
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_heapeditor"); //$NON-NLS-1$
+
         // set the active page (page 0 by default),
         // unless it has already been done
         if (getActivePage() == -1 && container.getItemCount() > 0)

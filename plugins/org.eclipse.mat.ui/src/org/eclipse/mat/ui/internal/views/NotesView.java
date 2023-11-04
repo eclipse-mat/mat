@@ -158,6 +158,8 @@ public class NotesView extends ViewPart implements IPartListener, ISaveablePart,
         textViewer.setHyperlinkPresenter(new DefaultHyperlinkPresenter(hyperlinkColor));
         textViewer.setHyperlinkDetectors(new IHyperlinkDetector[] { new ObjectAddressHyperlinkDetector() }, SWT.MOD1);
 
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_notes"); //$NON-NLS-1$
+
         makeActions();
         hookContextMenu();
         showBootstrapPart();

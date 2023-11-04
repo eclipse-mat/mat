@@ -42,6 +42,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
@@ -295,6 +296,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         };
         getSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
         getSite().getActionBars().updateActionBars();
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_heapdumpdetails"); //$NON-NLS-1$
 
         updateSnapshotInput();
     }

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
+<meta name="DC.title" content="Workbench" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta name="copyright" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2023 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.format" content="XHTML" />
+<meta name="DC.identifier" content="ref_workbench" />
+<meta name="DC.language" content="en-us" />
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css" />
+<title>Workbench</title>
+</head>
+<body id="ref_workbench">
+
+	<h1 class="title topictitle1" id="ariaid-title1">Workbench</h1>
+
+	
+
+	
+
+
+	<div class="body refbody"><p class="shortdesc"></p>
+
+		<div class="section refsyn">The Eclipse Memory Analyzer main window or workbench is made up of several parts (subwindows), which
+		are Eclipse editors or views. They are part of the 'Memory Analysis' perspective and can be moved or resized
+		at the convenience of the user.
+		</div>
+
+		<div class="section" id="ref_workbench__heapeditor"><h2 class="title sectiontitle">Heap Editor</h2>
+			
+			This is the main window for performing queries on the snapshot.
+			It has separate tabs for each snapshot which is open.
+			See <a class="xref" href="basictutorial.html#task_basictutorial__overview">Basic tutorial/overview</a>.
+			Below that is a toolbar which allows different operations and inspections to be performances on the current snapshot.
+			See <a class="xref" href="selectingqueries.html">Selecting Queries</a>.
+			There is then another series of tabbed panes showing the results of various queries and reports on the current snapshot.
+		</div>
+
+		<div class="section" id="ref_workbench__heapdumphistory"><h2 class="title sectiontitle">Heap Dump History</h2>
+			
+			This has a list of recently used snapshots.
+			The most recently opened snapshots are at the top of the list.
+			A snapshot in italics and with a gray icon does not have the associated index files and will need to be reparsed if opened.
+			See <a class="xref" href="tipsandtricks.html#ref_tips__history">Heap Dump History tips and tricks</a>.
+		</div>
+
+		<div class="section" id="ref_workbench__heapdumpdetails"><h2 class="title sectiontitle">Heap Dump Details</h2>
+			
+			This has a summary of information about a snapshot, incuding the number of objects, the
+			size of the heap, the file name, the date the snapshot was taken and other useful global information.
+			This tracks the last selected snapshot in the main heap editor window, or the last selected
+			snapshot in the Heap Dump History.
+		</div>
+
+		<div class="section" id="ref_workbench__inspector"><h2 class="title sectiontitle">Inspector</h2>
+			
+			This shows details about an individual Java object which has been selected in the main
+			heap editor window.
+			Multiple inspector views can be opened. This is useful if an inspector view is pinned
+			to a particular object in the Heap Editor view. The other inspector view can then be
+			used to inspect a different object.
+			See <a class="xref" href="tipsandtricks.html#ref_tips__value_tab">Inspector View tips and tricks</a>.
+		</div>
+
+		<div class="section" id="ref_workbench__notes"><h2 class="title sectiontitle">Notes</h2>
+			
+			This is a space for a user to store notes associated with a snapshot. Text can be typed
+			into this, or can be cut from or pasted into here.
+			It is stored in a file associated with the snapshot, but with the suffix
+			.notes.txt.
+			A object address in the notes view has a hyperlink to the context menu.
+			See <a class="xref" href="tipsandtricks.html#ref_tips__notes_hyperlink">Notes view hyperlinks tips and tricks</a>
+			This view shows the notes for the currently selected snapshot in the heap editor window.
+			The first line of the notes file associated with a snapshot is shown
+			in the Heap Dump Details. This can be useful when going through a 
+			long list of recent snapshots in the Heap Dump History to find the
+			desired snapshot without opening each snapshot in turn.
+		</div>
+
+		<div class="section" id="ref_workbench__navigationhistory"><h2 class="title sectiontitle">Navigation History</h2>
+			
+			This shows the queries which have been recently been performed on the snapshot.
+			When a different snapshot is selected in the main heap editor window, the navigation history
+			for that snapshot is then shown.
+		</div>
+
+		<div class="section" id="ref_workbench__comparebasket"><h2 class="title sectiontitle">Compare Basket</h2>
+			
+			This allows comparisons of trees and tables from one or more snapshots.
+			Trees or tables can be added to this view from the navigator view.
+			The contents of this view is common whichever snapshot is selected in the heap editor window.
+			More details are at <a class="xref" href="../tasks/comparingdata.html">Comparing Objects</a>.
+		</div>
+
+		<div class="section" id="ref_workbench__errorlog"><h2 class="title sectiontitle">Error Log</h2>
+			
+			For initial investigation of problems with Eclipse Memory Analyzer, consult the
+			error log using
+			<span class="ph menucascade"><span class="ph uicontrol">Window</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Error Log</span></span>.
+			This shows informational, warning and error messages from parsing a heap dump to show a snapshot.
+			It also shows messages generated from running queries and reports.
+			This is a standard Eclipse IDE view, and various filtering and sorting operations are available.
+		</div>
+
+		<div class="section" id="ref_workbench__progressmonitor"><h2 class="title sectiontitle">Progress Monitor</h2>
+			
+			Progress of long running operations such as parsing a heap dump is normally shown in a separate dialog window.
+			This can be hidden using the 'run in background option'.
+			The run in background option can also be selected by
+			<span class="ph menucascade"><span class="ph uicontrol">Window</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Preferences</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">General</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Always run in background</span></span>
+			The Progress Monitor can also be shown as a view using
+			<span class="ph menucascade"><span class="ph uicontrol">Window</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Progress</span></span>.
+			The progress is also shown in the status line at the bottom of the Memory Analyzer window. Clicking on this
+			status line also opens the view.
+		</div>
+
+	</div>
+
+</body>
+</html>

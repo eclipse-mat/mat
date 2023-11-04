@@ -115,6 +115,7 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
@@ -534,6 +535,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         // add page listener
         getSite().getPage().addPartListener(this);
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_inspector"); //$NON-NLS-1$
 
         hookContextMenu();
         showBootstrapPart();

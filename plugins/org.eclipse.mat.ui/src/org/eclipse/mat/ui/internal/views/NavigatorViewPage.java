@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG. 
+ * Copyright (c) 2008, 2023 SAP AG. 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0 
  * which accompanies this distribution, and is available at 
@@ -7,7 +7,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 
  * 
- * Contributors: SAP AG - initial API and implementation
+ * Contributors: 
+ *    SAP AG - initial API and implementation
+ *    IBM Corporation - context help
  ******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
@@ -170,6 +172,8 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
 
         treeViewer.setInput(editor.getNavigatorState().getElements());
         treeViewer.expandAll();
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.workbench_navigationhistory"); //$NON-NLS-1$
 
         makeActions();
     }
