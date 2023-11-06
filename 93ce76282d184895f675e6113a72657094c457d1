@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5dfc6cb_94df5434",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2023-11-06T12:32:53Z",
+      "side": 1,
+      "message": "Andrew, as you mentioned that you had issues building locally with 4.0.2 - could you test this change locally? I got it working (on Mac) with maven 3.9.5.",
+      "revId": "93ce76282d184895f675e6113a72657094c457d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
