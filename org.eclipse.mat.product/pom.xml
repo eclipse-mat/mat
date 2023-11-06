@@ -53,6 +53,12 @@
 							<goal>archive-products</goal>
 						</goals>
 						<phase>pre-integration-test</phase>
+						<configuration>
+							<formats>
+								<linux>zip</linux>
+								<macosx>zip</macosx>
+							</formats>
+						</configuration>
 					</execution>
 				</executions>
 				<configuration>

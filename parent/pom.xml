@@ -52,7 +52,7 @@
 	</ciManagement>
 
 	<properties>
-		<tycho-version>2.7.5</tycho-version>
+		<tycho-version>4.0.3</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-remote-publish-path>genie.mat@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-remote-publish-path>
@@ -270,7 +270,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.0.0-M3</version>
+				<version>3.4.1</version>
 				<executions>
 					<execution>
 						<id>enforce-maven</id>
@@ -280,7 +280,7 @@
 						<configuration>
 							<rules>
 								<requireMavenVersion>
-									<version>3.0</version>
+									<version>3.9</version>
 								</requireMavenVersion>
 							</rules>
 						</configuration>
@@ -304,7 +304,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<resolver>p2</resolver>
 					<environments>
 						<environment>
 							<os>win32</os>
@@ -420,7 +419,6 @@
 					<artifactId>target-platform-configuration</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
-						<resolver>p2</resolver>
 						<target>
 							<artifact>
 								<groupId>org.eclipse.mat</groupId>
