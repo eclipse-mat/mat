@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,15 +10,16 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - updates for validation
  -->
-<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" >
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA 1.1 Concept//EN" "concept.dtd">
 <concept id="concept_dominatortree" xml:lang="en-us">
 	<title>Dominator Tree</title>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -32,7 +33,7 @@
 		    The transformation of the object reference graph into a
 			dominator tree allows you to easily identify the biggest chunks of
 			retained memory and the keep-alive dependencies among objects. 
-			Bellow is an informal definition of the terms.</p>
+			Below is an informal definition of the terms.</p>
 		<p>
 			An object x
 			<b>dominates</b>

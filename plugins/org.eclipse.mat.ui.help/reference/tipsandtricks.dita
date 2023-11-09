@@ -91,7 +91,9 @@
 						<li>Complement of interval: U\1000..10000 U\1%..10% (all values excluding NaN except those in the interval [universal set difference from range])<note type="restriction">Experimental</note></li>
 						</ul>
 						</p>
-						<image href="../mimes/filter.png" align="left" placement="break" />
+						<image href="../mimes/filter.png" align="left" placement="break">
+							<alt>Histogram result with filter entries circled.</alt>
+						</image>
 						To move between columns of the filter row, click on the required cell, or once one cell 
 						is selected move to others with <uicontrol>tab</uicontrol> or <uicontrol>shift+tab</uicontrol>.
 						Use <uicontrol>esc</uicontrol> to cancel or <uicontrol>enter</uicontrol> to finish modifying the filters, or click on another row to continue to work
@@ -133,7 +135,9 @@
 						the hyperlink brings up a context menu which contains actions for
 						this particular object. Activate the hyperlink using the <uicontrol>control</uicontrol> key 
 						and a mouse click (or <uicontrol>command</uicontrol> + click).
-						<image href="../mimes/m4d2fff8d.png" align="left" placement="break" />
+						<image href="../mimes/m4d2fff8d.png" align="left" placement="break">
+							<alt>Notes view showing object address and context menu.</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -149,7 +153,9 @@
 					<stentry>
 						Use <uicontrol>ctrl+C</uicontrol> to copy the selection to the clipboard. The data will
 						keep its structure:
-						<image href="../mimes/1af34c1.png" align="left" placement="break" />
+						<image href="../mimes/1af34c1.png" align="left" placement="break">
+							<alt>Text table as result of copy to clipboard.</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow id="history">
@@ -157,7 +163,9 @@
 					<stentry>
 						Heap Dump History view offers a set of context menu actions to
 						manage the history of opened heap dumps:
-						<image href="../mimes/691a2594.png" align="left" placement="break" />
+						<image href="../mimes/691a2594.png" align="left" placement="break">
+							<alt>Heap Dump History and context menu on a heap dump.</alt>
+						</image>
 						<p>
 							<uicontrol>Delete Heap Dump</uicontrol>
 							action removes the heap dump from the history, but not from the
@@ -176,7 +184,9 @@
 					<stentry>
 						Right click on the Heap Editor tab will open a context menu to
 						manage the tabs. It might be very helpful when many tabs are open.
-						<image href="../mimes/7df38219.png" align="left" placement="break" />
+						<image href="../mimes/7df38219.png" align="left" placement="break">
+							<alt>Editor tabs for heap editor showing context menu for adjusting the tab entries.</alt>
+						</image>
 						Memory Analyzer 1.11 has the menu options
 						<ul>
 							<li><uicontrol>Close</uicontrol></li>
@@ -205,7 +215,10 @@
 								</ul>
 								to move the tab.</li>
 						</ol>
-						<image href="../mimes/movetab.png" align="left" placement="break" scale="60" />
+						<image href="../mimes/movetab.png" align="left" placement="break" scale="60">
+							<alt>Editor tab context menu showing move tab left and move tab right.</alt>
+						
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -222,7 +235,9 @@
 							<uicontrol>View</uicontrol>
 							<uicontrol>Inspector</uicontrol>
 						</menucascade>
-						<image href="../mimes/link_with_snapshot.png" align="left" placement="break" />
+						<image href="../mimes/link_with_snapshot.png" align="left" placement="break">
+							<alt>Object Inspector View and link to snapshot button.</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow id="attribute_tab">
@@ -273,7 +288,9 @@
 						object. The value tab shows the value as given by the
 						<xref href="../doc/org_eclipse_mat_api_nameResolver.html" format="html">
 						name resolver</xref> extension point. 
-						<image href="../mimes/inspector_value.png" align="left" placement="break" />
+						<image href="../mimes/inspector_value.png" align="left" placement="break">
+							<alt>Value tab for object inspector showing the value of a string.</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -283,8 +300,12 @@
 						recreates Eclipse colors and images from the information in the heap dump and 
 						displays the information in the lower left corner of the inspector.
 						<p>
-						<image href="../mimes/nn_inspector_imagedata.png" />
-						<image href="../mimes/nn_inspector_rgb.png" />
+						<image href="../mimes/nn_inspector_imagedata.png">
+							<alt>SWT image shown at the bottom of the inspector view.</alt>
+						</image>
+						<image href="../mimes/nn_inspector_rgb.png">
+							<alt>SWT color shown at the bottom of the inspector view.</alt>
+						</image>
 						</p>
 					</stentry>
 				</strow>
@@ -293,7 +314,9 @@
 					<stentry>
 						The inspector now displays the full class hierarchy of any selected object.
 						One can drill-down via context menus.
-						<image href="../mimes/nn_inspector_class_hierarchy.png" align="left" placement="break" />
+						<image href="../mimes/nn_inspector_class_hierarchy.png" align="left" placement="break">
+							<alt>Class hierarchy show a a tree.</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -306,7 +329,9 @@
 						the context menu will operate on all the entries in the tree and table.
 						Filtering operates as normal, and the rows excluded by the filter are not part of
 						the entries obtained by selecting the totals row.
-						<image href="../mimes/totals_menu.png" align="left" placement="break" />
+						<image href="../mimes/totals_menu.png" align="left" placement="break">
+							<alt>Context menu for totals row showing Total: 27 of 2,036 entries; 2,009 more</alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow>
@@ -317,9 +342,13 @@
 						<keyword>SELECT</keyword> <keyword>FROM</keyword> clause, both simple class names and regular expressions.
 						The class name list is brought up on typing a dot '.'. <uicontrol>ctrl+space</uicontrol>
 						can also be used to bring up the list.
-						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
+						<image href="../mimes/oql_completion1.png" align="left" placement="break">
+							<alt>OQL completion showing a list of possible classes.</alt>
+						</image>
 						The regular expression list appears on typing a double-quote '"'.
-						<image href="../mimes/oql_completion2.png" align="left" placement="break" />
+						<image href="../mimes/oql_completion2.png" align="left" placement="break">
+							<alt>OQL completion showing a list of possible classes via a regular expression.</alt>
+						</image>
 						Autocompletion
 						for <keyword>SELECT</keyword> and <keyword>WHERE</keyword> clauses 
 						can also supply field names. The class
@@ -327,9 +356,9 @@
 						after the class name. This brings up a context information box, and
 						selects that class as the active class for field names.
 						<image href="../mimes/oql_completion3.png" align="left" placement="break">
-						<alt><userinput>select s from java.util.ArrayList</userinput>
-						<systemoutput>java.util.ArrayList</systemoutput>
-						</alt>
+							<alt><userinput>select s. from java.util.ArrayList</userinput>
+								<systemoutput>java.util.ArrayList</systemoutput>
+							</alt>
 						</image>
 						Suggestions are then provided in the <keyword>SELECT</keyword> or
 						<keyword>WHERE</keyword> clauses on typing '<userinput>.</userinput>' or '<userinput>@</userinput>' or <uicontrol>ctrl+space</uicontrol>.
@@ -342,10 +371,11 @@
 						In <keyword>SELECT</keyword> and <keyword>WHERE</keyword> clauses there are also suggestions for methods on
 						key Memory Analyzer objects representing contents of the snapshot.
 						<image href="../mimes/oql_completion6.png" align="left" placement="break">
-                        </image>
-                        Pressing enter adds the selected text to the command window.
-                        <image href="../mimes/oql_completion7.png" align="left" placement="break">
-                        </image>
+						</image>
+						Pressing enter adds the selected text to the command window.
+						<image href="../mimes/oql_completion7.png" align="left" placement="break">
+							<alt>OQL windows showing <userinput>select s,${snapshot}/getImmediateDominators(int1) from java.util.ArrayList s</userinput></alt>
+						</image>
 					</stentry>
 				</strow>
 				<strow id="piechartlinks">
