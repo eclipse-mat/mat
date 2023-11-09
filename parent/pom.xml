@@ -304,6 +304,7 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<requireEagerResolve>true</requireEagerResolve>
 					<environments>
 						<environment>
 							<os>win32</os>
