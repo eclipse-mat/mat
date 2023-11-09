@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2021 SAP AG and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License 2.0
 			    which accompanies this distribution, and is available at
@@ -38,14 +38,18 @@
 				<cmdname>Leak Identification category</cmdname>
 				:
 			</p>
-			<image href="../mimes/m34daec6d.png" alt="screen shot of the list of biggest objects" />
+			<image href="../mimes/m34daec6d.png">
+				<alt>screen shot of the list of biggest objects</alt>
+			</image>
 			<p> The result of the query is displayed as HTML page. Objects are
 				represented by hyperlinks, activating those hyperlinks you can bring
 				up a context menu and continue the analysis of the selected object.
 				See <xref href="../reference/tipsandtricks.dita#ref_tips/piechartlinks">Pie Chart Links</xref>
 				for links from pie charts.
 			</p>
-			<image href="../mimes/m3131b4b6.png" alt="screen shot of report" />
+			<image href="../mimes/m3131b4b6.png">
+				<alt>screen shot of report</alt>
+			</image>
 		</context>
 	</taskbody>
 </task>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - more updates including alternate text
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_queryarguments" xml:lang="en-us">
@@ -20,7 +21,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+				Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
 				All rights reserved. This program and the accompanying materials
 				are made available under the terms of the Eclipse Public License 2.0
 				which accompanies this distribution, and is available at
@@ -35,14 +36,18 @@
 			<p> Memory Analyzer provides a set of queries to analyze a heap dump. These
 				queries are grouped into several categories. </p>
 			<p> You can select a query out of the drop-down toolbar menu. </p>
-			<image href="../mimes/189608b9.png" align="left" placement="break"/>
+			<image href="../mimes/189608b9.png" align="left" placement="break">
+				<alt>Screen shot selecting Leak Identification > Top Consumers query</alt>
+			</image>
 			<p> In the menu you can also access the list of already executed queries via the
 				<menucascade><uicontrol>History</uicontrol></menucascade> entry. 
 				The Query Selector which can be
 				quickly accessed with the
 				<uicontrol>ctrl+Q</uicontrol> or <uicontrol platform="macOS">command+Q</uicontrol> 
 				key combination.</p>
-			<image href="../mimes/select_queries.png" align="left" placement="break"/>
+			<image href="../mimes/select_queries.png" align="left" placement="break">
+				<alt>Query selection pop-up showing history and other queries</alt>
+			</image>
 			<p> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by
@@ -95,7 +100,9 @@
 				the message area at the top information is displayed about the mandatory
 				arguments. At the bottom the detailed description is displayed like in the
 				query selector. </p>
-			<image href="../mimes/36c94924.png" align="left" placement="break"/>
+			<image href="../mimes/36c94924.png" align="left" placement="break">
+				<alt>Argument wizard for Collection Fill Ratio query, showing help information</alt>
+			</image>
 			
 			<p id="arguments">
 				<b>Providing Query Arguments</b>

@@ -39,7 +39,7 @@
 			<title>Heap Editor</title>
 			This is the main window for performing queries on the snapshot.
 			It has separate tabs for each snapshot which is open.
-			See <xref href="basictutorial.dita#task_basictutorial/overview">Basic tutorial/overview</xref>.
+			See <xref href="../gettingstarted/basictutorial.dita#task_basictutorial/overview">Basic tutorial/overview</xref>.
 			Below that is a toolbar which allows different operations and inspections to be performances on the current snapshot.
 			See <xref href="selectingqueries.dita"></xref>.
 			There is then another series of tabbed panes showing the results of various queries and reports on the current snapshot.

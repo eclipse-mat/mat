@@ -36,14 +36,15 @@
 				<uicontrol>Leak Suspects</uicontrol>
 			</menucascade>
 			.
-			<image href="../mimes/leak_report.png"
-				alt="screen shot of starting to run a leak suspect report"
-				placement="break"></image>
+			<image href="../mimes/leak_report.png" placement="break">
+				<alt>screen shot of starting to run a leak suspect report</alt>
+			</image>
 			<p>As a result an HTML report will be opened. It contains an overview
 				of the heap dump and leak suspect info.
 			</p>
-			<image href="../mimes/leaksuspects.png"
-				alt="screen shot of leak suspects" placement="break"></image>
+			<image href="../mimes/leaksuspects.png" placement="break">
+				<alt>screen shot of leak suspects</alt>
+			</image>
 			<p>This report will be stored together with the heap dump and can be
 				displayed when you open the heap dump again.
 			</p>
@@ -54,9 +55,9 @@
 				See <xref href="../reference/tipsandtricks.dita#ref_tips/piechartlinks">Pie Chart Links</xref>
 				for links from pie charts.
 			</p>
-			<image href="../mimes/leaksuspects1.png"
-				alt="screen shot of leak suspect details showing links"
-				placement="break"></image>
+			<image href="../mimes/leaksuspects1.png" placement="break">
+				<alt>screen shot of leak suspect details showing links</alt>
+			</image>
 			<p>The standard leak suspects report operates just using the heap
 				dump data,
 				which is a snapshot from a particular moment. It does not
@@ -267,9 +268,8 @@
 
 			<p>
 				Learn more in this blog posting:
-				<xref format="html" scope="external"
-					href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html">Automated Heap Dump Analysis: Finding Memory Leaks with One
-					Click
+				<xref href="https://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html" format="html" scope="external">
+				Automated Heap Dump Analysis: Finding Memory Leaks with One Click
 				</xref>
 				.
 			</p>

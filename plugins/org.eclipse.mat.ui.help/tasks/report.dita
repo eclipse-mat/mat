@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2020 IBM Corporation. All rights reserved. 
+<!-- Copyright (c) 2020, 2023 IBM Corporation. All rights reserved. 
 	This program and the accompanying materials are made available under the 
 	terms of the Eclipse Public License 2.0 which accompanies this distribution, 
 	and is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,7 +16,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2020 IBM Corporation.
+				Copyright (c) 2020, 2023 IBM Corporation.
 				All rights reserved.
 				This program and the accompanying materials
 				are made available under
@@ -117,8 +117,9 @@ sudo apt-get install libwebkit2gtk-4.0
 				</cmd>
 				<stepresult>
 					Check the HTML report is displayed.
-					<image href="../mimes/leaksuspects.png" alt="screen shot of leak suspects" 
-						placement="break"></image>
+					<image href="../mimes/leaksuspects.png" placement="break">
+						<alt>screen shot of leak suspects</alt>
+					</image>
 				</stepresult>
 			</step>
 		</steps>
