@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -117,6 +117,10 @@ public final class Messages extends NLS
     public static String ResultRenderer_Label_TableOfContents;
     public static String RunRegisterdReport_Error_UnknownReport;
     public static String SpecFactory_Error_MissingTemplate;
+    public static String SpecFactory_ReportDefinitionError;
+    public static String SpecFactory_ReportDefinitionSevereError;
+    public static String SpecFactory_ReportDefinitionWarning;
+
     public static String TestSuite_FailedToUnzipReport;
     public static String TextOutputter_PieChart;
     public static String TextOutputter_Slice;

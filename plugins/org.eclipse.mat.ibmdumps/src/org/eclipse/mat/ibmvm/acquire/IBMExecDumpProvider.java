@@ -527,6 +527,8 @@ public class IBMExecDumpProvider extends BaseProvider
             SAXParser parser = parserFactory.newSAXParser();
             XMLReader saxXmlReader =  parser.getXMLReader();
             saxXmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            saxXmlReader.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, ""); //$NON-NLS-1$
+            saxXmlReader.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); //$NON-NLS-1$
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(new StringReader(input)));

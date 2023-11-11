@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +27,8 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -38,6 +41,7 @@ import org.osgi.framework.Bundle;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -183,14 +187,21 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
     {
         try
         {
-            SpecHandler handler = new SpecHandler(bundle);
+            SpecHandler handler = new SpecHandler(bundle, source);
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             parserFactory.setNamespaceAware(true);
+            // Add schema validation
+            URL url = ReportPlugin.getDefault().getBundle().getResource("schema/report.xsd"); //$NON-NLS-1$
+            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = factory.newSchema(url);
+            parserFactory.setSchema(schema);
             SAXParser parser = parserFactory.newSAXParser();
             XMLReader saxXmlReader =  parser.getXMLReader();
             // Old way is deprecated
             //saxXmlReader = XMLReaderFactory.createXMLReader();
             saxXmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            saxXmlReader.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, ""); //$NON-NLS-1$
+            saxXmlReader.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); //$NON-NLS-1$
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(input));
@@ -215,12 +226,14 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         private Bundle bundle;
         private LinkedList<Spec> stack;
         private StringBuilder buf;
+        private Object source;
 
-        private SpecHandler(Bundle bundle)
+        private SpecHandler(Bundle bundle, Object source)
         {
             this.bundle = bundle;
             this.stack = new LinkedList<Spec>();
             this.stack.add(new SectionSpec("root")); //$NON-NLS-1$
+            this.source = source;
         }
 
         @SuppressWarnings("nls")
@@ -302,6 +315,27 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         }
 
         @Override
+        public void warning(SAXParseException e)
+        {
+            // Just log the warning
+            Logger.getLogger(getClass().getName()).log(Level.INFO, MessageUtil.format(Messages.SpecFactory_ReportDefinitionWarning, getSpec().getName(), source), e);
+        }
+
+        @Override
+        public void error(SAXParseException e)
+        {
+            // Just log the error
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, MessageUtil.format(Messages.SpecFactory_ReportDefinitionError, getSpec().getName(), source), e);
+        }
+
+        @Override
+        public void fatalError(SAXParseException e)
+        {
+            // Just log the fatal error - an exception will be thrown later
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, MessageUtil.format(Messages.SpecFactory_ReportDefinitionSevereError, getSpec().getName(), source), e);
+        }
+
+        @Override
         public void characters(char[] ch, int start, int length) throws SAXException
         {
             if (buf != null)
@@ -310,7 +344,10 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 
         public Spec getSpec()
         {
-            return ((SectionSpec) stack.getFirst()).getChildren().get(0);
+            List<Spec>children = ((SectionSpec) stack.getFirst()).getChildren();
+            if (children.isEmpty())
+                return stack.getFirst();
+            return children.get(0);
         }
     }
 }
