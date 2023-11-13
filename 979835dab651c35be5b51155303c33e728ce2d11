@@ -33,6 +33,23 @@
       "message": "The following guidance is quite confusing but I assume your testing covers the cases mentioned: https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxp-documentbuilderfactory-saxparserfactory-and-dom4j",
       "revId": "979835dab651c35be5b51155303c33e728ce2d11",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91545036_6d808582",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-11-13T18:50:52Z",
+      "side": 1,
+      "message": "Code LGTM",
+      "revId": "979835dab651c35be5b51155303c33e728ce2d11",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
