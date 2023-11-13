@@ -16,6 +16,23 @@
       "message": "I\u0027ve tested this locally and it still passes the tests.\nI also get warnings in the error log for reports which have warnings or errors in the XML, but like before, only fatal errors stop the report running.",
       "revId": "979835dab651c35be5b51155303c33e728ce2d11",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ab0f9ab_b94798ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-11-13T15:15:36Z",
+      "side": 1,
+      "message": "The following guidance is quite confusing but I assume your testing covers the cases mentioned: https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxp-documentbuilderfactory-saxparserfactory-and-dom4j",
+      "revId": "979835dab651c35be5b51155303c33e728ce2d11",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
