@@ -598,7 +598,7 @@ The size of a stack frame is estimated as 8 bytes times the maximum number of ob
 					<userinput>nautilus "${selected_resource_parent_loc}"</userinput>
 				</dd>
 			</dlentry>
-			<dlentry>
+			<dlentry id="text_encoding">
 				<dt>
 					<menucascade>
 						<uicontrol>General</uicontrol>

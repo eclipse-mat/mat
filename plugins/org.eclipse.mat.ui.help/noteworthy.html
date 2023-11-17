@@ -6,8 +6,8 @@
 
 <meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
 <meta name="DC.title" content="New and Noteworthy" />
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.14.0 release." />
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.14.0 release." />
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.15.0 release." />
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.15.0 release." />
 <meta name="copyright" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.rights.owner" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
@@ -23,23 +23,45 @@
 	
 	
 	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.14.0 release.
+		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.15.0 release.
 	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Latest version of this document</h2>
+			
+			<p class="p">
+				The latest New and Noteworthy document for version 1.15.0 is available 
+				<a class="xref" href="https://eclipse.dev/mat/1.15.0/noteworthy.html">here</a>.
+			</p>
+
+		</div>
 
 		<div class="section"><h2 class="title sectiontitle">Enhancements and fixes</h2>
 			
 			<ul class="ul">
-			<li class="li">There is now a setting for tables, trees and lists to control the number of entries by which
-			a table or tree gets expanded.
-			<a class="xref" href="tasks/configure_mat.html#task_configure_mat__expand">Configuration option</a>
+			<li class="li">The <a class="xref" href="tasks/runningleaksuspectreport.html">leak suspects</a> report has been improved with additional details
+				of possible paths to suspects including local variables and more information for leaks of a group of objects.
 			</li>
 
-			<li class="li">There is now a feature to allow a user to collect diagnostics
-			from Eclipse Memory Analyzer itself if there is a problem running the tool.
-			<a class="xref" href="reference/support.html">Acquire Diagnostics</a>
+			<li class="li">There is an <a class="xref" href="tasks/configure_mat.html#task_configure_mat__hprof_preferences">option</a> to have stack frames processed as pseudo-objects and methods as pseudo-classes
+				when parsing a HPROF dump. This can be useful when examining the snapshot as there will be a path
+				from each thread to the stack frames to the local variables.
 			</li>
 
-			<li class="li">Other issues have been fixed. See <a class="xref" href="https://bugs.eclipse.org/bugs/buglist.cgi?amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;classification=Tools&amp;product=MAT&amp;resolution=FIXED&amp;target_milestone=1.14.0" target="_blank">Memory Analyzer 1.14.0 issue list</a>
+			<li class="li">The values of BigInteger and BigDecimal objects are now displayed in the inspector view and next to the object
+				in trees and tables.
+			</li>
+
+			<li class="li">A one line description of a heap dump is displayed in the heap dump details view.
+				This is taken from the first line of the notes for the snapshot entered by the user.
+			</li>
+
+			<li class="li">Report and exported HTML,CSV and text files are now generated in the 
+				<a class="xref" href="tasks/configure_mat.html#task_configure_mat__text_encoding">default workspace character encoding</a>
+				rather than the JVM file encoding. This means that usually those files will be generated in UTF-8,
+				which will expand the range of characters that can be displayed, particularly on Windows.
+			</li>
+
+			<li class="li">Other issues have been fixed. See <a class="xref" href="https://bugs.eclipse.org/bugs/buglist.cgi?amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;classification=Tools&amp;product=MAT&amp;resolution=FIXED&amp;target_milestone=1.15.0" target="_blank">Memory Analyzer 1.15.0 issue list</a>
 			</li>
 
 			</ul>
@@ -49,9 +71,9 @@
 
 		<div class="section"><h2 class="title sectiontitle">Security fixes</h2>
 			
-			Eclipse Memory Analyzer 1.14.0 includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
-			We recommend users of stand-alone Eclipse Memory Analyzer version 1.13.0 or earlier and
-			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.14.0 or subsequent versions.
+			Eclipse Memory Analyzer 1.15.0 includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
+			We recommend users of stand-alone Eclipse Memory Analyzer version 1.14.0 or earlier and
+			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.15.0 or subsequent versions.
 			<dl class="dl">
 				
 					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2019-17634" target="_blank">CVE-2019-17634</a></dt>
@@ -95,8 +117,102 @@
 				
 			</dl>
 
-			The stand-alone Memory Analyzer 1.14.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			The stand-alone Memory Analyzer 1.15.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
 			<dl class="dl">
+				
+					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2023-4218" target="_blank">CVE-2023-4218</a></dt>
+
+					<dd class="dd">
+						<dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-611: Improper Restriction of XML External Entity Reference</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">In Eclipse IDE versions &lt; 2023-09 (4.29) some files with xml content are parsed vulnerable against all sorts of XXE attacks.
+								The user just needs to open any evil project or update an open project with a vulnerable file (for example for review a foreign repository or patch).
+								</dd>
+
+							
+						</dl>
+
+					</dd>
+
+				
+				
+					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2023-33201" target="_blank">CVE-2023-33201</a></dt>
+
+					<dd class="dd">
+						<dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-295: Improper Certificate Validation</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">Bouncy Castle For Java before 1.74 is affected by an LDAP injection vulnerability.
+								The vulnerability only affects applications that use an LDAP CertStore from Bouncy Castle to validate X.509 certificates.
+								During the certificate validation process, Bouncy Castle inserts the certificate's Subject Name into an LDAP search filter without any escaping, which leads to an LDAP injection vulnerability.</dd>
+
+							
+							
+								<dt class="dt dlterm">NOTES</dt>
+
+								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.14.0 and earlier ships a version of Bouncy Castle For Java.
+								subject to this CVE.
+								Note that stand-alone Memory Analyzer does not use LDAP, so it might not
+								be possible to exploit this vulnerability.
+								</dd>
+
+							
+						</dl>
+
+					</dd>
+
+				
+				
+					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2021-28170" target="_blank">CVE-2021-28170</a></dt>
+
+					<dd class="dd">
+						<dl class="dl">
+							
+								<dt class="dt dlterm">PROBLEMTYPE</dt>
+
+								<dd class="dd">CWE-917: Improper Neutralization of Special Elements used in an Expression Language Statement</dd>
+
+								<dd class="dd ddexpand">CWE-20: Improper Input Validation</dd>
+
+							
+							
+								<dt class="dt dlterm">DESCRIPTION</dt>
+
+								<dd class="dd">In the Jakarta Expression Language implementation 3.0.3 and earlier,
+								a bug in the ELParserTokenManager enables invalid EL expressions to be evaluated as if they were valid.
+								</dd>
+
+							
+							
+								<dt class="dt dlterm">NOTES</dt>
+
+								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.14.0 and earlier ships a version of Jakata Expression Language.
+								subject to this CVE.
+								Note that in stand-alone Memory Analyzer does not directly use Jakata Expression Language, so it might not
+								be possible to exploit this vulnerability.
+								</dd>
+
+							
+						</dl>
+
+					</dd>
+
+				
 				
 					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-2048" target="_blank">CVE-2022-2048</a></dt>
 
@@ -366,6 +482,15 @@
 
 		</div>
 
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.15.0</h2>
+			
+			<p class="p">
+				The latest New and Noteworthy document for version 1.15.0 is available 
+				<a class="xref" href="https://eclipse.dev/mat/1.15.0/noteworthy.html">here</a>.
+			</p>
+
+		</div>
+
 		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.14.0</h2>
 			
 			<p class="p">
@@ -389,15 +514,6 @@
 			<p class="p">
 				The New and Noteworthy document for version 1.12.0 is available 
 				<a class="xref" href="https://eclipse.dev/mat/1.12.0/noteworthy.html">here</a>.
-			</p>
-
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.11.0</h2>
-			
-			<p class="p">
-				The New and Noteworthy document for version 1.11.0 is available 
-				<a class="xref" href="https://eclipse.dev/mat/1.11.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
