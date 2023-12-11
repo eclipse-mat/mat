@@ -25,20 +25,21 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1053,10 +1054,6 @@ public abstract class IndexWriter
      */
     public static class IntArray1NWriter
     {
-        /** length of set() queue to buffer before writing to output as a batch */
-        private static final int TASK_BUFFER_SIZE = 1024;
-        /** Number of ints to write out in the buffer */
-        private static final int TASK_BUFFER_MAX_OBJECTS = 10000;
         /** Size of all arrays in the buffer */
         private static final int TASK_BUFFER_MAX_MEMORY = 20000;
 
@@ -1068,16 +1065,7 @@ public abstract class IndexWriter
         DataOutputStream out;
         IntIndexStreamer body;
 
-        CopyOnWriteArrayList<ArrayListSetTask> allTasks = new CopyOnWriteArrayList<ArrayListSetTask>();
-        ThreadLocal<ArrayListSetTask> threadTaskQueue = ThreadLocal.withInitial(new Supplier<ArrayListSetTask>()
-        {
-            public ArrayListSetTask get()
-            {
-                ArrayListSetTask newList = new ArrayListSetTask(TASK_BUFFER_SIZE);
-                allTasks.add(newList);
-                return newList;
-            }
-        });
+        BlockingQueue<SetTask> allTasks = new LinkedBlockingQueue<>(TASK_BUFFER_MAX_MEMORY * 2);
 
         /**
          * Construct a writer of the required size.
@@ -1181,19 +1169,16 @@ public abstract class IndexWriter
 
         protected void set(int index, int[] values, int offset, int length) throws IOException
         {
-            ArrayListSetTask tasks = threadTaskQueue.get();
-            tasks.add(new SetTask(index, values, offset, length));
+            allTasks.add(new SetTask(index, values, offset, length));
 
-            long memsize = tasks.memcount;
-            long objcount = tasks.objcount;
-            if (tasks.size() >= TASK_BUFFER_SIZE || memsize > TASK_BUFFER_MAX_OBJECTS || objcount > TASK_BUFFER_MAX_MEMORY)
-            {
+            if (allTasks.size() > TASK_BUFFER_MAX_MEMORY) {
+                List<SetTask> tasks = new ArrayList<>(allTasks.size() * 2);
+                allTasks.drainTo(tasks);
                 publishTasks(tasks);
-                tasks.clear();
             }
         }
 
-        void publishTasks(final ArrayListSetTask tasks) throws IOException
+        void publishTasks(final List<SetTask> tasks) throws IOException
         {
             synchronized(body)
             {
@@ -1212,14 +1197,9 @@ public abstract class IndexWriter
          */
         public IIndexReader.IOne2ManyIndex flush() throws IOException
         {
-            synchronized(body)
-            {
-                for(ArrayListSetTask list : allTasks)
-                {
-                    publishTasks(list);
-                    list.clear();
-                }
-            }
+            List<SetTask> tasks = new ArrayList<>(allTasks.size() * 2);
+            allTasks.drainTo(tasks);
+            publishTasks(tasks);
 
             long divider = body.closeStream();
 
@@ -1326,42 +1306,6 @@ public abstract class IndexWriter
                 this.values = values;
                 this.offset = offset;
                 this.length = length;
-            }
-        }
-
-        private static class ArrayListSetTask extends ArrayList<SetTask> {
-            private static final long serialVersionUID = 1L;
-            /** Number of values to write */
-            long objcount;
-            /** total size of all arrays */
-            long memcount;
-            public ArrayListSetTask(int n)
-            {
-                super(n);
-            }
-            @Override
-            public boolean add(SetTask t)
-            {
-                objcount += t.length;
-                memcount += t.values.length;
-                return super.add(t);
-            }
-            @Override
-            public void clear()
-            {
-                objcount = 0;
-                memcount = 0;
-                super.clear();
-            }
-            @Override
-            public boolean equals(Object o)
-            {
-                return super.equals(o);
-            }
-            @Override
-            public int hashCode()
-            {
-                return super.hashCode();
             }
         }
     }
