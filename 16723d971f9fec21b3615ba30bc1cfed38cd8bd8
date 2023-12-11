@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3260f060_d0c58924",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-11T09:01:37Z",
+      "side": 1,
+      "message": "I haven\u0027t used BlockingQueue but the general idea seems reasonable.\nThere seems to be the idea that the LinkedBlockingQueue is of size TASK_BUFFER_MAX_MEMORY*2 and when it gets half-full then it is time to empty the queue. I think this is safe if other threads are also adding elements as the maximum should be TASK_BUFFER_MAX_MEMORY + nThreads as each thread attempts to add when the queue is half full. So it shouldn\u0027t be possible to add() fail with IllegalStateException. Perhaps now there is one thread doing publishTasks for tasks created by all the threads - but this is synchronized so that could be okay, and can\u0027t be multi-threaded.\n\nThis change disables the memory size tracking (which I think previous was done on a thread basis.) This might lead to OutOfMemoryErrors, because up to 20,000 SetTask objects could be added, and these might be some of the biggest objects in the snapshot. As it is now a global queue? I think accounting of the size of SetTask objects would need to be synchronized or using atomic arithmetic.\n\n",
+      "revId": "16723d971f9fec21b3615ba30bc1cfed38cd8bd8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
