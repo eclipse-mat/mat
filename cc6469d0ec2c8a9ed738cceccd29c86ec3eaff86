@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c09c068b_067fa109",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-12T16:05:19Z",
+      "side": 1,
+      "message": "A couple of comments:",
+      "revId": "cc6469d0ec2c8a9ed738cceccd29c86ec3eaff86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbaacaab_fa49f393",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IndexWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-12T16:05:19Z",
+      "side": 1,
+      "message": "This is where we could test the number of objects to output (was TASK_BUFFER_MAX_OBJECTS) and the size of all the arrays (was TASK_BUFFER_MAX_MEMORY) and this would use TASK_BUFFER_SIZE (updated to a bigger value e.g. 20000) as it is shared.",
+      "revId": "cc6469d0ec2c8a9ed738cceccd29c86ec3eaff86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a35fcf92_b5469c00",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IndexWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-12T16:05:19Z",
+      "side": 1,
+      "message": "I\u0027ve run this code and seen the other threads get to this point and the tasks list is empty as allTasks has already been drained, so publishTasks called with an empty list. That is a bit inefficient as then the thread may have to wait for the other thread to finish before getting the lock.\nPerhaps a test for an empty list could be done here or in publishTasks, before the lock.\n\nAlso, if I add a if (!tasks.isEmpty()) then I do see several publish task calls with just a few tasks. Perhaps that is to be expected as it seems the count is only updated at the end of drainTo.\n\nThe first number is the number of entries; the second is the sum of the number of objects in each task. (16 CPU machine). Does this matter; how inefficient is this?\n\npublish 20011 74853\npublish 4 10\npublish 9 26\npublish 15 45\npublish 8 12\npublish 20 57\npublish 5 12\npublish 12 24\npublish 8 23\npublish 21 60\npublish 24 74\npublish 14 43\npublish 3 10\npublish 4 11\npublish 20006 62473",
+      "revId": "cc6469d0ec2c8a9ed738cceccd29c86ec3eaff86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
