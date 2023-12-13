@@ -943,42 +943,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                         Messages.DTFJIndexBuilder_TookmsToGetImageFromFile, (now1 - then1), dump, dumpType), null);
         
-        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
-        if (reliabilityCheck == null)
-        {
-            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
-                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
-        }
-
-        // Set a default preference value
-        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
-        {
-            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
-        }
-
-        if (!PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
-        {
-            DumpReliability reliability = checkDumpReliability(listener);
-            
-            if (reliability == DumpReliability.DURING_GARBAGE_COLLECTION)
-            {
-                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
-                {
-                    throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_DuringGC));
-                }
-                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
-                {
-                    listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_DuringGC, null);
-                }
-            }
-            else if (reliability == DumpReliability.NON_EXCLUSIVE_ACCESS)
-            {
-                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NonExclusive, null);
-            }
-        }
-
         // Basic information
         try
         {
@@ -1026,6 +990,54 @@ public class DTFJIndexBuilder implements IIndexBuilder
             catch (CorruptDataException e2)
             {
                 listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NoRuntimeFullVersionFound, e2);
+            }
+        }
+        
+        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
+        if (reliabilityCheck == null)
+        {
+            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
+                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
+        }
+
+        // Set a default preference value
+        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
+        }
+
+        if (!PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            DumpReliabilityResult reliabilityResult = checkDumpReliability(ifo, listener);
+            DumpReliability reliability = reliabilityResult.getValue();
+
+            if (reliability == DumpReliability.UNMATCHED_DTFJ)
+            {
+                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+                {
+                    throw new SnapshotException(reliabilityResult.getMessage());
+                }
+                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+                {
+                    listener.sendUserMessage(Severity.WARNING, reliabilityResult.getMessage(), null);
+                }
+            }
+            else if (reliability == DumpReliability.DURING_GARBAGE_COLLECTION)
+            {
+                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+                {
+                    throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_DuringGC));
+                }
+                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+                {
+                    listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_DuringGC, null);
+                }
+            }
+            else if (reliability == DumpReliability.NON_EXCLUSIVE_ACCESS)
+            {
+                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NonExclusive, null);
             }
         }
 
@@ -2621,14 +2633,141 @@ public class DTFJIndexBuilder implements IIndexBuilder
         loaderClassCache = null;
         listener.done();
     }
-    
-    enum DumpReliability
+
+    class DumpReliabilityResult
     {
-        UNKNOWN, NON_EXCLUSIVE_ACCESS, DURING_GARBAGE_COLLECTION,
+        DumpReliability value;
+        String message;
+
+        DumpReliabilityResult(DumpReliability value)
+        {
+            this(value, null);
+        }
+
+        DumpReliabilityResult(DumpReliability value, String message)
+        {
+            this.value = value;
+            this.message = message;
+        }
+
+        DumpReliability getValue()
+        {
+            return value;
+        }
+
+        String getMessage()
+        {
+            return message;
+        }
     }
 
-    private DumpReliability checkDumpReliability(IProgressListener listener) throws SnapshotException
+    enum DumpReliability
     {
+        /**
+         * Dump reliability is unknown.
+         */
+        UNKNOWN,
+
+        /**
+         * Dump was taken without exclusive access.
+         */
+        NON_EXCLUSIVE_ACCESS,
+
+        /**
+         * Dump was taken during a garbage collection.
+         */
+        DURING_GARBAGE_COLLECTION,
+
+        /**
+         * The loaded DTFJ runtime doesn't match the dump's DTFJ runtime.
+         */
+        UNMATCHED_DTFJ,
+    }
+
+    private DumpReliabilityResult checkDumpReliability(XSnapshotInfo ifo, IProgressListener listener) throws SnapshotException
+    {
+        String jvmVersion = ifo.getJvmInfo();
+        if (jvmVersion != null)
+        {
+            // Examples of IBM Semeru Runtimes version in dumps:
+            //
+            // JRE 17 Windows 8 amd64-64 (build 17.0.9+9)
+            // 
+            // Examples of IBM Java versions in dumps:
+            // 
+            // JVM version JRE 1.7.0 Linux amd64-64 build 20130205_137358 (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
+            
+            boolean isSemeruFile = false;
+            
+            int buildIndex = jvmVersion.indexOf("build "); //$NON-NLS-1$
+            if (buildIndex != -1)
+            {
+                String build = jvmVersion.substring(buildIndex + "build ".length()); //$NON-NLS-1$
+
+                // Get rid of anything past the core build version
+                int spaceIndex = build.indexOf(" "); //$NON-NLS-1$
+                if (spaceIndex != -1)
+                {
+                    build = build.substring(0, spaceIndex);
+                }
+
+                // Extract out the major version and if it's greater than 8,
+                // then it must be IBM Semeru Runtimes. If it is 8, then
+                // check for a plus symbol (OpenJDK build format).
+                int periodIndex = build.indexOf("."); //$NON-NLS-1$
+                if (periodIndex != -1)
+                {
+                    String majorBuild = build.substring(0, periodIndex);
+                    try
+                    {
+                        int majorVersion = Integer.parseInt(majorBuild);
+                        if (majorVersion > 8)
+                        {
+                            isSemeruFile = true;
+                        }
+                        else if (majorVersion == 8 && build.contains("+")) //$NON-NLS-1$
+                        {
+                            isSemeruFile = true;
+                        }
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        nfe.printStackTrace();
+                    }
+                }
+            }
+            
+            String fileType = null;
+            if (isSemeruFile)
+            {
+                fileType = "IBM Semeru Runtimes"; //$NON-NLS-1$
+            }
+            else
+            {
+                fileType = "IBM Java"; //$NON-NLS-1$
+            }
+            listener.sendUserMessage(Severity.INFO,
+                            MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_File, fileType), null);
+
+            String dtfjImplementation = System.getProperty("org.eclipse.mat.dtfj.implementation"); //$NON-NLS-1$
+
+            // If the implementation is not specified, we default to IBM Java
+            // because that's the implementation currently available by default
+            // with the packaged updates site at
+            // https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/
+            if (dtfjImplementation == null)
+            {
+                dtfjImplementation = "IBM Java"; //$NON-NLS-1$
+            }
+
+            if (!fileType.equals(dtfjImplementation))
+            {
+                return new DumpReliabilityResult(DumpReliability.UNMATCHED_DTFJ,
+                                MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_ImplementationUnmatched,
+                                                dtfjImplementation, fileType));
+            }
+        }
+        
         // This is a best-effort check so it's okay to use known class names:
         // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
         String imageClassName = dtfjInfo.getImage().getClass().getName();
@@ -2653,7 +2792,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 long exclusiveAccessState = Long.parseLong(j9javavm, 16);
                 if (exclusiveAccessState == 0)
                 {
-                    return DumpReliability.NON_EXCLUSIVE_ACCESS;
+                    return new DumpReliabilityResult(DumpReliability.NON_EXCLUSIVE_ACCESS);
                 }
                 else if (exclusiveAccessState == 2)
                 {
@@ -2684,7 +2823,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         if ((vmState & 0x20000) != 0)
                         {
                             // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
-                            return DumpReliability.DURING_GARBAGE_COLLECTION;
+                            return new DumpReliabilityResult(DumpReliability.DURING_GARBAGE_COLLECTION);
                         }
                     }
                     else
@@ -2707,7 +2846,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 new UnsupportedOperationException(sb.toString(), e));
             }
         }
-        return DumpReliability.UNKNOWN;
+        return new DumpReliabilityResult(DumpReliability.UNKNOWN);
     }
     
     private String executeJdmpviewCommand(String command) throws SnapshotException
