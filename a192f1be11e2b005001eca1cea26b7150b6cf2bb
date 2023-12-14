@@ -16,6 +16,23 @@
       "message": "All tests passed",
       "revId": "a192f1be11e2b005001eca1cea26b7150b6cf2bb",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c509d4d4_77e570eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-14T09:41:33Z",
+      "side": 1,
+      "message": "Looks reasonable to me.",
+      "revId": "a192f1be11e2b005001eca1cea26b7150b6cf2bb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
