@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG., IBM Corporation and others
+ * Copyright (c) 2008, 2023 SAP AG., IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,9 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -57,6 +60,7 @@ import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.EditorPaneRegistry;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.snapshot.panes.oql.OQLTextViewerConfiguration;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ColorProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
@@ -71,14 +75,15 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -139,28 +144,6 @@ public class OQLPane extends CompositeHeapEditorPane
         queryString.selectAll();
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql"); //$NON-NLS-1$
-        queryString.addKeyListener(new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent e)
-            {
-                if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
-                {
-                    executeAction.run();
-                    e.doit = false;
-                }
-                else if (e.keyCode == ' ' && (e.stateMask & SWT.CTRL) != 0)
-                {
-                    //ctrl space combination for content assist
-                    contentAssistAction.run();
-                }
-                else if (e.keyCode == SWT.F5)
-                {
-                    executeAction.run();
-                    e.doit = false;
-                }
-            }
-
-        });
 
         queryString.addFocusListener(new FocusListener()
         {
@@ -173,7 +156,12 @@ public class OQLPane extends CompositeHeapEditorPane
             }
 
             public void focusLost(FocusEvent e)
-            {}
+            {
+                IActionBars actionBars = getEditor().getEditorSite().getActionBars();
+                actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(), null);
+                actionBars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), null);
+                actionBars.updateActionBars();
+            }
 
         });
         queryString.setFocus();
@@ -541,6 +529,66 @@ public class OQLPane extends CompositeHeapEditorPane
         catch (CoreException e)
         {
             throw new PartInitException(ErrorHelper.createErrorStatus(e));
+        }
+    }
+
+    static OQLPane activeOQLPane()
+    {
+        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+        IWorkbenchPage page = window.getActivePage();
+        if (page == null)
+            return null;
+
+        IEditorPart activeEditor = page.getActiveEditor();
+        if (!(activeEditor instanceof MultiPaneEditor))
+            return null;
+        MultiPaneEditor mpe = (MultiPaneEditor)activeEditor;
+        AbstractEditorPane  aep = mpe.getActiveEditor();
+        if (!(aep instanceof OQLPane))
+            return null;
+
+        OQLPane op = (OQLPane)aep;
+        return op;
+    }
+    
+    public static class ExecuteOQLHandler extends AbstractHandler
+    {
+        @Override
+        public Object execute(ExecutionEvent event) throws ExecutionException
+        {
+            OQLPane op = activeOQLPane();
+            if (op == null)
+                return null;
+            Object t = event.getTrigger();
+            if (!(t instanceof Event))
+                return null;
+            Event ev = (Event)t;
+            if (ev.widget != op.queryString)
+                return null;
+            op.executeAction.run();
+            ev.doit = false;
+            return null;
+        }
+    }
+
+    public static class ContentAssistOQLHandler extends AbstractHandler
+    {
+        @Override
+        public Object execute(ExecutionEvent event) throws ExecutionException
+        {
+            OQLPane op = activeOQLPane();
+            if (op == null)
+                return null;
+            Object t = event.getTrigger();
+            if (!(t instanceof Event))
+                return null;
+            Event ev = (Event)t;
+            if (ev.widget != op.queryString)
+                return null;
+            op.contentAssistAction.run();
+            ev.doit = false;
+            return null;
         }
     }
 
