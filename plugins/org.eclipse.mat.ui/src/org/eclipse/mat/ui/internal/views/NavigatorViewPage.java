@@ -26,16 +26,16 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IFontProvider;
+import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -71,7 +71,7 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.themes.ColorUtil;
 
-public class NavigatorViewPage extends Page implements ISelectionProvider, IDoubleClickListener, IStateChangeListener
+public class NavigatorViewPage extends Page implements ISelectionProvider, IOpenListener, IStateChangeListener
 {
     private class NavigatorLabelProvider extends LabelProvider implements IFontProvider, IColorProvider
     {
@@ -166,7 +166,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
 
         treeViewer.setContentProvider(new NavigatorContentProvider());
         treeViewer.setLabelProvider(new NavigatorLabelProvider());
-        treeViewer.addDoubleClickListener(this);
+        treeViewer.addOpenListener(this);
         editor.getNavigatorState().addChangeStateListener(this);
         initializeFont();
 
@@ -401,7 +401,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         }
     }
 
-    public void doubleClick(DoubleClickEvent event)
+    public void open(OpenEvent event)
     {
         ISelection selection = event.getSelection();
         if (selection instanceof IStructuredSelection)

@@ -279,6 +279,8 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             @Override
             protected void finished(ISnapshot snapshot)
             {
+                if (snapshotInput == null)
+                    return;
                 ((SnapshotEditorInput) snapshotInput).setSnapshot(snapshot);
                 setQueryContext(new UISnapshotQueryContext(snapshot, HeapEditor.this));
             }

@@ -46,6 +46,8 @@ import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.util.IOpenEventListener;
+import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.jface.util.Util;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -69,8 +71,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -269,17 +269,15 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
         });
         
-		// let snapshots be opened with the Enter key
-		table.addTraverseListener(new TraverseListener() 
-		{
-			public void keyTraversed(TraverseEvent e)
-			{
-				if (e.detail == SWT.TRAVERSE_RETURN)
-				{
-					actionOpen.run();
-				}
-			}
-		});
+        // let snapshots be opened with the Enter key
+        OpenStrategy openHandler = new OpenStrategy(table);
+        openHandler.addOpenListener(new IOpenEventListener()
+        {
+            public void handleOpen(SelectionEvent e)
+            {
+                actionOpen.run();
+            }
+        });
 
         SnapshotHistoryService.getInstance().addChangeListener(this);
 
