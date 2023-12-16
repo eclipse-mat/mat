@@ -215,6 +215,20 @@
 			id="org.eclipse.mat.ui.editor.tabMenu"
 			name="%command.name.TabMenu">
 		</command>
+		<command
+			categoryId="org.eclipse.ui.category.edit"
+			description="%command.description.OQLExec"
+			helpContextId="org.eclipse.mat.ui.help.oql"
+			id="org.eclipse.mat.ui.actions.executeOQL"
+			name="%command.name.OQLExec">
+		</command>
+		<command
+			categoryId="org.eclipse.ui.category.edit"
+			description="%command.description.OQLAssist"
+			helpContextId="org.eclipse.mat.ui.help.oql"
+			id="org.eclipse.mat.ui.actions.assistOQL"
+			name="%command.name.OQLAssist">
+		</command>
 	</extension>
 
 	<extension point="org.eclipse.ui.handlers">
@@ -260,6 +274,16 @@
 			class="org.eclipse.mat.ui.editor.MultiPaneEditor$Handler"
 			commandId="org.eclipse.mat.ui.editor.tabMenu"
 			helpContextId="org.eclipse.mat.ui.help.tab_menu">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.snapshot.panes.OQLPane$ExecuteOQLHandler"
+			commandId="org.eclipse.mat.ui.actions.executeOQL"
+			helpContextId="org.eclipse.mat.ui.help.oql">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.snapshot.panes.OQLPane$ContentAssistOQLHandler"
+			commandId="org.eclipse.mat.ui.actions.assistOQL"
+			helpContextId="org.eclipse.mat.ui.help.oql">
 		</handler>
 	</extension>
 
@@ -314,7 +338,21 @@
 			schemeId="org.eclipse.mat.scheme"
 			sequence="M1+PAGE_UP">
 		</key>
-	</extension>
+		<key
+			commandId="org.eclipse.mat.ui.actions.executeOQL"
+			contextId="org.eclipse.mat.ui.editor"
+			schemeId="org.eclipse.mat.scheme" sequence="M1+ENTER">
+		</key>
+		<key
+			commandId="org.eclipse.mat.ui.actions.executeOQL"
+			contextId="org.eclipse.mat.ui.editor"
+			schemeId="org.eclipse.mat.scheme" sequence="F5">
+		</key>
+		<key
+			commandId="org.eclipse.mat.ui.actions.assistOQL"
+			contextId="org.eclipse.mat.ui.editor"
+			schemeId="org.eclipse.mat.scheme" sequence="Ctrl+SPACE">
+		</key>	</extension>
 
 	<extension point="org.eclipse.ui.contexts">
 		<context
