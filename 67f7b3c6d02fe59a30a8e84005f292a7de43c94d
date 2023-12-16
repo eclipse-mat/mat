@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97c44205_e79f2a8e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-16T09:56:03Z",
+      "side": 1,
+      "message": "Looks okay for now - this should solve the reported problem, and if there is contention we could follow it up later.\nThe variable countTaskValues might be better as a long, but for overflow the source HPROF would need an object array with about 2,146,483,649 elements or more.",
+      "revId": "67f7b3c6d02fe59a30a8e84005f292a7de43c94d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24d5b6ce_38a491e0",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IndexWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2023-12-16T09:56:03Z",
+      "side": 1,
+      "message": "There is a chance this could overflow if there a huge array were added to an existing buffer. Would long be safer?",
+      "revId": "67f7b3c6d02fe59a30a8e84005f292a7de43c94d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
