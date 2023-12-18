@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82279f70_b7fad489",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16306
+      },
+      "writtenOn": "2023-12-18T20:18:04Z",
+      "side": 1,
+      "message": "All tests passed. Verified locally by creating a truncated core dump with systemd-coredump and using a build with a newer DTFJ and confirmed the reflection worked and reported the truncation error.",
+      "revId": "35b3ff77c1d8160550bf1c921a006c5bf018c924",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
