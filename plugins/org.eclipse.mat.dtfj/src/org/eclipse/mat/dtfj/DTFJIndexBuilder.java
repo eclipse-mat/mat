@@ -2634,7 +2634,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.done();
     }
 
-    class DumpReliabilityResult
+    static class DumpReliabilityResult
     {
         DumpReliability value;
         String message;
