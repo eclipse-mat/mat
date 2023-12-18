@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -903,6 +904,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.beginTask(MessageFormat.format(Messages.DTFJIndexBuilder_ProcessingImageFromFile, dump), workCount);
         int workCountSoFar = 0;
 
+        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
+        if (reliabilityCheck == null)
+        {
+            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
+                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
+        }
+
+        // Set a default preference value
+        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
+        }
+
+        boolean shouldCheckReliability = !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck);
+
         XSnapshotInfo ifo = index.getSnapshotInfo();
 
         // The dump may have changed, so reread it
@@ -961,7 +979,56 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (rtId instanceof String && ! rtId.equals("")) { //$NON-NLS-1$
             runtimeId = (String) rtId;
         }
-        
+
+        if (shouldCheckReliability)
+        {
+            Image image = dtfjInfo.getImage();
+            if (image != null)
+            {
+                // https://eclipse.dev/openj9/docs/api/jdk8/platform/dtfj/com/ibm/dtfj/image/Image.html#isTruncated--
+                try
+                {
+                    Method isTruncated = image.getClass().getMethod("isTruncated"); //$NON-NLS-1$
+                    boolean isTruncatedResult = (Boolean) isTruncated.invoke(image);
+                    if (isTruncatedResult)
+                    {
+                        if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+                        {
+                            throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_Truncated));
+                        }
+                        else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+                        {
+                            listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_Truncated, null);
+                        }
+                    }
+                }
+                catch (NoSuchMethodException e)
+                {
+                    // Older version of DTFJ without this method
+                }
+                catch (SecurityException e)
+                {
+                    // It's not critical to perform this reliability check, so
+                    // ignore this error.
+                }
+                catch (IllegalAccessException e)
+                {
+                    // It's not critical to perform this reliability check, so
+                    // ignore this error.
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // It's not critical to perform this reliability check, so
+                    // ignore this error.
+                }
+                catch (InvocationTargetException e)
+                {
+                    // It's not critical to perform this reliability check, so
+                    // ignore this error.
+                }
+            }
+        }
+
         dtfjInfo = getRuntime(dtfjInfo.getImageFactory(), dtfjInfo.getImage(), runtimeId, listener);
         final String actualRuntimeId = dtfjInfo.getRuntimeId();
         if (actualRuntimeId != null)
@@ -993,22 +1060,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         
-        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
-        if (reliabilityCheck == null)
-        {
-            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
-                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
-        }
-
-        // Set a default preference value
-        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
-        {
-            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
-        }
-
-        if (!PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        if (shouldCheckReliability)
         {
             DumpReliabilityResult reliabilityResult = checkDumpReliability(ifo, listener);
             DumpReliability reliability = reliabilityResult.getValue();
@@ -2767,7 +2819,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                 dtfjImplementation, fileType));
             }
         }
-        
+
         // This is a best-effort check so it's okay to use known class names:
         // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
         String imageClassName = dtfjInfo.getImage().getClass().getName();

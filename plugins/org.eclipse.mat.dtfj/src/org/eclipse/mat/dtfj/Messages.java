@@ -206,6 +206,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ThreadStateNotFound;
     public static String DTFJIndexBuilder_TookmsToGetImageFromFile;
     public static String DTFJIndexBuilder_TookmsToParseFile;
+    public static String DTFJIndexBuilder_Truncated;
     public static String DTFJIndexBuilder_UnableToFindClassLoader;
     public static String DTFJIndexBuilder_UnableToFindDTFJForFormat;
     public static String DTFJIndexBuilder_UnableToFindJavaRuntime;
