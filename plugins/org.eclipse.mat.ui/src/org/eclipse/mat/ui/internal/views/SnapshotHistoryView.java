@@ -110,7 +110,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         public void widgetSelected(SelectionEvent e)
         {
-            SnapshotHistoryService.Entry newEntry = (SnapshotHistoryService.Entry) ((TableItem) e.item).getData();
+            // Select all can get an event with a null item.
+            SnapshotHistoryService.Entry newEntry = e.item != null ? (SnapshotHistoryService.Entry) ((TableItem) e.item).getData() : null;
 
             if (newEntry != null)
             {
