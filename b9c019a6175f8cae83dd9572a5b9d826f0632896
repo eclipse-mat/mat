@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ffeed22_cd586881",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-28T01:42:43Z",
+      "side": 1,
+      "message": "Thank you for review, going to push it forward.\n\n(I\u0027m a bit confused whether my drafts are being posted to the discussion, apologies if they re-post or only show up now!!)\n\n",
+      "revId": "b9c019a6175f8cae83dd9572a5b9d826f0632896",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}

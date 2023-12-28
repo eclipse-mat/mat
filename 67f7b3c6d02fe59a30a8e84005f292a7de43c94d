@@ -18,6 +18,24 @@
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47992862_25463d1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-28T01:42:43Z",
+      "side": 1,
+      "message": "Thanks. I\u0027ve swapped this over to a `long`.",
+      "parentUuid": "97c44205_e79f2a8e",
+      "revId": "67f7b3c6d02fe59a30a8e84005f292a7de43c94d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24d5b6ce_38a491e0",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-12-16T09:56:03Z",
       "side": 1,
       "message": "There is a chance this could overflow if there a huge array were added to an existing buffer. Would long be safer?",
+      "revId": "67f7b3c6d02fe59a30a8e84005f292a7de43c94d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15c94732_81691698",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IndexWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-28T01:42:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "24d5b6ce_38a491e0",
       "revId": "67f7b3c6d02fe59a30a8e84005f292a7de43c94d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }

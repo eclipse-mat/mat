@@ -16,6 +16,24 @@
       "message": "I haven\u0027t used BlockingQueue but the general idea seems reasonable.\nThere seems to be the idea that the LinkedBlockingQueue is of size TASK_BUFFER_MAX_MEMORY*2 and when it gets half-full then it is time to empty the queue. I think this is safe if other threads are also adding elements as the maximum should be TASK_BUFFER_MAX_MEMORY + nThreads as each thread attempts to add when the queue is half full. So it shouldn\u0027t be possible to add() fail with IllegalStateException. Perhaps now there is one thread doing publishTasks for tasks created by all the threads - but this is synchronized so that could be okay, and can\u0027t be multi-threaded.\n\nThis change disables the memory size tracking (which I think previous was done on a thread basis.) This might lead to OutOfMemoryErrors, because up to 20,000 SetTask objects could be added, and these might be some of the biggest objects in the snapshot. As it is now a global queue? I think accounting of the size of SetTask objects would need to be synchronized or using atomic arithmetic.\n\n",
       "revId": "16723d971f9fec21b3615ba30bc1cfed38cd8bd8",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05c938d8_d6c27774",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-28T01:42:43Z",
+      "side": 1,
+      "message": "\u003e So it shouldn\u0027t be possible to add() fail with IllegalStateException.\n\nGood catch, I missed that this should be put(). I\u0027ve fixed that in patch#2.\n\n\u003e Perhaps now there is one thread doing publishTasks for tasks created by all the threads - but this is synchronized so that could be okay, and can\u0027t be multi-threaded.\n\nYes, the original code accumulated in a ThreadLocal on each FJ thread, and then each thread upon hitting 1000 elements would acquire the lock and publish. After this patch all FJ threads accumulate in a single shared queue, and it is a race to whoever picks off the TASK_MAX_MEMORY elements to forward them.\n\n\u003e This change disables the memory size tracking (which I think previous was done on a thread basis.)\n\nThe memory size tracking is effectively deactivated by JDK17 changes. Memory tracking applies at each ArrayListSetTask, but there is no bound limiting the number of ArrayListSetTasks that are created. See extra explanation below.\n\n\u003e This might lead to OutOfMemoryErrors, because up to 20,000 SetTask objects could be added, and these might be some of the biggest objects in the snapshot. As it is now a global queue? \n\nWe can tune this number if desired, but I can assure that without this change we are more likely to hit OOM on JDK17. I showed some timings BEFORE / AFTER on the original patch ticket that give some overview.\n\n--\n\nOn memory: the reason for this change is because on JDK17+ the thread pool used to process these was leaking the SetTask lists. The upstream JDK change (https://bugs.openjdk.org/browse/JDK-8246585) has led to issues in numerous apps (eg: https://bugs.openjdk.org/browse/JDK-8285638). Specifically, in the base code, we instantiate a new ArrayListSetTask for each new FJ thread and stash it in a ThreadLocal, and create a copy in the allTasks list. Once we get over 1000 SetTask entries per thread, they get published. BUT, given the change in JDK17, at indeterminate times the FJ pool will clear that FJ queue. So, we never get over 1000 SetTask and the entry is cleared from ThreadLocal (at which point a new ThreadLocal ArrayListSetTask is instantiated for the thread). The entries remains in allTasks queue and allTasks list grows to many hundreds of thousands of accumulated lists of \u003c 1000 tasks that are pending flush. They are all correctly flushed during the final flush(), however during processing they simply accumulate endlessly.\n\n```\nCopyOnWriteArrayList\u003cArrayListSetTask\u003e allTasks \u003d new CopyOnWriteArrayList\u003cArrayListSetTask\u003e();\nThreadLocal\u003cArrayListSetTask\u003e threadTaskQueue \u003d ThreadLocal.withInitial(new Supplier\u003cArrayListSetTask\u003e()\n{\n    public ArrayListSetTask get()\n    {\n        ArrayListSetTask newList \u003d new ArrayListSetTask(TASK_BUFFER_SIZE);\n        allTasks.add(newList);\n        return newList;\n    }\n});\n```",
+      "parentUuid": "3260f060_d0c58924",
+      "revId": "16723d971f9fec21b3615ba30bc1cfed38cd8bd8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
