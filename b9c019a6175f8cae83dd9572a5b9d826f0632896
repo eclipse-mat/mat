@@ -51,6 +51,24 @@
       "parentUuid": "5ffeed22_cd586881",
       "revId": "b9c019a6175f8cae83dd9572a5b9d826f0632896",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14fe528a_eda82eb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-28T01:46:36Z",
+      "side": 1,
+      "message": "It looks like I\u0027d need to get total +2 review votes and then +1 verified (which I assume I can do myself).",
+      "parentUuid": "39f7c868_6e8ab008",
+      "revId": "b9c019a6175f8cae83dd9572a5b9d826f0632896",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
