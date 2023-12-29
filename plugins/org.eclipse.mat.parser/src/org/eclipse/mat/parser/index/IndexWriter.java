@@ -706,8 +706,6 @@ public abstract class IndexWriter
         public void set(int index, int value)
         {
             ArrayIntCompressed array = getPage(index / pageSize);
-            // TODO unlock this by having ArrayIntCompressed use atomics
-            // uses bit operations internally, so we should sync against the page
             synchronized(array)
             {
                 array.set(index % pageSize, value);
@@ -716,13 +714,9 @@ public abstract class IndexWriter
 
         public int get(int index)
         {
+            // set() only happens during parsing stage, get later
             ArrayIntCompressed array = getPage(index / pageSize);
-
-            // TODO unlock this by having ArrayIntCompressed use atomics
-            // we currently lock a whole page, when we only need a single element
-            synchronized(array) {
-                return array.get(index % pageSize);
-            }
+            return array.get(index % pageSize);
         }
 
         public void close() throws IOException
