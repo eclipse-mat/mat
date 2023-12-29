@@ -16,6 +16,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 public class SimpleBufferedRandomAccessInputStream extends InputStream
 {
@@ -44,6 +45,23 @@ public class SimpleBufferedRandomAccessInputStream extends InputStream
         buf_end = 0;
         buf_pos = 0;
         real_pos = raf.getFilePointer();
+    }
+
+    public final byte[] readDirect(long position, int length) throws IOException
+    {
+        byte[] buff = new byte[length];
+        ByteBuffer bb = ByteBuffer.wrap(buff);
+        int totalRead = 0;
+        while (totalRead < length)
+        {
+            int read = raf.getChannel().read(bb, position + totalRead);
+            if (read < 0)
+            {
+                throw new IOException(Messages.SimpleBufferedRandomAccessInputStream_InvalidReadDirect);
+            }
+            totalRead += read;
+        }
+        return buff;
     }
 
     public final int read() throws IOException
