@@ -200,37 +200,45 @@ public abstract class IndexReader
         {
             SoftReference<ArrayIntCompressed> ref = pages2.get(page);
             ArrayIntCompressed array = ref == null ? null : ref.get();
-            if (array == null)
+            if (array != null)
             {
-                synchronized (LOCK)
-                {
-                    ref = pages2.get(page);
-                    array = ref == null ? null : ref.get();
-
-                    if (array == null)
-                    {
-                        try
-                        {
-                            byte[] buffer = null;
-
-                            this.in.seek(pageStart[page]);
-
-                            buffer = new byte[(int) (pageStart[page + 1] - pageStart[page])];
-                            if (this.in.read(buffer) != buffer.length)
-                                throw new IOException();
-
-                            array = new ArrayIntCompressed(buffer);
-
-                            pages2.put(page, new SoftReference<ArrayIntCompressed>(array));
-                        }
-                        catch (IOException e)
-                        {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
+                return array;
             }
-            return array;
+
+            long ltoRead = pageStart[page + 1] - pageStart[page];
+            if (ltoRead >= Integer.MAX_VALUE)
+            {
+                throw new RuntimeException(new IOException("want to read too many bytes into int[]"));
+            }
+
+            int toRead = (int) ltoRead;
+            byte[] buffer;
+            try
+            {
+                buffer = this.in.readDirect(pageStart[page], toRead);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            synchronized (LOCK)
+            {
+                // if another thread finished a concurrent read, use it
+                // so we do not hold onto two of the same page unnecessarily
+                ref = pages2.get(page);
+                array = ref == null ? null : ref.get();
+                if (array != null)
+                {
+                    return array;
+                }
+
+                array = new ArrayIntCompressed(buffer);
+
+                // no need for putIfAbsent because we only do this inside sync block
+                pages2.put(page, new SoftReference<>(array));
+                return array;
+            }
         }
 
         public void delete()
@@ -828,37 +836,45 @@ public abstract class IndexReader
         {
             SoftReference<ArrayLongCompressed> ref = pages2.get(page);
             ArrayLongCompressed array = ref == null ? null : ref.get();
-            if (array == null)
+            if (array != null)
             {
-                synchronized (LOCK)
-                {
-                    ref = pages2.get(page);
-                    array = ref == null ? null : ref.get();
-
-                    if (array == null)
-                    {
-                        try
-                        {
-                            byte[] buffer = null;
-
-                            this.in.seek(pageStart[page]);
-
-                            buffer = new byte[(int) (pageStart[page + 1] - pageStart[page])];
-                            if (this.in.read(buffer) != buffer.length)
-                                throw new IOException();
-
-                            array = new ArrayLongCompressed(buffer);
-
-                            pages2.put(page, new SoftReference<ArrayLongCompressed>(array));
-                        }
-                        catch (IOException e)
-                        {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
+                return array;
             }
-            return array;
+
+            long ltoRead = pageStart[page + 1] - pageStart[page];
+            if (ltoRead >= Integer.MAX_VALUE)
+            {
+                throw new RuntimeException(new IOException("want to read too many bytes into int[]"));
+            }
+
+            int toRead = (int) ltoRead;
+            byte[] buffer;
+            try
+            {
+                buffer = this.in.readDirect(pageStart[page], toRead);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            synchronized (LOCK)
+            {
+                // if another thread finished a concurrent read, use it
+                // so we do not hold onto two of the same page unnecessarily
+                ref = pages2.get(page);
+                array = ref == null ? null : ref.get();
+                if (array != null)
+                {
+                    return array;
+                }
+
+                array = new ArrayLongCompressed(buffer);
+
+                // no need for putIfAbsent because we only do this inside sync block
+                pages2.put(page, new SoftReference<>(array));
+                return array;
+            }
         }
 
         public void delete()
