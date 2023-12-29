@@ -39,8 +39,9 @@ public class Messages extends NLS
     public static String GarbageCleaner_SearchingForUnreachableObjects;
     public static String GarbageCleaner_Writing;
     public static String HistogramBuilder_Error_FailedToStoreInHistogram;
-    public static String IndexReader_Error_IndexIsEmbedded;
     public static String IndexWriter_Error_ArrayLength;
+    public static String IndexReader_Error_IndexIsEmbedded;
+    public static String IndexReader_Error_PageReadOverflow;
     public static String IndexWriter_Error_ObjectArrayLength;
     public static String IndexWriter_NotImplemented;
     public static String IndexWriter_StoredError;
@@ -48,6 +49,7 @@ public class Messages extends NLS
     public static String MethodCallExpression_Error_MethodNotFound;
     public static String MethodCallExpression_Error_MethodProhibited;
     public static String MultiplePathsFromGCRootsComputerImpl_FindingPaths;
+    public static String SimpleBufferedRandomAccessInputStream_InvalidReadDirect;
     public static String SnapshotFactoryImpl_ClassIDNotFound;
     public static String SnapshotFactoryImpl_ClassImplNotFound;
     public static String SnapshotFactoryImpl_ClassIndexAddressNoLoaderID;
