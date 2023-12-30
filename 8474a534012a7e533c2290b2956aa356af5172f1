@@ -16,6 +16,23 @@
       "message": "Following from Andrew\u0027s comments",
       "revId": "8474a534012a7e533c2290b2956aa356af5172f1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e9044b4_817abd55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-30T19:39:30Z",
+      "side": 1,
+      "message": "Thank you for your help Andrew. I am still learning the Gerrit UI/UX, and appreciate your patience and help! Hopefully this all went correctly. Thanks again.",
+      "revId": "8474a534012a7e533c2290b2956aa356af5172f1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
     }
   ]
 }
