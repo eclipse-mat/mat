@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c488c1_0e965005",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-30T19:38:14Z",
+      "side": 1,
+      "message": "Following from Andrew\u0027s comments",
+      "revId": "8474a534012a7e533c2290b2956aa356af5172f1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
