@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48e7d94a_ddb844db",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/internal/snapshot/MultiplePathsFromGCRootsComputerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2023-12-31T20:06:20Z",
+      "side": 1,
+      "message": "looks like this didn\u0027t cherry-pick correctly, will fix",
+      "revId": "baa6101dbe98e6c1870abcf3cdaafa7468cccebe",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
