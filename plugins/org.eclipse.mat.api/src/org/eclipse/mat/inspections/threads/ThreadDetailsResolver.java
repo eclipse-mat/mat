@@ -17,6 +17,8 @@ import java.text.FieldPosition;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
@@ -146,26 +148,49 @@ public class ThreadDetailsResolver implements IThreadDetailsResolver
                         (new Column(Messages.ThreadDetailsResolver_State_value, Integer.class).noTotals().formatting(hex))};
     }
 
+    Supplier<Integer> makeIntegerFieldSupplier(IThreadInfo thread, String field) {
+        return (Supplier<Integer>) () -> {
+            try {
+                Object o = thread.getThreadObject().resolveValue(field);
+                return (o instanceof Integer) ? (Integer)o : null;
+            }
+            catch (SnapshotException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    Supplier<String> makeStringFieldSupplier(IThreadInfo thread, String field, Function<Integer, String> transform) {
+        return (Supplier<String>) () -> {
+            try {
+                Object o = thread.getThreadObject().resolveValue(field);
+                return (o instanceof Integer) ? transform.apply((Integer)o) : null;
+            }
+            catch (SnapshotException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException
     {
+        final String PRIORITY = "priority"; //$NON-NLS-1$
+        final String THREAD_STATUS = "threadStatus"; //$NON-NLS-1$
+
         // Find the thread
         // Set the column data, ignore errors
         Column cols[] = getColumns();
-        Object o = thread.getThreadObject().resolveValue("priority"); //$NON-NLS-1$
-        if (o instanceof Integer)
-        {
-            // Let another resolver for priority override this
-            if (thread instanceof ThreadInfoImpl && ((ThreadInfoImpl)thread).getValue(cols[0]) == null)
-                thread.setValue(cols[0], o);
+        Supplier<Integer> priorityResolver = makeIntegerFieldSupplier(thread, PRIORITY);
+        Supplier<String> threadStatusNameResolver = makeStringFieldSupplier(thread, PRIORITY, this::printableState);
+        Supplier<Integer> threadStatusResolver = makeIntegerFieldSupplier(thread, THREAD_STATUS);
+
+        if (thread instanceof ThreadInfoImpl) {
+            ((ThreadInfoImpl)thread).setValueIfAbsent(cols[0], priorityResolver);
+        } else {
+            thread.setValue(cols[0], priorityResolver);
         }
-        o = thread.getThreadObject().resolveValue("threadStatus"); //$NON-NLS-1$
-        if (o instanceof Integer)
-        {
-            int state = (Integer)o;
-            String stateName = printableState(state);
-            thread.setValue(cols[1], stateName);
-            thread.setValue(cols[2], state);
-        }
+        thread.setValue(cols[1], threadStatusNameResolver);
+        thread.setValue(cols[2], threadStatusResolver);
     }
 
     private static final int THREAD_STATE_ALIVE = 0x00000001;
