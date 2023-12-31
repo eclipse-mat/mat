@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -77,8 +78,6 @@ import org.eclipse.mat.util.IProgressListener;
     {
         ThreadInfoImpl info = new ThreadInfoImpl();
         info.subject = thread;
-
-        extractGeneralAttributes(info);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -143,26 +142,7 @@ import org.eclipse.mat.util.IProgressListener;
         return result.toArray();
     }
 
-    private static void extractGeneralAttributes(ThreadInfoImpl info) throws SnapshotException
-    {
-        info.className = info.subject.getDisplayName();
-        info.name = info.subject.getClassSpecificName();
-        info.instance = info.subject.getTechnicalName();
-        info.shallowHeap = new Bytes(info.subject.getUsedHeapSize());
-        info.retainedHeap = new Bytes(info.subject.getRetainedHeapSize());
-        info.isDaemon = resolveIsDaemon(info.subject);
-
-        IObject contextClassLoader = resolveContextClassLoader(info);
-        if (contextClassLoader != null)
-        {
-            info.contextClassLoader = contextClassLoader.getClassSpecificName();
-            if (info.contextClassLoader == null)
-                info.contextClassLoader = contextClassLoader.getTechnicalName();
-            info.contextClassLoaderId = contextClassLoader.getObjectId();
-        }
-    }
-
-    private static IObject resolveContextClassLoader(ThreadInfoImpl info) throws SnapshotException
+    private static IObject resolveContextClassLoader(ThreadInfoImpl info)
     {
         try
         {
@@ -319,16 +299,6 @@ import org.eclipse.mat.util.IProgressListener;
 
     private IObject subject;
 
-    // general attributes
-    private String name;
-    private String className;
-    private String instance;
-    private Bytes shallowHeap = new Bytes(0);
-    private Bytes retainedHeap = new Bytes(0);
-    private String contextClassLoader;
-    private int contextClassLoaderId;
-    private Boolean isDaemon;
-
     // extended properties
     private Map<Column, Object> properties = new HashMap<Column, Object>();
     private List<String> keywords = new ArrayList<String>();
@@ -350,37 +320,46 @@ import org.eclipse.mat.util.IProgressListener;
 
     public String getName()
     {
-        return name;
+        return subject.getClassSpecificName();
     }
 
     public String getClassName()
     {
-        return className;
+        return subject.getDisplayName();
     }
 
     public String getInstance()
     {
-        return instance;
+        return subject.getTechnicalName();
     }
 
     public Bytes getShallowHeap()
     {
-        return shallowHeap;
+        return new Bytes(subject.getUsedHeapSize());
     }
 
     public Bytes getRetainedHeap()
     {
-        return retainedHeap;
+        return new Bytes(subject.getRetainedHeapSize());
     }
 
     public String getContextClassLoader()
     {
-        return contextClassLoader;
+        final IObject classLoader = resolveContextClassLoader(this);
+        if (classLoader == null)
+            return null;
+
+        String classLoaderName = classLoader.getClassSpecificName();
+        if (classLoaderName == null)
+            classLoaderName = classLoader.getTechnicalName();
+
+        return classLoaderName;
     }
 
     public int getContextClassLoaderId()
     {
-        return contextClassLoaderId;
+        final IObject classLoader = resolveContextClassLoader(this);
+        return (classLoader != null) ? classLoader.getObjectId() : 0;
     }
 
     public void addDetails(String name, IResult detail)
@@ -410,6 +389,13 @@ import org.eclipse.mat.util.IProgressListener;
         properties.put(column, value);
     }
 
+    public void setValueIfAbsent(Column column, Object value)
+    {
+        if (getValue(column) == null) {
+            properties.put(column, value);
+        }
+    }
+
     public void addRequest(String summary, IResult detail)
     {
         if (requests == null)
@@ -424,7 +410,7 @@ import org.eclipse.mat.util.IProgressListener;
 
     private Object isDaemon()
     {
-        return isDaemon;
+        return resolveIsDaemon(subject);
     }
 
     public Object getValue(Column column)
@@ -446,8 +432,14 @@ import org.eclipse.mat.util.IProgressListener;
             return isDaemon();
         else if (COL_MAXLOCALRETAINED.equals(column))
             return null;
-        else
-            return properties.get(column);
+        else {
+            Object val = properties.get(column);
+            if (val instanceof Supplier) {
+                return ((Supplier)val).get();
+            } else {
+                return properties.get(column);
+            }
+        }
     }
 
 }
