@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.QueueInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.index.IIndexReader;
@@ -265,13 +266,14 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 		}
 
 		// use first-in-first-out to get the shortest paths
-		QueueInt fifo = new QueueInt(numObjects / 8);
+		ArrayInt current = new ArrayInt(numObjects / 8);
+		ArrayInt next = new ArrayInt(numObjects / 8);
 
 		// initially queue all GC roots
 		int[] gcRoots = snapshot.getGCRoots();
 		for (int root : gcRoots)
 		{
-			fifo.put(root);
+			next.add(root);
 			parent[root] = NO_PARENT;
 		}
 
@@ -285,29 +287,43 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
 		// Used for performance
 		List<NamedReference>refCache = new ArrayList<NamedReference>();
 		// loop until the queue is empty, or all necessary paths are found
-		while (fifo.size() > 0 && count > 0)
+		while (next.size() > 0 && count > 0)
 		{
-			int objectId = fifo.get();
+			// swap next in
+			final ArrayInt old = current;
+			current = next;
+			old.clear();
+			next = old;
 
-			// was some of the objects of interest reached?
-			if (toBeChecked[objectId])
-			{
-				count--; // reduce the remaining work
-			}
+			// It is more expensive on CPU to sort locally, however refersOnlyThroughExcluded reads
+			// from the underlying hprof file so it drives a lot of I/O. By performing in order
+			// we get small boost from spatial locality.
+			current.sort();
 
-			// queue any unprocessed referenced object
-			int[] outbound = outboundIndex.get(objectId);
-			refCache.clear();
-			for (int child : outbound)
-			{
-				if (parent[child] == NOT_VISITED)
+			IteratorInt currentIterator = current.iterator();
+			while (currentIterator.hasNext() && count > 0) {
+				int objectId = currentIterator.next();
+
+				// was some of the objects of interest reached?
+				if (toBeChecked[objectId])
 				{
-					if (skipReferences)
+					count--; // reduce the remaining work
+				}
+
+				// queue any unprocessed referenced object
+				int[] outbound = outboundIndex.get(objectId);
+				refCache.clear();
+				for (int child : outbound)
+				{
+					if (parent[child] == NOT_VISITED)
 					{
-						if (refersOnlyThroughExcluded(objectId, child, refCache)) continue;
+						if (skipReferences)
+						{
+							if (refersOnlyThroughExcluded(objectId, child, refCache)) continue;
+						}
+						parent[child] = objectId;
+						next.add(child);
 					}
-					parent[child] = objectId;
-					fifo.put(child);
 				}
 			}
 
