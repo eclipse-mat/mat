@@ -593,25 +593,55 @@ public final class SnapshotImpl implements ISnapshot
         // Round up count
         progressMonitor.beginTask(Messages.SnapshotImpl_BuildingHistogram, (objectIds.length >>> 8) + ((objectIds.length & 0xff) > 0 ? 1 : 0));
 
-        // Arrays.sort(objectIds);
-        // int[] classIds = indexManager.o2class().getAll(objectIds);
+        int[] sortedObjectIds = Arrays.copyOf(objectIds, objectIds.length);
+        Arrays.sort(sortedObjectIds);
 
         IOne2OneIndex o2class = indexManager.o2class();
 
-        int classId;
-
-        for (int ii = 0; ii < objectIds.length; ii++)
-        {
-            classId = o2class.get(objectIds[ii]);
-
-            histogramBuilder.add(classId, objectIds[ii], getHeapSize(objectIds[ii]));
-
-            if ((ii & 0xff) == 0)
-            {
-                if (progressMonitor.isCanceled())
-                    return null;
-                progressMonitor.worked(1);
+        // firstly, arrays we collect the size for each array separately
+        for(int i = 0; i < sortedObjectIds.length; i++) {
+            int objectId = sortedObjectIds[i];
+            if (arrayObjects.get(objectId)) {
+                int classId = o2class.get(objectId);
+                histogramBuilder.add(classId, objectId, indexManager.a2size().getSize(objectId));
             }
+        }
+
+        // for all of the non-array objects, group by class id
+        // we are going to accumulate these into arrays grouped by class id
+        HashMap<Integer, ArrayInt> classToObjectIds = new HashMap<>();
+        for(int i = 0; i < sortedObjectIds.length; i++) {
+            int objectId = sortedObjectIds[i];
+            if (!arrayObjects.get(objectId)) {
+                int classId = o2class.get(objectId);
+                ArrayInt thisClassObjIds = classToObjectIds.computeIfAbsent(classId, (k) -> new ArrayInt());
+                thisClassObjIds.add(objectId);
+            }
+        }
+
+        // load all of the objects; grouped by class id so all heap size lookups should be (relatively) hot
+        for (Iterator<Map.Entry<Integer, ArrayInt>> iter = classToObjectIds.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry<Integer, ArrayInt> entry = iter.next();
+            int classId = entry.getKey();
+            ArrayInt thisClassObjIds = entry.getValue();
+
+            for (int i = 0; i < thisClassObjIds.size(); i++) {
+                final int objectId = thisClassObjIds.get(i);
+
+                // it would be preferable to call getHeapSize once per class id, but on occasion
+                // objects with the same class id might get a different reference in the classCache
+                final long heapSize;
+                IClass clazz = classCache.get(objectId);
+                if (clazz != null) {
+                    heapSize = clazz.getUsedHeapSize();
+                } else {
+                    heapSize = classCache.get(classId).getHeapSizePerInstance();
+                }
+
+                histogramBuilder.add(classId, objectId, heapSize);
+            }
+
+            iter.remove();
         }
 
         progressMonitor.done();
