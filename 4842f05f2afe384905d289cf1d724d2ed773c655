@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "997d077b_c4206518",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2024-01-17T01:32:49Z",
+      "side": 1,
+      "message": "javadoc only changes",
+      "revId": "4842f05f2afe384905d289cf1d724d2ed773c655",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
