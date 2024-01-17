@@ -702,6 +702,12 @@ public abstract class IndexWriter
             });
         }
 
+	/**
+	 * Sets a value in the collector.
+	 *
+	 * Safe to be called concurrently from multiple threads. Not safe to mix
+	 * concurrent get and set calls.
+	 */
         public void set(int index, int value)
         {
             ArrayIntCompressed array = getPage(index / pageSize);
@@ -711,6 +717,12 @@ public abstract class IndexWriter
             }
         }
 
+	/**
+	 * Gets from the collected index.
+	 *
+	 * Safe to be called concurrently from multiple threads. Not safe to mix
+	 * concurrent get and set calls.
+	 */
         public int get(int index)
         {
             // set() only happens during parsing stage, get later
