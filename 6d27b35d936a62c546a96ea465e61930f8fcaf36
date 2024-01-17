@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53000f41_bd4ef357",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2024-01-17T00:01:36Z",
+      "side": 1,
+      "message": "This changes the regression test, specifically for GC roots since we change traversal of BFS at each layer. All verifies ok as long as the paths themselves are the same length.",
+      "revId": "6d27b35d936a62c546a96ea465e61930f8fcaf36",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31"
+    }
+  ]
+}
