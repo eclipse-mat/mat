@@ -2,7 +2,7 @@
 
 This content is produced and maintained by the Eclipse Memory Analyzer project.
 
-* Project Web Site: https://www.eclipse.org/mat
+* Project Web Site: https://www.eclipse.dev/mat
 * Project Information: https://projects.eclipse.org/projects/tools.mat
 
 ## Trademarks
@@ -28,7 +28,7 @@ SPDX-License-Identifier: EPL-2.0
 
 The project maintains the following source code repositories:
 
-* https://git.eclipse.org/r/mat/org.eclipse.mat
+* https://github.com/eclipse-mat/mat
 
 
 ## Third-party Content
