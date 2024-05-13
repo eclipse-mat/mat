@@ -14,8 +14,9 @@ Download
 Building locally
 ----------------
 
-    git clone https://git.eclipse.org/r/mat/org.eclipse.mat
-    cd org.eclipse.mat/parent
+Memory Analyzer can be build using Maven / Tycho. The maven build should be started from the parent directory. So, clone the repository, and then
+
+    cd parent
     mvn clean install
 
 For detailed build documentation refer to <https://wiki.eclipse.org/MemoryAnalyzer/Building_MAT_With_Tycho>
@@ -30,17 +31,19 @@ Documentation
 Contributing
 ----------------
 
-- Check CONTRIBUTING.md in the root of the repository
+- Check [CONTRIBUTING.md](CONTRIBUTING.md) in the root of the repository
 - [Developers](https://www.eclipse.org/mat/developers/) area on the MAT web site
 - [MemoryAnalyzer/Contributor Reference](http://wiki.eclipse.org/index.php?title=MemoryAnalyzer/Contributor_Reference) Wiki pages
 
 Issues:
 ----------------
 
-This project uses Bugzilla to track ongoing development and issues.
+This project uses Githib issues to track ongoing development and issues.
 
-- [List of open issues](https://bugs.eclipse.org/bugs/buglist.cgi?product=MAT)
-- [Report an issue](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=MAT)
+- [List of open issues](https://github.com/eclipse-mat/mat/issues?q=is%3Aopen+is%3Aissue)
+- [Report an issue](https://github.com/eclipse-mat/mat/issues/new)
+
+In the past the project used Bugzilla. The "archives" are available [here](https://bugs.eclipse.org/bugs/buglist.cgi?order=changeddate%20DESC%2Cpriority%2Cbug_severity&product=MAT&query_format=advanced)
 
 Contact:
 ----------------
