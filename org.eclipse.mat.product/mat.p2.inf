@@ -10,6 +10,6 @@ requires.2.range = [1.0.0, 2.0.0)
 instructions.configure=\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/artifacts.xml);\
-    addRepository(type:0,name:Eclipse 2022-12,location:https${#58}//download.eclipse.org/releases/2022-12/,enabled:true);\
-    addRepository(type:1,name:Eclipse 2022-12,location:https${#58}//download.eclipse.org/releases/2022-12/,enabled:true);\
+    addRepository(type:0,name:Eclipse 2023-12,location:https${#58}//download.eclipse.org/releases/2023-12/,enabled:true);\
+    addRepository(type:1,name:Eclipse 2023-12,location:https${#58}//download.eclipse.org/releases/2023-12/,enabled:true);\
     setProgramProperty(propName:osgi.requiredJavaVersion,propValue:17);
