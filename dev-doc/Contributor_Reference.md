@@ -86,7 +86,7 @@ See [Building MAT with Maven](Building_MAT_with_Maven.md) if you want to produce
 The unit tests a placed in the ''org.eclipse.mat.tests'' project. Execute the tests by right-clicking on the project and choose ''Run As... -&gt; JUnit Plug-in Test''.
 
 The following VM arguments are required in the run configuration for the JUnit Plug-in Test: 
-''-Xmx850m -ea --add-exports java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED''
+```-Xmx850m -ea --add-exports java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED```
 
 For the ''org.eclipse.mat.rcp.tests'' project install SWTBot - API from [https://www.eclipse.org/swtbot/].
 
