@@ -8,8 +8,8 @@ The Eclipse Memory Analyzer is a fast and feature-rich Java heap dump analyzer t
 Download
 ----------------
 
-- Latest [stable release](https://www.eclipse.org/mat/downloads.php)
-- [Snapshot builds](https://www.eclipse.org/mat/snapshotBuilds.php)
+- Latest [stable release](https://eclipse.dev/mat/downloads.php)
+- [Snapshot builds](https://eclipse.dev/mat/snapshotBuilds.php)
 
 Building locally
 ----------------
@@ -19,7 +19,7 @@ Memory Analyzer can be build using Maven / Tycho. The maven build should be star
     cd parent
     mvn clean install
 
-For detailed build documentation refer to <https://wiki.eclipse.org/MemoryAnalyzer/Building_MAT_With_Tycho>
+For detailed build documentation refer to [Building MAT with Maven](dev-doc/Building_MAT_with_Maven.md)
 
 Documentation
 ----------------
@@ -31,9 +31,8 @@ Documentation
 Contributing
 ----------------
 
-- Check [CONTRIBUTING.md](CONTRIBUTING.md) in the root of the repository
-- [Developers](https://www.eclipse.org/mat/developers/) area on the MAT web site
-- [MemoryAnalyzer/Contributor Reference](http://wiki.eclipse.org/index.php?title=MemoryAnalyzer/Contributor_Reference) Wiki pages
+- See [CONTRIBUTING.md](CONTRIBUTING.md) in the root of the repository if you would like to contribute to MAT 
+- See [Contributor Reference](dev-doc/Contributor_Reference.md) for information regarding setting up your development environment, building MAT, running tests, coding standards, and more.
 
 Issues:
 ----------------
