@@ -20,7 +20,7 @@ The Memory Analyzer code is hosted on Github.
 Developer resources
 --------------------
 
-Information regarding setting up you development environment, building MAT, running tests, coding standards, and more.
+Information regarding setting up your development environment, building MAT, running tests, coding standards, and more.
 
 - [Contributor Reference](dev-doc/Contributor_Reference.md)
 - [Developers](https://www.eclipse.org/mat/developers/) area on the MAT web site

@@ -189,7 +189,6 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md)
 ## New version development process
 
 * Document new version at [MAT project page](https://projects.eclipse.org/projects/tools.mat)
-* Create Bugzilla entries for target milestone [Bugzilla Manager](https://dev.eclipse.org/committers/bugs/bugz_manager.php)
 * Update references to old release in the code e.g. 1.X -&gt; 1.Y excluding update sites
 ** See pom.xml e.g. `<version>1.9.1-SNAPSHOT</version>`
 ** See manifest.mf e.g. `Bundle-Version: 1.9.1.qualifier`
