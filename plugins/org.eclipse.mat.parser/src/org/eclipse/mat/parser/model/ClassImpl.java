@@ -19,8 +19,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
@@ -67,7 +69,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     protected volatile long totalSize;
     protected boolean isArrayType;
 
-    private List<IClass> subClasses;
+    private Set<IClass> subClasses;
 
     private Serializable cacheEntry;
 
@@ -392,14 +394,14 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     @SuppressWarnings("unchecked")
     public List<IClass> getSubclasses()
     {
-        return subClasses != null ? subClasses : Collections.EMPTY_LIST;
+        return (subClasses == null) ? Collections.emptyList() : new ArrayList<>(subClasses);
     }
 
     @Override
     public List<IClass> getAllSubclasses()
     {
         if (subClasses == null || subClasses.isEmpty())
-            return new ArrayList<IClass>();
+            return Collections.emptyList();
 
         List<IClass> answer = new ArrayList<IClass>(subClasses.size() * 2);
         answer.addAll(this.subClasses);
@@ -453,7 +455,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     public void addSubClass(ClassImpl clazz)
     {
         if (subClasses == null)
-            subClasses = new ArrayList<IClass>();
+            subClasses = new LinkedHashSet<IClass>();
         subClasses.add(clazz);
     }
 
