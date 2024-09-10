@@ -2889,13 +2889,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
                 }
             }
-            catch (RuntimeException e)
+            catch (Throwable t)
             {
                 // This will probably be caused by a change in the undocumented
                 // format of the various jdmpview commands, so we just
                 // print a warning about it.
                 listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability,
-                                new UnsupportedOperationException(sb.toString(), e));
+                                new UnsupportedOperationException(sb.toString(), t));
             }
         }
         return new DumpReliabilityResult(DumpReliability.UNKNOWN);
