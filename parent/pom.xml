@@ -343,6 +343,9 @@
 				<groupId>org.eclipse.dash</groupId>
 				<artifactId>license-tool-plugin</artifactId>
 				<version>1.0.2</version>
+				<configuration>
+					<licenses>https://www.eclipse.org/legal/licenses/licenses.json</licenses>
+				</configuration>
 				<executions>
 					<execution>
 						<id>license-check</id>
