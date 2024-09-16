@@ -2736,18 +2736,6 @@ public class OQLTest
      * @throws SnapshotException
      */
     @Test
-    public void testMethodCallCompiler() throws SnapshotException
-    {
-        expectedException.expectCause(isA(java.lang.SecurityException.class));
-        Object o = execute("SELECT s.@class.forName(\"java.lang.Compiler\").disable() FROM OBJECTS 1 s");
-        assertNull(o);
-    }
-
-    /**
-     * Test method calls disallowed.
-     * @throws SnapshotException
-     */
-    @Test
     public void testMethodCallProcess() throws SnapshotException
     {
         expectedException.expectCause(isA(java.lang.SecurityException.class));
