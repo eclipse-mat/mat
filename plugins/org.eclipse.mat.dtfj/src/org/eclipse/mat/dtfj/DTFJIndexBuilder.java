@@ -2744,51 +2744,61 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Examples of IBM Semeru Runtimes version in dumps:
             //
             // JRE 17 Windows 8 amd64-64 (build 17.0.9+9)
-            // 
+            // JRE 1.8.0 Linux aarch64-64 (build 1.8.0_422-b05) IBM Semeru
+            // Runtime Open Edition
+            //
             // Examples of IBM Java versions in dumps:
-            // 
-            // JVM version JRE 1.7.0 Linux amd64-64 build 20130205_137358 (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
-            
+            //
+            // JVM version JRE 1.7.0 Linux amd64-64 build 20130205_137358
+            // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
+
             boolean isSemeruFile = false;
-            
-            int buildIndex = jvmVersion.indexOf("build "); //$NON-NLS-1$
-            if (buildIndex != -1)
+
+            if (jvmVersion.contains("Semeru Runtime")) //$NON-NLS-1$
             {
-                String build = jvmVersion.substring(buildIndex + "build ".length()); //$NON-NLS-1$
-
-                // Get rid of anything past the core build version
-                int spaceIndex = build.indexOf(" "); //$NON-NLS-1$
-                if (spaceIndex != -1)
+                isSemeruFile = true;
+            }
+            else
+            {
+                int buildIndex = jvmVersion.indexOf("build "); //$NON-NLS-1$
+                if (buildIndex != -1)
                 {
-                    build = build.substring(0, spaceIndex);
-                }
+                    String build = jvmVersion.substring(buildIndex + "build ".length()); //$NON-NLS-1$
 
-                // Extract out the major version and if it's greater than 8,
-                // then it must be IBM Semeru Runtimes. If it is 8, then
-                // check for a plus symbol (OpenJDK build format).
-                int periodIndex = build.indexOf("."); //$NON-NLS-1$
-                if (periodIndex != -1)
-                {
-                    String majorBuild = build.substring(0, periodIndex);
-                    try
+                    // Get rid of anything past the core build version
+                    int spaceIndex = build.indexOf(" "); //$NON-NLS-1$
+                    if (spaceIndex != -1)
                     {
-                        int majorVersion = Integer.parseInt(majorBuild);
-                        if (majorVersion > 8)
-                        {
-                            isSemeruFile = true;
-                        }
-                        else if (majorVersion == 8 && build.contains("+")) //$NON-NLS-1$
-                        {
-                            isSemeruFile = true;
-                        }
+                        build = build.substring(0, spaceIndex);
                     }
-                    catch (NumberFormatException nfe)
+
+                    // Extract out the major version and if it's greater than 8,
+                    // then it must be IBM Semeru Runtimes. If it is 8, then
+                    // check for a plus symbol (OpenJDK build format).
+                    int periodIndex = build.indexOf("."); //$NON-NLS-1$
+                    if (periodIndex != -1)
                     {
-                        nfe.printStackTrace();
+                        String majorBuild = build.substring(0, periodIndex);
+                        try
+                        {
+                            int majorVersion = Integer.parseInt(majorBuild);
+                            if (majorVersion > 8)
+                            {
+                                isSemeruFile = true;
+                            }
+                            else if (majorVersion == 8 && build.contains("+")) //$NON-NLS-1$
+                            {
+                                isSemeruFile = true;
+                            }
+                        }
+                        catch (NumberFormatException nfe)
+                        {
+                            nfe.printStackTrace();
+                        }
                     }
                 }
             }
-            
+
             String fileType = null;
             if (isSemeruFile)
             {
@@ -2816,7 +2826,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 return new DumpReliabilityResult(DumpReliability.UNMATCHED_DTFJ,
                                 MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_ImplementationUnmatched,
-                                                dtfjImplementation, fileType));
+                                                dtfjImplementation, fileType, jvmVersion));
             }
         }
 
