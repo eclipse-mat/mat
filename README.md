@@ -8,8 +8,8 @@ The Eclipse Memory Analyzer is a fast and feature-rich Java heap dump analyzer t
 Download
 ----------------
 
-- Latest [stable release](https://eclipse.dev/mat/downloads.php)
-- [Snapshot builds](https://eclipse.dev/mat/snapshotBuilds.php)
+- Latest [stable release](https://eclipse.dev/mat/download/)
+- [Snapshot builds](https://eclipse.dev/mat/download/snapshots/)
 
 Building locally
 ----------------
