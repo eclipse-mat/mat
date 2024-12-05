@@ -20,6 +20,8 @@ with Eclipse Quality Standards.
 
 ![Eclipse API](images/heapdump_api_packages.png)
 
+The complete [MAT API Reference](https://help.eclipse.org/latest/topic/org.eclipse.mat.ui.help/doc/index.html) is available online on the Eclipse help site.
+
 ## Overview
 
 Basically there are two ways to extend the Memory Analyzer. One way is adding
@@ -180,7 +182,7 @@ and the "," comma to delimit the hex address of the object on the stack frame.
 
 There are some constraints on the indexes that must be met. For example, the
 first outbound reference logged for each object must be to the object's class.
-More information on these constraints can be found in the thread [http://www.eclipse.org/forums/index.php?t=msg&th=163200&start=0&S=86b5235a33dd47bfed74cb351e531fbf]
+More information on these constraints can be found in [the thread](http://www.eclipse.org/forums/index.php?t=msg&th=163200&start=0&S=86b5235a33dd47bfed74cb351e531fbf)
 in the old forum. Take care that the references for the objects in the dump are
 correct because the `GarbageCleaner` will remove unreachable objects. If
 unreachable objects should be kept, the "keep_unreachable_objects" can be set
@@ -282,7 +284,5 @@ So `<native memory>` is a new type, with no superclass (a sibling to
 `<method>` is a new type, of class `<method type>`.
 
 ## Other references
-
-- [Graduation review](http://archive.eclipse.org/projects/www/project-slides/Helios/MAT_Helios_Release.pdf)
 
 - [Forum posts](https://www.eclipse.org/forums/index.php/mv/msg/153571/486076/#msg_486076)
