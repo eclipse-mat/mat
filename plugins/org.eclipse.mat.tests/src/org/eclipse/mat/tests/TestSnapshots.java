@@ -82,21 +82,10 @@ public class TestSnapshots
     public static final String IBM_JDK6_32BIT_HEAP_AND_JAVA = IBM_JDK6_32BIT_HEAP + ";" + IBM_JDK6_32BIT_JAVA;
     public static final String IBM_JDK7_64BIT_HEAP_AND_JAVA = IBM_JDK7_64BIT_HEAP + ";" + IBM_JDK7_64BIT_JAVA;
     public static final String IBM_JDK8_64BIT_HEAP_AND_JAVA = IBM_JDK8_64BIT_HEAP + ";" + IBM_JDK8_64BIT_JAVA;
-    public static final String IBM_JDK142_32BIT_SYSTEM = "dumps/core.20100209.165717.4484.txt.sdff";
-    public static final String IBM_JDK142_32BIT_HEAP = "dumps/heapdump.20100209.165721.4484.phd";
-    public static final String IBM_JDK142_32BIT_JAVA = "dumps/javacore.20100209.165721.4484.txt";
-    public static final String IBM_JDK142_32BIT_HEAP_AND_JAVA = IBM_JDK142_32BIT_HEAP + ";" + IBM_JDK142_32BIT_JAVA;
 
     private static DirDeleter deleterThread;
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();
     private static List<ISnapshot> pristineSnapshots = new ArrayList<ISnapshot>();
-
-    // Can DTFJ read 1.4.2 javacore files?
-    // DTFJ 1.5 cannot read javacore 1.4.2 dumps anymore
-    public static final boolean DTFJreadJavacore142 = Platform.getBundle("com.ibm.dtfj.j9").getVersion().compareTo(Version.parseVersion("1.5")) < 0;
-    // DTFJ 1.12.29003.201808011034 cannot read 1.4.2 system dumps anymore
-    // Don't test bundle com.ibm.dtfj.sov as an old version might still be around
-    public static final boolean DTFJreadSystem142 = Platform.getBundle("com.ibm.dtfj.api").getVersion().compareTo(Version.parseVersion("1.12.29003.201808011034")) < 0;
 
     static
     {
@@ -143,10 +132,6 @@ public class TestSnapshots
      */
     public static ISnapshot getSnapshot(String dumpname, Map<String, String> options, boolean pristine)
     {
-        // DTFJ 1.5 cannot read javacore 1.4.2 dumps anymore
-        assumeTrue("DTFJ >= 1.5 cannot read javacore 1.4.2 dumps", !dumpname.equals(TestSnapshots.IBM_JDK142_32BIT_JAVA) || DTFJreadJavacore142);
-        // DTFJ 1.12.29003.201808011034 cannot read 1.4.2 system dumps anymore
-        assumeTrue("DTFJ >= 1.12.29003.201808011034 cannot read 1.4.2 system dumps", !dumpname.equals(TestSnapshots.IBM_JDK142_32BIT_SYSTEM) || DTFJreadSystem142);
         try
         {
             testAssertionsEnabled();

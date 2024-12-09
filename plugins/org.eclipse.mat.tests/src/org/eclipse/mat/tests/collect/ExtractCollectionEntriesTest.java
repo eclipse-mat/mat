@@ -72,13 +72,6 @@ public class ExtractCollectionEntriesTest extends ExtractCollectionEntriesBase
     }
 
     @Test
-    public void testHashMapEntries_IBM_JDK142() throws SnapshotException
-    {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK142_32BIT_SYSTEM, false);
-        checkCollection(0xbcb688, 469, snapshot);
-    }
-
-    @Test
     public void testLinkedHashMapEntries_Sun_JDK6() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
@@ -159,14 +152,6 @@ public class ExtractCollectionEntriesTest extends ExtractCollectionEntriesBase
     }
 
     @Test
-    public void testHashtableEntries_IBM_JDK142() throws SnapshotException
-    {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK142_32BIT_SYSTEM, false);
-        // 0xbb9648 has identical keys and values, so is harder to test
-        checkCollection(0xbb8a10, 2, snapshot);
-    }
-
-    @Test
     public void testPropertiesEntries_Sun_JDK6() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
@@ -199,13 +184,6 @@ public class ExtractCollectionEntriesTest extends ExtractCollectionEntriesBase
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
         checkMap(0x16b6468, 72, snapshot);
-    }
-
-    @Test
-    public void testPropertiesEntries_IBM_JDK142() throws SnapshotException
-    {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK142_32BIT_SYSTEM, false);
-        checkCollection(0xbbb4c8, 56, snapshot);
     }
 
     @Test
@@ -256,13 +234,6 @@ public class ExtractCollectionEntriesTest extends ExtractCollectionEntriesBase
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
         checkMap(0x16d5f88, 2, snapshot);
-    }
-
-    @Test
-    public void testThreadLocalMapEntries_IBM_JDK142() throws SnapshotException
-    {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK142_32BIT_SYSTEM, false);
-        checkCollection(0xbc2e58, 2, snapshot);
     }
 
     @Test
