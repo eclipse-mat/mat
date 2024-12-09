@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.mat.ui.capabilities;singleton:=true
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui;bundle-version="3.4.0"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Localization: plugin
 Bundle-Copyright: Copyright (c) 2010, 2022 SAP AG. 
  All rights reserved. This program and the accompanying materials 

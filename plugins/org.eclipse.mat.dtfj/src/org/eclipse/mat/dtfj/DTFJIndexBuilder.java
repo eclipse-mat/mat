@@ -2917,14 +2917,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // Use reflection so we don't have to link to com.ibm.dtfj.j9
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8);
+            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
             Class<?> ddrInteractive = dtfjInfo.getImage().getClass().getClassLoader().loadClass("com.ibm.j9ddr.tools.ddrinteractive.DDRInteractive"); //$NON-NLS-1$
             Constructor<?>cns = ddrInteractive.getConstructor(Object.class, ps.getClass());
             Object jdmpview = cns.newInstance(dtfjInfo.getImage(), ps);
             Method m = ddrInteractive.getMethod("processLine", String.class); //$NON-NLS-1$
             m.invoke(jdmpview, command);
             ps.close();
-            return baos.toString(StandardCharsets.UTF_8);
+            return baos.toString(StandardCharsets.UTF_8.name());
         }
         catch (Exception e)
         {
