@@ -16,7 +16,7 @@
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.15.0 release.
+		significant changes made to <keyword>Eclipse Memory Analyzer</keyword> for the 1.16.0 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
