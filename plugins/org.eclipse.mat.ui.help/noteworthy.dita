@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
+    Copyright (c) 2008, 2024 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
     which accompanies this distribution, and is available at
@@ -34,40 +34,49 @@
 		<section>
 			<title>Latest version of this document</title>
 			<p>
-				The latest New and Noteworthy document for version 1.15.0 is available 
-				<xref format="html" scope="peer" href="https://eclipse.dev/mat/1.15.0/noteworthy.html">here</xref>.
+				The latest New and Noteworthy document for version 1.16.0 is available 
+				<xref format="html" scope="peer" href="https://eclipse.dev/mat/1.16.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
 		<section>
 			<title>Enhancements and fixes</title>
 			<ul>
-			<li>The <xref format="dita" href="tasks/runningleaksuspectreport.dita">leak suspects</xref> report has been improved with additional details
-				of possible paths to suspects including local variables and more information for leaks of a group of objects.
+			<li>A number of changes to parsing/indexing stage performance primarily through improved parallelism.
 			</li>
-			<li>There is an <xref format="dita" href="tasks/configure_mat.dita#task_configure_mat/hprof_preferences">option</xref> to have stack frames processed as pseudo-objects and methods as pseudo-classes
-				when parsing a HPROF dump. This can be useful when examining the snapshot as there will be a path
-				from each thread to the stack frames to the local variables.
+			<li>Improvements to support more parallel read IO especially relevant to slower devices (eg: when indexes are stored on an NFS volume).
 			</li>
-			<li>The values of BigInteger and BigDecimal objects are now displayed in the inspector view and next to the object
-				in trees and tables.
+			<li>For the DTFJ plugin support (IBM Java and IBM Semeru Runtimes dumps):
+				<ul>
+					<li>If available, check if OS core dumps are truncated and, by default, do not load them 
+			    		(override by changing the reliability check in MAT DTFJ preferences or with 
+			    		-DreliabilityCheck=warning or -DreliabilityCheck=skip).
+			 		</li>
+			 		<li>Support a -Dorg.eclipse.mat.dtfj.implementation=[IBM Java|IBM Semeru Runtimes] option during 
+			 			the dump reliability check to ensure a DTFJ implementation is loaded that matches the JVM that 
+			 			produced the dump (IBM Java or IBM Semeru Runtimes).
+			 		</li>
+				</ul>
 			</li>
-			<li>A one line description of a heap dump is displayed in the heap dump details view.
-				This is taken from the first line of the notes for the snapshot entered by the user.
+			<li>Fix an issue of the OQL window breaking Ctrl+A in other tabs.
 			</li>
-			<li>Report and exported HTML,CSV and text files are now generated in the 
-				<xref format="dita" href="tasks/configure_mat.dita#task_configure_mat/text_encoding">default workspace character encoding</xref>
-				rather than the JVM file encoding. This means that usually those files will be generated in UTF-8,
-				which will expand the range of characters that can be displayed, particularly on Windows.
-			</li>
-			<li>Other issues have been fixed. See <xref format="html" scope="external" 
-				href="https://bugs.eclipse.org/bugs/buglist.cgi?amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;classification=Tools&amp;product=MAT&amp;resolution=FIXED&amp;target_milestone=1.15.0">Memory Analyzer 1.15.0 issue list</xref>
+			<li>Support <xref format="html" scope="external" href="https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.platform.doc.user/tasks/topenmode.htm">Eclipse single click mode</xref>.
 			</li>
 			</ul>
 		</section>
 
 		<section>
 			<title>Security fixes</title>
-			Eclipse Memory Analyzer 1.15.0 includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
+			
+			The stand-alone Memory Analyzer 1.16.0 includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
+			<ul>
+				<li><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2024-6763">CVE-2024-6763</xref></li>
+				<li><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2024-8184">CVE-2024-8184</xref></li>
+				<li><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2024-29857">CVE-2024-29857</xref></li>
+				<li><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2024-30171">CVE-2024-30171</xref></li>
+				<li><xref format="html" scope="external" href="https://www.cve.org/CVERecord?id=CVE-2024-30172">CVE-2024-30172</xref></li>
+			</ul>
+			
+			Eclipse Memory Analyzer 1.15.0 and later includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
 			We recommend users of stand-alone Eclipse Memory Analyzer version 1.14.0 or earlier and
 			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.15.0 or subsequent versions.
 			<dl>
@@ -365,6 +374,13 @@
 						</dl></dd>
 				</dlentry>
 			</dl>
+		</section>
+		<section>
+			<title>New and Noteworthy for Memory Analyzer 1.16.0</title>
+			<p>
+				The latest New and Noteworthy document for version 1.16.0 is available 
+				<xref format="html" scope="peer" href="https://eclipse.dev/mat/1.16.0/noteworthy.html">here</xref>.
+			</p>
 		</section>
 		<section>
 			<title>New and Noteworthy for Memory Analyzer 1.15.0</title>
