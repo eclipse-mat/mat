@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Andrew Johnson (IBM Corporation) - initial API and implementation
+ *    Jason Koch (Netflix, Inc) - Lazily load ThreadInfo information
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 

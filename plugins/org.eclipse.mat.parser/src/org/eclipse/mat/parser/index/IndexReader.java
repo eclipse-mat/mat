@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2024 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Andrew Johnson - enhancements for huge dumps
+ *    Jason Koch (Netflix, Inc) - enhancements IO on slower devices
  *******************************************************************************/
 package org.eclipse.mat.parser.index;
 
