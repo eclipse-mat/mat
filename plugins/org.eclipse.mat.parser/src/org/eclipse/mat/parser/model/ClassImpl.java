@@ -15,9 +15,12 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -69,7 +72,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     protected volatile long totalSize;
     protected boolean isArrayType;
 
-    private Set<IClass> subClasses;
+    private Collection<IClass> subClasses;
 
     private Serializable cacheEntry;
 
@@ -504,6 +507,33 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
                 ObjectReference ref = (ObjectReference) f.getValue();
                 f.setValue(new ObjectReference(dump, ref.getObjectAddress()));
             }
+        }
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        // TODO intent is to remove this code at some point and simply use Set
+        // For backwards compatibility serialize as List - https://github.com/eclipse-mat/mat/issues/89
+        final Collection<IClass> originalSubclasses = subClasses;
+        try
+        {
+            if (originalSubclasses != null)
+            {
+                subClasses = new ArrayList<>(originalSubclasses);
+            }
+            out.defaultWriteObject();
+        }
+        finally
+        {
+            subClasses = originalSubclasses;
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        // For backwards compatibility serialize as List - https://github.com/eclipse-mat/mat/issues/89
+        in.defaultReadObject();
+        if (subClasses instanceof List)
+        {
+            subClasses = new LinkedHashSet<>(subClasses);
         }
     }
 
