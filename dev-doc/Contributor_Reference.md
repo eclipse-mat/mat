@@ -34,14 +34,14 @@ If you do not have the IBM DTFJ feature installed then there will be compilation
 
 The MAT code is formatted with a specific code formatter. Use it if you would like to contribute you changes to MAT.
 
-''Preferences -&gt; Java -&gt; Code Style -&gt; Formatter -&gt; Import...'' and import this [template](http://www.eclipse.org/mat/dev/mat_code_formatter.xml).
+''Preferences -&gt; Java -&gt; Code Style -&gt; Formatter -&gt; Import...'' and import this [template](code_formatter/mat_code_formatter.xml).
 
 ### Configure API Tooling Baseline
 
 In order to guarantee that no API breaking changes are introduced we recommend using the PDE API Tooling and defining the latest released version of MAT as an API Baseline. Here is a short description how this could be done:
 
 * Download the latest released version in order to use it as an API Baseline
-  * Go to the [MAT download page](http://eclipse.dev/mat/downloads.php)
+  * Go to the [MAT download page](https://eclipse.dev/mat/download/)
   * Download the &quot;Archived Update Site&quot; zip file for the latest release
   * Unzip the file somewhere locally
 * Configure the API Baseline in the IDE
