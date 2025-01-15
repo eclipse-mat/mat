@@ -14,17 +14,18 @@ https://github.com/eclipse-mat/mat
 
 ### Setup Eclipse as IDE
 
-You need a recent Eclipse installation. Memory Analyzer is a set of eclipse plugins, therefore you'll need the appropriate tooling for plugin development. The ''Eclipse IDE for Eclipse Committers'' is an appropriate package.
+You need a recent Eclipse installation. Memory Analyzer is a set of eclipse plugins, therefore you'll need the appropriate tooling for plugin development. The [''Eclipse IDE for Eclipse Committers''](https://www.eclipse.org/downloads/packages/) is an appropriate package.
 
-There are eclipse .project files as part of MATs source code, so that the projects (plugins, features, etc...) can be easily imported into the Eclipse IDE.
-
-Dependencies - you'll need the following to be able to compile MAT
-
-The easiest way to setup all dependencies is to use a target platform definition file, which can be found in org.eclipse.mat.targetdef. Open the most recent one with the Target Definition Editor and select ''Set as Active Target Platform''. After this, all projects should compile.
-
-Alternatively, if you don't want to use the predefined target platform definition, you'll should install via the update manager
-* Eclipse BIRT Framework
-* IBM Diagnostic Tool Framework for Java - See [IBM Diagnostic Tool Framework for Java Version 1.12](https://www.ibm.com/docs/en/sdk-java-technology/8?topic=interfaces-dtfj). An Update Site is available [here](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/). This is needed to compile and run with the DTFJ adapter which is part of Memory Analyzer and allows Memory Analyzer to read dumps from IBM virtual machines for Java.
+1. Clone MAT source:
+   ```
+   git clone https://github.com/eclipse-mat/mat
+   ```
+2. Import projects: File } Import... } Maven } Existing Maven Projects } Select your cloned MAT source directory
+3. Dependencies: Choose one of the following options to be able to compile MAT:
+    1. The easiest way to setup all dependencies is to use a target platform definition file, which can be found in org.eclipse.mat.targetdef. Open the most recent one with the Target Definition Editor and select ''Set as Active Target Platform''. After this, all projects should compile.
+    2. Alternatively, you'll need to install some plugins using the update manager:
+        * Eclipse BIRT Framework.
+        * IBM Diagnostic Tool Framework for Java - See [IBM Diagnostic Tool Framework for Java Version 1.12](https://www.ibm.com/docs/en/sdk-java-technology/8?topic=interfaces-dtfj). An Update Site is available [here](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/). This is needed to compile and run with the DTFJ adapter which is part of Memory Analyzer and allows Memory Analyzer to read dumps from IBM virtual machines for Java.
 
 If you do not have BIRT installed then there will be compilation errors in the org.eclipse.mat.chart and org.eclipse.mat.chart.ui projects.
 
