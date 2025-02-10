@@ -14,18 +14,20 @@ https://github.com/eclipse-mat/mat
 
 ### Setup Eclipse as IDE
 
-You need a recent Eclipse installation. Memory Analyzer is a set of eclipse plugins, therefore you'll need the appropriate tooling for plugin development. The [''Eclipse IDE for Eclipse Committers''](https://www.eclipse.org/downloads/packages/) is an appropriate package.
+You need a recent Eclipse installation. Memory Analyzer is a set of eclipse plugins,= therefore you'll need the appropriate tooling for plugin development. The [''Eclipse IDE for Eclipse Committers''](https://www.eclipse.org/downloads/packages/) is an appropriate package.
 
 1. Clone MAT source:
    ```
    git clone https://github.com/eclipse-mat/mat
    ```
-2. Import projects: File } Import... } Maven } Existing Maven Projects } Select your cloned MAT source directory
+2. Import projects: File } Import... } General } Existing Projects into Workspace } Select your cloned MAT source directory
+    * Importing Existing Projects is [preferred](https://www.eclipse.org/lists/mat-dev/msg00788.html) over Existing Maven Projects
 3. Dependencies: Choose one of the following options to be able to compile MAT:
     1. The easiest way to setup all dependencies is to use a target platform definition file, which can be found in org.eclipse.mat.targetdef. Open the most recent one with the Target Definition Editor and select ''Set as Active Target Platform''. After this, all projects should compile.
     2. Alternatively, you'll need to install some plugins using the update manager:
-        * Eclipse BIRT Framework.
-        * IBM Diagnostic Tool Framework for Java - See [IBM Diagnostic Tool Framework for Java Version 1.12](https://www.ibm.com/docs/en/sdk-java-technology/8?topic=interfaces-dtfj). An Update Site is available [here](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/). This is needed to compile and run with the DTFJ adapter which is part of Memory Analyzer and allows Memory Analyzer to read dumps from IBM virtual machines for Java.
+        * Eclipse [BIRT Framework](https://download.eclipse.org/birt/update-site/latest/): BIRT Charting SDK and BIRT Reporting SDK
+        * [IBM Diagnostic Tool Framework for Java](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/). For details, see [Diagnostic Tool Framework for Java](https://www.ibm.com/docs/en/sdk-java-technology/8?topic=interfaces-dtfj). This is needed to compile and run with the DTFJ adapter which is part of Memory Analyzer and allows Memory Analyzer to read dumps from IBM virtual machines for Java.
+        * [SWTBot](https://download.eclipse.org/technology/swtbot/releases/latest/): SWTBot - API } SWTBot for Eclipse Testing
 
 If you do not have BIRT installed then there will be compilation errors in the org.eclipse.mat.chart and org.eclipse.mat.chart.ui projects.
 
@@ -56,27 +58,35 @@ Once the API Tooling is properly setup, one will see errors reported if API chan
 
 ### Launch Configuration
 
-Launch the Memory Analyzer as '''stand-alone RCP''':
-* Create a new ''Eclipse Application'' configuration
-* Run a product: ''org.eclipse.mat.ui.rcp.MemoryAnalyzer''
-* Launch with: ''plug-ins selected below only''
-  * Deselect ''org.eclipse.mat.tests'', ''org.eclipse.mat.ui.rcp.tests'', ''org.eclipse.mat.ui.capabilities''
-  * Deselect ''Target Platform'' and click ''Select Required'' (previously ''Add Required Plug-ins'')
-  * With Eclipse 2024-03 this is all you need to do. With older Eclipse versions, you'll need to manually select a few more plugins
-    * Select ''org.eclipse.pde.runtime'' (3.3) or ''org.eclipse.ui.views.log'' (3.4 or later) to include the Error Log
-    * Select ''com.ibm.dtfj.api'' ''com.ibm.dtfj.j9'' ''com.ibm.dtfj.phd'' ''com.ibm.dtfj.sov'' if you have installed the IBM DTFJ feature and wish to process dumps from IBM virtual machines
-    * Select ''com.ibm.java.doc.tools.dtfj'' for help for IBM DTFJ
-    * Eclipse &gt;= Neon: Select ''org.eclipse.equinox.ds'' and ''org.eclipse.equinox.event''
+There are different ways to launch MAT from within an Eclipse development environment:
 
-or as '''feature plugged into the IDE''':
-* Create a new ''Eclipse Application'' configuration
-* Run a product: ''org.eclipse.sdk.ide''
-* Launch with: ''plug-ins selected below only''
-  * De-select ''org.eclipse.mat.tests'', ''org.eclipse.mat.ui.rcp.tests'', ''org.eclipse.mat.ui.capabilities'' and ''org.eclipse.mat.ui.rcp''
-  * Select ''com.ibm.dtfj.api'' ''com.ibm.dtfj.j9'' ''com.ibm.dtfj.phd'' ''com.ibm.dtfj.sov'' if you have installed the IBM DTFJ feature and wish to process dumps from IBM virtual machines
-  * Select ''com.ibm.java.doc.tools.dtfj'' for help for IBM DTFJ
-  * Eclipse &gt;= Neon: Select ''org.eclipse.equinox.ds'' and ''org.eclipse.equinox.event''
-  * Eclipse &gt;= Oxygen: Select ''org.eclipse.equinox.event''
+1. Open Run } Run Configurations...
+2. Click Eclipse Application
+3. Click New launch configuration
+4. In the Name: textbox, enter MAT
+5. Then choose one of the following approaches:
+    1. Launch the Memory Analyzer as '''stand-alone RCP''':
+        * Create a new ''Eclipse Application'' configuration
+        * Run a product: ''org.eclipse.mat.ui.rcp.MemoryAnalyzer''
+        * Launch with: ''plug-ins selected below only''
+            * Deselect ''org.eclipse.mat.tests'', ''org.eclipse.mat.ui.rcp.tests'', ''org.eclipse.mat.ui.capabilities''
+            * Deselect ''Target Platform'' and click ''Select Required'' (previously ''Add Required Plug-ins'')
+            * With Eclipse 2024-03 or later, this is all you need to do. With older Eclipse versions, you'll need to manually select a few more plugins
+              * Select ''org.eclipse.pde.runtime'' (3.3) or ''org.eclipse.ui.views.log'' (3.4 or later) to include the Error Log
+              * Select ''com.ibm.dtfj.api'' ''com.ibm.dtfj.j9'' ''com.ibm.dtfj.phd'' ''com.ibm.dtfj.sov'' if you have installed the IBM DTFJ feature and wish to process dumps from IBM virtual machines
+              * Select ''com.ibm.java.doc.tools.dtfj'' for help for IBM DTFJ
+              * Eclipse &gt;= Neon: Select ''org.eclipse.equinox.ds'' and ''org.eclipse.equinox.event''
+    2. As '''feature plugged into the IDE''':
+        * Create a new ''Eclipse Application'' configuration
+        * Run a product: ''org.eclipse.sdk.ide''
+        * Launch with: ''plug-ins selected below only''
+            * De-select ''org.eclipse.mat.tests'', ''org.eclipse.mat.ui.rcp.tests'', ''org.eclipse.mat.ui.capabilities'' and ''org.eclipse.mat.ui.rcp''
+            * Select ''com.ibm.dtfj.api'' ''com.ibm.dtfj.j9'' ''com.ibm.dtfj.phd'' ''com.ibm.dtfj.sov'' if you have installed the IBM DTFJ feature and wish to process dumps from IBM virtual machines
+            * Select ''com.ibm.java.doc.tools.dtfj'' for help for IBM DTFJ
+            * Eclipse &gt;= Neon: Select ''org.eclipse.equinox.ds'' and ''org.eclipse.equinox.event''
+            * Eclipse &gt;= Oxygen: Select ''org.eclipse.equinox.event''
+
+If parsing IBM Java dumps, add the following JVM argument under Arguments } VM Arguments: `--add-exports=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED`
 
 ### Create a Stand-Alone RCP
 
