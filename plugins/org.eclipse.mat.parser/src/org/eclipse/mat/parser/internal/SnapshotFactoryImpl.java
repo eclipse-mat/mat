@@ -27,6 +27,10 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,158 +86,189 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     public ISnapshot openSnapshot(File file, Map<String, String> args, IProgressListener listener) throws SnapshotException
     {
-        ISnapshot answer = null;
+        ZonedDateTime start = ZonedDateTime.now();
+        listener.sendUserMessage(
+                        Severity.INFO, MessageUtil.format(Messages.SnapshotFactoryImpl_StartOpeningDump,
+                                        file.getAbsolutePath(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(start)),
+                        null);
 
-        // lookup in cache
-        SnapshotEntry entry = snapshotCache.get(file);
-        if (entry != null)
+        try
         {
-            answer = entry.snapshot.get();
+            ISnapshot answer = null;
 
-            if (answer != null)
+            // lookup in cache
+            SnapshotEntry entry = snapshotCache.get(file);
+            if (entry != null)
             {
-                entry.usageCount++;
-                return answer;
-            }
-        }
+                answer = entry.snapshot.get();
 
-        String name = file.getName();
-
-        /*
-         * Perhaps there are extensions with dots, e.g. .phd.gz or .hprof.gz,
-         * so this code ensures the whole extension is removed.
-         */
-        IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
-        IContentType javaheapdump = contentTypeManager.getContentType("org.eclipse.mat.JavaHeapDump"); //$NON-NLS-1$
-        List<IContentType>listtypes = new ArrayList<IContentType>();
-        if (javaheapdump != null)
-        {
-            String n1 = name;
-            IContentType types[];
-            try (FileInputStream fis = new FileInputStream(file))
-            {
-                types = contentTypeManager.findContentTypesFor(fis, file.getPath());
-                if (types.length == 0)
+                if (answer != null)
                 {
-                    try (FileInputStream fis2 = new FileInputStream(file))
-                    {
-                        types = contentTypeManager.findContentTypesFor(fis2, null);
-                    }
+                    entry.usageCount++;
+                    return answer;
                 }
             }
-            catch (IOException e)
+
+            String name = file.getName();
+
+            /*
+             * Perhaps there are extensions with dots, e.g. .phd.gz or
+             * .hprof.gz, so this code ensures the whole extension is removed.
+             */
+            IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+            IContentType javaheapdump = contentTypeManager.getContentType("org.eclipse.mat.JavaHeapDump"); //$NON-NLS-1$
+            List<IContentType> listtypes = new ArrayList<IContentType>();
+            if (javaheapdump != null)
             {
-                // Ignore, try using file name alone
-                types = contentTypeManager.findContentTypesFor(file.getPath());
-            }
-            for (IContentType tp : types)
-            {
-                if (tp.isKindOf(javaheapdump))
+                String n1 = name;
+                IContentType types[];
+                try (FileInputStream fis = new FileInputStream(file))
                 {
-                    // See if this content description is based on the file contents
-                    IContentDescription cd1, cd2;
-                    try (FileInputStream fis = new FileInputStream(file))
+                    types = contentTypeManager.findContentTypesFor(fis, file.getPath());
+                    if (types.length == 0)
                     {
-                        // Succeeds if based on context
-                        cd1 = tp.getDescriptionFor(fis, IContentDescription.ALL);
-                    }
-                    catch (IOException e)
-                    {
-                        cd1 = null;
-                    }
-                    try (InputStream sr = new ByteArrayInputStream(new byte[10]))
-                    {
-                        // Succeeds if generic type without content checking
-                        cd2 = tp.getDescriptionFor(sr, IContentDescription.ALL);
-                    }
-                    catch (IOException e)
-                    {
-                        cd2 = null;
-                    }
-                    if (cd1 != null && cd2 == null)
-                    {
-                        listtypes.add(tp);
-                        for (String ext: tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
+                        try (FileInputStream fis2 = new FileInputStream(file))
                         {
-                            // Does extension itself contains a dot, and matches this file ?
-                            if (ext.indexOf('.') >= 0 && name.endsWith("." + ext)) //$NON-NLS-1$
+                            types = contentTypeManager.findContentTypesFor(fis2, null);
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                    // Ignore, try using file name alone
+                    types = contentTypeManager.findContentTypesFor(file.getPath());
+                }
+                for (IContentType tp : types)
+                {
+                    if (tp.isKindOf(javaheapdump))
+                    {
+                        // See if this content description is based on the file
+                        // contents
+                        IContentDescription cd1, cd2;
+                        try (FileInputStream fis = new FileInputStream(file))
+                        {
+                            // Succeeds if based on context
+                            cd1 = tp.getDescriptionFor(fis, IContentDescription.ALL);
+                        }
+                        catch (IOException e)
+                        {
+                            cd1 = null;
+                        }
+                        try (InputStream sr = new ByteArrayInputStream(new byte[10]))
+                        {
+                            // Succeeds if generic type without content checking
+                            cd2 = tp.getDescriptionFor(sr, IContentDescription.ALL);
+                        }
+                        catch (IOException e)
+                        {
+                            cd2 = null;
+                        }
+                        if (cd1 != null && cd2 == null)
+                        {
+                            listtypes.add(tp);
+                            for (String ext : tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
                             {
-                                // It has a dot, so remove
-                                n1 = name.substring(0, name.length() - ext.length());
-                                // This looks a good content type as matches with long extension.
-                                // So put it first.
-                                listtypes.remove(tp);
-                                listtypes.add(0, tp);
+                                // Does extension itself contains a dot, and
+                                // matches this file ?
+                                if (ext.indexOf('.') >= 0 && name.endsWith("." + ext)) //$NON-NLS-1$
+                                {
+                                    // It has a dot, so remove
+                                    n1 = name.substring(0, name.length() - ext.length());
+                                    // This looks a good content type as matches
+                                    // with long extension.
+                                    // So put it first.
+                                    listtypes.remove(tp);
+                                    listtypes.add(0, tp);
+                                }
                             }
                         }
                     }
                 }
+                name = n1;
             }
-            name = n1;
-        }
 
-        int p = name.lastIndexOf('.');
-        name = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
-        String prefix = new File(file.getParentFile(), name).getAbsolutePath();
-        String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$
-        if (snapshot_identifier != null)
-        {
-            prefix += snapshot_identifier + "."; //$NON-NLS-1$
-        }
-
-        try
-        {
-            File indexFile = new File(prefix + "index");//$NON-NLS-1$
-            if (indexFile.exists())
+            int p = name.lastIndexOf('.');
+            name = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
+            String prefix = new File(file.getParentFile(), name).getAbsolutePath();
+            String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$
+            if (snapshot_identifier != null)
             {
-                // check if hprof file is newer than index file
-                if (file.lastModified() <= indexFile.lastModified())
+                prefix += snapshot_identifier + "."; //$NON-NLS-1$
+            }
+
+            try
+            {
+                File indexFile = new File(prefix + "index");//$NON-NLS-1$
+                if (indexFile.exists())
                 {
-                    answer = SnapshotImpl.readFromFile(file, prefix, listener);
+                    // check if hprof file is newer than index file
+                    if (file.lastModified() <= indexFile.lastModified())
+                    {
+                        answer = SnapshotImpl.readFromFile(file, prefix, listener);
+                    }
+                    else
+                    {
+                        String message = MessageUtil.format(
+                                        Messages.SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate, file.getPath(),
+                                        new Date(file.lastModified()), indexFile.getPath(),
+                                        new Date(indexFile.lastModified()));
+                        listener.sendUserMessage(Severity.INFO, message, null);
+                        listener.subTask(Messages.SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex);
+                    }
                 }
-                else
+            }
+            catch (IOException ignore_and_reparse)
+            {
+                String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
+                                : ignore_and_reparse.getClass().getName();
+                String message = MessageUtil.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
+                listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
+                listener.subTask(message);
+            }
+
+            if (answer == null)
+            {
+                File lockFile = new File(prefix + "lock.index"); //$NON-NLS-1$
+                /*
+                 * For autocloseable, the closeable object will be closed when
+                 * parsing is done. This will release the lock and delete the
+                 * lock file.
+                 */
+                try (Closeable ac = lockParse(file, lockFile, listener))
                 {
-                    String message = MessageUtil.format(Messages.SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate,
-                                    file.getPath(), new Date(file.lastModified()),
-                                    indexFile.getPath(), new Date(indexFile.lastModified()));
-                    listener.sendUserMessage(Severity.INFO, message, null);
-                    listener.subTask(Messages.SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex);
+                    deleteIndexFiles(file, prefix, lockFile, listener);
+                    answer = parse(file, prefix, args, listtypes, listener);
+                }
+                catch (IOException e)
+                {
+                    throw new SnapshotException(e);
                 }
             }
+
+            entry = new SnapshotEntry(1, answer);
+
+            snapshotCache.put(file, entry);
+
+            return answer;
         }
-        catch (IOException ignore_and_reparse)
+        finally
         {
-            String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
-                            : ignore_and_reparse.getClass().getName();
-            String message = MessageUtil.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
-            listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
-            listener.subTask(message);
+            ZonedDateTime end = ZonedDateTime.now();
+            Duration duration = Duration.between(start, end);
+            // ISO8601 format, e.g. PT10H30M182S
+            String humanDuration = duration.toString().substring(2) /*
+                                                                     * remove
+                                                                     * leading
+                                                                     * PT
+                                                                     */
+                            .replaceAll("([HMS])", "$1 ").toLowerCase().trim();
+            double durationSeconds = (double) duration.toMillis() / 1000D;
+            listener.sendUserMessage(Severity.INFO,
+                            MessageUtil.format(Messages.SnapshotFactoryImpl_FinishOpeningDump,
+                                            new DecimalFormat("#,###.00").format(durationSeconds), humanDuration,
+                                            DateTimeFormatter.ISO_ZONED_DATE_TIME.format(end)),
+                            null);
         }
-
-        if (answer == null)
-        {
-            File lockFile = new File(prefix + "lock.index"); //$NON-NLS-1$
-            /*
-             * For autocloseable, the closeable object will be closed
-             * when parsing is done. This will release the lock and
-             * delete the lock file.
-             */
-            try (Closeable ac = lockParse(file, lockFile, listener))
-            {
-                deleteIndexFiles(file, prefix, lockFile, listener);
-                answer = parse(file, prefix, args, listtypes, listener);
-            }
-            catch (IOException e)
-            {
-                throw new SnapshotException(e);
-            }
-        }
-
-        entry = new SnapshotEntry(1, answer);
-
-        snapshotCache.put(file, entry);
-
-        return answer;
     }
 
     /**
