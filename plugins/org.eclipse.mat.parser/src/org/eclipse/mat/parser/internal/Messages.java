@@ -63,6 +63,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_Error_OpeningHeapDump;
     public static String SnapshotFactoryImpl_Error_ReparsingHeapDump;
     public static String SnapshotFactoryImpl_ErrorOpeningHeapDump;
+    public static String SnapshotFactoryImpl_FinishOpeningDump;
     public static String SnapshotFactoryImpl_GCRootContextIDDoesNotMatchAddress;
     public static String SnapshotFactoryImpl_GCRootIDDoesNotMatchAddress;
     public static String SnapshotFactoryImpl_GCRootIDDoesNotMatchIndex;
@@ -85,6 +86,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_ParsingHeapDump;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex;
+    public static String SnapshotFactoryImpl_StartOpeningDump;
     public static String SnapshotFactoryImpl_UnableToDeleteIndexFile;
     public static String SnapshotFactoryImpl_ValidatingGCRoots;
     public static String SnapshotFactoryImpl_ValidatingIndices;
