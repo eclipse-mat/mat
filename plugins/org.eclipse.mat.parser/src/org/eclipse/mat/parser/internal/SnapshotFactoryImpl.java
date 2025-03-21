@@ -67,6 +67,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
+import org.eclipse.mat.util.WrappedLoggingProgressListener;
 
 public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 {
@@ -86,8 +87,9 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     public ISnapshot openSnapshot(File file, Map<String, String> args, IProgressListener listener) throws SnapshotException
     {
+        WrappedLoggingProgressListener wrappedListener = new WrappedLoggingProgressListener(listener);
         ZonedDateTime start = ZonedDateTime.now();
-        listener.sendUserMessage(
+        wrappedListener.sendUserMessage(
                         Severity.INFO, MessageUtil.format(Messages.SnapshotFactoryImpl_StartOpeningDump,
                                         file.getAbsolutePath(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(start)),
                         null);
@@ -196,6 +198,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 prefix += snapshot_identifier + "."; //$NON-NLS-1$
             }
 
+            wrappedListener.setFile(new File(prefix + "log.index"));
+
             try
             {
                 File indexFile = new File(prefix + "index");//$NON-NLS-1$
@@ -204,7 +208,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     // check if hprof file is newer than index file
                     if (file.lastModified() <= indexFile.lastModified())
                     {
-                        answer = SnapshotImpl.readFromFile(file, prefix, listener);
+                        answer = SnapshotImpl.readFromFile(file, prefix, wrappedListener);
                     }
                     else
                     {
@@ -212,8 +216,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                                         Messages.SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate, file.getPath(),
                                         new Date(file.lastModified()), indexFile.getPath(),
                                         new Date(indexFile.lastModified()));
-                        listener.sendUserMessage(Severity.INFO, message, null);
-                        listener.subTask(Messages.SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex);
+                        wrappedListener.sendUserMessage(Severity.INFO, message, null);
+                        wrappedListener.subTask(Messages.SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex);
                     }
                 }
             }
@@ -222,8 +226,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
                                 : ignore_and_reparse.getClass().getName();
                 String message = MessageUtil.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
-                listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
-                listener.subTask(message);
+                wrappedListener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
+                wrappedListener.subTask(message);
             }
 
             if (answer == null)
@@ -234,10 +238,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                  * parsing is done. This will release the lock and delete the
                  * lock file.
                  */
-                try (Closeable ac = lockParse(file, lockFile, listener))
+                try (Closeable ac = lockParse(file, lockFile, wrappedListener))
                 {
-                    deleteIndexFiles(file, prefix, lockFile, listener);
-                    answer = parse(file, prefix, args, listtypes, listener);
+                    deleteIndexFiles(file, prefix, lockFile, wrappedListener);
+                    answer = parse(file, prefix, args, listtypes, wrappedListener);
                 }
                 catch (IOException e)
                 {
@@ -263,7 +267,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                                                                      */
                             .replaceAll("([HMS])", "$1 ").toLowerCase().trim();
             double durationSeconds = (double) duration.toMillis() / 1000D;
-            listener.sendUserMessage(Severity.INFO,
+            wrappedListener.sendUserMessage(Severity.INFO,
                             MessageUtil.format(Messages.SnapshotFactoryImpl_FinishOpeningDump,
                                             new DecimalFormat("#,###.00").format(durationSeconds), humanDuration,
                                             DateTimeFormatter.ISO_ZONED_DATE_TIME.format(end)),

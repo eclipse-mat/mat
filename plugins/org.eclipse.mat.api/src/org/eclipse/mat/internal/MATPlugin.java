@@ -79,5 +79,4 @@ public class MATPlugin extends Plugin
     {
         log(new Status(severity, PLUGIN_ID, message));
     }
-
 }

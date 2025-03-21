@@ -13,14 +13,17 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
+import java.io.BufferedWriter;
 /**
  * File utilities for things like copying icon files.
  */
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -249,6 +252,36 @@ public final class FileUtils
                         copy(zipFileStream, unzippedFile);
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Append a string to a file.
+     * 
+     * @param file
+     *            The file to append to.
+     * @param message
+     *            The string to append.
+     * @param addNewline
+     *            Whether to add a newline after the message.
+     * @throws IOException
+     *             Errors writing to the file.
+     * @since 1.17
+     */
+    public static void writeToFile(File file, String message, boolean append, boolean addNewline) throws IOException
+    {
+        try (FileWriter fw = new FileWriter(file, append);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw))
+        {
+            if (addNewline)
+            {
+                out.println(message);
+            }
+            else
+            {
+                out.print(message);
             }
         }
     }
