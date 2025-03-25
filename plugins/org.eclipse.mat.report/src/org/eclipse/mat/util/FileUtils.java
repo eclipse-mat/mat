@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2025 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-/**
- * File utilities for things like copying icon files.
- */
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -31,6 +31,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 
+/**
+ * File utilities for things like copying icon files.
+ */
 public final class FileUtils
 {
     private static DirDeleter deleterThread;
@@ -249,6 +252,36 @@ public final class FileUtils
                         copy(zipFileStream, unzippedFile);
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Append a string to a file.
+     * 
+     * @param file
+     *            The file to append to.
+     * @param message
+     *            The string to append.
+     * @param addNewline
+     *            Whether to add a newline after the message.
+     * @throws IOException
+     *             Errors writing to the file.
+     * @since 1.17
+     */
+    public static void writeToFile(File file, String message, boolean append, boolean addNewline) throws IOException
+    {
+        try (FileWriter fw = new FileWriter(file, append);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw))
+        {
+            if (addNewline)
+            {
+                out.println(message);
+            }
+            else
+            {
+                out.print(message);
             }
         }
     }
