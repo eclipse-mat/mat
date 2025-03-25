@@ -153,6 +153,10 @@ import org.eclipse.mat.util.SilentProgressListener;
             if (newNoOfObjects < oldNoOfObjects)
             {
                 Object un = idx.getSnapshotInfo().getProperty("keep_unreachable_objects"); //$NON-NLS-1$
+
+                listener.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.GarbageCleaner_UnreachablesSetting,
+                                (un instanceof Integer)), null);
+
                 if (un instanceof Integer)
                 {
                     int newRoot;

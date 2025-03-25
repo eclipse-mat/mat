@@ -38,6 +38,7 @@ public class Messages extends NLS
     public static String GarbageCleaner_RemovedUnreachableObjects;
     public static String GarbageCleaner_RemovingUnreachableObjects;
     public static String GarbageCleaner_SearchingForUnreachableObjects;
+    public static String GarbageCleaner_UnreachablesSetting;
     public static String GarbageCleaner_Writing;
     public static String HistogramBuilder_Error_FailedToStoreInHistogram;
     public static String IndexReader_Error_IndexIsEmbedded;
