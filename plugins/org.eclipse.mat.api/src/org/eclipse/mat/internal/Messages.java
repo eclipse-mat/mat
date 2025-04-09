@@ -481,6 +481,10 @@ public class Messages extends NLS
     public static String LeakHunterQuery_ReferencePattern;
     public static String LeakHunterQuery_ReferencePatternFor;
     public static String LeakHunterQuery_RequestDetails;
+    public static String LeakHunterQuery_RetainedHeapComponentAnd;
+    public static String LeakHunterQuery_RetainedHeapComponentEmpty;
+    public static String LeakHunterQuery_RetainedHeapComponentInstance;
+    public static String LeakHunterQuery_RetainedHeapComponentInstances;
     public static String LeakHunterQuery_Retains;
     public static String LeakHunterQuery_SeeStackstrace;
     public static String LeakHunterQuery_SeeStackstraceVars;
