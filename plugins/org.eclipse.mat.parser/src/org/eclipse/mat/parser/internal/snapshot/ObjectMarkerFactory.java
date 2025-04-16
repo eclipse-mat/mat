@@ -17,8 +17,9 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class ObjectMarkerFactory
 {
-    private static final boolean useOldMarker = Boolean
-                    .getBoolean("org.eclipse.mat.parser.internal.snapshot.ObjectMarkerFactory.useOldMarker");
+    private static final boolean useOldMarker = Boolean.parseBoolean(
+                    System.getProperty("org.eclipse.mat.parser.internal.snapshot.ObjectMarkerFactory.useOldMarker",
+                                    Boolean.TRUE.toString()));
 
     public static IObjectMarker getObjectMarker(int[] roots, boolean[] bits, IIndexReader.IOne2ManyIndex outbound,
                     IProgressListener progressListener)
