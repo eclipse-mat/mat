@@ -52,9 +52,11 @@ import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.internal.snapshot.HistogramBuilder;
+import org.eclipse.mat.parser.internal.snapshot.IObjectMarker;
 import org.eclipse.mat.parser.internal.snapshot.MultiplePathsFromGCRootsComputerImpl;
 import org.eclipse.mat.parser.internal.snapshot.ObjectCache;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
+import org.eclipse.mat.parser.internal.snapshot.ObjectMarkerFactory;
 import org.eclipse.mat.parser.internal.snapshot.PathsFromGCRootsTreeBuilder;
 import org.eclipse.mat.parser.internal.snapshot.RetainedSizeCache;
 import org.eclipse.mat.parser.internal.util.IntStack;
@@ -802,7 +804,7 @@ public final class SnapshotImpl implements ISnapshot
          * references, and mark all unmarked objects. The retained set will
          * contain the unmarked objects
          */
-        ObjectMarker marker = new ObjectMarker(roots.getAllKeys(), reachable, indexManager.outbound(),
+        IObjectMarker marker = ObjectMarkerFactory.getObjectMarker(roots.getAllKeys(), reachable, indexManager.outbound(),
                         IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
                         progressMonitor);
         int numReached;
@@ -877,7 +879,7 @@ public final class SnapshotImpl implements ISnapshot
          * them
          */
         int[] gcRoots = roots.getAllKeys();
-        ObjectMarker marker = new ObjectMarker(gcRoots, reachable, indexManager.outbound(),
+        IObjectMarker marker = ObjectMarkerFactory.getObjectMarker(gcRoots, reachable, indexManager.outbound(),
                         IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
                         progressMonitor);
         try
@@ -987,7 +989,7 @@ public final class SnapshotImpl implements ISnapshot
         {
             firstPass[objId] = true;
         }
-        ObjectMarker marker = new ObjectMarker(getGCRoots(), firstPass, getIndexManager().outbound,
+        IObjectMarker marker = ObjectMarkerFactory.getObjectMarker(getGCRoots(), firstPass, getIndexManager().outbound,
                         IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
                         monitor.nextMonitor());
         marker.markSingleThreaded(excludedReferences, this);
@@ -1005,7 +1007,7 @@ public final class SnapshotImpl implements ISnapshot
         boolean[] secondPass = new boolean[firstPass.length];
         System.arraycopy(firstPass, 0, secondPass, 0, firstPass.length);
 
-        ObjectMarker secondMarker = new ObjectMarker(objectIds, secondPass, getIndexManager().outbound,
+        IObjectMarker secondMarker = ObjectMarkerFactory.getObjectMarker(objectIds, secondPass, getIndexManager().outbound,
                         monitor.nextMonitor());
         secondMarker.markSingleThreaded();
 
