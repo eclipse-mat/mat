@@ -36,7 +36,7 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 
-public class ObjectMarker
+public class ObjectMarker implements IObjectMarker
 {
     int[] roots;
     // TODO we can create a new BitField called ConcurrentBitField that would be 1/8th footprint
@@ -134,6 +134,7 @@ public class ObjectMarker
         }
     }
 
+    @Override
     public int markSingleThreaded()
     {
         int before = countMarked();
@@ -149,6 +150,7 @@ public class ObjectMarker
         return after - before;
     }
 
+    @Override
     public void markMultiThreaded(int threads) throws InterruptedException
     {
         List<FjObjectMarker> rootTasks = IntStream.of(roots)
@@ -180,6 +182,7 @@ public class ObjectMarker
         return marked;
     }
 
+    @Override
     public int markSingleThreaded(ExcludedReferencesDescriptor[] excludeSets, ISnapshot snapshot)
                     throws SnapshotException, IProgressListener.OperationCanceledException
     {

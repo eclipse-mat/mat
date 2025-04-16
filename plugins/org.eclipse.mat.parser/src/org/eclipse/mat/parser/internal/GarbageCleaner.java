@@ -48,7 +48,9 @@ import org.eclipse.mat.parser.index.IndexWriter.Identifier;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
+import org.eclipse.mat.parser.internal.snapshot.IObjectMarker;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
+import org.eclipse.mat.parser.internal.snapshot.ObjectMarkerFactory;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
@@ -110,7 +112,7 @@ import org.eclipse.mat.util.SilentProgressListener;
              * START - marking objects use ObjectMarker to mark the reachable
              * objects if more than 1 CPUs are available - use multithreading
              */
-            ObjectMarker marker = new ObjectMarker(newRoots, reachable, preOutbound, new SilentProgressListener(
+            IObjectMarker marker = ObjectMarkerFactory.getObjectMarker(newRoots, reachable, preOutbound, new SilentProgressListener(
                             listener));
             int numProcessors = Runtime.getRuntime().availableProcessors();
             if (numProcessors > 1)
@@ -846,7 +848,7 @@ import org.eclipse.mat.util.SilentProgressListener;
             }
         }
         // See what else is now reachable
-        ObjectMarker marker2 = new ObjectMarker(unref.toArray(), reachable, preOutbound, new SilentProgressListener(listener));
+        IObjectMarker marker2 = ObjectMarkerFactory.getObjectMarker(unref.toArray(), reachable, preOutbound, new SilentProgressListener(listener));
         int numProcessors = Runtime.getRuntime().availableProcessors();
         if (numProcessors > 1 && unref.size() > 1)
         {
@@ -886,7 +888,7 @@ import org.eclipse.mat.util.SilentProgressListener;
         }
 
         int root[] = new int[1];
-        ObjectMarker marker = new ObjectMarker(root, reachable, preOutbound, new SilentProgressListener(listener));
+        IObjectMarker marker = ObjectMarkerFactory.getObjectMarker(root, reachable, preOutbound, new SilentProgressListener(listener));
         int passes = 10;
         for (int pass = 0; pass < passes; ++pass)
         {
