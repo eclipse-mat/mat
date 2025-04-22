@@ -52,6 +52,7 @@
 		<query impl="org.eclipse.mat.inspections.BiggestObjectsPieQuery"/>
 		<query impl="org.eclipse.mat.inspections.ClassLoaderExplorerQuery"/>
 		<query impl="org.eclipse.mat.inspections.GCRootsQuery"/>
+		<query impl="org.eclipse.mat.inspections.SelectObjectsByFieldQuery"/>
 
 		<!-- basics -->		
 		<query impl="org.eclipse.mat.inspections.WasteInCharArraysQuery" />

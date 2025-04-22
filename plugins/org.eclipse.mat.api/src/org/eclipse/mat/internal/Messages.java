@@ -586,6 +586,8 @@ public class Messages extends NLS
     public static String RetainedSizeDerivedData_Label_Approximate;
     public static String RetainedSizeDerivedData_Label_Precise;
 
+    public static String SelectObjectsByFieldQuery_Evaluating;
+
     public static String Service_ErrorMsg_MismatchKeysServices;
 
     public static String ShowInDominatorQuery_ProgressName;
