@@ -114,6 +114,9 @@
 	<query name="org.eclipse.mat.inspections.FindStringsQuery">
 		<command>find_strings -pattern .*abc.* java.lang.String</command>
 	</query>
+	<query name="org.eclipse.mat.inspections.SelectObjectsByFieldQuery">
+		<command>select_objects_by_field java.lang.Thread -field name</command>
+	</query>
 	<query name="org.eclipse.mat.inspections.SystemPropertiesQuery">
 		<command>system_properties</command>
 	</query>
