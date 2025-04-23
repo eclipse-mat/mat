@@ -142,6 +142,15 @@ For the ''org.eclipse.mat.rcp.tests'' project install SWTBot - API from [https:/
     * It may be easier to still use the XML Editor, as the Vex editor deliberately doesn't show tags, but Vex provides DTD files for DITA, making it possible for XML validation and content assist for DITA files
 * Run ant on DitaBuild.xml to build html files.
 
+Note: You may receive the following errors in the Ant build:
+
+```
+     [exec] XML utils not found from Ant project reference
+     [exec] Store not found from Ant project reference
+```
+
+For our usage, these errors are benign; however, if you're not seeing an HTML file for a newly added DITA file, make sure you've added it to `plugins/org.eclipse.mat.ui.help/toc.ditamap` and `plugins/org.eclipse.mat.ui.help/toc.xml`.
+
 ### Build OQL Parser using JavaCC
 
 * Download [JavaCC 5.0 tar.gz](https://javacc.org/downloads/javacc-5.0.tar.gz) or [JavaCC 5.0 zip](https://javacc.org/downloads/javacc-5.0.zip) and unpack it.
