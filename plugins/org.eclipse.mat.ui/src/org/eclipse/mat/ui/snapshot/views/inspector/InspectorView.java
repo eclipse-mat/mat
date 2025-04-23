@@ -1115,7 +1115,18 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     classHierarchyTree
                                                     .setLabelProvider(new HierarchyLabelProvider(input.getObjectId()));
                                     classHierarchyTree.setInput(new IClass[] { input });
-                                    classHierarchyTree.expandAll();
+
+                                    // If the class is the root (e.g.
+                                    // java.lang.Object), then everything will
+                                    // be underneath the class hierarchy which
+                                    // creates a very large tree. For some
+                                    // reason, performing this expandAll in some
+                                    // situations is slow (issue 122), so we
+                                    // skip the expand in this case.
+                                    if (input.getSuperClass() != null)
+                                    {
+                                        classHierarchyTree.expandAll();
+                                    }
                                 }
                                 finally
                                 {
