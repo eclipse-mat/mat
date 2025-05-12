@@ -149,34 +149,39 @@ public class ThreadDetailsResolver implements IThreadDetailsResolver
                         (new Column(Messages.ThreadDetailsResolver_State_value, Integer.class).noTotals().formatting(hex))};
     }
 
-    Supplier<Integer> makeIntegerFieldSupplier(IThreadInfo thread, String field) {
-        return (Supplier<Integer>) () -> {
-            try {
+    static Integer resolveThreadValue(IThreadInfo thread, String[] fields) {
+        try {
+            for (String field : fields) {
                 Object o = thread.getThreadObject().resolveValue(field);
-                return (o instanceof Integer) ? (Integer)o : null;
+                if (o != null) {
+                    return (o instanceof Integer) ? (Integer)o : null;
+                }
             }
-            catch (SnapshotException e) {
-                throw new RuntimeException(e);
-            }
+            return null;
+        }
+        catch (SnapshotException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    Supplier<Integer> makeIntegerFieldSupplier(IThreadInfo thread, String[] fields) {
+        return (Supplier<Integer>) () -> {
+            Object value = resolveThreadValue(thread, fields);
+            return (value instanceof Integer) ? ((Integer) value) : null;
         };
     }
 
-    Supplier<String> makeStringFieldSupplier(IThreadInfo thread, String field, Function<Integer, String> transform) {
+    Supplier<String> makeStringFieldSupplier(IThreadInfo thread, String[] fields, Function<Integer, String> transform) {
         return (Supplier<String>) () -> {
-            try {
-                Object o = thread.getThreadObject().resolveValue(field);
-                return (o instanceof Integer) ? transform.apply((Integer)o) : null;
-            }
-            catch (SnapshotException e) {
-                throw new RuntimeException(e);
-            }
+            Object value = resolveThreadValue(thread, fields);
+            return (value instanceof Integer) ? transform.apply((Integer) value) : null;
         };
     }
 
     public void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException
     {
-        final String PRIORITY = "priority"; //$NON-NLS-1$
-        final String THREAD_STATUS = "threadStatus"; //$NON-NLS-1$
+        final String[] PRIORITY = new String[]{"priority", "holder.priority"}; //$NON-NLS-1$ //$NON-NLS-2$
+        final String[] THREAD_STATUS = new String[]{"threadStatus", "holder.threadStatus"}; //$NON-NLS-1$ //$NON-NLS-2$
 
         // Find the thread
         // Set the column data, ignore errors

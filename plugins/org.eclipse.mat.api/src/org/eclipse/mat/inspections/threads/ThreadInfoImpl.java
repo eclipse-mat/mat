@@ -165,6 +165,10 @@ import org.eclipse.mat.util.IProgressListener;
             if (daemon == null) {
                 daemon = thread.resolveValue("isDaemon"); //$NON-NLS-1$
             }
+            // after Virtual Threads (8284161), some fields were moved into 'holder'
+            if (daemon == null) {
+                daemon = thread.resolveValue("holder.daemon"); //$NON-NLS-1$
+            }
             if (daemon != null) {
                 if (daemon instanceof Boolean) {
                     return (Boolean)daemon;
