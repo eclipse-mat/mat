@@ -180,8 +180,8 @@ public class ThreadDetailsResolver implements IThreadDetailsResolver
 
     public void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException
     {
-        final String[] PRIORITY = new String[]{"priority", "holder.priority"}; //$NON-NLS-1$
-        final String[] THREAD_STATUS = new String[]{"threadStatus", "holder.threadStatus"}; //$NON-NLS-1$
+        final String[] PRIORITY = new String[]{"priority", "holder.priority"}; //$NON-NLS-1$ //$NON-NLS-2$
+        final String[] THREAD_STATUS = new String[]{"threadStatus", "holder.threadStatus"}; //$NON-NLS-1$ //$NON-NLS-2$
 
         // Find the thread
         // Set the column data, ignore errors
