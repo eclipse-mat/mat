@@ -1436,6 +1436,20 @@ public class GeneralSnapshotTests
         assertThat(table.getRowCount(), greaterThan(1));
     }
 
+    @Test
+    public void selectObjectsByField() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("select_objects_by_field java.lang.Thread -field name", snapshot);
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
+        assertNotNull(t);
+        IResultTree result = (IResultTree)t;
+        // Need field names
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-Javacore")));
+        // More than zero results
+        assertThat(result.getElements().size(), greaterThan(0));
+    }
+
     /**
      * Test exporting as HPROF
      * @param compress whether to compress the generated HPROF file
