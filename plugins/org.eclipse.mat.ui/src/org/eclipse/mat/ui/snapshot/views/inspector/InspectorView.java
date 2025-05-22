@@ -1003,6 +1003,18 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         }
     }
 
+    private static int findIClassLevelsToRoot(IClass input)
+    {
+        int levelsToRoot = 0;
+        IClass parent = input.getSuperClass();
+        while (parent != null)
+        {
+            levelsToRoot++;
+            parent = parent.getSuperClass();
+        }
+        return levelsToRoot;
+    }
+
     private void updateOnSelection(ISelection selection)
     {
         IContextObject objectSet = null;
@@ -1115,7 +1127,15 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     classHierarchyTree
                                                     .setLabelProvider(new HierarchyLabelProvider(input.getObjectId()));
                                     classHierarchyTree.setInput(new IClass[] { input });
-                                    classHierarchyTree.expandAll();
+                                    
+                                    // If the class has a lot of subclasses
+                                    // (e.g. java.lang.Object), then the class
+                                    // hierarchy creates a very large tree. For
+                                    // some reason, performing this expandAll in
+                                    // some situations is slow (issue 122), so
+                                    // we limit how far we expand.
+                                    int levelsToRoot = findIClassLevelsToRoot(input);
+                                    classHierarchyTree.expandToLevel(2 + levelsToRoot);
                                 }
                                 finally
                                 {
