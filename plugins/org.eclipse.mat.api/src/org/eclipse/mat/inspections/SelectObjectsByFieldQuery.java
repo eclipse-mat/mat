@@ -20,7 +20,6 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Usage;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
@@ -32,7 +31,6 @@ import com.ibm.icu.text.NumberFormat;
 
 @CommandName("select_objects_by_field")
 @Icon("/META-INF/icons/select_objects_by_field.gif")
-@Usage("Selects unique objects by the specified field (supports field nesting).")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/select_objects_by_field.html")
 public class SelectObjectsByFieldQuery implements IQuery
 {
