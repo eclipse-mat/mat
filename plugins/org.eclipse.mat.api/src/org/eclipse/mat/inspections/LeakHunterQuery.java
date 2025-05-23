@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -624,61 +625,41 @@ public class LeakHunterQuery implements IQuery
         for (int objectId : minRetainedSet)
         {
             IObject object = snapshot.getObject(objectId);
-            String name;
-            if (snapshot.isClass(objectId))
-            {
-                IClass clazz = (IClass) object;
-                name = clazz.getName();
-            }
-            else
-            {
-                name = object.getClazz().getName();
-            }
-
-            Long sumHeapSize = sumHeapSizes.get(name);
-            if (sumHeapSize == null)
-            {
-                sumHeapSize = 0L;
-            }
-            sumHeapSize += snapshot.getHeapSize(objectId);
-            sumHeapSizes.put(name, sumHeapSize);
-
-            Integer count = counts.get(name);
-            if (count == null)
-            {
-                count = 0;
-            }
-            count++;
-            counts.put(name, count);
+            String name = snapshot.isClass(objectId) ? ((IClass) object).getName() : object.getClazz().getName();
+            sumHeapSizes.merge(name, snapshot.getHeapSize(objectId), Long::sum);
+            counts.merge(name, 1, Integer::sum);
         }
         StringBuilder result = new StringBuilder();
-        List<Entry<String, Long>> list = new ArrayList<>(sumHeapSizes.entrySet());
-        list.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
-        List<Entry<String, Long>> finalList = list.subList(0, Math.min(list.size(), topItems));
-        for (int i = 0; i < finalList.size(); i++)
+        Set<Entry<String, Long>> entries = sumHeapSizes.entrySet();
+        boolean multipleItems = entries.size() > 1 && topItems > 1;
+        PriorityQueue<Entry<String, Long>> pq = new PriorityQueue<Entry<String, Long>>(entries.size(),
+                        (e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+        pq.addAll(entries);
+        int maxItems = Math.min(pq.size(), topItems);
+        while (maxItems-- > 0 && pq.size() > 0)
         {
-            Entry<String, Long> entry = finalList.get(i);
+            Entry<String, Long> entry = pq.poll();
             if (result.length() > 0)
             {
                 result.append(", "); //$NON-NLS-1$
             }
-            if (i == finalList.size() - 1 && finalList.size() > 1)
+            if (maxItems == 0 && multipleItems)
             {
                 result.append(Messages.LeakHunterQuery_RetainedHeapComponentAnd);
             }
             int count = counts.get(entry.getKey());
             if (count == 1)
             {
-                result.append(MessageUtil.format(Messages.LeakHunterQuery_RetainedHeapComponentInstance, entry.getKey(),
-                                count, bytesFormatter.format(entry.getValue())));
+                result.append(MessageUtil.format(Messages.LeakHunterQuery_RetainedHeapComponentInstance,
+                                HTMLUtils.escapeText(entry.getKey()), count, bytesFormatter.format(entry.getValue())));
             }
             else
             {
                 result.append(MessageUtil.format(Messages.LeakHunterQuery_RetainedHeapComponentInstances,
-                                entry.getKey(), count, bytesFormatter.format(entry.getValue())));
+                                HTMLUtils.escapeText(entry.getKey()), count, bytesFormatter.format(entry.getValue())));
             }
         }
-        return HTMLUtils.escapeText(result.toString());
+        return result.toString();
     }
 
     private void addCommand(QuerySpec spec, String command, int suspects[])
