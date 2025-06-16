@@ -22,7 +22,6 @@ import org.eclipse.mat.report.internal.Messages;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
-
 /**
  * This class formats an instance of {@link org.eclipse.mat.query.Bytes},
  * {@link java.lang.Long}, {@link java.lang.Integer}, or {@link java.lang.Short}
@@ -40,6 +39,8 @@ public class BytesFormat extends Format
     private static final double NEGMB = -MB;
     private static final double GB = 1073741824;
     private static final double NEGGB = -GB;
+
+    private BytesDisplay bytesDisplay;
 
     /**
      * The defaultFormat is used when we are not formatting as
@@ -70,17 +71,18 @@ public class BytesFormat extends Format
     /**
      * The default format string using for decimal byte values.
      */
-    public static final String DETAILED_DECIMAL_FORMAT = "#,##0.00"; //$NON-NLS-1$;
+    public static final String DETAILED_DECIMAL_FORMAT = "#,##0.00"; //$NON-NLS-1$ ;
     /**
      * A slightly more internationalised version.
      */
     static final String DETAILED_DECIMAL_FORMAT2;
-    static {
+    static
+    {
         NumberFormat nf = NumberFormat.getNumberInstance();
         String ret;
         if (nf instanceof DecimalFormat)
         {
-            DecimalFormat df = (DecimalFormat)nf;
+            DecimalFormat df = (DecimalFormat) nf;
             // Set 2 digits for the fraction
             df.setMinimumFractionDigits(2);
             df.setMaximumFractionDigits(2);
@@ -110,17 +112,75 @@ public class BytesFormat extends Format
     }
 
     /**
+     * Create an instance with default behavior.
+     * 
+     * @param bytesDisplay
+     *            the BytesDisplay to use if any
+     * @since 1.17
+     */
+    public BytesFormat(BytesDisplay bytesDisplay)
+    {
+        this(null, null, bytesDisplay);
+    }
+
+    /**
      * Create an instance with the behavior that if the display preference is
      * {@link org.eclipse.mat.query.BytesDisplay#Bytes}, always use
      * {@code encapsulatedNumberFormat}; otherwise, use
      * {@code encapsulatedDecimalFormat} if the value is more than 1KB.
-     * @param encapsulatedNumberFormat the format for small sizes
-     * @param encapsulatedDecimalFormat the format for larger sizes
+     * 
+     * @param encapsulatedNumberFormat
+     *            the format for small sizes
+     * @param encapsulatedDecimalFormat
+     *            the format for larger sizes
      */
     public BytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat)
     {
+        this(encapsulatedNumberFormat, encapsulatedDecimalFormat, null);
+    }
+
+    /**
+     * Create an instance with the behavior that if the display preference is
+     * {@link org.eclipse.mat.query.BytesDisplay#Bytes}, always use
+     * {@code encapsulatedNumberFormat}; otherwise, use
+     * {@code encapsulatedDecimalFormat} if the value is more than 1KB.
+     * 
+     * @param encapsulatedNumberFormat
+     *            the format for small sizes
+     * @param encapsulatedDecimalFormat
+     *            the format for larger sizes
+     * @param bytesDisplay
+     *            the BytesDisplay to use if any
+     * @since 1.17
+     */
+    public BytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat, BytesDisplay bytesDisplay)
+    {
         this.encapsulatedNumberFormat = encapsulatedNumberFormat;
         this.encapsulatedDecimalFormat = encapsulatedDecimalFormat;
+        this.bytesDisplay = bytesDisplay;
+    }
+
+    /**
+     * Gets the current BytesDisplay if any
+     * 
+     * @return the BytesDisplay
+     * @since 1.17
+     */
+    public BytesDisplay getBytesDisplay()
+    {
+        return bytesDisplay;
+    }
+
+    /**
+     * Sets the current BytesDisplay
+     * 
+     * @param bytesDisplay
+     *            the BytesDisplay to set
+     * @since 1.17
+     */
+    public void setBytesDisplay(BytesDisplay bytesDisplay)
+    {
+        this.bytesDisplay = bytesDisplay;
     }
 
     /**
@@ -153,7 +213,11 @@ public class BytesFormat extends Format
         {
             obj = target;
 
-            BytesDisplay currentDisplay = BytesDisplay.getCurrentValue();
+            BytesDisplay currentDisplay = bytesDisplay;
+            if (currentDisplay == null)
+            {
+                currentDisplay = BytesDisplay.getCurrentValue();
+            }
             StringBuffer ret;
             switch (currentDisplay)
             {
@@ -248,8 +312,8 @@ public class BytesFormat extends Format
     }
 
     /**
-     * Parses the input string according to the display mode.
-     * Returns a {@link Bytes} object
+     * Parses the input string according to the display mode. Returns a
+     * {@link Bytes} object
      */
     @Override
     public Object parseObject(String source, ParsePosition pos)
@@ -262,31 +326,31 @@ public class BytesFormat extends Format
             Object o1 = this.getDetailedFormat().parseObject(source, pos);
             if (o1 instanceof Number)
             {
-                Number n1 = (Number)o1;
+                Number n1 = (Number) o1;
 
-                if (currentDisplay == BytesDisplay.Smart &&
-                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_B, 0, 2))
+                if (currentDisplay == BytesDisplay.Smart
+                                && source.regionMatches(pos.getIndex(), Messages.BytesFormat_B, 0, 2))
                 {
                     pos.setIndex(pos.getIndex() + 2);
                     return new Bytes(n1.longValue());
                 }
-                if ((currentDisplay == BytesDisplay.Kilobytes || currentDisplay == BytesDisplay.Smart) &&
-                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_KB, 0, 3))
+                if ((currentDisplay == BytesDisplay.Kilobytes || currentDisplay == BytesDisplay.Smart)
+                                && source.regionMatches(pos.getIndex(), Messages.BytesFormat_KB, 0, 3))
                 {
                     pos.setIndex(pos.getIndex() + 3);
-                    return new Bytes((long)(n1.longValue() * KB));
+                    return new Bytes((long) (n1.longValue() * KB));
                 }
-                if ((currentDisplay == BytesDisplay.Megabytes || currentDisplay == BytesDisplay.Smart) &&
-                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_MB, 0, 3))
+                if ((currentDisplay == BytesDisplay.Megabytes || currentDisplay == BytesDisplay.Smart)
+                                && source.regionMatches(pos.getIndex(), Messages.BytesFormat_MB, 0, 3))
                 {
                     pos.setIndex(pos.getIndex() + 3);
-                    return new Bytes((long)(n1.longValue() * MB));
+                    return new Bytes((long) (n1.longValue() * MB));
                 }
-                if ((currentDisplay == BytesDisplay.Gigabytes || currentDisplay == BytesDisplay.Smart) &&
-                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_GB, 0, 3))
+                if ((currentDisplay == BytesDisplay.Gigabytes || currentDisplay == BytesDisplay.Smart)
+                                && source.regionMatches(pos.getIndex(), Messages.BytesFormat_GB, 0, 3))
                 {
                     pos.setIndex(pos.getIndex() + 3);
-                    return new Bytes((long)(n1.longValue() * GB));
+                    return new Bytes((long) (n1.longValue() * GB));
                 }
                 pos.setErrorIndex(pos.getIndex());
                 pos.setIndex(pi);
@@ -302,13 +366,14 @@ public class BytesFormat extends Format
         {
             Object ret = getDefaultFormat().parseObject(source, pos);
             if (ret instanceof Number)
-                return new Bytes(((Number)ret).longValue());
+                return new Bytes(((Number) ret).longValue());
             return ret;
         }
     }
 
     /**
      * Return a new instance of a BytesFormat with default options.
+     * 
      * @return a default BytesFormat
      */
     public static BytesFormat getInstance()
