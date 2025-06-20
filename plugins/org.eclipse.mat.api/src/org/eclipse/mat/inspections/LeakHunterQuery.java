@@ -99,7 +99,7 @@ import com.ibm.icu.text.NumberFormat;
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html")
 public class LeakHunterQuery implements IQuery
 {
-
+    private final static boolean HIDECL = Boolean.getBoolean("org.eclipse.mat.inspections.leakhunter.hidecl");
     static final String SYSTEM_CLASSLOADER = Messages.LeakHunterQuery_SystemClassLoader;
 
     // Use per-instance formatters to avoid thread safety problems
@@ -351,7 +351,8 @@ public class LeakHunterQuery implements IQuery
 
             String classloaderName = getClassLoaderName(suspectClassloader, keywords);
 
-            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Class, //
+            overview.append(MessageUtil.format(
+                            HIDECL ? Messages.LeakHunterQuery_Msg_ClassNoCL : Messages.LeakHunterQuery_Msg_Class, //
                             HTMLUtils.escapeText(className), classloaderName,
                             formatRetainedHeap(suspect.getSuspectRetained(), totalHeap), retainedHeapTopConsumers));
         }
@@ -367,7 +368,8 @@ public class LeakHunterQuery implements IQuery
 
             String classloaderName = getClassLoaderName(suspectClassloader, keywords);
 
-            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Instance, //
+            overview.append(MessageUtil.format(
+                            HIDECL ? Messages.LeakHunterQuery_Msg_InstanceNoCL : Messages.LeakHunterQuery_Msg_Instance, //
                             HTMLUtils.escapeText(className), classloaderName,
                             formatRetainedHeap(suspect.getSuspectRetained(), totalHeap), retainedHeapTopConsumers));
 
@@ -398,8 +400,10 @@ public class LeakHunterQuery implements IQuery
 //                        involvedClassloaders.add(suspectClassloader);
                         objectsForTroubleTicketInfo.add(referrer);
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, HTMLUtils.escapeText(className),
-                                        referrerClassloaderName));
+                        overview.append(MessageUtil.format(
+                                        HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedByClassNoCL
+                                                        : Messages.LeakHunterQuery_Msg_ReferencedByClass,
+                                        HTMLUtils.escapeText(className), referrerClassloaderName));
                     }
                     else
                     {
@@ -421,8 +425,10 @@ public class LeakHunterQuery implements IQuery
 //                        involvedClassloaders.add(suspectClassloader);
                         objectsForTroubleTicketInfo.add(referrer);
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, HTMLUtils.escapeText(referrer
-                                        .getDisplayName()), referrerClassloaderName));
+                        overview.append(MessageUtil.format(
+                                        HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedByInstanceNoCL
+                                                        : Messages.LeakHunterQuery_Msg_ReferencedByInstance,
+                                        HTMLUtils.escapeText(referrer.getDisplayName()), referrerClassloaderName));
                         if (isThreadRelated)
                         {
                             overview.append("<p>"); //$NON-NLS-1$
@@ -462,8 +468,11 @@ public class LeakHunterQuery implements IQuery
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy, HTMLUtils.escapeText(clazz.getName()),
-                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
+                overview.append(MessageUtil.format(
+                                HIDECL ? Messages.LeakHunterQuery_Msg_AccumulatedByLoadedByNoCL
+                                                : Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy,
+                                HTMLUtils.escapeText(clazz.getName()), classloaderName,
+                                formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else
             {
@@ -476,8 +485,11 @@ public class LeakHunterQuery implements IQuery
                 objectsForTroubleTicketInfo.add(accumulationObject);
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
-                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByInstance, HTMLUtils.escapeText(className),
-                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
+                overview.append(MessageUtil.format(
+                                HIDECL ? Messages.LeakHunterQuery_Msg_AccumulatedByInstanceNoCL
+                                                : Messages.LeakHunterQuery_Msg_AccumulatedByInstance,
+                                HTMLUtils.escapeText(className), classloaderName,
+                                formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
         }
 
@@ -743,8 +755,10 @@ public class LeakHunterQuery implements IQuery
         String retainedHeapTopConsumers = getRetainedHeapTopConsumersDescription(suspectInstances, listener,
                         top_min_retained_set_consumers);
 
-        builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_InstancesOccupy, numberOfInstances,
-                        HTMLUtils.escapeText(className), classloaderName,
+        builder.append(MessageUtil.format(
+                        HIDECL ? Messages.LeakHunterQuery_Msg_InstancesOccupyNoCL
+                                        : Messages.LeakHunterQuery_Msg_InstancesOccupy,
+                        numberOfInstances, HTMLUtils.escapeText(className), classloaderName,
                         formatRetainedHeap(suspect.getSuspectRetained(), totalHeap), retainedHeapTopConsumers));
 
         List<IObject> bigSuspectInstances = new ArrayList<IObject>();
@@ -796,8 +810,11 @@ public class LeakHunterQuery implements IQuery
                 objectsForTroubleTicketInfo.add(suspect.getAccumulationPoint().getObject());
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClass, HTMLUtils.escapeText(className),
-                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
+                builder.append(MessageUtil.format(
+                                HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedFromClassNoCL
+                                                : Messages.LeakHunterQuery_Msg_ReferencedFromClass,
+                                HTMLUtils.escapeText(className), classloaderName,
+                                formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
             }
             else
             {
@@ -811,8 +828,11 @@ public class LeakHunterQuery implements IQuery
 
                 classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, HTMLUtils.escapeText(className),
-                                classloaderName, formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
+                builder.append(MessageUtil.format(
+                                HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedFromInstanceNoCL
+                                                : Messages.LeakHunterQuery_Msg_ReferencedFromInstance,
+                                HTMLUtils.escapeText(className), classloaderName,
+                                formatRetainedHeap(suspect.getAccumulationPoint().getRetainedHeapSize(), totalHeap)));
 
                 boolean isThreadRelated = isThread(suspect.getAccumulationPoint().getObject().getObjectId());
                 /*
@@ -842,8 +862,10 @@ public class LeakHunterQuery implements IQuery
 //                            involvedClassloaders.add(referrerClassloader);
                             objectsForTroubleTicketInfo.add(referrer);
                             String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                            builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, HTMLUtils.escapeText(className),
-                                            referrerClassloaderName));
+                            builder.append(MessageUtil.format(
+                                            HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedByClassNoCL
+                                                            : Messages.LeakHunterQuery_Msg_ReferencedByClass,
+                                            HTMLUtils.escapeText(className), referrerClassloaderName));
                         }
                         else
                         {
@@ -864,8 +886,10 @@ public class LeakHunterQuery implements IQuery
 //                            involvedClassloaders.add(suspectClassloader);
                             objectsForTroubleTicketInfo.add(referrer);
                             String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                            builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, HTMLUtils.escapeText(referrer
-                                            .getDisplayName()), referrerClassloaderName));
+                            builder.append(MessageUtil.format(
+                                            HIDECL ? Messages.LeakHunterQuery_Msg_ReferencedByInstanceNoCL
+                                                            : Messages.LeakHunterQuery_Msg_ReferencedByInstance,
+                                            HTMLUtils.escapeText(referrer.getDisplayName()), referrerClassloaderName));
                             if (isThreadRelated)
                             {
                                 builder.append("<p>"); //$NON-NLS-1$
