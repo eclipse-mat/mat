@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.collect.ConcurrentBitField;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
@@ -39,7 +40,6 @@ import org.eclipse.mat.util.IProgressListener;
 public class ObjectMarker implements IObjectMarker
 {
     int[] roots;
-    // TODO we can create a new BitField called ConcurrentBitField that would be 1/8th footprint
     boolean[] bits;
     IIndexReader.IOne2ManyIndex outbound;
     IProgressListener progressListener;
@@ -82,13 +82,12 @@ public class ObjectMarker implements IObjectMarker
     public class FjObjectMarker extends RecursiveAction
     {
         final int position;
-        final boolean[] visited;
+        final ConcurrentBitField visited;
         final boolean topLevel;
 
-        private FjObjectMarker(final int position, final boolean[] visited, final boolean topLevel)
+        private FjObjectMarker(final int position, final ConcurrentBitField visited, final boolean topLevel)
         {
-            // mark as soon as we are created and about to be queued
-            visited[position] = true;
+            // it is assumed the mark has already happened before task creation
             this.position = position;
             this.visited = visited;
             this.topLevel = topLevel;
@@ -120,10 +119,9 @@ public class ObjectMarker implements IObjectMarker
 
             for (int r : process)
             {
-                if (!visited[r])
+                boolean claimed = visited.compareAndSet(r, false, true);
+                if (claimed)
                 {
-                    visited[r] = true;
-
                     if (levelsLeft <= 0) {
                         new FjObjectMarker(r, visited, false).fork();
                     } else {
@@ -153,9 +151,12 @@ public class ObjectMarker implements IObjectMarker
     @Override
     public void markMultiThreaded(int threads) throws InterruptedException
     {
+        ConcurrentBitField bitField = new ConcurrentBitField(bits);
+
         List<FjObjectMarker> rootTasks = IntStream.of(roots)
                 .filter(r -> !bits[r])
-                .mapToObj(r -> new FjObjectMarker(r, bits, true))
+                .peek(bitField::set)
+                .mapToObj(r -> new FjObjectMarker(r, bitField, true))
                 .collect(Collectors.toList());
 
         progressListener.beginTask(Messages.ObjectMarker_MarkingObjects, rootTasks.size());
@@ -170,6 +171,7 @@ public class ObjectMarker implements IObjectMarker
             // wait until completion
         }
 
+        bitField.intoBooleanArrayNonAtomic(bits);
         progressListener.done();
     }
 
