@@ -501,7 +501,10 @@ public interface ISnapshot
      * Get object abstracting the real Java Object from the heap dump identified
      * by the given id.
      * <p>
-     * Performance: Relatively fast - single index operation.
+     * Performance: Relatively fast - single index operation; however, there
+     * may be a fixed size cache of objects and heavy use of this method can induce
+     * overhead in cache management. When possible, prefer to use {@code objectId}
+     * until absolutely necessary to gather object information.
      * 
      * @param objectId
      *            id of object you want a convenient object abstraction for

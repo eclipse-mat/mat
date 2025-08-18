@@ -632,25 +632,26 @@ public class LeakHunterQuery implements IQuery
         { return Messages.LeakHunterQuery_RetainedHeapComponentEmpty; }
         int[] minRetainedSet = snapshot.getMinRetainedSet(objects, listener);
 
-        Map<String, Long> sumHeapSizes = new HashMap<>();
-        Map<String, Integer> counts = new HashMap<>();
+        Map<Integer, Long> sumHeapSizes = new HashMap<>();
+        Map<Integer, Integer> counts = new HashMap<>();
         for (int objectId : minRetainedSet)
         {
-            IObject object = snapshot.getObject(objectId);
-            String name = snapshot.isClass(objectId) ? ((IClass) object).getName() : object.getClazz().getName();
-            sumHeapSizes.merge(name, snapshot.getHeapSize(objectId), Long::sum);
-            counts.merge(name, 1, Integer::sum);
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+            Integer key = snapshot.isClass(objectId) ? objectId : snapshot.getClassOf(objectId).getObjectId();
+            sumHeapSizes.merge(key, snapshot.getHeapSize(objectId), Long::sum);
+            counts.merge(key, 1, Integer::sum);
         }
         StringBuilder result = new StringBuilder();
-        Set<Entry<String, Long>> entries = sumHeapSizes.entrySet();
+        Set<Entry<Integer, Long>> entries = sumHeapSizes.entrySet();
         boolean multipleItems = entries.size() > 1 && topItems > 1;
-        PriorityQueue<Entry<String, Long>> pq = new PriorityQueue<Entry<String, Long>>(entries.size(),
+        PriorityQueue<Entry<Integer, Long>> pq = new PriorityQueue<Entry<Integer, Long>>(entries.size(),
                         (e1, e2) -> e2.getValue().compareTo(e1.getValue()));
         pq.addAll(entries);
         int maxItems = Math.min(pq.size(), topItems);
         while (maxItems-- > 0 && pq.size() > 0)
         {
-            Entry<String, Long> entry = pq.poll();
+            Entry<Integer, Long> entry = pq.poll();
             if (result.length() > 0)
             {
                 result.append(", "); //$NON-NLS-1$
@@ -660,16 +661,15 @@ public class LeakHunterQuery implements IQuery
                 result.append(Messages.LeakHunterQuery_RetainedHeapComponentAnd);
             }
             int count = counts.get(entry.getKey());
-            if (count == 1)
-            {
-                result.append(MessageUtil.format(Messages.LeakHunterQuery_RetainedHeapComponentInstance,
-                                HTMLUtils.escapeText(entry.getKey()), count, bytesFormatter.format(entry.getValue())));
-            }
-            else
-            {
-                result.append(MessageUtil.format(Messages.LeakHunterQuery_RetainedHeapComponentInstances,
-                                HTMLUtils.escapeText(entry.getKey()), count, bytesFormatter.format(entry.getValue())));
-            }
+
+            int objectId = entry.getKey();
+            IObject object = snapshot.getObject(objectId);
+            String name = snapshot.isClass(objectId) ? ((IClass) object).getName() : object.getClazz().getName();
+
+            result.append(MessageUtil.format(
+                            count == 1 ? Messages.LeakHunterQuery_RetainedHeapComponentInstance
+                                            : Messages.LeakHunterQuery_RetainedHeapComponentInstances,
+                            HTMLUtils.escapeText(name), count, bytesFormatter.format(entry.getValue())));
         }
         return result.toString();
     }
