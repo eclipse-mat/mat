@@ -127,6 +127,9 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_JavaRuntimesFound;
     public static String DTFJIndexBuilder_JVMFullVersion;
     public static String DTFJIndexBuilder_JVMVersion;
+    public static String DTFJIndexBuilder_KeepUnreachables_EmptyGCRoots;
+    public static String DTFJIndexBuilder_KeepUnreachables_EmptyThreadRoots;
+    public static String DTFJIndexBuilder_KeepUnreachables_EmptyThreadRootObjects;
     public static String DTFJIndexBuilder_MATRootTypeUnknown;
     public static String DTFJIndexBuilder_MethodHasNoAddress;
     public static String DTFJIndexBuilder_MethodHasNonUniqueAddress;

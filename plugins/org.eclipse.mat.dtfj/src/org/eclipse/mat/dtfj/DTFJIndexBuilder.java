@@ -2485,7 +2485,24 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Remaining roots
-        if (gcRoot.isEmpty() || threadRoots.isEmpty() || threadRootObjects() == 0 || presumeRoots)
+        boolean doKeepUnreachables = presumeRoots;
+        if (gcRoot.isEmpty())
+        {
+            doKeepUnreachables = true;
+            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_KeepUnreachables_EmptyGCRoots, null);
+        }
+        if (threadRoots.isEmpty())
+        {
+            doKeepUnreachables = true;
+            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_KeepUnreachables_EmptyThreadRoots, null);
+        }
+        if (threadRootObjects() == 0)
+        {
+            doKeepUnreachables = true;
+            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_KeepUnreachables_EmptyThreadRootObjects,
+                            null);
+        }
+        if (doKeepUnreachables)
         {
             listener.subTask(Messages.DTFJIndexBuilder_GeneratingExtraRootsMarkingAllUnreferenced);
             /*
