@@ -3424,13 +3424,39 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingGlobalRoots);
                 if (debugInfo) debugPrint("Processing global roots"); //$NON-NLS-1$
+
+                // Pending https://github.com/eclipse-openj9/openj9/issues/23137
+                SetLong aliveThreads = new SetLong();
+                for (Iterator<?> thit = dtfjInfo.getJavaRuntime().getThreads(); thit.hasNext();)
+                {
+                    Object next = thit.next();
+                    if (next instanceof CorruptData)
+                        continue;
+                    JavaThread th = (JavaThread) next;
+                    long tAddress = getThreadAddress(th, null);
+                    if (tAddress != 0)
+                    {
+                        try
+                        {
+                            if ((th.getState() & JavaThread.STATE_ALIVE) != 0)
+                            {
+                                aliveThreads.add(tAddress);
+                            }
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            // This processing will happen below
+                        }
+                    }
+                }
+
                 for (; it.hasNext();)
                 {
                     Object next = it.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, dtfjInfo.getJavaRuntime()))
                         continue;
                     JavaReference r = (JavaReference) next;
-                    processRoot(r, null, gcRoot2, threadRoots2, pointerSize, listener);
+                    processRoot(r, null, gcRoot2, threadRoots2, pointerSize, aliveThreads, listener);
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 }
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingThreadRoots);
@@ -3452,6 +3478,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // For thread stack information
                         printThreadStack(pw, th);
                     }
+                    
                     // The base pointer appears to be the last address of the frame, not the
                     // first
                     long prevAddr = 0;
@@ -3491,7 +3518,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, dtfjInfo.getJavaRuntime()))
                                 continue;
                             JavaReference r = (JavaReference) next3;
-                            processRoot(r, th, gcRoot2, threadRoots2, pointerSize, listener);
+                            processRoot(r, th, gcRoot2, threadRoots2, pointerSize, null, listener);
                             if (pw != null)
                             {
                                 // Details of the locals
@@ -4841,11 +4868,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            Where to store the thread roots
      * @param pointerSize
      *            size of pointers in bits
+     * @param aliveThreads
+     *            optional; force REACHABILITY_STRONG
      * @param listener
      */
     private void processRoot(JavaReference r, JavaThread thread, HashMapIntObject<List<XGCRootInfo>> gcRoot2,
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> threadRoots2, int pointerSize,
-                    IProgressListener listener)
+                    SetLong aliveThreads, IProgressListener listener)
     {
         if (debugInfo) debugPrint("Process root " + r); //$NON-NLS-1$
         int type = 0;
@@ -4931,47 +4960,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             type = GCRootInfo.Type.UNKNOWN;
             listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_UnableToFindTypeOfRoot, e);
         }
-        int reach = JavaReference.REACHABILITY_UNKNOWN;
+        
+        long target = 0;
+        Object o = null;
         try
         {
-            reach = r.getReachability();
-            switch (reach)
-            {
-                default:
-                case JavaReference.REACHABILITY_UNKNOWN:
-                case JavaReference.REACHABILITY_STRONG:
-                    break;
-                case JavaReference.REACHABILITY_WEAK:
-                    if (type == GCRootInfo.Type.UNFINALIZED)
-                        threadRoot = true;
-                    else if (skipWeakRoots)
-                        return;
-                    break;
-                case JavaReference.REACHABILITY_SOFT:
-                case JavaReference.REACHABILITY_PHANTOM:
-                    if (skipWeakRoots)
-                        return;
-                    break;
-            }
-        }
-        catch (CorruptDataException e)
-        {
-            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_UnableToFindReachabilityOfRoot, e);
-        }
-        int refType = JavaReference.REFERENCE_UNKNOWN;
-        try
-        {
-            refType = r.getReferenceType();
-        }
-        catch (CorruptDataException e)
-        {
-            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_UnableToFindReferenceTypeOfRoot, e);
-        }
-        try
-        {
-            long target = 0;
-
-            Object o = r.getTarget();
+            o = r.getTarget();
             if (o instanceof JavaObject)
             {
                 JavaObject jo = (JavaObject) o;
@@ -4982,222 +4976,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 JavaClass jc = (JavaClass) o;
                 target = getClassAddress(jc, listener);
             }
-            else
-            {
-                // Unknown root target, so ignore
-                if (o != null)
-                {
-                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_UnableToFindTargetOfRoot, o, o.getClass()), null);
-                    if (debugInfo) debugPrint("Unexpected root type " + o.getClass()); //$NON-NLS-1$
-                }
-                else
-                {
-                    listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_NullTargetOfRoot, null);
-                    if (debugInfo) debugPrint("Unexpected null root target"); //$NON-NLS-1$
-                }
-                return;
-            }
-
-            long source = target;
-            try
-            {
-                Object so = r.getSource();
-                if (so instanceof JavaObject)
-                {
-                    JavaObject jo = (JavaObject) so;
-                    source = jo.getID().getAddress();
-                }
-                else if (so instanceof JavaClass)
-                {
-                    JavaClass jc = (JavaClass) so;
-                    source = getClassAddress(jc, listener);
-                }
-                else if (so instanceof JavaStackFrame)
-                {
-                    JavaStackFrame js = (JavaStackFrame) so;
-                    if (getExtraInfo)
-                    {
-                        source = getAlignedAddress(js.getBasePointer(), pointerSize).getAddress();
-                    }
-                    // Thread is supplied, and stack frame is not an object
-                    if (thread != null && (!getExtraInfo || source == 0 || indexToAddress.reverse(source) < 0))
-                    {
-                        source = getThreadAddress(thread, listener);
-                    }
-                }
-                else if (so instanceof JavaThread)
-                {
-                    // Not expected, but sov DTFJ returns this
-                    JavaThread jt = (JavaThread)so;
-                    source = getThreadAddress(jt ,listener);
-                    // Thread is supplied, and jt is not found as an object
-                    if (thread != null && (source == 0 || indexToAddress.reverse(source) < 0))
-                    {
-                        source = getThreadAddress(thread, listener);
-                    }
-                    // Sov DTFJ has curious types
-                    String desc = r.getDescription();
-                    if (desc.startsWith("stack") || desc.startsWith("Register")) //$NON-NLS-1$ //$NON-NLS-2$
-                    {
-                        // These roots are not thread
-                        type = GCRootInfo.Type.NATIVE_STACK;
-                        threadRoot = true;
-                    }
-                }
-                else if (so instanceof JavaRuntime)
-                {
-                    JavaRuntime jr = (JavaRuntime)so;
-                    if (type == GCRootInfo.Type.UNFINALIZED)
-                    {
-                        // Attach finalizers to the runtime
-                        ClassImpl cls = findClassFromName("java.lang.Runtime", listener); //$NON-NLS-1$
-                        if (cls != null)
-                        {
-                            for (Field f : cls.getStaticFields())
-                            {
-                                if (f.getType() == Type.OBJECT)
-                                {
-                                    Object n = f.getValue();
-                                    if (f.getValue() instanceof ObjectReference)
-                                    {
-                                        // Instance which is of this type
-                                        ObjectReference io = (ObjectReference)n;
-                                        // E.g. currentRuntime
-                                        // Haven't got an address to id to class mapping yet to check the type
-                                        if (f.getName().toLowerCase(Locale.ENGLISH).contains("runtime")) //$NON-NLS-1$
-                                        {
-                                            source = io.getObjectAddress();
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Not expected, but J9 DTFJ returns this e.g. for unfinalized objects
-                    if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
-                }
-                else if (so == null)
-                {
-                    // Unknown
-                }
-                else
-                {
-                    if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
-                }
-            }
-            catch (CorruptDataException e)
-            {
-                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_UnableToFindSourceOfRoot, format(target)), e);
-            }
-            catch (DataUnavailable e)
-            {
-                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_UnableToFindSourceOfRoot, format(target)), e);
-            }
-            int targetId = indexToAddress.reverse(target);
-            // Only used for missedRoots
-            String desc = targetId + " " + format(target) + " " + format(source) + " " + rootType + " " + refType + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                            + reach + " " + r.getDescription(); //$NON-NLS-1$
-            if (targetId < 0)
-            {
-                String desc2 = ""; //$NON-NLS-1$
-                Exception e1 = null;
-                try
-                {
-                    if (o instanceof JavaObject)
-                    {
-                        JavaObject jo = (JavaObject) o;
-                        desc2 = getClassName(jo.getJavaClass(), listener);
-                    }
-                    else if (o instanceof JavaClass)
-                    {
-                        JavaClass jc = (JavaClass) o;
-                        desc2 = getClassName(jc, listener);
-                    }
-                    else
-                    {
-                        // Should never occur
-                        desc2 = desc2 + o;
-                    }
-                }
-                catch (CorruptDataException e)
-                {
-                    // Ignore exception as just for logging
-                    e1 = e;
-                }
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_UnableToFindRoot, format(target), desc2, format(source),
-                                rootType, r.getDescription()), e1);
-                return;
-            }
-            if (newRootType(type) == GCRootInfo.Type.UNKNOWN)
-            {
-                String desc2 = ""; //$NON-NLS-1$
-                Exception e1 = null;
-                try
-                {
-                    if (o instanceof JavaObject)
-                    {
-                        JavaObject jo = (JavaObject) o;
-                        desc2 = getClassName(jo.getJavaClass(), listener);
-                    }
-                    else if (o instanceof JavaClass)
-                    {
-                        JavaClass jc = (JavaClass) o;
-                        desc2 = getClassName(jc, listener);
-                    }
-                    else
-                    {
-                        // Should never occur
-                        desc2 = o.toString();
-                    }
-                }
-                catch (CorruptDataException e)
-                {
-                    // Ignore exception as just for logging
-                    e1 = e;
-                }
-                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_MATRootTypeUnknown, type, format(target), desc2,
-                                format(source), rootType, r.getDescription()), e1);
-            }
-            if (threadRoot)
-            {
-                int thrId = indexToAddress.reverse(source);
-                if (thrId >= 0)
-                {
-                    HashMapIntObject<List<XGCRootInfo>> thr = threadRoots2.get(thrId);
-                    if (thr == null)
-                    {
-                        // Build new list for the thread
-                        thr = new HashMapIntObject<List<XGCRootInfo>>();
-                        threadRoots2.put(thrId, thr);
-                    }
-                    addRoot(thr, target, source, type);
-                    if (!useThreadRefsNotRoots)
-                        addRoot(gcRoot2, target, source, type);
-                }
-                else
-                {
-                    addRoot(gcRoot2, target, source, type);
-                }
-            }
-            else
-            {
-                addRoot(gcRoot2, target, source, type);
-            }
-            int tgt = targetId;
-            int src = indexToAddress.reverse(source);
-            if (src < 0 && msgNunexpectedSource-- > 0)
-            {
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_UnableToFindSourceID, format(target), format(source), r
-                                                .getDescription()), null);
-            }
-            missedRoots.put(Integer.valueOf(tgt), desc);
         }
         catch (DataUnavailable e)
         {
@@ -5207,6 +4985,279 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ProblemGettingRoots, e);
         }
+        
+        
+        int reach = JavaReference.REACHABILITY_UNKNOWN;
+        try
+        {
+            reach = r.getReachability();
+        }
+        catch (CorruptDataException e)
+        {
+            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_UnableToFindReachabilityOfRoot, e);
+        }
+        
+        // Pending https://github.com/eclipse-openj9/openj9/issues/23137
+        if (target != 0 && aliveThreads != null && aliveThreads.contains(target))
+        {
+            // Strongly reachable
+            if (debugInfo) debugPrint("Overriding to strong reachability for " + format(target) + " from " + reach); //$NON-NLS-1$ //$NON-NLS-2$
+            reach = JavaReference.REACHABILITY_STRONG;
+            type = GCRootInfo.Type.THREAD_OBJ;
+        }
+        
+        switch (reach)
+        {
+            default:
+            case JavaReference.REACHABILITY_UNKNOWN:
+            case JavaReference.REACHABILITY_STRONG:
+                break;
+            case JavaReference.REACHABILITY_WEAK:
+                if (type == GCRootInfo.Type.UNFINALIZED)
+                    threadRoot = true;
+                else if (skipWeakRoots)
+                    return;
+                break;
+            case JavaReference.REACHABILITY_SOFT:
+            case JavaReference.REACHABILITY_PHANTOM:
+                if (skipWeakRoots)
+                    return;
+                break;
+        }
+        int refType = JavaReference.REFERENCE_UNKNOWN;
+        try
+        {
+            refType = r.getReferenceType();
+        }
+        catch (CorruptDataException e)
+        {
+            listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_UnableToFindReferenceTypeOfRoot, e);
+        }
+        
+        if (o instanceof JavaObject)
+        {
+            // Handled setting target above
+        }
+        else if (o instanceof JavaClass)
+        {
+            // Handled setting target above
+        }
+        else
+        {
+            // Unknown root target, so ignore
+            if (o != null)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_UnableToFindTargetOfRoot, o, o.getClass()), null);
+                if (debugInfo) debugPrint("Unexpected root type " + o.getClass()); //$NON-NLS-1$
+            }
+            else
+            {
+                listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_NullTargetOfRoot, null);
+                if (debugInfo) debugPrint("Unexpected null root target"); //$NON-NLS-1$
+            }
+            return;
+        }
+
+        long source = target;
+        try
+        {
+            Object so = r.getSource();
+            if (so instanceof JavaObject)
+            {
+                JavaObject jo = (JavaObject) so;
+                source = jo.getID().getAddress();
+            }
+            else if (so instanceof JavaClass)
+            {
+                JavaClass jc = (JavaClass) so;
+                source = getClassAddress(jc, listener);
+            }
+            else if (so instanceof JavaStackFrame)
+            {
+                JavaStackFrame js = (JavaStackFrame) so;
+                if (getExtraInfo)
+                {
+                    source = getAlignedAddress(js.getBasePointer(), pointerSize).getAddress();
+                }
+                // Thread is supplied, and stack frame is not an object
+                if (thread != null && (!getExtraInfo || source == 0 || indexToAddress.reverse(source) < 0))
+                {
+                    source = getThreadAddress(thread, listener);
+                }
+            }
+            else if (so instanceof JavaThread)
+            {
+                // Not expected, but sov DTFJ returns this
+                JavaThread jt = (JavaThread)so;
+                source = getThreadAddress(jt ,listener);
+                // Thread is supplied, and jt is not found as an object
+                if (thread != null && (source == 0 || indexToAddress.reverse(source) < 0))
+                {
+                    source = getThreadAddress(thread, listener);
+                }
+                // Sov DTFJ has curious types
+                String desc = r.getDescription();
+                if (desc.startsWith("stack") || desc.startsWith("Register")) //$NON-NLS-1$ //$NON-NLS-2$
+                {
+                    // These roots are not thread
+                    type = GCRootInfo.Type.NATIVE_STACK;
+                    threadRoot = true;
+                }
+            }
+            else if (so instanceof JavaRuntime)
+            {
+                JavaRuntime jr = (JavaRuntime)so;
+                if (type == GCRootInfo.Type.UNFINALIZED)
+                {
+                    // Attach finalizers to the runtime
+                    ClassImpl cls = findClassFromName("java.lang.Runtime", listener); //$NON-NLS-1$
+                    if (cls != null)
+                    {
+                        for (Field f : cls.getStaticFields())
+                        {
+                            if (f.getType() == Type.OBJECT)
+                            {
+                                Object n = f.getValue();
+                                if (f.getValue() instanceof ObjectReference)
+                                {
+                                    // Instance which is of this type
+                                    ObjectReference io = (ObjectReference)n;
+                                    // E.g. currentRuntime
+                                    // Haven't got an address to id to class mapping yet to check the type
+                                    if (f.getName().toLowerCase(Locale.ENGLISH).contains("runtime")) //$NON-NLS-1$
+                                    {
+                                        source = io.getObjectAddress();
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Not expected, but J9 DTFJ returns this e.g. for unfinalized objects
+                if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
+            }
+            else if (so == null)
+            {
+                // Unknown
+            }
+            else
+            {
+                if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
+            }
+        }
+        catch (CorruptDataException e)
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_UnableToFindSourceOfRoot, format(target)), e);
+        }
+        catch (DataUnavailable e)
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_UnableToFindSourceOfRoot, format(target)), e);
+        }
+        int targetId = indexToAddress.reverse(target);
+        // Only used for missedRoots
+        String desc = targetId + " " + format(target) + " " + format(source) + " " + rootType + " " + refType + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                        + reach + " " + r.getDescription(); //$NON-NLS-1$
+        if (targetId < 0)
+        {
+            String desc2 = ""; //$NON-NLS-1$
+            Exception e1 = null;
+            try
+            {
+                if (o instanceof JavaObject)
+                {
+                    JavaObject jo = (JavaObject) o;
+                    desc2 = getClassName(jo.getJavaClass(), listener);
+                }
+                else if (o instanceof JavaClass)
+                {
+                    JavaClass jc = (JavaClass) o;
+                    desc2 = getClassName(jc, listener);
+                }
+                else
+                {
+                    // Should never occur
+                    desc2 = desc2 + o;
+                }
+            }
+            catch (CorruptDataException e)
+            {
+                // Ignore exception as just for logging
+                e1 = e;
+            }
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_UnableToFindRoot, format(target), desc2, format(source),
+                            rootType, r.getDescription()), e1);
+            return;
+        }
+        if (newRootType(type) == GCRootInfo.Type.UNKNOWN)
+        {
+            String desc2 = ""; //$NON-NLS-1$
+            Exception e1 = null;
+            try
+            {
+                if (o instanceof JavaObject)
+                {
+                    JavaObject jo = (JavaObject) o;
+                    desc2 = getClassName(jo.getJavaClass(), listener);
+                }
+                else if (o instanceof JavaClass)
+                {
+                    JavaClass jc = (JavaClass) o;
+                    desc2 = getClassName(jc, listener);
+                }
+                else
+                {
+                    // Should never occur
+                    desc2 = o.toString();
+                }
+            }
+            catch (CorruptDataException e)
+            {
+                // Ignore exception as just for logging
+                e1 = e;
+            }
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_MATRootTypeUnknown, type, format(target), desc2,
+                            format(source), rootType, r.getDescription()), e1);
+        }
+        if (threadRoot)
+        {
+            int thrId = indexToAddress.reverse(source);
+            if (thrId >= 0)
+            {
+                HashMapIntObject<List<XGCRootInfo>> thr = threadRoots2.get(thrId);
+                if (thr == null)
+                {
+                    // Build new list for the thread
+                    thr = new HashMapIntObject<List<XGCRootInfo>>();
+                    threadRoots2.put(thrId, thr);
+                }
+                addRoot(thr, target, source, type);
+                if (!useThreadRefsNotRoots)
+                    addRoot(gcRoot2, target, source, type);
+            }
+            else
+            {
+                addRoot(gcRoot2, target, source, type);
+            }
+        }
+        else
+        {
+            addRoot(gcRoot2, target, source, type);
+        }
+        int tgt = targetId;
+        int src = indexToAddress.reverse(source);
+        if (src < 0 && msgNunexpectedSource-- > 0)
+        {
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_UnableToFindSourceID, format(target), format(source), r
+                                            .getDescription()), null);
+        }
+        missedRoots.put(Integer.valueOf(tgt), desc);
     }
 
     /**
