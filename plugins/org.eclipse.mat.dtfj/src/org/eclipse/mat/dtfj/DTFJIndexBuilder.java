@@ -2787,10 +2787,46 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return true;
     }
 
+    /**
+     * https://eclipse.dev/openj9/docs/dump_systemdump/
+     * 
+     * @param ifo
+     * @return
+     */
+    static boolean isSystemDump(SnapshotInfo ifo)
+    {
+        Object format = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
+        return "DTFJ-J9".equals(format); //$NON-NLS-1$
+    }
+
+    /**
+     * https://eclipse.dev/openj9/docs/dump_heapdump/
+     * 
+     * @param ifo
+     * @return
+     */
+    static boolean isPHD(SnapshotInfo ifo)
+    {
+        Object format = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
+        return "DTFJ-PHD".equals(format); //$NON-NLS-1$
+    }
+
+    /**
+     * https://eclipse.dev/openj9/docs/dump_javadump/
+     * 
+     * @param ifo
+     * @return
+     */
+    static boolean isJavaDump(SnapshotInfo ifo)
+    {
+        Object format = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
+        return "DTFJ-Javacore".equals(format); //$NON-NLS-1$
+    }
+
     static DumpReliabilityResult checkDumpReliability(RuntimeInfo dtfjInfo, SnapshotInfo ifo,
                     Set<DumpReliability> checks, IProgressListener listener) throws SnapshotException
     {
-        if (shouldRunReliabilityCheck(DumpReliability.UNMATCHED_DTFJ, checks))
+        if (shouldRunReliabilityCheck(DumpReliability.UNMATCHED_DTFJ, checks) && isSystemDump(ifo))
         {
             String jvmVersion = ifo.getJvmInfo();
             if (jvmVersion != null)
