@@ -18,10 +18,14 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.dtfj.DTFJIndexBuilder.DumpReliability;
+import org.eclipse.mat.dtfj.DTFJIndexBuilder.DumpReliabilityResult;
 import org.eclipse.mat.dtfj.DTFJIndexBuilder.RuntimeInfo;
 import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.model.AbstractObjectImpl;
@@ -37,6 +41,8 @@ import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.util.ConsoleProgressListener;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
 import com.ibm.dtfj.image.CorruptData;
@@ -198,6 +204,22 @@ public class DTFJHeapObjectReader implements IObjectReader
         Serializable runtimeId = snapinfo.getProperty(DTFJIndexBuilder.RUNTIME_ID_KEY);
         // Find the JVM
         dtfjInfo = DTFJIndexBuilder.getRuntime(info.getImageFactory(), info.getImage(), runtimeId, null);
+        Boolean reopened = (Boolean) snapshot.getSnapshotInfo().getProperty(SnapshotInfo.PROPERTY_REOPENED);
+        if (reopened != null && reopened)
+        {
+            String reliabilityCheck = DTFJIndexBuilder.getReliabilityCheckPreference();
+            boolean shouldCheckReliability = DTFJIndexBuilder.getShouldCheckReliability(reliabilityCheck);
+            if (shouldCheckReliability)
+            {
+                Set<DTFJIndexBuilder.DumpReliability> checks = new HashSet<>();
+                checks.add(DTFJIndexBuilder.DumpReliability.UNMATCHED_DTFJ);
+                IProgressListener listener = new ConsoleProgressListener(System.err);
+                DumpReliabilityResult reliabilityResult = DTFJIndexBuilder.checkDumpReliability(dtfjInfo,
+                                snapshot.getSnapshotInfo(), checks, listener);
+                DumpReliability reliability = reliabilityResult.getValue();
+                DTFJIndexBuilder.checkReliabilityResult(reliabilityCheck, reliabilityResult, reliability, listener);
+            }
+        }
      }
 
     /*

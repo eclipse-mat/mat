@@ -27,6 +27,11 @@ import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
  */
 public class SnapshotInfo implements Serializable
 {
+    /**
+     * @since 1.17
+     */
+    public static final String PROPERTY_REOPENED = "$reopened"; //$NON-NLS-1$
+    
     private static final long serialVersionUID = 4L;
 
     protected String path;

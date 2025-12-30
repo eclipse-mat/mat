@@ -83,6 +83,7 @@ import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -904,22 +905,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.beginTask(MessageFormat.format(Messages.DTFJIndexBuilder_ProcessingImageFromFile, dump), workCount);
         int workCountSoFar = 0;
 
-        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
-        if (reliabilityCheck == null)
-        {
-            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
-                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
-        }
+        String reliabilityCheck = getReliabilityCheckPreference();
 
-        // Set a default preference value
-        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
-                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
-        {
-            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
-        }
-
-        boolean shouldCheckReliability = !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck);
+        boolean shouldCheckReliability = getShouldCheckReliability(reliabilityCheck);
 
         XSnapshotInfo ifo = index.getSnapshotInfo();
 
@@ -1062,35 +1050,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         
         if (shouldCheckReliability)
         {
-            DumpReliabilityResult reliabilityResult = checkDumpReliability(ifo, listener);
+            DumpReliabilityResult reliabilityResult = checkDumpReliability(dtfjInfo, ifo, null, listener);
             DumpReliability reliability = reliabilityResult.getValue();
-
-            if (reliability == DumpReliability.UNMATCHED_DTFJ)
-            {
-                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
-                {
-                    throw new SnapshotException(reliabilityResult.getMessage());
-                }
-                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
-                {
-                    listener.sendUserMessage(Severity.WARNING, reliabilityResult.getMessage(), null);
-                }
-            }
-            else if (reliability == DumpReliability.DURING_GARBAGE_COLLECTION)
-            {
-                if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
-                {
-                    throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_DuringGC));
-                }
-                else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
-                {
-                    listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_DuringGC, null);
-                }
-            }
-            else if (reliability == DumpReliability.NON_EXCLUSIVE_ACCESS)
-            {
-                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NonExclusive, null);
-            }
+            checkReliabilityResult(reliabilityCheck, reliabilityResult, reliability, listener);
         }
 
         int pointerSize = getPointerSize(dtfjInfo, listener);
@@ -2703,6 +2665,62 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.done();
     }
 
+    static void checkReliabilityResult(String reliabilityCheck, DumpReliabilityResult reliabilityResult,
+                    DumpReliability reliability, IProgressListener listener) throws SnapshotException
+    {
+        if (reliability == DumpReliability.UNMATCHED_DTFJ)
+        {
+            if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+            {
+                throw new SnapshotException(reliabilityResult.getMessage());
+            }
+            else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+            {
+                listener.sendUserMessage(Severity.WARNING, reliabilityResult.getMessage(), null);
+            }
+        }
+        else if (reliability == DumpReliability.DURING_GARBAGE_COLLECTION)
+        {
+            if (PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck))
+            {
+                throw new SnapshotException(MessageFormat.format(Messages.DTFJIndexBuilder_DuringGC));
+            }
+            else if (PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck))
+            {
+                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_DuringGC, null);
+            }
+        }
+        else if (reliability == DumpReliability.NON_EXCLUSIVE_ACCESS)
+        {
+            listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NonExclusive, null);
+        }
+    }
+
+    static boolean getShouldCheckReliability(String reliabilityCheck)
+    {
+        boolean shouldCheckReliability = !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck);
+        return shouldCheckReliability;
+    }
+
+    static String getReliabilityCheckPreference()
+    {
+        String reliabilityCheck = System.getProperty("reliabilityCheck"); //$NON-NLS-1$
+        if (reliabilityCheck == null)
+        {
+            reliabilityCheck = Platform.getPreferencesService().getString(PLUGIN_ID,
+                            PreferenceConstants.P_RELIABILITY_CHECK, "", null); //$NON-NLS-1$
+        }
+
+        // Set a default preference value
+        if (!PreferenceConstants.RELIABILITY_FATAL.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_WARNING.equals(reliabilityCheck)
+                        && !PreferenceConstants.RELIABILITY_SKIP.equals(reliabilityCheck))
+        {
+            reliabilityCheck = PreferenceConstants.RELIABILITY_FATAL;
+        }
+        return reliabilityCheck;
+    }
+
     static class DumpReliabilityResult
     {
         DumpReliability value;
@@ -2730,7 +2748,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
     }
 
-    enum DumpReliability
+    static enum DumpReliability
     {
         /**
          * Dump reliability is unknown.
@@ -2752,183 +2770,212 @@ public class DTFJIndexBuilder implements IIndexBuilder
          */
         UNMATCHED_DTFJ,
     }
-
-    private DumpReliabilityResult checkDumpReliability(XSnapshotInfo ifo, IProgressListener listener) throws SnapshotException
+    
+    static boolean shouldRunReliabilityCheck(DumpReliability check, Set<DumpReliability> checks)
     {
-        String jvmVersion = ifo.getJvmInfo();
-        if (jvmVersion != null)
+        if (checks != null)
         {
-            // Examples of IBM Semeru Runtimes version in dumps:
-            //
-            // JRE 17 Windows 8 amd64-64 (build 17.0.9+9)
-            // JRE 1.8.0 Linux aarch64-64 (build 1.8.0_422-b05) IBM Semeru
-            // Runtime Open Edition
-            //
-            // Examples of IBM Java versions in dumps:
-            //
-            // JVM version JRE 1.7.0 Linux amd64-64 build 20130205_137358
-            // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
-
-            boolean isSemeruFile = false;
-
-            if (jvmVersion.contains("Semeru Runtime")) //$NON-NLS-1$
+            if (checks.contains(check))
             {
-                isSemeruFile = true;
+                return true;
             }
             else
             {
-                int buildIndex = jvmVersion.indexOf("build "); //$NON-NLS-1$
-                if (buildIndex != -1)
-                {
-                    String build = jvmVersion.substring(buildIndex + "build ".length()); //$NON-NLS-1$
-
-                    // Get rid of anything past the core build version
-                    int spaceIndex = build.indexOf(" "); //$NON-NLS-1$
-                    if (spaceIndex != -1)
-                    {
-                        build = build.substring(0, spaceIndex);
-                    }
-
-                    // Extract out the major version and if it's greater than 8,
-                    // then it must be IBM Semeru Runtimes. If it is 8, then
-                    // check for a plus symbol (OpenJDK build format).
-                    int periodIndex = build.indexOf("."); //$NON-NLS-1$
-                    if (periodIndex != -1)
-                    {
-                        String majorBuild = build.substring(0, periodIndex);
-                        try
-                        {
-                            int majorVersion = Integer.parseInt(majorBuild);
-                            if (majorVersion > 8)
-                            {
-                                isSemeruFile = true;
-                            }
-                            else if (majorVersion == 8 && build.contains("+")) //$NON-NLS-1$
-                            {
-                                isSemeruFile = true;
-                            }
-                        }
-                        catch (NumberFormatException nfe)
-                        {
-                            nfe.printStackTrace();
-                        }
-                    }
-                }
-            }
-
-            String fileType = null;
-            if (isSemeruFile)
-            {
-                fileType = "IBM Semeru Runtimes"; //$NON-NLS-1$
-            }
-            else
-            {
-                fileType = "IBM Java"; //$NON-NLS-1$
-            }
-            listener.sendUserMessage(Severity.INFO,
-                            MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_File, fileType), null);
-
-            String dtfjImplementation = System.getProperty("org.eclipse.mat.dtfj.implementation"); //$NON-NLS-1$
-
-            // If the implementation is not specified, we default to IBM Java
-            // because that's the implementation currently available by default
-            // with the packaged updates site at
-            // https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/
-            if (dtfjImplementation == null)
-            {
-                dtfjImplementation = "IBM Java"; //$NON-NLS-1$
-            }
-
-            if (!fileType.equals(dtfjImplementation))
-            {
-                return new DumpReliabilityResult(DumpReliability.UNMATCHED_DTFJ,
-                                MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_ImplementationUnmatched,
-                                                dtfjImplementation, fileType, jvmVersion));
+                return false;
             }
         }
+        return true;
+    }
 
-        // This is a best-effort check so it's okay to use known class names:
-        // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
-        String imageClassName = dtfjInfo.getImage().getClass().getName();
-        if (imageClassName.endsWith("J9DDRImage")) //$NON-NLS-1$
+    static DumpReliabilityResult checkDumpReliability(RuntimeInfo dtfjInfo, SnapshotInfo ifo,
+                    Set<DumpReliability> checks, IProgressListener listener) throws SnapshotException
+    {
+        if (shouldRunReliabilityCheck(DumpReliability.UNMATCHED_DTFJ, checks))
         {
-            // This is a core dump
-            StringBuilder sb = new StringBuilder();
-            try
+            String jvmVersion = ifo.getJvmInfo();
+            if (jvmVersion != null)
             {
-                // Get the j9javavm context of the image
-                String context = executeJdmpviewCommand("!context").trim(); //$NON-NLS-1$
-                sb.append(context);
-                context = context.substring(context.indexOf("!j9javavm")); //$NON-NLS-1$
+                // Examples of IBM Semeru Runtimes version in dumps:
+                //
+                // JRE 17 Windows 8 amd64-64 (build 17.0.9+9)
+                // JRE 1.8.0 Linux aarch64-64 (build 1.8.0_422-b05) IBM Semeru
+                // Runtime Open Edition
+                //
+                // Examples of IBM Java versions in dumps:
+                //
+                // JVM version JRE 1.7.0 Linux amd64-64 build 20130205_137358
+                // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
 
-                // Execute the context and extract out the exclusiveAccessState
-                String j9javavm = executeJdmpviewCommand(context);
-                sb.append("\n\n" + j9javavm); //$NON-NLS-1$
-                j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26); //$NON-NLS-1$
-                j9javavm = j9javavm.substring(0, j9javavm.indexOf(' ')).trim();
+                boolean isSemeruFile = false;
 
-                // https://github.com/eclipse/openj9/blob/v0.22.0-release/runtime/oti/j9consts.h#L785
-                long exclusiveAccessState = Long.parseLong(j9javavm, 16);
-                if (exclusiveAccessState == 0)
+                if (jvmVersion.contains("Semeru Runtime")) //$NON-NLS-1$
                 {
-                    return new DumpReliabilityResult(DumpReliability.NON_EXCLUSIVE_ACCESS);
+                    isSemeruFile = true;
                 }
-                else if (exclusiveAccessState == 2)
+                else
                 {
-                    // Something has exclusive access, so figure out what it is
-                    sb.append("Something has exclusive access because exclusiveAccessState = 2\n"); //$NON-NLS-1$
-
-                    // Find the j9vmthread that has exclusive access
-                    String threads = executeJdmpviewCommand("!threads flags"); //$NON-NLS-1$
-                    sb.append("\n\n> !threads flags\n" + threads); //$NON-NLS-1$
-                    threads = threads.substring(0, threads.indexOf("20 privateFlags")); //$NON-NLS-1$
-                    threads = threads.substring(threads.lastIndexOf("!j9vmthread ")); //$NON-NLS-1$
-                    threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
-
-                    // Get the omrVMThread for the j9vmthread
-                    String omrVMThread = executeJdmpviewCommand(threads);
-                    sb.append("\n\n> " + threads + "\n" + omrVMThread); //$NON-NLS-1$ //$NON-NLS-2$
-                    omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15); //$NON-NLS-1$
-                    omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
-
-                    if (!omrVMThread.startsWith("!j9x ")) //$NON-NLS-1$
+                    int buildIndex = jvmVersion.indexOf("build "); //$NON-NLS-1$
+                    if (buildIndex != -1)
                     {
-                        // Get the vmState of the omrVMThread
-                        String vmStateStr = executeJdmpviewCommand(omrVMThread);
-                        sb.append("\n\n> " + omrVMThread + "\n" + vmStateStr); //$NON-NLS-1$ //$NON-NLS-2$
-                        vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13); //$NON-NLS-1$
-                        vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
-                        long vmState = Long.parseLong(vmStateStr, 16);
-                        if ((vmState & 0x20000) != 0)
+                        String build = jvmVersion.substring(buildIndex + "build ".length()); //$NON-NLS-1$
+
+                        // Get rid of anything past the core build version
+                        int spaceIndex = build.indexOf(" "); //$NON-NLS-1$
+                        if (spaceIndex != -1)
                         {
-                            // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
-                            return new DumpReliabilityResult(DumpReliability.DURING_GARBAGE_COLLECTION);
+                            build = build.substring(0, spaceIndex);
+                        }
+
+                        // Extract out the major version and if it's greater
+                        // than 8, then it must be IBM Semeru Runtimes. If it is
+                        // 8, then check for a plus symbol (OpenJDK build format).
+                        int periodIndex = build.indexOf("."); //$NON-NLS-1$
+                        if (periodIndex != -1)
+                        {
+                            String majorBuild = build.substring(0, periodIndex);
+                            try
+                            {
+                                int majorVersion = Integer.parseInt(majorBuild);
+                                if (majorVersion > 8)
+                                {
+                                    isSemeruFile = true;
+                                }
+                                else if (majorVersion == 8 && build.contains("+")) //$NON-NLS-1$
+                                {
+                                    isSemeruFile = true;
+                                }
+                            }
+                            catch (NumberFormatException nfe)
+                            {
+                                nfe.printStackTrace();
+                            }
                         }
                     }
-                    else
-                    {
-                        // When omrVMThread evaluates to a !j9x command, then
-                        // jdmpview doesn't have enough information on the
-                        // OMRVMThread structure. This could be due to an older
-                        // version of Java, for example.
-                        listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingOMRVMThread,
-                                        new UnsupportedOperationException(sb.toString()));
-                    }
+                }
+
+                String fileType = null;
+                if (isSemeruFile)
+                {
+                    fileType = "IBM Semeru Runtimes"; //$NON-NLS-1$
+                }
+                else
+                {
+                    fileType = "IBM Java"; //$NON-NLS-1$
+                }
+                listener.sendUserMessage(Severity.INFO,
+                                MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime_File, fileType), null);
+
+                String dtfjImplementation = System.getProperty("org.eclipse.mat.dtfj.implementation"); //$NON-NLS-1$
+
+                // If the implementation is not specified, we default to IBM
+                // Java because that's the implementation currently available by
+                // default with the packaged updates site at
+                // https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/
+                if (dtfjImplementation == null)
+                {
+                    dtfjImplementation = "IBM Java"; //$NON-NLS-1$
+                }
+
+                if (!fileType.equals(dtfjImplementation))
+                {
+                    return new DumpReliabilityResult(DumpReliability.UNMATCHED_DTFJ,
+                                    MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_DTFJJavaRuntime_ImplementationUnmatched,
+                                                    dtfjImplementation, fileType, jvmVersion));
                 }
             }
-            catch (Throwable t)
+        }
+
+        if (shouldRunReliabilityCheck(DumpReliability.DURING_GARBAGE_COLLECTION, checks)
+                        || shouldRunReliabilityCheck(DumpReliability.NON_EXCLUSIVE_ACCESS, checks))
+        {
+            // This is a best-effort check so it's okay to use known class
+            // names:
+            // com.ibm.j9ddr.view.dtfj.image.J9DDRImage
+            String imageClassName = dtfjInfo.getImage().getClass().getName();
+            if (imageClassName.endsWith("J9DDRImage")) //$NON-NLS-1$
             {
-                // This will probably be caused by a change in the undocumented
-                // format of the various jdmpview commands, so we just
-                // print a warning about it.
-                listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability,
-                                new UnsupportedOperationException(sb.toString(), t));
+                // This is a core dump
+                StringBuilder sb = new StringBuilder();
+                try
+                {
+                    // Get the j9javavm context of the image
+                    String context = executeJdmpviewCommand(dtfjInfo, "!context").trim(); //$NON-NLS-1$
+                    sb.append(context);
+                    context = context.substring(context.indexOf("!j9javavm")); //$NON-NLS-1$
+
+                    // Execute the context and extract out the
+                    // exclusiveAccessState
+                    String j9javavm = executeJdmpviewCommand(dtfjInfo, context);
+                    sb.append("\n\n" + j9javavm); //$NON-NLS-1$
+                    j9javavm = j9javavm.substring(j9javavm.indexOf(" exclusiveAccessState = ") + 26); //$NON-NLS-1$
+                    j9javavm = j9javavm.substring(0, j9javavm.indexOf(' ')).trim();
+
+                    // https://github.com/eclipse/openj9/blob/v0.22.0-release/runtime/oti/j9consts.h#L785
+                    long exclusiveAccessState = Long.parseLong(j9javavm, 16);
+                    if (exclusiveAccessState == 0)
+                    {
+                        return new DumpReliabilityResult(DumpReliability.NON_EXCLUSIVE_ACCESS);
+                    }
+                    else if (exclusiveAccessState == 2)
+                    {
+                        // Something has exclusive access, so figure out what it is
+                        sb.append("Something has exclusive access because exclusiveAccessState = 2\n"); //$NON-NLS-1$
+
+                        // Find the j9vmthread that has exclusive access
+                        String threads = executeJdmpviewCommand(dtfjInfo, "!threads flags"); //$NON-NLS-1$
+                        sb.append("\n\n> !threads flags\n" + threads); //$NON-NLS-1$
+                        threads = threads.substring(0, threads.indexOf("20 privateFlags")); //$NON-NLS-1$
+                        threads = threads.substring(threads.lastIndexOf("!j9vmthread ")); //$NON-NLS-1$
+                        threads = threads.substring(0, threads.lastIndexOf(' ')).trim();
+
+                        // Get the omrVMThread for the j9vmthread
+                        String omrVMThread = executeJdmpviewCommand(dtfjInfo, threads);
+                        sb.append("\n\n> " + threads + "\n" + omrVMThread); //$NON-NLS-1$ //$NON-NLS-2$
+                        omrVMThread = omrVMThread.substring(omrVMThread.indexOf(" omrVMThread = ") + 15); //$NON-NLS-1$
+                        omrVMThread = omrVMThread.substring(0, omrVMThread.indexOf('\n')).trim();
+
+                        if (!omrVMThread.startsWith("!j9x ")) //$NON-NLS-1$
+                        {
+                            // Get the vmState of the omrVMThread
+                            String vmStateStr = executeJdmpviewCommand(dtfjInfo, omrVMThread);
+                            sb.append("\n\n> " + omrVMThread + "\n" + vmStateStr); //$NON-NLS-1$ //$NON-NLS-2$
+                            vmStateStr = vmStateStr.substring(vmStateStr.indexOf(" vmState = ") + 13); //$NON-NLS-1$
+                            vmStateStr = vmStateStr.substring(0, vmStateStr.indexOf(' ')).trim();
+                            long vmState = Long.parseLong(vmStateStr, 16);
+                            if ((vmState & 0x20000) != 0)
+                            {
+                                // https://github.com/eclipse/omr/blob/omr-0.1.0/gc/include/omrmodroncore.h#L73
+                                return new DumpReliabilityResult(DumpReliability.DURING_GARBAGE_COLLECTION);
+                            }
+                        }
+                        else
+                        {
+                            // When omrVMThread evaluates to a !j9x command,
+                            // then jdmpview doesn't have enough information on
+                            // the OMRVMThread structure. This could be due to
+                            // an older version of Java, for example.
+                            listener.sendUserMessage(Severity.WARNING,
+                                            Messages.DTFJIndexBuilder_ErrorCheckingOMRVMThread,
+                                            new UnsupportedOperationException(sb.toString()));
+                        }
+                    }
+                }
+                catch (Throwable t)
+                {
+                    // This will probably be caused by a change in the
+                    // undocumented format of the various jdmpview commands, so
+                    // we just print a warning about it.
+                    listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_ErrorCheckingReliability,
+                                    new UnsupportedOperationException(sb.toString(), t));
+                }
             }
         }
+
         return new DumpReliabilityResult(DumpReliability.UNKNOWN);
     }
     
-    private String executeJdmpviewCommand(String command) throws SnapshotException
+    static String executeJdmpviewCommand(RuntimeInfo dtfjInfo, String command) throws SnapshotException
     {
         try
         {
