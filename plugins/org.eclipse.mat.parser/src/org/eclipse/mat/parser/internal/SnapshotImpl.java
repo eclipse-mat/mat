@@ -79,6 +79,7 @@ import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.PathsFromGCRootsTree;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -210,6 +211,7 @@ public final class SnapshotImpl implements ISnapshot
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
             snapshotInfo.setProperty("$heapFormat", parser.getId()); //$NON-NLS-1$
+            snapshotInfo.setProperty(SnapshotInfo.PROPERTY_REOPENED, true);
             HashMapIntObject<ClassImpl> classCache = (HashMapIntObject<ClassImpl>) in.readObject();
 
             if (listener.isCanceled())
