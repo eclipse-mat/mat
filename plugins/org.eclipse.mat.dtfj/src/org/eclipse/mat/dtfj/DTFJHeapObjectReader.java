@@ -204,7 +204,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         Serializable runtimeId = snapinfo.getProperty(DTFJIndexBuilder.RUNTIME_ID_KEY);
         // Find the JVM
         dtfjInfo = DTFJIndexBuilder.getRuntime(info.getImageFactory(), info.getImage(), runtimeId, null);
-        Boolean reopened = (Boolean) snapshot.getSnapshotInfo().getProperty(SnapshotInfo.PROPERTY_REOPENED);
+        Boolean reopened = (Boolean) snapshot.getSnapshotInfo().getProperty("$reopened");
         if (reopened != null && reopened)
         {
             String reliabilityCheck = DTFJIndexBuilder.getReliabilityCheckPreference();
