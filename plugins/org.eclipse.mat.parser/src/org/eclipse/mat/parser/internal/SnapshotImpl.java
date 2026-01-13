@@ -211,7 +211,7 @@ public final class SnapshotImpl implements ISnapshot
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
             snapshotInfo.setProperty("$heapFormat", parser.getId()); //$NON-NLS-1$
-            snapshotInfo.setProperty(SnapshotInfo.PROPERTY_REOPENED, true);
+            snapshotInfo.setProperty("$reopened", true);
             HashMapIntObject<ClassImpl> classCache = (HashMapIntObject<ClassImpl>) in.readObject();
 
             if (listener.isCanceled())
