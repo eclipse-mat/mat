@@ -376,7 +376,10 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     @Override
     protected void editorContextMenuAboutToShow(PopupMenu popupMenu)
     {
-        contextMenu.addContextActions(popupMenu, new StructuredSelection(current), null);
+        if (current != null)
+        {
+            contextMenu.addContextActions(popupMenu, new StructuredSelection(current), null);
+        }
     }
 
     private void fireSelectionEvent()
