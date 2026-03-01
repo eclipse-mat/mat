@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,8 +63,6 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.SimpleStringTokenizer;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("top_consumers_html")
 @Icon("/META-INF/icons/pie_chart.gif")

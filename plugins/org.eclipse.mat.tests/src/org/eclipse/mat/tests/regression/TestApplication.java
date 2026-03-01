@@ -28,6 +28,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,8 +56,6 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.osgi.framework.Bundle;
 import org.xml.sax.helpers.AttributesImpl;
-
-import com.ibm.icu.text.SimpleDateFormat;
 
 public class TestApplication
 {

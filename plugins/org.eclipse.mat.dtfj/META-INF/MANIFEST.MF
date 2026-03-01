@@ -14,7 +14,6 @@ Eclipse-LazyStart: true
 Import-Package: com.ibm.dtfj.image;bundle-symbolic-name="com.ibm.dtfj.api";resolution:=optional,
  com.ibm.dtfj.java;bundle-symbolic-name="com.ibm.dtfj.api";resolution:=optional,
  com.ibm.dtfj.runtime;bundle-symbolic-name="com.ibm.dtfj.api";resolution:=optional,
- com.ibm.icu.text,
  org.eclipse.jface.dialogs;resolution:=optional,
  org.eclipse.jface.preference;resolution:=optional,
  org.eclipse.swt.widgets;resolution:=optional,

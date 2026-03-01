@@ -15,6 +15,7 @@ package org.eclipse.mat.query.registry;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,8 +28,6 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
-
-import com.ibm.icu.text.BreakIterator;
 
 /**
  * A description of a query to be run on a snapshot, though this class is independent of the actual snapshot

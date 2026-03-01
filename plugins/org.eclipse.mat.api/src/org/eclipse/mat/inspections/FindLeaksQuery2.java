@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,8 +64,6 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("find_leaks2")
 @Category(Category.HIDDEN)

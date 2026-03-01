@@ -48,6 +48,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,8 +95,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.AfterParam;
 import org.junit.runners.Parameterized.Parameters;
-
-import com.ibm.icu.text.DecimalFormatSymbols;
 
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests

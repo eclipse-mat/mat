@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-import com.ibm.icu.text.NumberFormat;
+import java.text.NumberFormat;
 
 /**
  * A way of adding units to values.

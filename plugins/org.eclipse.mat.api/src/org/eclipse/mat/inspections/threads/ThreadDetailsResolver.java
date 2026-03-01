@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections.threads;
 
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -27,8 +28,6 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.snapshot.extension.IThreadDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.util.IProgressListener;
-
-import com.ibm.icu.text.DecimalFormat;
 
 /**
  * Extract extra information about an OpenJDK thread.

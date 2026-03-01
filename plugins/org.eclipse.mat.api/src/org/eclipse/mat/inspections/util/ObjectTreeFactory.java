@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections.util;
 
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +30,6 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.Icons;
-
-import com.ibm.icu.text.NumberFormat;
 
 public final class ObjectTreeFactory
 {

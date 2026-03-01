@@ -13,6 +13,7 @@
 package org.eclipse.mat.dtfj;
 
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -42,7 +43,6 @@ import com.ibm.dtfj.java.JavaMonitor;
 import com.ibm.dtfj.java.JavaObject;
 import com.ibm.dtfj.java.JavaRuntime;
 import com.ibm.dtfj.java.JavaThread;
-import com.ibm.icu.text.DecimalFormat;
 
 /**
  * Use DTFJ to extract extra information about a thread.

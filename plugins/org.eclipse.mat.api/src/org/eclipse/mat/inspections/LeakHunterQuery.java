@@ -14,6 +14,7 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -92,8 +93,6 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 
-import com.ibm.icu.text.NumberFormat;
-
 @CommandName("leakhunter")
 @Icon("/META-INF/icons/leak.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/runningleaksuspectreport.html")
@@ -105,7 +104,6 @@ public class LeakHunterQuery implements IQuery
     // Use per-instance formatters to avoid thread safety problems
     NumberFormat percentFormatter;
     {
-        // Use com.ibm.icu
         percentFormatter = NumberFormat.getPercentInstance();
         percentFormatter.setMinimumFractionDigits(2);
         percentFormatter.setMaximumFractionDigits(2);

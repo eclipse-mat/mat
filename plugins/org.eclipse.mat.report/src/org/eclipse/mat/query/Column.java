@@ -13,8 +13,7 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
-import com.ibm.icu.text.DecimalFormat;
-
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.Comparator;
 import java.util.HashMap;

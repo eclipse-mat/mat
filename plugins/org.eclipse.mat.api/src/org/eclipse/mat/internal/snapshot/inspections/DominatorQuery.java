@@ -14,6 +14,7 @@
 package org.eclipse.mat.internal.snapshot.inspections;
 
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,8 +54,6 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("dominator_tree")
 @Category(Category.HIDDEN)

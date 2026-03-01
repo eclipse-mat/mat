@@ -23,8 +23,11 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,10 +82,6 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.DecimalFormatSymbols;
-import com.ibm.icu.text.NumberFormat;
 
 @Icon("/META-INF/icons/compare.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
@@ -2733,20 +2732,26 @@ public class CompareTablesQuery implements IQuery
             if (formatter instanceof DecimalFormat)
             {
                 DecimalFormat pctFmt = (DecimalFormat) formatter;
+                // java.text.NumberFormat.parse() returns Double for values exceeding long range,
+                // losing precision (e.g. 9222372036854775809 becomes 9222372036854775808).
+                // setParseBigDecimal(true) makes parse() return BigDecimal instead, preserving
+                // full precision. ICU4J did not have this problem as it returned BigDecimal by default.
+                pctFmt.setParseBigDecimal(true);
                 if ((pctFmt.getPositivePrefix().length() == 0
                                 || pctFmt.getPositivePrefix().equals(pctFmt.getNegativePrefix()))
                                 && (pctFmt.getPositiveSuffix().length() == 0
                                 || pctFmt.getPositiveSuffix().equals(pctFmt.getNegativeSuffix())))
                 {
-                    // No positive prefix, or positive suffix
-                    DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
-                    // find the symbol
-                    String plus = Character.toString(sym.getPlusSign());
+                    // java.text.DecimalFormatSymbols does not expose a plus sign symbol.
+                    // ICU4J returned a locale-specific character (e.g. U+FB29 in Hebrew, U+2212 in some Arab locales)
+                    // java.text has no equivalent, so '+' is hardcoded here. This is correct for all locales supported
+                    // by java.text but will not adapt to locale-specific plus glyphs.
+                    String plus = "+";
                     // Make it a prefix, unless there is a prefix (same as negative) but no suffix
                     if (pctFmt.getPositivePrefix().length() > 0 && pctFmt.getPositiveSuffix().length() == 0)
-                        pctFmt.setPositiveSuffix(plus);
+                        pctFmt.setPositiveSuffix("+");
                     else
-                        pctFmt.setPositivePrefix(plus);
+                        pctFmt.setPositivePrefix("+");
                 }
             }
         }

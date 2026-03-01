@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.mat.query.quantize;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,9 +35,6 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.quantize.Quantize.Function.Factory;
 import org.eclipse.mat.report.internal.Messages;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 /**
  * Create a value or frequency distribution out of arbitrary values.

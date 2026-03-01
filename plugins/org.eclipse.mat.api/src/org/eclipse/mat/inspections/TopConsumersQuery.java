@@ -15,6 +15,7 @@ package org.eclipse.mat.inspections;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,8 +46,6 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleMonitor;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("top_consumers")
 @Icon("/META-INF/icons/pie_chart.gif")

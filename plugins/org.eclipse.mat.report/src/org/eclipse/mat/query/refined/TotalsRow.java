@@ -15,16 +15,15 @@
 package org.eclipse.mat.query.refined;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.NumberFormat;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 public class TotalsRow
 {
