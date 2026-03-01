@@ -13,14 +13,13 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParsePosition;
 
 import org.eclipse.mat.report.internal.Messages;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 /**
  * This class formats an instance of {@link org.eclipse.mat.query.Bytes},

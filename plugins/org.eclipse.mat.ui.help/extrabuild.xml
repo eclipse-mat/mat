@@ -54,7 +54,6 @@
             <link href="https://docs.oracle.com/en/java/javase/11/docs/api/" />
             <!-- Change to the version with which we build standalone MAT -->
             <link href="https://help.eclipse.org/2023-09/topic/org.eclipse.platform.doc.isv/reference/api/" />
-            <link href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/" />
             <link offline="true" href="https://www.ibm.com/docs/api/v1/content/SSYKE2_8.0.0/openj9/api/jdk8/platform/dtfj/" 
                   packagelistloc="javadoc/dtfj/" />
             <packageset dir="../org.eclipse.mat.report/src" defaultexcludes="yes">

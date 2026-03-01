@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.text.NumberFormat;
+
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
@@ -26,8 +28,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("select_objects_by_field")
 @Icon("/META-INF/icons/select_objects_by_field.gif")

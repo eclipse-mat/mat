@@ -16,10 +16,9 @@ package org.eclipse.mat.tests.regression;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import com.ibm.icu.text.DecimalFormatSymbols;
 
 public class RegTestUtils
 {

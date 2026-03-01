@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-import com.ibm.icu.text.MessageFormat;
+import java.text.MessageFormat;
 
 /**
  * Substitute replaceable text in a message. 

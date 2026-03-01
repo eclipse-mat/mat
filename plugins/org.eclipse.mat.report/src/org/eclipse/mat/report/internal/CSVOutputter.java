@@ -15,6 +15,7 @@ package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 import org.eclipse.mat.query.Column;
@@ -23,8 +24,6 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.report.Renderer;
-
-import com.ibm.icu.text.DecimalFormatSymbols;
 
 @Renderer(target = "csv", result = { IResultTree.class, IResultTable.class })
 public class CSVOutputter extends OutputterBase

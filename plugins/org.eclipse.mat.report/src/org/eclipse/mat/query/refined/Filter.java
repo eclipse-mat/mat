@@ -14,6 +14,8 @@
 package org.eclipse.mat.query.refined;
 
 import java.text.Format;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.regex.Pattern;
@@ -25,9 +27,6 @@ import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 /**
  * Used to filter values in a result, to avoid displaying rows not matching the filter.

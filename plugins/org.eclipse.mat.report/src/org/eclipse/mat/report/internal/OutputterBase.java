@@ -12,13 +12,12 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
+import java.text.DecimalFormat;
 import java.text.Format;
 
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.report.IOutputter;
-
-import com.ibm.icu.text.DecimalFormat;
 
 public abstract class OutputterBase implements IOutputter
 {

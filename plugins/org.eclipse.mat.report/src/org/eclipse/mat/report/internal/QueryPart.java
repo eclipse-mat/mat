@@ -14,8 +14,10 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +55,6 @@ import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 public class QueryPart extends AbstractPart
 {

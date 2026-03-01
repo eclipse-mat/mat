@@ -16,6 +16,9 @@ package org.eclipse.mat.ui.snapshot.views;
 import java.io.File;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,10 +50,6 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
-import com.ibm.icu.text.DateFormat;
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 
 public abstract class SnapshotOutlinePage extends Page implements IContentOutlinePage
 {

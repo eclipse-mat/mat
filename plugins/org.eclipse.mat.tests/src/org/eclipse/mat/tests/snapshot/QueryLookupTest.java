@@ -627,9 +627,8 @@ public class QueryLookupTest
                             assertThat(fv2, ((Long)vo2).doubleValue(), closeTo((Double)v2, 0.01));
                         else
                         {
-                            // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
-                            assertThat(fv2, vo2, instanceOf(Double.class));
-                            assertThat(fv2, (Double)vo2, closeTo((Double)v2, 0.01));
+                            assertThat(fv2, vo2, instanceOf(Number.class));
+                            assertThat(fv2, ((Number)vo2).doubleValue(), closeTo((Double)v2, 0.01));
                         }
                     }
                     else if (v2 instanceof Number)
@@ -653,7 +652,6 @@ public class QueryLookupTest
                     Object vo3 = formatter3.parseObject(fv3);
                     if (v3 instanceof Double)
                     {
-                        // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
                         assertThat(fv3, vo3, instanceOf(Number.class));
                         // Hamcrest closeTo matcher problem with infinity
                         if (Double.isInfinite((Double)v3))
@@ -678,7 +676,6 @@ public class QueryLookupTest
                             assertThat(fv4, ((Long)vo4).doubleValue(), closeTo((Double)v4, 0.01));
                         else
                         {
-                            // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
                             assertThat(fv4, vo4, instanceOf(Double.class));
                             assertThat(fv4, (Double)vo4, closeTo((Double)v4, 0.01));
                         }
@@ -704,7 +701,6 @@ public class QueryLookupTest
                     Object vo5 = formatter5.parseObject(fv5);
                     if (v5 instanceof Double)
                     {
-                        // E.g. percent can be returned as com.ibm.icu.math.BigDecimal
                         assertThat(fv5, vo5, instanceOf(Number.class));
                         // Hamcrest closeTo matcher problem with infinity
                         if (Double.isInfinite((Double)v5))

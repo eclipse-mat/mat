@@ -18,6 +18,7 @@ import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 import java.io.File;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +41,6 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
-
-import com.ibm.icu.text.NumberFormat;
 
 @Category(Category.HIDDEN)
 @CommandName("heap_dump_overview")
