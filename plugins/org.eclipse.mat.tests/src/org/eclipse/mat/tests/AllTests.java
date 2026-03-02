@@ -30,6 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.collect.CommandTests.class, //
                 org.eclipse.mat.tests.collect.SortTest.class, //
                 org.eclipse.mat.tests.collect.ExtractCollectionEntriesTest.class, //
+                org.eclipse.mat.tests.collect.ConcurrentBitFieldTest.class, //
                 org.eclipse.mat.tests.parser.GzipTests.class, //
                 org.eclipse.mat.tests.parser.TestIndex.class, //
                 org.eclipse.mat.tests.parser.TestIndex1to1.class, //
