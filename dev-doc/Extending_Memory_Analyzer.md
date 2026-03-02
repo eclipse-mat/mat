@@ -43,7 +43,7 @@ Create MAT as a target platform:
 8. No template
 9. ->Finish
 
-### Configure depedencies
+### Configure dependencies
 
 1. add `org.eclipse.mat.api` (to allow use of the API)
 2. Save (cntl-S)

@@ -24,7 +24,7 @@ reflected by the version numbers, following the [Eclipse versioning policy](http
 - Changes to the API - adding new APIs or deprecating APIs should be documented
 and communicated to the community (e.g. via GH issue and/or mailing list).
 
-- Deprecated API should be available for at lease one major release.
+- Deprecated API should be available for at least one major release.
 
 ## Provisional and internal API
 

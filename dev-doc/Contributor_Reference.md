@@ -266,8 +266,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md)
 MAT Policies - to satisfy [Simultaneous Release Requirements](https://github.com/eclipse-simrel/.github/blob/main/wiki/SimRel/Simultaneous_Release_Requirements.md)
 * [Ramp Down Plan](https://wiki.eclipse.org/MemoryAnalyzer/Ramp_Down_Plan)
 * [Retention Policy](https://wiki.eclipse.org/MemoryAnalyzer/Retention_policy)
-* [API Policy](https://wiki.eclipse.org/MemoryAnalyzer/API_policy)
-* [Capabilities](https://wiki.eclipse.org/MemoryAnalyzer/MAT_Capabilities)
+* [API Policy](./API_policy.md)
+* [Capabilities](./MAT_capabilities.md)
 
 ## Download Statistics
 

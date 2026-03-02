@@ -2,7 +2,7 @@ NOTE this page is here for archival purposes only.
 
 # MAT Capabilities
 
-This document provides some sample [capability definitions](https://wiki.eclipse.org/Eclipse/Capabilities)
+This document provides some sample capability definitions
 for the Memory Analyzer (MAT). It describes:
 
 1. Where to find the existing Capabilities plug-in in SVN
