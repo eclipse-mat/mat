@@ -36,11 +36,13 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.report.internal.Parameters;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.query.ContextProvider;
@@ -1579,6 +1581,33 @@ public class OQLTest
         assertThat(irt.getRowCount(), greaterThan(0));
         assertThat(irt.getColumns().length, equalTo(3));
         checkGetOQL(irt);
+    }
+
+    /**
+     * Regression test for issue #143: OQL outer-variable references written as
+     * $${name} in report XML must survive Parameters.expand() as ${name} so the
+     * OQL parser can use them as outer-variable references in correlated sub-queries.
+     */
+    @Test
+    public void testParametersExpandEscapePreservesOQLEnvVar() throws SnapshotException
+    {
+        // In report XML the inner command is written with $${h} to protect the
+        // outer-variable reference from Parameters.expand().
+        String xmlInner = "(SELECT e.getKey() AS key, e.getValue() AS value FROM OBJECTS $${h}[0:-1] e)"; //$NON-NLS-1$
+
+        // Simulate Parameters.expand() with an empty parameter map (no report
+        // parameter named 'h'): $${h} must become ${h}, not empty string.
+        Parameters params = new Parameters.Deep(Collections.emptyMap());
+        String oqlInner = params.expand(xmlInner);
+        assertEquals("(SELECT e.getKey() AS key, e.getValue() AS value FROM OBJECTS ${h}[0:-1] e)", oqlInner); //$NON-NLS-1$
+
+        // Wrap in an outer query that binds 'h' and execute end-to-end against
+        // a real snapshot to confirm ${h} is correctly treated as an OQL outer-var.
+        String fullOql = "SELECT z.map AS Map, z.kv.key AS Key, z.kv.value AS Value " //$NON-NLS-1$
+                        + "FROM OBJECTS (SELECT h AS map, " + oqlInner + " AS kv FROM java.util.HashMap h) z " //$NON-NLS-1$
+                        + "WHERE (z.kv.key != null)"; //$NON-NLS-1$
+        IResultTable irt = (IResultTable) execute(fullOql);
+        assertThat(irt.getRowCount(), greaterThan(0));
     }
 
     @Test
