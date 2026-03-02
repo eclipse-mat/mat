@@ -1611,4 +1611,37 @@ public class QueriesTest
         if (cls != null)
             assertThat("Expect snapshot disposed so no classes", cls.size(), equalTo(0));
     }
+
+    /**
+     * Regression test for issue #158: ClassCastException in addZeroLengthArrays.
+     * ArraysBySizeQuery groups by two keys (array length and single-instance size),
+     * so column 1 is the single-instance size (Long), not the count.
+     * The count is at column 2 (Integer). This test pins the column contract so
+     * that a layout change in ArraysBySizeQuery will be caught before it silently
+     * breaks ComponentReportQuery.addZeroLengthArrays.
+     */
+    @Test
+    public void testArraysBySizeColumnTypes() throws SnapshotException
+    {
+        Collection<IClass> classes = snapshot.getClassesByName("byte[]", false);
+        assertNotNull(classes);
+        assertFalse(classes.isEmpty());
+        int[] objectIds = classes.iterator().next().getObjectIds();
+        assertTrue(objectIds.length > 0);
+
+        RefinedResultBuilder builder = SnapshotQuery.lookup("arrays_grouped_by_size", snapshot)
+                        .setArgument("objects", objectIds)
+                        .refine(new VoidProgressListener());
+        builder.setInlineRetainedSizeCalculation(true);
+        RefinedTable table = (RefinedTable) builder.build();
+
+        assertTrue(table.getRowCount() > 0);
+        Object row = table.getRow(0);
+        assertThat("col 0 (array length key) must be Integer",
+                        table.getColumnValue(row, 0), instanceOf(Integer.class));
+        assertThat("col 1 (single-instance size key) must not be Integer - it is Long",
+                        table.getColumnValue(row, 1), not(instanceOf(Integer.class)));
+        assertThat("col 2 (count) must be Integer",
+                        table.getColumnValue(row, 2), instanceOf(Integer.class));
+    }
 }

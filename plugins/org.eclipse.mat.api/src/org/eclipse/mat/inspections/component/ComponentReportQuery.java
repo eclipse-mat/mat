@@ -795,8 +795,8 @@ public class ComponentReportQuery implements IQuery
                         long size = Math.abs((Long) refinedTable.getColumnValue(row, 4));
                         if (size > threshold)
                         {
-                            int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 1);
-                            String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
+                            int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 2);
+                            String retainedSize = refinedTable.getFormattedColumnValue(row, 4);
 
                             if (comment.length() == 0)
                             {
