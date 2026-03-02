@@ -169,6 +169,80 @@ public class CommonNameResolver
         }
     }
 
+    @Subject("java.util.concurrent.atomic.LongAdder")
+    public static class LongAdderResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            Object baseObj = obj.resolveValue("base"); //$NON-NLS-1$
+            if (!(baseObj instanceof Long))
+                return null;
+            long sum = (Long) baseObj;
+            Object cellsObj = obj.resolveValue("cells"); //$NON-NLS-1$
+            if (cellsObj instanceof IObjectArray)
+            {
+                ISnapshot snapshot = obj.getSnapshot();
+                IObjectArray cells = (IObjectArray) cellsObj;
+                long[] refs = cells.getReferenceArray();
+                for (int i = 0; i < cells.getLength(); i++)
+                {
+                    if (refs[i] != 0)
+                    {
+                        IObject cell = snapshot.getObject(snapshot.mapAddressToId(refs[i]));
+                        Object cellValue = cell.resolveValue("value"); //$NON-NLS-1$
+                        if (cellValue instanceof Long)
+                            sum += (Long) cellValue;
+                    }
+                }
+            }
+            return Long.toString(sum);
+        }
+    }
+
+    /**
+     * Resolves the current sum of a {@code DoubleAdder} from its internal
+     * {@code Striped64} representation.
+     *
+     * <p>{@code Striped64} stores double values as raw IEEE 754 bit patterns
+     * in {@code long} fields ({@code base} and each {@code Cell.value}) so
+     * that the JVM's integer-width compare-and-swap instruction can be used —
+     * there is no native atomic CAS on {@code double}. Each field must
+     * therefore be decoded with {@link Double#longBitsToDouble} before
+     * accumulation; summing the raw long representations directly would
+     * produce nonsense. The initial value of {@code base} in a freshly
+     * constructed {@code DoubleAdder} is {@code 0L}, which correctly decodes
+     * to {@code 0.0}.
+     */
+    @Subject("java.util.concurrent.atomic.DoubleAdder")
+    public static class DoubleAdderResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            Object baseObj = obj.resolveValue("base"); //$NON-NLS-1$
+            if (!(baseObj instanceof Long))
+                return null;
+            double sum = Double.longBitsToDouble((Long) baseObj);
+            Object cellsObj = obj.resolveValue("cells"); //$NON-NLS-1$
+            if (cellsObj instanceof IObjectArray)
+            {
+                ISnapshot snapshot = obj.getSnapshot();
+                IObjectArray cells = (IObjectArray) cellsObj;
+                long[] refs = cells.getReferenceArray();
+                for (int i = 0; i < cells.getLength(); i++)
+                {
+                    if (refs[i] != 0)
+                    {
+                        IObject cell = snapshot.getObject(snapshot.mapAddressToId(refs[i]));
+                        Object cellValue = cell.resolveValue("value"); //$NON-NLS-1$
+                        if (cellValue instanceof Long)
+                            sum += Double.longBitsToDouble((Long) cellValue);
+                    }
+                }
+            }
+            return Double.toString(sum);
+        }
+    }
+
     @Subject("char[]")
     public static class CharArrayResolver implements IClassSpecificNameResolver
     {

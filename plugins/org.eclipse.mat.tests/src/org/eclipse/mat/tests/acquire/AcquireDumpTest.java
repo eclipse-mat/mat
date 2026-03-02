@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
@@ -152,6 +154,7 @@ public class AcquireDumpTest
                 if (desc.contains("org.eclipse.mat.tests"))
                 {
                     fillBD();
+                    fillAdders();
                     System.out.println("Desc " + desc);
                     // If we can, try compressing the dump to test more code paths
                     try
@@ -250,6 +253,8 @@ public class AcquireDumpTest
                             }
                             checkBigIntegerResolver(answer);
                             checkBigDecimalResolver(answer);
+                            checkLongAdderResolver(answer);
+                            checkDoubleAdderResolver(answer);
                         }
                         finally
                         {
@@ -487,6 +492,74 @@ public class AcquireDumpTest
             }
         }
         assertThat("Decimals as BigDecimal", dotposns, greaterThanOrEqualTo(14));
+    }
+
+    LongAdder longAdderValues[];
+    DoubleAdder doubleAdderValues[];
+
+    void fillAdders()
+    {
+        longAdderValues = new LongAdder[3];
+        longAdderValues[0] = new LongAdder();
+        longAdderValues[0].add(999001L);
+        longAdderValues[1] = new LongAdder();
+        longAdderValues[1].add(999002L);
+        longAdderValues[2] = new LongAdder();
+
+        doubleAdderValues = new DoubleAdder[2];
+        doubleAdderValues[0] = new DoubleAdder();
+        doubleAdderValues[0].add(3.14159);
+        doubleAdderValues[1] = new DoubleAdder();
+    }
+
+    /**
+     * Verify that the LongAdderResolver correctly computes base + sum(cells).
+     * The test holds live LongAdder instances with known sums so they appear
+     * in the heap dump with predictable class-specific names.
+     */
+    void checkLongAdderResolver(ISnapshot snapshot) throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("group_by_value java.util.concurrent.atomic.LongAdder", snapshot); //$NON-NLS-1$
+        assertNotNull(query);
+        IResult result = query.execute(new VoidProgressListener());
+        assertNotNull(result);
+        IResultTable table = (IResultTable) result;
+        boolean found999001 = false;
+        boolean found999002 = false;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            String val = (String) table.getColumnValue(row, 0);
+            if ("999001".equals(val)) //$NON-NLS-1$
+                found999001 = true;
+            if ("999002".equals(val)) //$NON-NLS-1$
+                found999002 = true;
+        }
+        assertTrue("LongAdder with sum 999001 should be resolved", found999001); //$NON-NLS-1$
+        assertTrue("LongAdder with sum 999002 should be resolved", found999002); //$NON-NLS-1$
+    }
+
+    /**
+     * Verify that the DoubleAdderResolver correctly decodes bit-encoded double
+     * values from Striped64.  Each cell stores a double as its raw long bit
+     * pattern; summing the longs directly would be wrong.
+     */
+    void checkDoubleAdderResolver(ISnapshot snapshot) throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("group_by_value java.util.concurrent.atomic.DoubleAdder", snapshot); //$NON-NLS-1$
+        assertNotNull(query);
+        IResult result = query.execute(new VoidProgressListener());
+        assertNotNull(result);
+        IResultTable table = (IResultTable) result;
+        boolean found3_14159 = false;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            String val = (String) table.getColumnValue(row, 0);
+            if (Double.toString(3.14159).equals(val))
+                found3_14159 = true;
+        }
+        assertTrue("DoubleAdder with sum 3.14159 should be resolved", found3_14159); //$NON-NLS-1$
     }
 
     BigDecimal values[];

@@ -115,6 +115,8 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadGroupResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ValueResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$LongAdderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$DoubleAdderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$CharArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ByteArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$URLResolver" />
