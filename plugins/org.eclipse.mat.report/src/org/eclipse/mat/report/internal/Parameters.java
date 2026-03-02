@@ -49,6 +49,14 @@ public abstract class Parameters
             if (p1 < 0)
                 return value;
 
+            // $${...} is an escape sequence that produces a literal ${...}
+            if (p1 > 0 && value.charAt(p1 - 1) == '$')
+            {
+                value = value.substring(0, p1 - 1) + value.substring(p1);
+                p0 = p1 + 1;
+                continue;
+            }
+
             int p2 = value.indexOf('}', p1);
             if (p2 < 0)
                 return value;
