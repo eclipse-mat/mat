@@ -1,6 +1,12 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 name: OnPush
-on: [push, pull_request]
+on:
+  push:
+    branches:
+  pull_request:
+    branches:
+  workflow_dispatch:
+
 env:
   MAVEN_VERSION: 3.9.6
 jobs:
