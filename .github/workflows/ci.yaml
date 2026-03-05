@@ -1,16 +1,25 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-name: OnPush
+name: CI
+
 on:
   push:
-    branches:
+    branches: ["master"]
   pull_request:
-    branches:
+    branches: ["master"]
   workflow_dispatch:
+
+permissions:
+  # need permission to write to checks in order for spotbugs to upload check info
+  checks: write
+  contents: read
 
 env:
   MAVEN_VERSION: 3.9.12
+
 jobs:
   build_and_test:
+    # only run from main repo (i.e. not forks)
+    if: github.repository == github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,3 +50,12 @@ jobs:
           mvn --version
           mvn clean
           mvn install -Pskip-ui-tests
+          mvn spotbugs:spotbugs -Dspotbugs.xmlOutput=true -Dspotbugs.failOnError=false
+
+      - name: Upload spotbugs
+        # only run for PRs
+        if: github.event_name == 'pull_request'
+        uses: lcollins/spotbugs-github-action@v3.2.0
+        with:
+          path: '**/spotbugsXml.xml'
+
