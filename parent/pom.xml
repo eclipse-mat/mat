@@ -51,6 +51,15 @@
 		<url>https://ci.eclipse.org/mat</url>
 	</ciManagement>
 
+	<dependencies>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<version>4.9.7</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<properties>
 		<tycho-version>4.0.9</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
@@ -477,6 +486,12 @@
 							<groupId>com.github.spotbugs</groupId>
 							<artifactId>spotbugs</artifactId>
 							<version>4.7.3</version>
+						</dependency>
+						<dependency>
+							<groupId>com.github.spotbugs</groupId>
+							<artifactId>spotbugs-annotations</artifactId>
+							<version>4.7.3</version>
+							<scope>provided</scope>
 						</dependency>
 					</dependencies>
 				</plugin>
