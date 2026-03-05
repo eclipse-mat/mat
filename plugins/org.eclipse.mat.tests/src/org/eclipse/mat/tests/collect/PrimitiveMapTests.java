@@ -40,6 +40,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
@@ -1061,6 +1062,7 @@ public class PrimitiveMapTests
      * @param v the Integer to clone
      * @return probably a different Integer but equal to v
      */
+    @SuppressFBWarnings("RC_REF_COMPARISON")
     static Integer cloneInteger(Integer v)
     {
         Integer v1 = Integer.valueOf(v);
@@ -1082,6 +1084,7 @@ public class PrimitiveMapTests
      * @param v the Long to clone
      * @return probably a different Long but equal to v
      */
+    @SuppressFBWarnings("RC_REF_COMPARISON")
     static Long cloneLong(Long v)
     {
         Long v1 = Long.valueOf(v);
