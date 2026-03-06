@@ -1,0 +1,61 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  # need permission to write to checks in order for spotbugs to upload check info
+  checks: write
+  contents: read
+
+env:
+  MAVEN_VERSION: 3.9.12
+
+jobs:
+  build_and_test:
+    # only run from main repo (i.e. not forks)
+    if: github.repository == github.event.pull_request.base.repo.full_name
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          architecture: x64
+
+      # Install Apache Maven >= 3.9; otherwise, we get the error,
+      #   "Detected Maven Version: 3.8.8 is not in the allowed range [3.9,)."
+      # Add Maven envars for subsequent actions:
+      #   * PATH: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path
+      #   * MAVEN_HOME: https://docs.github.com/en/actions/learn-github-actions/variables#passing-values-between-steps-and-jobs-in-a-workflow
+      - name: Install Apache Maven 3.9
+        run: |
+          curl -s -L https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xzf - -C /opt/
+          echo "/opt/apache-maven-${MAVEN_VERSION}/bin/" >> $GITHUB_PATH
+          echo "MAVEN_HOME=/opt/apache-maven-${MAVEN_VERSION}/bin/" >> $GITHUB_ENV
+
+      - name: Compile and Package
+        # org.eclipse.mat.ui.rcp.tests fails without -Pskip-ui-tests
+        run: |
+          cd parent
+          mvn --version
+          mvn clean
+          mvn install -Pskip-ui-tests
+          mvn spotbugs:spotbugs -Dspotbugs.xmlOutput=true -Dspotbugs.failOnError=false
+
+      - name: Upload spotbugs
+        # only run for PRs
+        if: github.event_name == 'pull_request'
+        uses: lcollins/spotbugs-github-action@v3.2.0
+        with:
+          path: '**/spotbugsXml.xml'
+
