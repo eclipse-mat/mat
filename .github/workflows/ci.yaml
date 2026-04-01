@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 env:
-  MAVEN_VERSION: 3.9.12
+  MAVEN_VERSION: 3.9.14
 
 jobs:
   build_and_test:
