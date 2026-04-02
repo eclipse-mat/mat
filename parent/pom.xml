@@ -95,7 +95,7 @@
 		<macSigner.forceContinue>false</macSigner.forceContinue>
 
 		<!-- license check -->
-		<dash.fail>false</dash.fail>
+		<dash.fail>true</dash.fail>
 		<dash.projectId>tools.mat</dash.projectId>
 	</properties>
 	<pluginRepositories>
