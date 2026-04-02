@@ -36,4 +36,5 @@
    <bundle id="org.eclipse.birt.chart.device.extension" version="0.0.0"/>
    <bundle id="org.eclipse.birt.chart.device.swt" version="0.0.0"/>
    <bundle id="org.eclipse.birt.chart.engine.extension" version="0.0.0"/>
+   <bundle id="org.mozilla.rhino" version="0.0.0"/>
 </site>
