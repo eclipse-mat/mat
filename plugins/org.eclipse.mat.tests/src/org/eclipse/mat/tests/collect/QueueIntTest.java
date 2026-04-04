@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.collect.QueueInt;
 import org.eclipse.mat.collect.IteratorInt;
@@ -47,7 +48,7 @@ public class QueueIntTest
      */
     @Test
     public void testQueueInt0() {
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         for (int i = 0; i < COUNT; ++i) {
             int t = 0;
             QueueInt ss = new QueueInt(r.nextInt(INITIAL_SIZE));

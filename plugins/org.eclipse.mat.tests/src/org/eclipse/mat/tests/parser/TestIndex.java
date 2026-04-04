@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyObjectsIndex;
@@ -212,7 +213,7 @@ public class TestIndex
     public void testLong() throws IOException
     {
         assumeTrue((long) M * N < MAXELEMENTS);
-        Random r = new Random();
+        Random r = ThreadLocalRandom.current();
         long ii[][] = new long[P + 1][];
         for (int p = 0; p < P + 1; p++)
         {

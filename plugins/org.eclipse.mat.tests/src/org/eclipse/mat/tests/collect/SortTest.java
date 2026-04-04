@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.collect.ArrayUtils;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class SortTest
     {
         // Generate random data
         int n = longTest ? 29792349 : SHORTTEST;
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         int[] key0 = new int[n];
         int[] key = new int[n];
         int[] value = new int[n];
@@ -198,7 +199,7 @@ public class SortTest
     {
         // Generate random data
         int n = longTest ? 29792349 : SHORTTEST;
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         int k = n;
         int[] key0 = new int[n];
         int[] key = new int[n];
@@ -223,7 +224,7 @@ public class SortTest
     public void testSortDesc()
     {
         int n = longTest ? 29792349 : SHORTTEST;
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         long[] key0 = new long[n];
         long[] key = new long[n];
         int[] value = new int[n];
@@ -363,7 +364,7 @@ public class SortTest
     public void testSortDesc5()
     {
         int n = longTest ? 29792349 : SHORTTEST;
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         long[] key0 = new long[n];
         long[] key = new long[n];
         int[] value = new int[n];

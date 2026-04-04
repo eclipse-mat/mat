@@ -680,9 +680,9 @@ public class Pass1Parser extends AbstractParser
             statics[si++] = new Field("<signers>", Type.OBJECT, signersId == 0 ? null : new ObjectReference(null, signersId)); //$NON-NLS-1$
             statics[si++] = new Field("<protectionDomain>", Type.OBJECT, protectionDomainId == 0 ? null : new ObjectReference(null, protectionDomainId)); //$NON-NLS-1$
             if (reserved1Id != 0)
-                statics[si++] = new Field("<reserved1>", Type.OBJECT, reserved1Id == 0 ? null : new ObjectReference(null, reserved1Id)); //$NON-NLS-1$
+                statics[si++] = new Field("<reserved1>", Type.OBJECT, new ObjectReference(null, reserved1Id)); //$NON-NLS-1$
             if (reserved2Id != 0)
-                statics[si++] = new Field("<reserved2>", Type.OBJECT, reserved2Id == 0 ? null : new ObjectReference(null, reserved2Id)); //$NON-NLS-1$
+                statics[si++] = new Field("<reserved2>", Type.OBJECT, new ObjectReference(null, reserved2Id)); //$NON-NLS-1$
             Field all[] = new Field[statics.length + constantPool.length];
             System.arraycopy(statics,  0,  all,  0,  statics.length);
             System.arraycopy(constantPool,  0,  all,  statics.length, constantPool.length);
