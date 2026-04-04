@@ -192,6 +192,9 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             parserFactory.setNamespaceAware(true);
             // Add schema validation
             URL url = ReportPlugin.getDefault().getBundle().getResource("schema/report.xsd"); //$NON-NLS-1$
+            if (url == null) {
+                throw new IOException("Schema resource not found in bundle: schema/report.xsd"); //$NON-NLS-1$
+            }
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = factory.newSchema(url);
             parserFactory.setSchema(schema);

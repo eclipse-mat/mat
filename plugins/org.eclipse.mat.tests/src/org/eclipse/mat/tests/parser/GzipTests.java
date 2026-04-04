@@ -28,11 +28,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.mat.hprof.ChunkedGZIPRandomAccessFile;
 import org.eclipse.mat.hprof.GZIPInputStream2;
 import org.eclipse.mat.hprof.SeekableStream;
@@ -70,6 +72,7 @@ public class GzipTests
         this.comp = comp;
     }
 
+    @SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "Random is used with fixed seeds to assert test data consistency")
     static byte[] randomText(int size)
     {
         Random rn = new Random(1);
@@ -197,7 +200,7 @@ public class GzipTests
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bo, 0, bol))
         {
             try (InflaterInputStream inf = new InflaterInputStream(bis, false)) {
-                Random r = new Random(1);
+                Random r = ThreadLocalRandom.current();
                 byte bo2[] = new byte[inputLen];
                 int MAXMARK = 32211;
                 int mark = -1;
@@ -293,6 +296,7 @@ public class GzipTests
         checkSeekableStream(b, ss);
     }
 
+    @SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "Random is used with fixed seeds to assert test data consistency")
     private void checkSeekableStream(byte[] b, SeekableStream ss) throws IOException
     {
         int inputLen = b.length;

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
@@ -47,7 +48,7 @@ public class SetIntTest
      */
     @Test
     public void testSetInt0() {
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         for (int i = 0; i < COUNT; ++i) {
             int t = 0;
             SetInt ss = new SetInt(r.nextInt(INITIAL_SIZE));

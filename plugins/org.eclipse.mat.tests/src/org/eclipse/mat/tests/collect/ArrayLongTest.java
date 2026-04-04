@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.IteratorLong;
@@ -48,7 +49,7 @@ public class ArrayLongTest
      */
     @Test
     public void testArrayLong0() {
-        Random r = new Random(1);
+        Random r = ThreadLocalRandom.current();
         for (int i = 0; i < COUNT; ++i) {
             int t = 0;
             ArrayLong ss = new ArrayLong(r.nextInt(INITIAL_SIZE));

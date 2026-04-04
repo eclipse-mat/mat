@@ -508,7 +508,7 @@ public class AcquireDumpTest
 
         doubleAdderValues = new DoubleAdder[2];
         doubleAdderValues[0] = new DoubleAdder();
-        doubleAdderValues[0].add(3.14159);
+        doubleAdderValues[0].add(Math.PI);
         doubleAdderValues[1] = new DoubleAdder();
     }
 
@@ -551,15 +551,15 @@ public class AcquireDumpTest
         IResult result = query.execute(new VoidProgressListener());
         assertNotNull(result);
         IResultTable table = (IResultTable) result;
-        boolean found3_14159 = false;
+        boolean found_pi = false;
         for (int i = 0; i < table.getRowCount(); ++i)
         {
             Object row = table.getRow(i);
             String val = (String) table.getColumnValue(row, 0);
-            if (Double.toString(3.14159).equals(val))
-                found3_14159 = true;
+            if (Double.toString(Math.PI).equals(val))
+                found_pi = true;
         }
-        assertTrue("DoubleAdder with sum 3.14159 should be resolved", found3_14159); //$NON-NLS-1$
+        assertTrue("DoubleAdder with sum 3.14159 should be resolved", found_pi); //$NON-NLS-1$
     }
 
     BigDecimal values[];

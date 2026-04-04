@@ -174,10 +174,9 @@ public class CreateCollectionDump
         System.out.println("Acquire Heap Dump NOW (then press any key to terminate program)");
         int c = System.in.read();
         // Control-break causes read to return early, so try again for another
-        // key to wait
-        // for the dump to complete
+        // key to wait for the dump to complete
         if (c == -1)
-            c = System.in.read();
+            System.in.read();
 
         cd.print();
     }

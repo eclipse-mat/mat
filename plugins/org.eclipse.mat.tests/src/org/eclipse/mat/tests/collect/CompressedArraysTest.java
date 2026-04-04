@@ -16,6 +16,7 @@ package org.eclipse.mat.tests.collect;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLongCompressed;
@@ -28,7 +29,7 @@ public class CompressedArraysTest
     @Test
     public void testIntArrayCompressed()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int INTS = 1024;
         int TESTS = 10;
         for (int i = 1; i <= INTS; i++)
@@ -55,7 +56,7 @@ public class CompressedArraysTest
     @Test
     public void testLongArrayCompressed()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int LONGS = 1024;
         int TESTS = 10;
         for (int i = 1; i <= LONGS; i++)
@@ -85,7 +86,7 @@ public class CompressedArraysTest
     @Test
     public void testIntAndLongArrayCompressed()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int INTS = 1024;
         int TESTS = 10;
         for (int i = 1; i <= INTS; i++)
@@ -116,7 +117,7 @@ public class CompressedArraysTest
     @Test
     public void testLongAndIntArrayCompressed()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int INTS = 1024;
         int TESTS = 10;
         for (int i = 1; i <= INTS; i++)
@@ -147,7 +148,7 @@ public class CompressedArraysTest
     @Test
     public void testIntArrayCompressedOverwrite()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int INTS = 100;
         for (int i = 1; i <= INTS; i++)
         {
@@ -218,7 +219,7 @@ public class CompressedArraysTest
     @Test
     public void testLongArrayCompressedOverwrite()
     {
-        Random rand = new Random(SEED);
+        Random rand = ThreadLocalRandom.current();
         int LONGS = 100;
         for (int i = 1; i <= LONGS; i++)
         {

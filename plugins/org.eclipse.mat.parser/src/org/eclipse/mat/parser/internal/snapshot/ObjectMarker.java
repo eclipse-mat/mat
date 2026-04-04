@@ -117,7 +117,7 @@ public class ObjectMarker implements IObjectMarker
 
         ForkJoinPool pool = new ForkJoinPool(threads);
         try {
-            ObjectMarkerRootCC root = new ObjectMarkerRootCC(null, claimedRoots, bitField, LEVELS_RUN_INLINE, count);
+            ObjectMarkerRootCC root = new ObjectMarkerRootCC(claimedRoots, bitField, LEVELS_RUN_INLINE, count);
             // blocks until all work is done
             pool.invoke(root);
         }
@@ -141,8 +141,8 @@ public class ObjectMarker implements IObjectMarker
         final int levelsInline;
         final LongAdder count;
 
-        ObjectMarkerRootCC(CountedCompleter<?> parent, int[] roots, ConcurrentBitField visited, int levelsInline, LongAdder count) {
-            super(parent);
+        ObjectMarkerRootCC(int[] roots, ConcurrentBitField visited, int levelsInline, LongAdder count) {
+            super();
             this.roots = roots;
             this.visited = visited;
             this.levelsInline = levelsInline;
