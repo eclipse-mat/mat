@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2022 IBM Corporation
+ * Copyright (c) 2014, 2026 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    Andrew Johnson - initial API and implementation
  *    Andrew Johnson - add Strings for decoding tests
+ *    Jason Koch (Netflix, Inc) - fixes
  *******************************************************************************/
 package org.eclipse.mat.tests;
 

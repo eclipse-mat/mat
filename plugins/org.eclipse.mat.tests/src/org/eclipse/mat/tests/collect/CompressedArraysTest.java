@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2026 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Andrew Johnson/IBM Corporation - test array overwrites, and different leading and trailing zeroes
+ *    Jason Koch (Netflix, Inc) - fixes
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
