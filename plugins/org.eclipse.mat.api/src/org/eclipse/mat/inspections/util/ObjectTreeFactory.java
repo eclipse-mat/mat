@@ -106,7 +106,7 @@ public final class ObjectTreeFactory
 
         public IResultTree build(ISnapshot snapshot)
         {
-            return new NodeResult(snapshot, root, base, false, incoming);
+            return new NodeResult(snapshot, root, base, incoming);
         }
     }
 
@@ -117,7 +117,6 @@ public final class ObjectTreeFactory
     private static class Node
     {
         int ownId;
-        String attributeName;
         List<Node> children;
         boolean isExpanded;
         boolean isSelected;
@@ -175,15 +174,13 @@ public final class ObjectTreeFactory
         private ISnapshot snapshot;
         private Node invisibleRoot;
         private long base;
-        private boolean decorateWithAttributeName;
         private Boolean incoming;
 
-        private NodeResult(ISnapshot snapshot, Node root, long base, boolean decorateWithAttributeName, Boolean incoming)
+        private NodeResult(ISnapshot snapshot, Node root, long base, Boolean incoming)
         {
             this.snapshot = snapshot;
             this.invisibleRoot = root;
             this.base = base;
-            this.decorateWithAttributeName = decorateWithAttributeName;
             this.incoming = incoming;
         }
 
@@ -195,20 +192,6 @@ public final class ObjectTreeFactory
         public Column[] getColumns()
         {
             Column classNameCol = new Column(Messages.Column_ClassName, String.class);
-            if (decorateWithAttributeName)
-                classNameCol.decorator(new IDecorator()
-                {
-                    public String prefix(Object row)
-                    {
-                        return ((Node) row).attributeName;
-                    }
-
-                    public String suffix(Object row)
-                    {
-                        return null;
-                    }
-                });
-
             if (base > 0)
                 return new Column[] { classNameCol, COL_HEAP, COL_RETAINED, col_percent() };
             else
