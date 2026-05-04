@@ -206,24 +206,27 @@ It is possible to [run Memory Analyzer under WSL](MAT_under_WSL.md), which might
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md)
 
-## New version development process
+## New Version Development Process
 
 * Document new version at [MAT project page](https://projects.eclipse.org/projects/tools.mat)
 * Update references to old release in the code e.g. 1.X -&gt; 1.Y excluding update sites
-** See pom.xml e.g. `<version>1.9.1-SNAPSHOT</version>`
-** See manifest.mf e.g. `Bundle-Version: 1.9.1.qualifier`
-** See feature.xml, excluding updateSiteName
-** See org.eclipse.mat.ui.rcp about.mappings
-** org.eclipse.mat.product mat.product
-** org.eclipse.mat.ui.rcp.feature rootfiles/.eclipseproduct (hidden file, may need to use navigator view)
+  * The Tycho version plugin is helpful to change across pom.xml and MANIFEST.MF files, but leaves some places within MAT src unchanged:
 
+    ```mvn org.eclipse.tycho:tycho-versions-plugin:<TYCHO-VERSION-FROM-THE-PARENT-POM>:set-version -DnewVersion=1.17.0-SNAPSHOT```
+  * As the versions plugin would miss some places, search for the version across the files and replace if neccessary. These are the places where the changes should be at the end:
+    * See pom.xml e.g. `<version>1.17.0-SNAPSHOT</version>`
+    * See manifest.mf e.g. `Bundle-Version: 1.17.0.qualifier`
+    * See feature.xml, excluding updateSiteName
+    * See org.eclipse.mat.ui.rcp about.mappings
+    * org.eclipse.mat.product mat.product
+    * org.eclipse.mat.ui.rcp.feature rootfiles/.eclipseproduct (hidden file, may need to use navigator view)
 * Develop features and fix bugs
 * If a plugin depends on new function in another plugin, update the dependency version in manifest.mf
 * If creating a new plugin, add it to the JavaDoc build process in extrabuild.xml, use package-info.java to mark packages as not API or API as appropriate. Consider carefully adding new APIs.
 * If the Java version changes then the minor version must increase, also change:
   * .classpath
   * .settings/org.eclipse.jdt.core.prefs
-  * manifest.mf &lt;code&gt;Bundle-RequiredExecutionEnvironment: J2SE-1.5&lt;/code&gt;
+  * manifest.mf &lt;code&gt;Bundle-RequiredExecutionEnvironment: JavaSE-21&lt;/code&gt;
   * Update org.eclipse.ui.help extrabuild.xml for the new JavaDoc compile level, and for the link to the Java class library documentation
   * Consider keeping org.eclipse.mat.ibmdumps at a lower level as it uses classes for the exec dump provider and the attach jar which may be executed on lower level JVMs.
 * Update copyright date in source code if updated in a new year
@@ -243,35 +246,34 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md)
   * See feature.xml, including updateSiteName
 * Also write a New and Noteworthy document replacing the previous release, and add a link to the old document on the MAT website. This should be done in org.eclipse.mat.help in noteworthy.dita, and take the generated noteworthy.html, modify it if needed and add to the website.
 * Follow [Simultaneous release policies](#Simultaneous release policies)
-* After release create Bugzilla entry for the new version [Bugzilla Manager](https://dev.eclipse.org/committers/bugs/bugz_manager.php)
-* [Add a new Babel definition](https://wiki.eclipse.org/Babel/FAQ#How_do_I_add_my_project_to_Babel.3F) so the messages files could be translated.
+* After release
+  * create Bugzilla entry for the new version [Bugzilla Manager](https://dev.eclipse.org/committers/bugs/bugz_manager.php)
+  * update the [Eclipse Marketplace entry for MAT](https://marketplace.eclipse.org/content/memory-analyzer)
+  * [Add a new Babel definition](https://wiki.eclipse.org/Babel/FAQ#How_do_I_add_my_project_to_Babel.3F) so the messages files could be translated.
 
 
-## Simultaneous release policies
+## Simultaneous Release Policies
 
 * Create a release record in [Eclipse Memory Analyzer project page](https://projects.eclipse.org/projects/tools.mat)
 * For reference, read [contribute to the Simultaneous Release Build](https://github.com/orgs/eclipse-simrel/discussions/3)
-* [Build](https://ci.eclipse.org/mat/job/prepare_simrel_contribution/) to copy update site build to SimRel location.
+* Use the [prepare_simlel_contribution Build](https://ci.eclipse.org/mat/job/prepare_simrel_contribution/) to copy a snapshot update site build to a dedicated location for the SimRel.
 * Follow the SimRel process to update mat.aggrcon in the SimRel build.
 * Preserve the [tycho-build-nightly](https://ci.eclipse.org/mat/job/tycho-mat-nightly/) as 'Keep forever' and label it with the release build e.g. 'Photon RC2'
-* The [MAT configuration file](http://git.eclipse.org/c/simrel/org.eclipse.simrel.build.git/tree/mat.aggrcon) which is [updated using Git in GitHub.com/eclipse-simrel](https://github.com/orgs/eclipse-simrel/discussions/3) to match the SimRel location.
+* The [MAT configuration file](https://github.com/eclipse-simrel/simrel.build/blob/main/mat.aggrcon) which is [updated using Git in GitHub.com/eclipse-simrel](https://github.com/orgs/eclipse-simrel/discussions/3) to match the SimRel location.
 * Tag in Git with 'R_1.X.Y' the source used to generate the final build for a release. See [MAT Git Refs](https://git.eclipse.org/c/mat/org.eclipse.mat.git/refs/)
 * Complete the Eclipse release process, including getting a review if needed at [Eclipse Memory Analyzer project page](https://projects.eclipse.org/projects/tools.mat)
 * To release, also run the [Stand-alone packaging build](https://ci.eclipse.org/mat/job/mat-standalone-packages/), notarize the Mac x86_64 and aarch64 .dmg files and copy the results to the download site using [promote release](https://ci.eclipse.org/mat/job/mat-promote-release/).
-* Add the version name '1.XX' to [Bugzilla manager](https://dev.eclipse.org/committers/bugs/bugz_manager.php) so users can report bugs against the new version
-* Also release on [Eclipse Marketplace](https://marketplace.eclipse.org/content/memory-analyzer-0)
+* Update the [Eclipse Marketplace](https://marketplace.eclipse.org/content/memory-analyzer)
 * Also consider archiving some old releases
 
 
 MAT Policies - to satisfy [Simultaneous Release Requirements](https://github.com/eclipse-simrel/.github/blob/main/wiki/SimRel/Simultaneous_Release_Requirements.md)
-* [Ramp Down Plan](https://wiki.eclipse.org/MemoryAnalyzer/Ramp_Down_Plan)
-* [Retention Policy](https://wiki.eclipse.org/MemoryAnalyzer/Retention_policy)
 * [API Policy](./API_policy.md)
 * [Capabilities](./MAT_capabilities.md)
 
 ## Download Statistics
 
 Eclipse committers once logged in at accounts.eclipse.org can see download statistics at
-[Download Stats](https://dev.eclipse.org/committers/committertools/stats.php|Eclipse).
+[Download Stats](https://dev.eclipse.org/committers/committertools/stats.php).
 These are from downloads via the Find a Mirror script for stand-alone MAT and from p2 downloads from an update site.
 Search for '/mat/' for mirror downloads and 'org.eclipse.mat.api' for p2 downloads.
