@@ -3,7 +3,7 @@ Eclipse Memory Analyzer
 
 The Eclipse Memory Analyzer is a fast and feature-rich Java heap dump analyzer that helps you find memory leaks and reduce memory consumption.
 
-- Web site: <http://eclipse.dev/mat/>
+- Web site: <https://eclipse.dev/mat/>
 
 Download
 ----------------
@@ -24,9 +24,9 @@ For detailed build documentation refer to [Building MAT with Maven](dev-doc/Buil
 Documentation
 ----------------
 
-- [Documentation](http://help.eclipse.org/index.jsp?topic=/org.eclipse.mat.ui.help/welcome.html) - online version of the documentation available also from within the tool
-- [Learning](https://wiki.eclipse.org/MemoryAnalyzer/Learning_Material) - learn from presentations, blogs, tutorials
-- [FAQ](http://wiki.eclipse.org/index.php/MemoryAnalyzer/FAQ) - check some of the frequently asked questions
+- [Documentation](https://help.eclipse.org/index.jsp?topic=/org.eclipse.mat.ui.help/welcome.html) - online version of the documentation available also from within the tool
+- [Learning](https://github.com/eclipse-mat/mat/wiki/learning_material) - learn from presentations, blogs, tutorials
+- [FAQ](https://github.com/eclipse-mat/mat/wiki/faq) - check some of the frequently asked questions
 
 Contributing
 ----------------
@@ -48,4 +48,4 @@ Contact:
 ----------------
 
 - Developers [mailing list](https://dev.eclipse.org/mailman/listinfo/mat-dev)
-- Memory Analyzer [Forum](http://www.eclipse.org/forums/eclipse.memory-analyzer) at Eclipse
+
