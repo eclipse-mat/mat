@@ -645,7 +645,7 @@ public class LeakHunterQuery implements IQuery
         boolean multipleItems = entries.size() > 1 && topItems > 1;
         PriorityQueue<Entry<Integer, Long>> pq = new PriorityQueue<Entry<Integer, Long>>(entries.size(),
                         (e1, e2) -> e2.getValue().compareTo(e1.getValue()));
-        pq.addAll(entries);
+        entries.forEach(e -> pq.add(Map.entry(e.getKey(), e.getValue())));
         int maxItems = Math.min(pq.size(), topItems);
         while (maxItems-- > 0 && pq.size() > 0)
         {

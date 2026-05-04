@@ -1042,19 +1042,15 @@ public class CreateCollectionDump
                     enumVals.put(Month.of(i), values[i]);
             }
             SimpleType<String> st[] = Collections.nCopies(COUNT, SimpleType.STRING).toArray(new SimpleType[COUNT]);
-            CompositeType ct1;
-            TabularType tt1;
             try
             {
                 // keys[], values[] is 1-offset, we need 0-offset
-                ct1 = new CompositeType("composite test", "a composite type", mapVals.keySet().toArray(new String[COUNT]), mapVals.values().toArray(new String[COUNT]), st);
-                tt1 = new TabularType("tabular test", "testing tabular types with strings", ct1, mapVals.keySet().toArray(new String[COUNT]));
+                CompositeType ct1 = new CompositeType("composite test", "a composite type", mapVals.keySet().toArray(new String[COUNT]), mapVals.values().toArray(new String[COUNT]), st);
+                new TabularType("tabular test", "testing tabular types with strings", ct1, mapVals.keySet().toArray(new String[COUNT]));
             }
             catch (OpenDataException e)
             {
                 e.printStackTrace();
-                ct1 = null;
-                tt1 = null;
             }
             Map<String,String>mapVals2 = new HashMap<String,String>(mapVals);
             // Arguments

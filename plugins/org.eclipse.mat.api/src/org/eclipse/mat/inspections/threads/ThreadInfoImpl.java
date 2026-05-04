@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
@@ -157,6 +158,7 @@ import org.eclipse.mat.util.IProgressListener;
         return null;
     }
 
+    @CheckForNull
     private static Boolean resolveIsDaemon(IObject thread)
     {
         try
