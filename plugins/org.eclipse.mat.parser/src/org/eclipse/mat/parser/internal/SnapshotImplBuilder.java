@@ -33,7 +33,6 @@ public class SnapshotImplBuilder
 {
     private XSnapshotInfo snapshotInfo;
     /* package */HashMapIntObject<ClassImpl> classCache;
-    /* package */Map<String, List<IClass>> classCacheByName;
     private HashMapIntObject<XGCRootInfo[]> roots;
     private HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> rootsPerThread;
 

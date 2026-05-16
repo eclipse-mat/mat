@@ -83,7 +83,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         }
         if (onlyClass != null)
         {
-            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+            assertThat("At least 1 object found of type "+onlyClass, objectsFound, greaterThanOrEqualTo(1));
         }
     }
 
@@ -193,7 +193,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         }
         if (onlyClass != null)
         {
-            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+            assertThat("At least 1 object found of type "+onlyClass, objectsFound, greaterThanOrEqualTo(1));
         }
     }
 
@@ -225,7 +225,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         }
         if (onlyClass != null)
         {
-            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+            assertThat("At least 1 object found of type "+onlyClass, objectsFound, greaterThanOrEqualTo(1));
         }
     }
 
@@ -278,7 +278,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         }
         if (onlyClass != null)
         {
-            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+            assertThat("At least 1 object found of type "+onlyClass, objectsFound, greaterThanOrEqualTo(1));
         }
     }
 
@@ -367,7 +367,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         }
         if (onlyClass != null)
         {
-            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+            assertThat("At least 1 object found of type "+onlyClass, objectsFound, greaterThanOrEqualTo(1));
         }
     }
 }

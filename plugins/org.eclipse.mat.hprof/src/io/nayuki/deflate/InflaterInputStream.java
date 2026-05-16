@@ -20,10 +20,12 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Decompresses a DEFLATE data stream (raw format without zlib or gzip headers or footers) into a byte stream.
  */
+@SuppressFBWarnings(value = "DB_DUPLICATE_BRANCHES", justification = "vendored")
 public final class InflaterInputStream extends FilterInputStream {
     
     /*---- Fields ----*/

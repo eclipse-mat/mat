@@ -29,7 +29,6 @@ import org.eclipse.mat.ui.snapshot.actions.OpenObjectByIdAction;
 
 public class HeapEditorContributions implements IMultiPaneEditorContributor
 {
-    HeapEditor editor;
     Action openOverview;
     Action openHistogram;
     Action openDominatorTree;
@@ -63,7 +62,6 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
 
     public void init(MultiPaneEditor editor)
     {
-        this.editor = (HeapEditor) editor;
         openOverview = new OpenPaneAction(editor, "OverviewPane"); //$NON-NLS-1$
         openOverview.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.INFO));

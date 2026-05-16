@@ -889,7 +889,7 @@ public class Pass1Parser extends AbstractParser
                 Long tid = thread2id.get(stack.threadSerialNr);
                 if (tid == null)
                     continue;
-                String threadId = tid == null ? "<unknown>" : "0x" + Long.toHexString(tid); //$NON-NLS-1$ //$NON-NLS-2$
+                String threadId = "0x" + Long.toHexString(tid); //$NON-NLS-1$ //$NON-NLS-2$
                 out.println("Thread " + threadId); //$NON-NLS-1$
                 out.println(stack);
                 out.println("  locals:"); //$NON-NLS-1$

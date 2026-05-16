@@ -88,7 +88,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
                                 descriptor));
 
             rootCategory = null;
-            return descriptor != null ? query : null;
+            return query;
         }
         catch (SnapshotException e)
         {

@@ -65,7 +65,7 @@ public class ObjectMarker implements IObjectMarker
     // inline = 50: 3.0 sec
     // (previous impl, for reference, 5.1 sec)
 
-    final int LEVELS_RUN_INLINE = 4;
+    static final int LEVELS_RUN_INLINE = 4;
 
     public ObjectMarker(int[] roots, boolean[] bits, IIndexReader.IOne2ManyIndex outbound,
                     IProgressListener progressListener)

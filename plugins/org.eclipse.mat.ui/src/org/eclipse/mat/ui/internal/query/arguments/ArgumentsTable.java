@@ -603,7 +603,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
                     long addr = new BigInteger(value.substring(2), 16).longValue();
                     // Check address is valid
-                    Integer ival = Integer.valueOf(snapshot.mapAddressToId(addr));
+                    Integer.valueOf(snapshot.mapAddressToId(addr));
                     // but set the hex value
                     aec.setValue(value);
                 }

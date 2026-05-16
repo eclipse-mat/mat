@@ -14,12 +14,15 @@
 package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.lang.IllegalAccessException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -263,7 +266,7 @@ class PathExpression extends Expression
 
             return current;
         }
-        catch (Exception e)
+        catch (IntrospectionException | IllegalAccessException | InvocationTargetException e)
         {
             throw SnapshotException.rethrow(e);
         }
@@ -271,24 +274,7 @@ class PathExpression extends Expression
 
     protected static List<?> asList(final Object element)
     {
-        int size = Array.getLength(element);
-        final boolean wrap = true;
-        List<Object> answer;
-
-        if (wrap)
-        {
-            // Wrap the original array
-            answer = new ArrayWrapper(element);
-        }
-        else
-        {
-            // Make a copy of the array
-            answer = new ArrayList<Object>(size);
-            for (int ii = 0; ii < size; ii++)
-                answer.add(Array.get(element, ii));
-        }
-
-        return answer;
+        return new ArrayWrapper(element);
     }
 
     @Override

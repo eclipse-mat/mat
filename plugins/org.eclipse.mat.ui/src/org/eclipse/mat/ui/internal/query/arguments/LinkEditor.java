@@ -44,13 +44,11 @@ public class LinkEditor extends ArgumentEditor
         }
     }
 
-    private Composite parent;
     private Mode mode;
 
     public LinkEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item, Mode mode)
     {
         super(parent, context, descriptor, item);
-        this.parent = parent;
         this.mode = mode;
         createContents();
     }

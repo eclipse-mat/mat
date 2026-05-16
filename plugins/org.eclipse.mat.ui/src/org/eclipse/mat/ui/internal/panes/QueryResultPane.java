@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -266,6 +267,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
         boolean arrowKeyDown = false;
         int[] count = new int[1];
 
+        @SuppressFBWarnings("SF_SWITCH_FALLTHROUGH")
         public void handleEvent(final Event e)
         {
             switch (e.type)

@@ -250,22 +250,15 @@ public class TopConsumersQuery implements IQuery
             throw new IProgressListener.OperationCanceledException();
 
         Collection<ClassHistogramRecord> records = histogram.getClassHistogramRecords();
-        ClassHistogramRecord[] arr = new ClassHistogramRecord[records.size()];
-        int i = 0;
-
         for (ClassHistogramRecord record : records)
         {
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
             record.setRetainedHeapSize(sumRetainedSize(record.getObjectIds(), snapshot));
-            arr[i++] = record;
         }
 
         Collection<ClassLoaderHistogramRecord> loaderRecords = histogram.getClassLoaderHistogramRecords();
-        ClassLoaderHistogramRecord[] loaderArr = new ClassLoaderHistogramRecord[loaderRecords.size()];
-        i = 0;
-
         for (ClassLoaderHistogramRecord record : loaderRecords)
         {
             if (listener.isCanceled())
@@ -278,7 +271,6 @@ public class TopConsumersQuery implements IQuery
             }
 
             record.setRetainedHeapSize(retainedSize);
-            loaderArr[i++] = record;
         }
 
         return histogram;

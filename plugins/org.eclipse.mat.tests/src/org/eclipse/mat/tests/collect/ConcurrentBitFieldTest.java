@@ -220,18 +220,17 @@ public class ConcurrentBitFieldTest
                     break;
 
                 case 2:
-                    {
-                        boolean exp = bs.get(idx);
-                        boolean ret = bf.compareAndSet(idx, exp, !exp);
-                        if (ret) bs.flip(idx);
-                    }
+                    boolean exp = bs.get(idx);
+                    boolean ret = bf.compareAndSet(idx, exp, !exp);
+                    if (ret) bs.flip(idx);
                     break;
 
                 case 3:
-                    {
-                        assertEquals(bs.get(idx), bf.get(idx));
-                    }
+                    assertEquals(bs.get(idx), bf.get(idx));
                     break;
+
+                default:
+                    throw new IllegalStateException("rnd.nextInt returned >= 4");
             }
         }
 

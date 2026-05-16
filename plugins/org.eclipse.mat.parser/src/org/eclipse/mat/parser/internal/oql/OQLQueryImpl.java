@@ -189,12 +189,7 @@ public class OQLQueryImpl implements IOQLQuery
             IResultTable irtb;
             IResultTree irtr;
             int index;
-            int subindex;
             public RowMap(IStructuredResult irt, int index)
-            {
-                this(irt, index, -1);
-            }
-            public RowMap(IStructuredResult irt, int index, int subindex)
             {
                 this.isr = irt;
                 if (isr instanceof IResultTable)
@@ -202,7 +197,6 @@ public class OQLQueryImpl implements IOQLQuery
                 if (isr instanceof IResultTree)
                     this.irtr = (IResultTree)irt;
                 this.index = index;
-                this.subindex = subindex;
             }
 
             @Override
@@ -2586,7 +2580,7 @@ public class OQLQueryImpl implements IOQLQuery
                 for (int i = 0; i < maxlen; ++i)
                 {
                     int ix = i;
-                    AbstractCustomTableResultSet.RowMap rm2 = new AbstractCustomTableResultSet.RowMap(result, rowobj.index, i) {
+                    AbstractCustomTableResultSet.RowMap rm2 = new AbstractCustomTableResultSet.RowMap(result, rowobj.index) {
                         public Object get(Object key)
                         {
                             Object v = rowobj.get(key);

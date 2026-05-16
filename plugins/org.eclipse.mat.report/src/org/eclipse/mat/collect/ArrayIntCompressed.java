@@ -145,11 +145,11 @@ public class ArrayIntCompressed
             off -= 0x8;
             // Mask off old data
             data[idx] &= ~((1 << varyingBits - off) - 1);
-            data[idx++] |= (byte) (value >>> off);
+            data[idx++] |= (byte) ((value >>> off) & 0xff);
             while (off > 0x8)
             {
                 off -= 0x8;
-                data[idx++] = (byte) (value >>> off);
+                data[idx++] = (byte) ((value >>> off) & 0xff);
             }
         }
         // Mask off old data

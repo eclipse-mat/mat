@@ -34,7 +34,6 @@ import org.eclipse.mat.ui.Messages;
     private WeakReference<ISnapshot> snapshot;
     private WeakReference<O> array;
 
-    private int objectId;
     private long objectAddr;
 
     protected List<Object> cache = new ArrayList<Object>();

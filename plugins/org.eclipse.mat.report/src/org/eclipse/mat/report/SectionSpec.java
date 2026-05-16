@@ -48,12 +48,12 @@ public class SectionSpec extends Spec
         this.status = status;
     }
 
-    public List<Spec> getChildren()
+    public synchronized List<Spec> getChildren()
     {
         return children;
     }
 
-    public void add(Spec child)
+    public synchronized void add(Spec child)
     {
         this.children.add(child);
     }

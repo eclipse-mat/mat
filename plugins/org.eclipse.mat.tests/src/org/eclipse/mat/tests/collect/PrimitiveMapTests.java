@@ -1063,7 +1063,7 @@ public class PrimitiveMapTests
      * @param v the Integer to clone
      * @return probably a different Integer but equal to v
      */
-    @SuppressFBWarnings("RC_REF_COMPARISON")
+    @SuppressFBWarnings(value = { "RC_REF_COMPARISON", "BX_UNBOXING_IMMEDIATELY_REBOXED" })
     static Integer cloneInteger(Integer v)
     {
         Integer v1 = Integer.valueOf(v);
@@ -1085,7 +1085,7 @@ public class PrimitiveMapTests
      * @param v the Long to clone
      * @return probably a different Long but equal to v
      */
-    @SuppressFBWarnings("RC_REF_COMPARISON")
+    @SuppressFBWarnings(value = { "RC_REF_COMPARISON", "BX_UNBOXING_IMMEDIATELY_REBOXED" })
     static Long cloneLong(Long v)
     {
         Long v1 = Long.valueOf(v);

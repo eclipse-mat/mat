@@ -16,6 +16,8 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class CreateSampleDump
 {
 
@@ -30,7 +32,7 @@ public class CreateSampleDump
         // Control-break causes read to return early, so try again for another key to wait
         // for the dump to complete
         if (c == -1)
-            c = System.in.read();
+            System.in.read();
 
         System.out.println(dominatorTestData);
         System.out.println(referenceTestData);
@@ -191,6 +193,7 @@ public class CreateSampleDump
             clearedSoftReference = new SoftReference<byte[]>(lostSoftReference);
 
             lostSoftReference = null;
+            @SuppressFBWarnings("UC_UCELESS_OBJECT")
             ArrayList<byte[]> garbage = new ArrayList<byte[]>();
             while (clearedSoftReference.get() != null)
             {

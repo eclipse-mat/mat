@@ -79,7 +79,7 @@ public class AnnotatedObjectDescriptor implements IAnnotatedObjectDescriptor
 		return icon;
 	}
 
-	public void setUsage(String usage)
+	public synchronized void setUsage(String usage)
 	{
 		this.usage = usage;
 	}

@@ -94,7 +94,7 @@ public class CommandLine
 
         QueryResult result = set.execute(listener);
 
-        return result != null ? result.getSubject() : null;
+        return result.getSubject();
     }
 
     public static ArgumentSet parse(IQueryContext context, String line) throws SnapshotException
@@ -253,9 +253,6 @@ public class CommandLine
 
         if (descriptor.isMandatory() && arguments.isEmpty())
             throw error(descriptor);
-
-        if (arguments == null)
-            return null;
 
         List<Object> values = new ArrayList<Object>(arguments.size());
         for (String arg : arguments)

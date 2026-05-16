@@ -128,8 +128,9 @@ public class GZIPInputStream2 extends FilterInputStream
         if (b7 < 0)
             throw new ZipException(Messages.GZIPInputStream2_TruncatedHeader);
         crc.update(b7);
-        int mtime = (b4 & 0xff) | (b5 & 0xff) << 8 | (b6 & 0xff) << 16 | (b7 & 0xff) << 24;
-        long mjtime = mtime * 1000L;
+        // Parsing code,, we do not need timestamp but leave here for completeness
+        // int mtime = (b4 & 0xff) | (b5 & 0xff) << 8 | (b6 & 0xff) << 16 | (b7 & 0xff) << 24;
+        // long mjtime = mtime * 1000L;
         // Extra flags
         int b8 = is.read();
         if (b8 < 0)

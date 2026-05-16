@@ -103,8 +103,6 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
                 tail = second;
             }
         }
-        if (header == null)
-            return new int[0];
 
         IObject previous = header;
         IObject current = header;

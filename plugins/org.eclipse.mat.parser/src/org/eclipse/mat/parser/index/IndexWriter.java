@@ -632,9 +632,9 @@ public abstract class IndexWriter
      */
     public static class IntIndexCollector extends IntIndex<ArrayIntCompressed> implements IOne2OneIndex
     {
+        static final int pageSize = IndexWriter.PAGE_SIZE_INT;
         final int mostSignificantBit;
         final int size;
-        final int pageSize = IndexWriter.PAGE_SIZE_INT;
         final ConcurrentHashMap<Integer, ArrayIntCompressed> pages = new ConcurrentHashMap<Integer, ArrayIntCompressed>();
 
         /**
@@ -2192,9 +2192,9 @@ public abstract class IndexWriter
      */
     public static class LongIndexCollector extends LongIndex
     {
+        static final int pageSize = IndexWriter.PAGE_SIZE_LONG;
         final int mostSignificantBit;
         final int size;
-        final int pageSize = IndexWriter.PAGE_SIZE_LONG;
         final ConcurrentHashMap<Integer, ArrayLongCompressed> pages = new ConcurrentHashMap<Integer, ArrayLongCompressed>();
 
         /**

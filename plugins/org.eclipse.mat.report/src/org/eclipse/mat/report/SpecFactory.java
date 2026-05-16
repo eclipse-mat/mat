@@ -52,7 +52,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 {
-    public class Report
+    public static class Report
     {
         String name;
         String description;

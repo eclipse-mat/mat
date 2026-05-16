@@ -198,8 +198,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
         {
             if (parentCtrl.children == null)
             {
-                Thread t = new ReadDataThread(RefinedTreeViewer.this, parentCtrl, parentItem, parentItem.getData(),
-                                false);
+                Thread t = new ReadDataThread(RefinedTreeViewer.this, parentCtrl, parentItem, parentItem.getData());
                 t.start();
                 try
                 {
@@ -234,15 +233,13 @@ public class RefinedTreeViewer extends RefinedResultViewer
         ControlItem ctrl;
         TreeItem item;
         Object data;
-        boolean initial;
 
-        public ReadDataThread(RefinedResultViewer viewer, ControlItem ctrl, TreeItem item, Object data, boolean initial)
+        public ReadDataThread(RefinedResultViewer viewer, ControlItem ctrl, TreeItem item, Object data)
         {
             this.viewer = viewer;
             this.ctrl = ctrl;
             this.item = item;
             this.data = data;
-            this.initial = initial;
         }
 
         @Override

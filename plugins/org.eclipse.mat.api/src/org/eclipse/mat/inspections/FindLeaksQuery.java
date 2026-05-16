@@ -165,22 +165,17 @@ public class FindLeaksQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        Collection<ClassHistogramRecord> records = histogram.getClassHistogramRecords();
-        ClassHistogramRecord[] arr = new ClassHistogramRecord[records.size()];
         int i = 0;
 
+	Collection<ClassHistogramRecord> records = histogram.getClassHistogramRecords();
         for (ClassHistogramRecord record : records)
         {
             record.setRetainedHeapSize(sumRetainedSize(record.getObjectIds(), snapshot));
-            arr[i++] = record;
-            if (i % 10 == 0 && listener.isCanceled())
+            if (i++ % 10 == 0 && listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
         }
 
         Collection<ClassLoaderHistogramRecord> loaderRecords = histogram.getClassLoaderHistogramRecords();
-        ClassLoaderHistogramRecord[] loaderArr = new ClassLoaderHistogramRecord[loaderRecords.size()];
-        i = 0;
-
         for (ClassLoaderHistogramRecord record : loaderRecords)
         {
             long retainedSize = 0;
@@ -190,7 +185,6 @@ public class FindLeaksQuery implements IQuery
             }
 
             record.setRetainedHeapSize(retainedSize);
-            loaderArr[i++] = record;
         }
 
         return histogram;

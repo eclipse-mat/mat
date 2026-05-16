@@ -81,13 +81,12 @@ public class ThreadInfoQuery implements IQuery
         InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
         Result spec = new Result(Messages.ThreadInfoQuery_ThreadDetails);
-        List<ThreadInfoImpl> infos = new ArrayList<ThreadInfoImpl>();
 
         for (int[] ids : threadIds)
         {
             for (int id : ids)
             {
-                infos.add(processThread(id, spec, listener));
+                processThread(id, spec, listener);
             }
         }
 

@@ -49,7 +49,7 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
     {
         try
         {
-            return new MapEntryIterator(coll.getSnapshot(), coll, extractEntryIds(coll));
+            return new MapEntryIterator(coll.getSnapshot(), extractEntryIds(coll));
         }
         catch (SnapshotException e)
         {
@@ -62,14 +62,12 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
         private final ISnapshot snapshot;
         private final int[] ids;
         private int idx;
-        private IObject coll;
 
-        public MapEntryIterator(ISnapshot snapshot, IObject coll, int[] ids)
+        public MapEntryIterator(ISnapshot snapshot, int[] ids)
         {
             this.snapshot = snapshot;
             this.ids = ids;
             this.idx = 0;
-            this.coll = coll;
         }
 
         public boolean hasNext()

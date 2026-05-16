@@ -193,7 +193,7 @@ public class TestSnapshots
             }
             return answer;
         }
-        catch (Exception e)
+        catch (SnapshotException | IOException e)
         {
             throw new RuntimeException(e);
         }

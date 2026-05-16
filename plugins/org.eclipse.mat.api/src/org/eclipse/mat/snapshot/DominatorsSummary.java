@@ -97,8 +97,8 @@ public final class DominatorsSummary
             {
                 classloaderDominatorRecords = load((Class<ClassloaderDominatorRecord>) factoryClass);
             }
+            return (C[]) classloaderDominatorRecords;
         }
-        return (C[]) classloaderDominatorRecords;
     }
 
     private ClassloaderDominatorRecord[] load(Class<ClassloaderDominatorRecord> factoryClass)

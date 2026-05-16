@@ -74,7 +74,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
             if (MATPlugin.getDefault().isDebugging())
                 MATPlugin.log(IStatus.INFO, MessageUtil.format("IHeapDumpProvider ''{0}'' registered.", descriptor.getName())); //$NON-NLS-1$
 
-            return descriptor != null ? dumpProvider : null;
+            return dumpProvider;
         }
         catch (SnapshotException e)
         {

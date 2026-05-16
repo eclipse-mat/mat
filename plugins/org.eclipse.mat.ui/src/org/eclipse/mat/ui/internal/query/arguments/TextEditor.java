@@ -36,7 +36,6 @@ public class TextEditor extends ArgumentEditor
 {
     protected Object value;
     protected Text text;
-    protected Composite parent;
     protected DecoratorType decorator;
 
     public enum DecoratorType
@@ -82,7 +81,6 @@ public class TextEditor extends ArgumentEditor
     {
         super(parent, context, descriptor, item);
         this.setBackground(parent.getBackground());
-        this.parent = parent;
         this.decorator = decorator;
         createContents();
     }
