@@ -6,10 +6,10 @@
 
 <meta name="generator" content="DITA-OT" /><meta name="DC.type" content="reference" />
 <meta name="DC.title" content="New and Noteworthy" />
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.16.0 release." />
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.16.0 release." />
-<meta name="copyright" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
-<meta name="DC.rights.owner" content="Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.17.0 release." />
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to Eclipse Memory Analyzer for the 1.17.0 release." />
+<meta name="copyright" content="Copyright (c) 2008, 2026 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
+<meta name="DC.rights.owner" content="Copyright (c) 2008, 2026 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-2.0/ " type="primary" />
 <meta name="DC.format" content="XHTML" />
 <meta name="DC.identifier" content="ref_noteworthy" />
 <meta name="DC.language" content="en-us" />
@@ -23,14 +23,14 @@
 	
 	
 	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.16.0 release.
+		significant changes made to <span class="keyword">Eclipse Memory Analyzer</span> for the 1.17.0 release.
 	</p>
 
 		<div class="section"><h2 class="title sectiontitle">Latest version of this document</h2>
 			
 			<p class="p">
-				The latest New and Noteworthy document for version 1.16.0 is available 
-				<a class="xref" href="https://eclipse.dev/mat/1.16.0/noteworthy.html">here</a>.
+				The latest New and Noteworthy document for version 1.17.0 is available 
+				<a class="xref" href="https://eclipse.dev/mat/1.17.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
@@ -38,467 +38,35 @@
 		<div class="section"><h2 class="title sectiontitle">Enhancements and fixes</h2>
 			
 			<ul class="ul">
-			<li class="li">A number of changes to parsing/indexing stage performance primarily through improved parallelism.
+			<li class="li">The standalone version comes wiht an updated Eclipse platform version. The required minimum Java version is now Java 21
 			</li>
 
-			<li class="li">Improvements to support more parallel read IO especially relevant to slower devices (eg: when indexes are stored on an NFS volume).
-			</li>
-
-			<li class="li">For the DTFJ plugin support (IBM Java and IBM Semeru Runtimes dumps):
+			<li class="li">The release contains a number of bugfixes and improvements:
 				<ul class="ul">
-					<li class="li">If available, check if OS core dumps are truncated and, by default, do not load them 
-			    		(override by changing the reliability check in MAT DTFJ preferences or with 
-			    		-DreliabilityCheck=warning or -DreliabilityCheck=skip).
-			 		</li>
+					<li class="li"><a class="xref" href="https://github.com/eclipse-mat/mat/issues/143">Issue 143</a> 
+						Escaping $ references in OQL commands.
+					</li>
 
-			 		<li class="li">Support a -Dorg.eclipse.mat.dtfj.implementation=[IBM Java|IBM Semeru Runtimes] option during 
-			 			the dump reliability check to ensure a DTFJ implementation is loaded that matches the JVM that 
-			 			produced the dump (IBM Java or IBM Semeru Runtimes).
-			 		</li>
+					<li class="li"><a class="xref" href="https://github.com/eclipse-mat/mat/issues/158">Issue 158</a> 
+						Fix ClassCastException in ComponentReportQuery.addZeroLengthArrays
+					</li>
+
+					<li class="li"><a class="xref" href="https://github.com/eclipse-mat/mat/issues/145">Issue 145</a> 
+						CVE-2025-5222 in com.ibm.icu_77.1.0 - removed dependency on ICU
+					</li>
+
+					<li class="li"><a class="xref" href="https://github.com/eclipse-mat/mat/issues/161">Issue 161</a>
+						Fix AssertionFailedException in org.eclipse.jface.viewers.StructuredSelection.
+					</li>
 
 				</ul>
 
 			</li>
 
-			<li class="li">Fix an issue of the OQL window breaking Ctrl+A in other tabs.
-			</li>
-
-			<li class="li">Support <a class="xref" href="https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.platform.doc.user/tasks/topenmode.htm" target="_blank">Eclipse single click mode</a>.
-			</li>
-
 			</ul>
 
 		</div>
 
-
-		<div class="section"><h2 class="title sectiontitle">Security fixes</h2>
-			
-			
-			The stand-alone Memory Analyzer 1.16.0 includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
-			<ul class="ul">
-				<li class="li"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2024-6763" target="_blank">CVE-2024-6763</a></li>
-
-				<li class="li"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2024-8184" target="_blank">CVE-2024-8184</a></li>
-
-				<li class="li"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2024-29857" target="_blank">CVE-2024-29857</a></li>
-
-				<li class="li"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2024-30171" target="_blank">CVE-2024-30171</a></li>
-
-				<li class="li"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2024-30172" target="_blank">CVE-2024-30172</a></li>
-
-			</ul>
-
-			
-			Eclipse Memory Analyzer 1.15.0 and later includes the security fixes first included in Eclipse Memory Analyzer 1.9.2.
-			We recommend users of stand-alone Eclipse Memory Analyzer version 1.14.0 or earlier and
-			highly recommend users of Eclipse Memory Analyzer version 1.9.1 or earlier to update to version 1.15.0 or subsequent versions.
-			<dl class="dl">
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2019-17634" target="_blank">CVE-2019-17634</a></dt>
-
-						<dd class="dd"><dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE CWE-79</dt>
-
-								<dd class="dd">Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">Eclipse Memory Analyzer version 1.9.1 and earlier is subject to a cross site scripting (XSS) vulnerability when generating an HTML report from a malicious heap dump. The user must chose to download, open the malicious heap dump and generate an HTML report for the problem to occur. The heap dump could be specially crafted, or could come from a crafted application or from an application processing malicious data. The vulnerability is present when a report is generated and opened from the Memory Analyzer graphical user interface, or when a report generated in batch mode is then opened in Memory Analyzer or by a web browser. The vulnerability could possibly allow code execution on the local system when the report is opened in Memory Analyzer.</dd>
-
-							
-						</dl>
-</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2019-17635" target="_blank">CVE-2019-17635</a></dt>
-
-						<dd class="dd"><dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE CWE-502</dt>
-
-								<dd class="dd">Deserialization of Untrusted Data</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">Eclipse Memory Analyzer version 1.9.1 and earlier is subject to a deserialization vulnerability if an index file of a parsed heap dump is replaced by a malicious version and the heap dump is reopened in Memory Analyzer. The user must chose to reopen an already parsed heap dump with an untrusted index for the problem to occur. The problem can be averted if the index files from an untrusted source are deleted and the heap dump is opened and reparsed. Also some local configuration data is subject to a deserialization vulnerability if the local data were to be replaced with a malicious version. This can be averted if the local configuration data stored on the file system cannot be changed by an attacker. The vulnerability could possibly allow code execution on the local system.</dd>
-
-							
-						</dl>
-</dd>
-
-				
-			</dl>
-
-			The stand-alone Memory Analyzer 1.15.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
-			<dl class="dl">
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2023-4218" target="_blank">CVE-2023-4218</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-611: Improper Restriction of XML External Entity Reference</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In Eclipse IDE versions &lt; 2023-09 (4.29) some files with xml content are parsed vulnerable against all sorts of XXE attacks.
-								The user just needs to open any evil project or update an open project with a vulnerable file (for example for review a foreign repository or patch).
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2023-33201" target="_blank">CVE-2023-33201</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-295: Improper Certificate Validation</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">Bouncy Castle For Java before 1.74 is affected by an LDAP injection vulnerability.
-								The vulnerability only affects applications that use an LDAP CertStore from Bouncy Castle to validate X.509 certificates.
-								During the certificate validation process, Bouncy Castle inserts the certificate's Subject Name into an LDAP search filter without any escaping, which leads to an LDAP injection vulnerability.</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.14.0 and earlier ships a version of Bouncy Castle For Java.
-								subject to this CVE.
-								Note that stand-alone Memory Analyzer does not use LDAP, so it might not
-								be possible to exploit this vulnerability.
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2021-28170" target="_blank">CVE-2021-28170</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-917: Improper Neutralization of Special Elements used in an Expression Language Statement</dd>
-
-								<dd class="dd ddexpand">CWE-20: Improper Input Validation</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In the Jakarta Expression Language implementation 3.0.3 and earlier,
-								a bug in the ELParserTokenManager enables invalid EL expressions to be evaluated as if they were valid.
-								</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.14.0 and earlier ships a version of Jakata Expression Language.
-								subject to this CVE.
-								Note that in stand-alone Memory Analyzer does not directly use Jakata Expression Language, so it might not
-								be possible to exploit this vulnerability.
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-2048" target="_blank">CVE-2022-2048</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-400: Uncontrolled Resource Consumption</dd>
-
-								<dd class="dd ddexpand">CWE-664: Improper Control of a Resource Through its Lifetime</dd>
-
-								<dd class="dd ddexpand">CWE-410: Insufficient Resource Pool</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In Eclipse Jetty HTTP/2 server implementation, when encountering an invalid HTTP/2 request,
-								the error handling has a bug that can wind up not properly cleaning up the active connections
-								and associated resources. This can lead to a Denial of Service scenario where there are no enough
-								resources left to process good requests.</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of Jetty
-								subject to this CVE.
-								Note that in stand-alone Memory Analyzer the Jetty help webserver just serves HTTP/1.1, so it might not
-								be possible to exploit this vulnerability.
-								Also note that it only listens on localhost, so is not accessible outside the machine.</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-2191" target="_blank">CVE-2022-2191</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-404: Improper Resource Shutdown or Release</dd>
-
-								<dd class="dd ddexpand">CWE-664: Improper Control of a Resource Through its Lifetime</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In Eclipse Jetty versions 10.0.0 thru 10.0.9, and 11.0.0 thru 11.0.9 versions, SslConnection 
-								does not release ByteBuffers from configured ByteBufferPool in case of error code paths.</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of Jetty
-								subject to this CVE. Note that in stand-alone Eclipse Memory Analyzer does not have
-								HTTPS SSL connections to the Memory Analyzer Jetty help server, so it might not
-								be possible to exploit this vulnerability.
-								Also note that it only listens on localhost, so is not accessible outside the machine.</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2021-41033" target="_blank">CVE-2021-41033</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-300: Channel Accessible by Non-Endpoint</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In all released versions of Eclipse Equinox, at least until version 4.21 (September 2021),
-								installation can be vulnerable to man-in-the-middle attack if using p2 repos that are HTTP; 
-								that can then be exploited to serve incorrect p2 metadata and entirely alter the local installation, particularly by installing plug-ins that may then run malicious code
-								</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Eclipse Memory Analyzer uses Equinox p2 to access update sites.
-								If in Eclipse Memory Analyzer the URL of the p2 update site is specified in p2 configuration as 
-								HTTP rather than HTTPS then there is the possibility
-								of interception or modification of traffic before the connection is upgraded to HTTPS.
-								Stand-alone Eclipse Memory Analyzer 1.13.0 and later uses a version of Eclipse Equinox which gives a 
-								warning such as:
-									<p class="lines"><br />
-									<samp class="ph systemoutput"><br />
-										org.eclipse.equinox.p2.repository<br />
-										Warning<br />
-										Thu Aug 25 16:52:34 BST 2022<br />
-										Using unsafe http transport to retrieve http://download.eclipse.org/mat/latest/update-site/content.xml.xz, see CVE-2021-41033. Consider using https instead.<br />
-									</samp><br />
-									</p>
-
-								Consult the <a class="xref" href="reference/support.html">Error Log</a> to see these warnings.
-								Eclipse Memory Analyzer 1.14.0 is configured to specify the supplied update sites
-								using HTTPS rather than HTTP.
-								It is then up to the user to specify HTTPS rather than HTTP in any new update site definition. 
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-41704" target="_blank">CVE-2022-41704</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-918: Server-Side Request Forgery (SSRF)</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">A vulnerability in Batik of Apache XML Graphics allows an attacker to run untrusted Java code
-								from an SVG. This issue affects Apache XML Graphics prior to 1.16.
-								It is recommended to update to version 1.16.
-								</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of
-								Batik of Apache XML Graphics subject to this CVE.
-								Eclipse Memory Analyzer does not directly use SVG.
-								Batik of Apache XML Graphics is a dependency of Eclipse E4 RCP and BIRT,
-								which are dependencies of Eclipse Memory Analyzer.
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2022-42890" target="_blank">CVE-2022-42890</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-918: Server-Side Request Forgery (SSRF)</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">A vulnerability in Batik of Apache XML Graphics allows an attacker
-								to run Java code from untrusted SVG via JavaScript.
-								This issue affects Apache XML Graphics prior to 1.16.
-								Users are recommended to upgrade to version 1.16.
-								</dd>
-
-							
-							
-								<dt class="dt dlterm">NOTES</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.13 and earlier ships a version of
-								Batik of Apache XML Graphics subject to this CVE.
-								Eclipse Memory Analyzer does not directly use SVG.
-								Batik of Apache XML Graphics is a dependency of Eclipse E4 RCP and BIRT,
-								which are dependencies of Eclipse Memory Analyzer.
-								</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-			</dl>
-
-			The stand-alone Memory Analyzer 1.13.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
-			<dl class="dl">
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2021-34429" target="_blank">CVE-2021-34429</a></dt>
-
-					<dd class="dd">
-						<dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE CWE-863</dt>
-
-								<dd class="dd">Incorrect Authorization</dd>
-
-							
-							
-								<dt class="dt dlterm">PROBLEMTYPE CWE-200</dt>
-
-								<dd class="dd">Exposure of Sensitive Information to an Unauthorized Actor</dd>
-
-							
-							
-								<dt class="dt dlterm">PROBLEMTYPE CWE-551</dt>
-
-								<dd class="dd">Incorrect Behavior Order: Authorization Before Parsing and Canonicalization</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">Stand-alone Eclipse Memory Analyzer version 1.12.0 and earlier includes a copy of Jetty subject to CVE-2021-34429.
-								For Eclipse Jetty versions 9.4.37-9.4.42, 10.0.1-10.0.5 &amp; 11.0.1-11.0.5, URIs can be crafted using some encoded characters to access the content of the WEB-INF directory and/or bypass some security constraints. This is a variation of the vulnerability reported in CVE-2021-28164/GHSA-v7ff-8wcx-gmc5.
-								Eclipse Memory Analyzer just uses Jetty as a web server to display help.
-								If Eclipse Memory Analyzer is installed into an existing Eclipse installation it 
-								uses the copy of Jetty in that installation.</dd>
-
-							
-						</dl>
-
-					</dd>
-
-				
-			</dl>
-
-			The stand-alone Memory Analyzer 1.12.0 and later also includes security fixes from the underlying Eclipse Platform. These include fixes for the following.
-			<dl class="dl">
-				
-					<dt class="dt dlterm"><a class="xref" href="https://www.cve.org/CVERecord?id=CVE-2020-27225" target="_blank">CVE-2020-27225</a></dt>
-
-						<dd class="dd"><dl class="dl">
-							
-								<dt class="dt dlterm">PROBLEMTYPE</dt>
-
-								<dd class="dd">CWE-306: Missing Authentication for Critical Function</dd>
-
-							
-							
-								<dt class="dt dlterm">DESCRIPTION</dt>
-
-								<dd class="dd">In versions 4.18 and earlier of the Eclipse Platform, the Help Subsystem does not authenticate active help requests
-								to the local help web server, allowing an unauthenticated local attacker to issue active help commands to the associated
-								Eclipse Platform process or Eclipse Rich Client Platform process.</dd>
-
-							
-						</dl>
-</dd>
-
-				
-			</dl>
-
-		</div>
 
 		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.16.0</h2>
 			
