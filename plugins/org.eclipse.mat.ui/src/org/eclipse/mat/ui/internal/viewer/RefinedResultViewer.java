@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2026 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -789,6 +789,7 @@ public abstract class RefinedResultViewer
                 menu.add(new ExportActions.HtmlExport(control, result, context));
                 menu.add(new ExportActions.CsvExport(control, result, context));
                 menu.add(new ExportActions.TxtExport(control, result, context));
+                menu.add(new ExportActions.AiTxtExport(control, result, context));
             }
         };
 

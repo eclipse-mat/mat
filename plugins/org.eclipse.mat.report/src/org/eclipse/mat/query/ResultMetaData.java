@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2026 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -90,6 +90,18 @@ public final class ResultMetaData
         }
 
         /**
+         * Extra data for AI consumers
+         * @param aiDetailsProvider the AI details provider
+         * @return the original Builder to allow chaining
+         * @since 1.18
+         */
+        public Builder addAIDetailsProvider(AIDetailsProvider aiDetailsProvider)
+        {
+            data.aiDetailsProvider = aiDetailsProvider;
+            return this;
+        }
+
+        /**
          * Creates and returns the ResultMetaData object, with
          * the context providers list made unmodifiable.
          * This can only be called once.
@@ -109,6 +121,7 @@ public final class ResultMetaData
 
     private List<ContextProvider> contextProviders = new ArrayList<ContextProvider>();
     private List<DetailResultProvider> resultProviders = new ArrayList<DetailResultProvider>();
+    private AIDetailsProvider aiDetailsProvider = null;
 
     private int preSortedColumnIndex;
     private Column.SortDirection preSortedSortDirection;
@@ -127,9 +140,23 @@ public final class ResultMetaData
         return contextProviders;
     }
 
+    /**
+     * Returns the detail result providers.
+     * @return a list of the detail result providers.
+     */
     public List<DetailResultProvider> getDetailResultProviders()
     {
         return resultProviders;
+    }
+
+    /**
+     * Returns the AI details provider.
+     * @return the AI details provider.
+     * @since 1.18
+     */
+    public AIDetailsProvider getAIDetailsProvider()
+    {
+        return aiDetailsProvider;
     }
 
     /**

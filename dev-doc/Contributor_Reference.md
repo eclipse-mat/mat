@@ -212,10 +212,10 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md)
 * Update references to old release in the code e.g. 1.X -&gt; 1.Y excluding update sites
   * The Tycho version plugin is helpful to change across pom.xml and MANIFEST.MF files, but leaves some places within MAT src unchanged:
 
-    ```mvn org.eclipse.tycho:tycho-versions-plugin:<TYCHO-VERSION-FROM-THE-PARENT-POM>:set-version -DnewVersion=1.17.0-SNAPSHOT```
+    ```mvn org.eclipse.tycho:tycho-versions-plugin:<TYCHO-VERSION-FROM-THE-PARENT-POM>:set-version -DnewVersion=1.18.0-SNAPSHOT```
   * As the versions plugin would miss some places, search for the version across the files and replace if neccessary. These are the places where the changes should be at the end:
-    * See pom.xml e.g. `<version>1.17.0-SNAPSHOT</version>`
-    * See manifest.mf e.g. `Bundle-Version: 1.17.0.qualifier`
+    * See pom.xml e.g. `<version>1.18.0-SNAPSHOT</version>`
+    * See manifest.mf e.g. `Bundle-Version: 1.18.0.qualifier`
     * See feature.xml, excluding updateSiteName
     * See org.eclipse.mat.ui.rcp about.mappings
     * org.eclipse.mat.product mat.product
