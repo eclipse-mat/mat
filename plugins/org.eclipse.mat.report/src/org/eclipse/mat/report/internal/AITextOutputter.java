@@ -26,27 +26,25 @@ import org.eclipse.mat.report.Renderer;
 @Renderer(target = "text", result = { IResultTree.class, IResultTable.class, TextResult.class, IResultPie.class })
 public class AITextOutputter extends TextOutputter
 {
-    public AITextOutputter()
-    {
-    }
-
     @Override
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
         AIDetailsProvider aiDetailsProvider = result.getResultMetaData().getAIDetailsProvider();
-        if (aiDetailsProvider != null) {
+        if (aiDetailsProvider != null)
+        {
             String prefix = aiDetailsProvider.getOutputPrefix();
-            if (prefix != null) {
+            if (prefix != null)
+            {
                 writer.append(prefix);
                 writer.append(LINE_SEPARATOR);
                 writer.append(LINE_SEPARATOR);
             }
         }
-        
+
         writer.append(Messages.AITextOutputter_Prefix);
         writer.append(LINE_SEPARATOR);
         writer.append(LINE_SEPARATOR);
-        
+
         super.embedd(context, result, writer);
     }
 }
