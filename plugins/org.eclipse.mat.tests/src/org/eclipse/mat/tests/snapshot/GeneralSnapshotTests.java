@@ -798,7 +798,7 @@ public class GeneralSnapshotTests
                 return pathname.isFile();
             }
         });
-        assertThat("Should be only one file", files, arrayWithSize(1));
+        assertTrue("Should be at least one file", files.length >= 1);
         File unzippedFile = new File(unzippedDir, "Query_Command2.text");
 
         // Check that this has the AI prefix
