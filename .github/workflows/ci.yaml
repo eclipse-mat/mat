@@ -53,9 +53,12 @@ jobs:
           mvn spotbugs:spotbugs -Dspotbugs.xmlOutput=true -Dspotbugs.failOnError=false
 
       - name: Upload spotbugs
-        # only run for PRs
-        if: github.event_name == 'pull_request'
+        # only run for PRs specifically on current repo
+        # coming from a fork does not have upload permissions
+        # to share spotbugs annotation reports
+        if: |
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.head.repo.full_name == github.repository
         uses: lcollins/spotbugs-github-action@v3.2.0
         with:
           path: '**/spotbugsXml.xml'
-
