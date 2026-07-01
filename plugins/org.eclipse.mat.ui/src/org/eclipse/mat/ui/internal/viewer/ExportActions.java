@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2026 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,8 +33,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.AIDetailsProvider;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.report.IOutputter;
@@ -212,6 +215,48 @@ import org.eclipse.swt.widgets.TreeItem;
         }
     }
 
+    private static void selectedByDepth(IResultTree tree, RefinedStructuredResult result, int nestedDepthMax)
+    {
+        final Set<Object> expanded = new HashSet<Object>();
+        selectedByDepthRecurse(nestedDepthMax, expanded, 1, tree, tree.getElements());
+        result.setSelectionProvider(new ISelectionProvider()
+        {
+            public boolean isExpanded(Object row)
+            {
+                return expanded.contains(row);
+            }
+
+            public boolean isSelected(Object row)
+            {
+                return expanded.contains(row);
+            }
+        });
+    }
+
+    private static void selectedByDepthRecurse(int nestedDepthMax, final Set<Object> expanded, int currentDepth,
+                    IResultTree tree, List<?> items)
+    {
+        for (Object item : items)
+        {
+            if (item != null)
+            {
+                if (currentDepth <= nestedDepthMax)
+                {
+                    expanded.add(item);
+
+                    if (tree.hasChildren(item))
+                    {
+                        List<?> children = tree.getChildren(item);
+                        if (children != null)
+                        {
+                            selectedByDepthRecurse(nestedDepthMax, expanded, currentDepth + 1, tree, children);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /* package */static class CsvExport extends Action
     {
         private Control control;
@@ -264,7 +309,7 @@ import org.eclipse.swt.widgets.TreeItem;
                         try (PrintWriter writer = new PrintWriter(fileName, cs.name()))
                         {
                             outputter.process(new ContextImpl(queryContext, //
-                                            new File(fileName).getParentFile()), result, writer);
+                                            new File(fileName).getParentFile(), true), result, writer);
                         }
                     }
                     catch (IOException | UnsupportedOperationException e)
@@ -337,8 +382,103 @@ import org.eclipse.swt.widgets.TreeItem;
                         try (PrintWriter writer = new PrintWriter(fileName, cs.name()))
                         {
                             outputter.process(new ContextImpl(queryContext, //
-                                            new File(fileName).getParentFile()), result, writer);
+                                            new File(fileName).getParentFile(), true), result, writer);
                         }
+                    }
+                    catch (IOException | UnsupportedOperationException e)
+                    {
+                        return ErrorHelper.createErrorStatus(e);
+                    }
+
+                    return Status.OK_STATUS;
+                }
+
+            };
+            job.setUser(true);
+            job.setPriority(Job.SHORT);
+            job.schedule();
+
+        }
+    }
+
+    /* package */static class AiTxtExport extends Action
+    {
+        private Control control;
+        private IResult result;
+        private IQueryContext queryContext;
+
+        public AiTxtExport(Control control, IResult result, IQueryContext queryContext)
+        {
+            super(Messages.ExportActions_ExportToAiTxt,
+                            MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_TXT));
+            this.control = control;
+            this.result = result;
+            this.queryContext = queryContext;
+        }
+
+        @Override
+        public void run()
+        {
+            ExportDialog dialog = new ExportDialog(control.getShell(), //
+                            new String[] { Messages.ExportActions_PlainAiText }, //
+                            new String[] { "*.text" });//$NON-NLS-1$
+            final String fileName = dialog.open();
+            if (fileName == null)
+                return;
+
+            Job job = new Job(Messages.ExportActions_ExportAITXT)
+            {
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor)
+                {
+                    try
+                    {
+                        monitor.beginTask(Messages.ExportActions_ExportAITXT, 2);
+                        if (result instanceof RefinedStructuredResult)
+                        {
+                            if (result instanceof IResultTree)
+                            {
+                                int nestedDepthMax = 0;
+                                AIDetailsProvider aiDetailsProvider = result.getResultMetaData().getAIDetailsProvider();
+                                if (aiDetailsProvider != null)
+                                {
+                                    nestedDepthMax = aiDetailsProvider.getTreeExportDepth();
+                                }
+                                selectedByDepth((IResultTree) result, (RefinedStructuredResult) result, nestedDepthMax);
+                            }
+                            else
+                                selectedExpanded(control, (RefinedStructuredResult) result);
+                        }
+
+                        monitor.worked(1);
+
+                        if (monitor.isCanceled())
+                        { return Status.CANCEL_STATUS; }
+
+                        IOutputter outputter = RendererRegistry.instance().match("text", result.getClass());//$NON-NLS-1$
+                        if (outputter == null)
+                            throw new UnsupportedOperationException(Messages.ExportActions_ExportAITXT);
+                        Charset cs;
+                        try
+                        {
+                            String encoding = ResourcesPlugin.getEncoding();
+                            if (encoding != null)
+                                cs = Charset.forName(encoding);
+                            else
+                                cs = StandardCharsets.UTF_8;
+                        }
+                        catch (UnsupportedCharsetException e)
+                        {
+                            cs = StandardCharsets.UTF_8;
+                        }
+                        try (PrintWriter writer = new PrintWriter(fileName, cs.name()))
+                        {
+                            outputter.process(new ContextImpl(queryContext, //
+                                            new File(fileName).getParentFile(), false), result, writer);
+                        }
+                        monitor.worked(1);
+                        monitor.done();
                     }
                     catch (IOException | UnsupportedOperationException e)
                     {
@@ -363,11 +503,13 @@ import org.eclipse.swt.widgets.TreeItem;
     {
         private File outputDir;
         private IQueryContext context;
+        private boolean totalRowsVisible;
 
-        public ContextImpl(IQueryContext context, File outputDir)
+        public ContextImpl(IQueryContext context, File outputDir, boolean totalRowsVisible)
         {
             this.context = context;
             this.outputDir = outputDir;
+            this.totalRowsVisible = totalRowsVisible;
         }
 
         public String getId()
@@ -427,7 +569,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public boolean isTotalsRowVisible()
         {
-            return true;
+            return totalRowsVisible;
         }
     }
 

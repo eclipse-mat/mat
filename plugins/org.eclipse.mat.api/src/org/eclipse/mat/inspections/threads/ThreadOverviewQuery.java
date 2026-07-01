@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2026 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.AIDetailsProvider;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
@@ -453,6 +454,20 @@ public class ThreadOverviewQuery implements IQuery
                                                     .execute(listener);
                                 }
 
+                            }) //
+                            .addAIDetailsProvider(new AIDetailsProvider() {
+                                @Override
+                                public String getOutputPrefix()
+                                {
+                                    return Messages.ThreadOverviewQuery_AIPrefix;
+                                }
+                                
+                                @Override
+                                public int getTreeExportDepth()
+                                {
+                                    // We want both the stack frames and all the stack frame locals
+                                    return 2;
+                                }
                             }) //
                             .build();
         }

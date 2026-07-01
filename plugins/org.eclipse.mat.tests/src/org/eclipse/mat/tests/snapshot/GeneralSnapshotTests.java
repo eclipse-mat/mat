@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2026 IBM Corporation.
+ * Copyright (c) 2010, 2026 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,10 +37,12 @@ import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -66,6 +68,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
+import org.eclipse.mat.query.AIDetailsProvider;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
@@ -752,6 +755,66 @@ public class GeneralSnapshotTests
         assertThat("Should be only one file", files, arrayWithSize(1));
         File unzippedFile = new File(unzippedDir, "Query_Command2.txt");
         assertThat(unzippedFile.toString(), unzippedFile.length(), greaterThan(100L));
+    }
+
+    @Test
+    public void testAITextOutput() throws SnapshotException, IOException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(
+                        "default_report org.eclipse.mat.api:query -params command=thread_overview unzip=true format=text",
+                        snapshot);
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
+        assertNotNull(t);
+        checkHTMLResult(t);
+
+        query = SnapshotQuery.parse("thread_overview", snapshot);
+        t = query.execute(new CheckedWorkProgressListener(collector));
+        assertNotNull(t);
+        AIDetailsProvider aiDetailsProvider = t.getResultMetaData().getAIDetailsProvider();
+        assertNotNull(aiDetailsProvider);
+
+        String aiPrefix = aiDetailsProvider.getOutputPrefix();
+        assertNotNull(aiPrefix);
+
+        // See if the zip exists
+        String prefix = snapshot.getSnapshotInfo().getPrefix();
+        // Remove dot
+        prefix = prefix.substring(0, prefix.length() - 1);
+        File zipf = new File(prefix + "_Query.zip");
+        assertThat(zipf.toString(), zipf.length(), greaterThan(100L));
+
+        // See if the unzip worked
+        File unzipf = new File(prefix + "_Query");
+        assertThat("Expected unzipped directory", unzipf.exists());
+
+        // See if the text file is there and has contents
+        File unzippedDir = new File(unzipf, "pages");
+        File files[] = unzippedDir.listFiles(new FileFilter()
+        {
+
+            @Override
+            public boolean accept(File pathname)
+            {
+                return pathname.isFile();
+            }
+        });
+        assertTrue("Should be at least one file", files.length >= 1);
+        File unzippedFile = new File(unzippedDir, "Query_Command2.text");
+
+        // Check that this has the AI prefix
+        boolean foundAIPrefix = false;
+        try (FileReader fr = new FileReader(unzippedFile); BufferedReader reader = new BufferedReader(fr))
+        {
+            String line;
+            while ((line = reader.readLine()) != null)
+            {
+                if (line.contains(aiPrefix))
+                {
+                    foundAIPrefix = true;
+                }
+            }
+        }
+        assertEquals("AI Text output should have the prefix: " + aiPrefix, foundAIPrefix, true);
     }
 
     @Test
