@@ -1449,6 +1449,17 @@ public class GeneralSnapshotTests
         assertThat(result.getElements().size(), greaterThan(0));
     }
 
+    @Test
+    public void sampleObjects() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("sample_objects java.lang.String", snapshot);
+        IResult t = query.execute(new CheckedWorkProgressListener(collector));
+        assertNotNull(t);
+        IResultTree result = (IResultTree)t;
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-Javacore")));
+        assertThat(result.getElements().size(), greaterThan(0));
+    }
+
     /**
      * Test exporting as HPROF
      * @param compress whether to compress the generated HPROF file
