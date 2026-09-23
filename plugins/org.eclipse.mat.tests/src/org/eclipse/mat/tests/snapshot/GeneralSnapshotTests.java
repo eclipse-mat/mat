@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeThat;
@@ -90,6 +91,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -1447,6 +1449,35 @@ public class GeneralSnapshotTests
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-Javacore")));
         // More than zero results
         assertThat(result.getElements().size(), greaterThan(0));
+    }
+
+    @Test
+    public void sampleObjects() throws SnapshotException
+    {
+        String[] samples = { "FIRST", "LAST", "RANDOM", "LARGEST_RETAINED", "LARGEST_SHALLOW", "SMALLEST_RETAINED",
+                        "SMALLEST_SHALLOW" };
+        int number = 10;
+        for (String sample : samples)
+        {
+            SnapshotQuery query = SnapshotQuery.parse(
+                            "sample_objects java.lang.String -number " + number + " -sample " + sample, snapshot);
+            IResult t = query.execute(new CheckedWorkProgressListener(collector));
+            assertNotNull(t);
+            IResultTree result = (IResultTree) t;
+            assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"),
+                            not(equalTo((Serializable) "DTFJ-Javacore")));
+            assertThat(result.getElements().size(), equalTo(number));
+        }
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable()
+        {
+            @Override
+            public void run() throws Throwable
+            {
+                SnapshotQuery.parse("sample_objects java.lang.String -number 0", snapshot)
+                                .execute(new CheckedWorkProgressListener(collector));
+            }
+        });
     }
 
     /**
