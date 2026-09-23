@@ -87,10 +87,15 @@ public class SampleObjectsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        if (number <= 0)
+        {
+            throw new IllegalArgumentException("number"); //$NON-NLS-1$
+        }
+
         int[] objectIds = objects.getIds(listener);
 
         int[] finalObjectIds = null;
-        if (objectIds.length < number)
+        if (objectIds.length <= number)
         {
             finalObjectIds = objectIds;
         }
@@ -102,14 +107,14 @@ public class SampleObjectsQuery implements IQuery
         else if (sample == SamplingType.LAST)
         {
             finalObjectIds = new int[number];
-            System.arraycopy(objectIds, objectIds.length - number - 1, finalObjectIds, 0, number);
+            System.arraycopy(objectIds, objectIds.length - number, finalObjectIds, 0, number);
         }
         else if (sample == SamplingType.LARGEST_RETAINED)
         {
             finalObjectIds = Arrays.stream(objectIds).boxed().sorted((x, y) -> {
                 try
                 {
-                    return Long.valueOf(snapshot.getRetainedHeapSize(y)).compareTo(snapshot.getRetainedHeapSize(x));
+                    return Long.compare(snapshot.getRetainedHeapSize(y), snapshot.getRetainedHeapSize(x));
                 }
                 catch (SnapshotException e)
                 {
@@ -122,7 +127,7 @@ public class SampleObjectsQuery implements IQuery
             finalObjectIds = Arrays.stream(objectIds).boxed().sorted((x, y) -> {
                 try
                 {
-                    return Long.valueOf(snapshot.getRetainedHeapSize(x)).compareTo(snapshot.getRetainedHeapSize(y));
+                    return Long.compare(snapshot.getRetainedHeapSize(x), snapshot.getRetainedHeapSize(y));
                 }
                 catch (SnapshotException e)
                 {
@@ -135,7 +140,7 @@ public class SampleObjectsQuery implements IQuery
             finalObjectIds = Arrays.stream(objectIds).boxed().sorted((x, y) -> {
                 try
                 {
-                    return Long.valueOf(snapshot.getHeapSize(y)).compareTo(snapshot.getHeapSize(x));
+                    return Long.compare(snapshot.getHeapSize(y), snapshot.getHeapSize(x));
                 }
                 catch (SnapshotException e)
                 {
@@ -148,7 +153,7 @@ public class SampleObjectsQuery implements IQuery
             finalObjectIds = Arrays.stream(objectIds).boxed().sorted((x, y) -> {
                 try
                 {
-                    return Long.valueOf(snapshot.getHeapSize(x)).compareTo(snapshot.getHeapSize(y));
+                    return Long.compare(snapshot.getHeapSize(x), snapshot.getHeapSize(y));
                 }
                 catch (SnapshotException e)
                 {
