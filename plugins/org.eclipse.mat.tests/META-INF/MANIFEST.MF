@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.mat.api;bundle-version="1.0.0",
  org.apache.ant;bundle-version="1.7.0",
  org.eclipse.mat.ui;bundle-version="1.17.0",
  org.hamcrest.core,
- org.hamcrest.library
+ org.hamcrest.library,
+ com.github.spotbugs.plugin.eclipse
 Bundle-ActivationPolicy: lazy
 Import-Package: junit.framework;version="4.3.1",
  org.eclipse.jface.text,

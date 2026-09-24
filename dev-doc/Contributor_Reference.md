@@ -27,7 +27,8 @@ You need a recent Eclipse installation. Memory Analyzer is a set of eclipse plug
     2. Alternatively, you'll need to install some plugins using the update manager:
         * Eclipse [BIRT Framework](https://download.eclipse.org/birt/update-site/latest/): BIRT Charting SDK and BIRT Reporting SDK
         * [IBM Diagnostic Tool Framework for Java](https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/). For details, see [Diagnostic Tool Framework for Java](https://www.ibm.com/docs/en/sdk-java-technology/8?topic=interfaces-dtfj). This is needed to compile and run with the DTFJ adapter which is part of Memory Analyzer and allows Memory Analyzer to read dumps from IBM virtual machines for Java.
-        * [SWTBot](https://download.eclipse.org/technology/swtbot/releases/latest/): SWTBot - API } SWTBot for Eclipse Testing
+        * [SpotBugs](https://spotbugs.github.io/eclipse/)
+        * Eclipse IDE for RCP and RAP Developers < 2026-09: [SWTBot](https://download.eclipse.org/technology/swtbot/releases/latest/): SWTBot - API } SWTBot for Eclipse Testing
 
 If you do not have BIRT installed then there will be compilation errors in the org.eclipse.mat.chart and org.eclipse.mat.chart.ui projects.
 
