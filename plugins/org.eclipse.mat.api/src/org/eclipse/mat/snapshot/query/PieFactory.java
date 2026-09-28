@@ -275,8 +275,7 @@ public final class PieFactory
         }
 
         /**
-         * Get slice description used for the PieChart which will be supplied to
-         * {@link org.eclipse.ui.forms.widgets.FormText} which expects an XML, not HTML
+         * Get slice description used for the PieChart. XML expected, not HTML
          * type input, so &lt;br/&gt; must be closed.
          */
         public String getDescription()
