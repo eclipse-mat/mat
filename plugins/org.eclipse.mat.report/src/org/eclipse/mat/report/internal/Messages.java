@@ -19,7 +19,6 @@ public final class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.report.internal.messages"; //$NON-NLS-1$
 
-    public static String AITextOutputter_Prefix;
     public static String ArgumentSet_Error_IllegalArgument;
     public static String ArgumentSet_Error_Inaccessible;
     public static String ArgumentSet_Error_Instantiation;
@@ -65,6 +64,10 @@ public final class Messages extends NLS
     public static String ITestResult_Error;
     public static String ITestResult_Success;
     public static String ITestResult_Warning;
+    public static String MarkdownOutputter_PieChart;
+    public static String MarkdownOutputter_PrefixTable;
+    public static String MarkdownOutputter_PrefixText;
+    public static String MarkdownOutputter_PrefixTree;
     public static String PageSnippets_Label_HideUnhide;
     public static String PageSnippets_Label_UnhideHide;
     public static String PageSnippets_Label_CreatedBy;

@@ -758,10 +758,10 @@ public class GeneralSnapshotTests
     }
 
     @Test
-    public void testAITextOutput() throws SnapshotException, IOException
+    public void testMarkdownOutput() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse(
-                        "default_report org.eclipse.mat.api:query -params command=thread_overview unzip=true format=text",
+                        "default_report org.eclipse.mat.api:query -params command=thread_overview unzip=true format=md",
                         snapshot);
         IResult t = query.execute(new CheckedWorkProgressListener(collector));
         assertNotNull(t);
@@ -773,8 +773,8 @@ public class GeneralSnapshotTests
         AIDetailsProvider aiDetailsProvider = t.getResultMetaData().getAIDetailsProvider();
         assertNotNull(aiDetailsProvider);
 
-        String aiPrefix = aiDetailsProvider.getOutputPrefix();
-        assertNotNull(aiPrefix);
+        String markdownPrefix = aiDetailsProvider.getOutputPrefix();
+        assertNotNull(markdownPrefix);
 
         // See if the zip exists
         String prefix = snapshot.getSnapshotInfo().getPrefix();
@@ -787,11 +787,10 @@ public class GeneralSnapshotTests
         File unzipf = new File(prefix + "_Query");
         assertThat("Expected unzipped directory", unzipf.exists());
 
-        // See if the text file is there and has contents
+        // See if the markdown file is there and has contents
         File unzippedDir = new File(unzipf, "pages");
         File files[] = unzippedDir.listFiles(new FileFilter()
         {
-
             @Override
             public boolean accept(File pathname)
             {
@@ -799,22 +798,22 @@ public class GeneralSnapshotTests
             }
         });
         assertTrue("Should be at least one file", files.length >= 1);
-        File unzippedFile = new File(unzippedDir, "Query_Command2.text");
+        File unzippedFile = new File(unzippedDir, "Query_Command2.md");
 
-        // Check that this has the AI prefix
-        boolean foundAIPrefix = false;
+        // Check that this has the Markdown prefix
+        boolean foundMarkdownPrefix = false;
         try (FileReader fr = new FileReader(unzippedFile); BufferedReader reader = new BufferedReader(fr))
         {
             String line;
             while ((line = reader.readLine()) != null)
             {
-                if (line.contains(aiPrefix))
+                if (line.contains(markdownPrefix))
                 {
-                    foundAIPrefix = true;
+                    foundMarkdownPrefix = true;
                 }
             }
         }
-        assertEquals("AI Text output should have the prefix: " + aiPrefix, foundAIPrefix, true);
+        assertEquals("Markdown text output should have the prefix: " + markdownPrefix, foundMarkdownPrefix, true);
     }
 
     @Test

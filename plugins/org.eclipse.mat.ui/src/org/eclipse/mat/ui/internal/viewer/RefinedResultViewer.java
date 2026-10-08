@@ -789,7 +789,7 @@ public abstract class RefinedResultViewer
                 menu.add(new ExportActions.HtmlExport(control, result, context));
                 menu.add(new ExportActions.CsvExport(control, result, context));
                 menu.add(new ExportActions.TxtExport(control, result, context));
-                menu.add(new ExportActions.AiTxtExport(control, result, context));
+                menu.add(new ExportActions.MarkdownExport(control, result, context));
             }
         };
 

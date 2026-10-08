@@ -100,13 +100,13 @@ public class Messages extends NLS
     public static String ExportActions_ExportCSV;
     public static String ExportActions_ExportHTML;
     public static String ExportActions_ExportTXT;
-    public static String ExportActions_ExportAITXT;
+    public static String ExportActions_ExportMarkdown;
     public static String ExportActions_ExportToCSV;
     public static String ExportActions_ExportToHTML;
     public static String ExportActions_ExportToTxt;
-    public static String ExportActions_ExportToAiTxt;
+    public static String ExportActions_ExportToMarkdown;
     public static String ExportActions_PlainText;
-    public static String ExportActions_PlainAiText;
+    public static String ExportActions_Markdown;
     public static String ExportActions_ZippedWebPage;
     public static String FieldsContentProvider_BlockingWarning;
     public static String FieldsContentProvider_CustomExpand;

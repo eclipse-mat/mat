@@ -401,15 +401,15 @@ import org.eclipse.swt.widgets.TreeItem;
         }
     }
 
-    /* package */static class AiTxtExport extends Action
+    /* package */static class MarkdownExport extends Action
     {
         private Control control;
         private IResult result;
         private IQueryContext queryContext;
 
-        public AiTxtExport(Control control, IResult result, IQueryContext queryContext)
+        public MarkdownExport(Control control, IResult result, IQueryContext queryContext)
         {
-            super(Messages.ExportActions_ExportToAiTxt,
+            super(Messages.ExportActions_ExportToMarkdown,
                             MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_TXT));
             this.control = control;
             this.result = result;
@@ -420,13 +420,31 @@ import org.eclipse.swt.widgets.TreeItem;
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { Messages.ExportActions_PlainAiText }, //
-                            new String[] { "*.text" });//$NON-NLS-1$
+                            new String[] { Messages.ExportActions_Markdown }, //
+                            new String[] { "*.md" }); //$NON-NLS-1$
             final String fileName = dialog.open();
             if (fileName == null)
                 return;
 
-            Job job = new Job(Messages.ExportActions_ExportAITXT)
+            if (result instanceof RefinedStructuredResult)
+            {
+                if (result instanceof IResultTree)
+                {
+                    int nestedDepthMax = 0;
+                    AIDetailsProvider aiDetailsProvider = result.getResultMetaData().getAIDetailsProvider();
+                    if (aiDetailsProvider != null)
+                    {
+                        nestedDepthMax = aiDetailsProvider.getTreeExportDepth();
+                    }
+                    selectedByDepth((IResultTree) result, (RefinedStructuredResult) result, nestedDepthMax);
+                }
+                else
+                {
+                    selectedExpanded(control, (RefinedStructuredResult) result);
+                }
+            }
+
+            Job job = new Job(Messages.ExportActions_ExportMarkdown)
             {
 
                 @Override
@@ -434,31 +452,14 @@ import org.eclipse.swt.widgets.TreeItem;
                 {
                     try
                     {
-                        monitor.beginTask(Messages.ExportActions_ExportAITXT, 2);
-                        if (result instanceof RefinedStructuredResult)
-                        {
-                            if (result instanceof IResultTree)
-                            {
-                                int nestedDepthMax = 0;
-                                AIDetailsProvider aiDetailsProvider = result.getResultMetaData().getAIDetailsProvider();
-                                if (aiDetailsProvider != null)
-                                {
-                                    nestedDepthMax = aiDetailsProvider.getTreeExportDepth();
-                                }
-                                selectedByDepth((IResultTree) result, (RefinedStructuredResult) result, nestedDepthMax);
-                            }
-                            else
-                                selectedExpanded(control, (RefinedStructuredResult) result);
-                        }
-
-                        monitor.worked(1);
+                        monitor.beginTask(Messages.ExportActions_ExportMarkdown, 1);
 
                         if (monitor.isCanceled())
                         { return Status.CANCEL_STATUS; }
 
-                        IOutputter outputter = RendererRegistry.instance().match("text", result.getClass());//$NON-NLS-1$
+                        IOutputter outputter = RendererRegistry.instance().match("md", result.getClass()); //$NON-NLS-1$
                         if (outputter == null)
-                            throw new UnsupportedOperationException(Messages.ExportActions_ExportAITXT);
+                            throw new UnsupportedOperationException(Messages.ExportActions_ExportMarkdown);
                         Charset cs;
                         try
                         {
