@@ -224,5 +224,4 @@
 			<run class="org.eclipse.mat.internal.apps.ParseSnapshotApp" />
 		</application>
 	</extension>
-	
 </plugin>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2025 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2026 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -687,6 +687,7 @@ public class Messages extends NLS
     public static String ThreadOverviewQuery_StackFrameLocalIssue;
     public static String ThreadOverviewQuery_ThreadDetails;
     public static String ThreadOverviewQuery_ThreadStack;
+    public static String ThreadOverviewQuery_AIPrefix;
 
     public static String ThreadStackQuery_Column_ObjectStackFrame;
     public static String ThreadStackQuery_Label_Local;

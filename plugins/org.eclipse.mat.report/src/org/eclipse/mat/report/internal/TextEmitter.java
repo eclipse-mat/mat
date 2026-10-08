@@ -24,7 +24,7 @@ public abstract class TextEmitter
     protected static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
     protected static final String COLUMN_SEPARATOR = "|"; //$NON-NLS-1$
 
-    private Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
+    protected Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
     protected int order[];
     protected int align[];
 
@@ -106,69 +106,74 @@ public abstract class TextEmitter
         {
             findColumnOrderAndAlignment(columns);
 
-            // find the length of columns by running through all the
-            // entries and finding the longest one
-            for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
-            {
-                int columnLength = getColumnLength(items, columns, columnIndex);
-
-                Integer existingLength = columnLengths.get(columnIndex);
-                if (existingLength == null || columnLength > existingLength)
-                {
-                    columnLengths.put(columnIndex, columnLength);
-                }
-            }
-
-            // add column names to the result buffer
-            for (int i = 0; i < order.length; i++)
-            {
-                int col = order[i];
-                if (i != 0)
-                    append(COLUMN_SEPARATOR);
-                append(align(getColumnName(columns[col]), align[col], columnLengths.get(col),
-                                i + 1 == numberOfColumns));
-            }
-            append(LINE_SEPARATOR);
-
-            String dashedLine = getDashedLine(numberOfColumns);
-            append(dashedLine + LINE_SEPARATOR);
-
-            for (Object item : items)
-            {
-                boolean addLineBreak = true;
-                for (int i = 0; i < order.length; i++)
-                {
-                    int columnIndex = order[i];
-                    if (shouldSuppressLineBreak(item))
-                    {
-                        addLineBreak = false;
-                        break;
-                    }
-                    String value = getItemValue(item, columnIndex);
-                    for (String filterName : Filter.FILTER_TYPES)
-                    {
-                        if (value.equals(filterName))
-                            value = "";//$NON-NLS-1$
-                    }
-
-                    if (i != 0)
-                        append(COLUMN_SEPARATOR);
-                    append(align(value, align[columnIndex], columnLengths.get(columnIndex), i + 1 == numberOfColumns));
-
-                }
-                if (addLineBreak)
-                    append(LINE_SEPARATOR);
-                if (shouldAddNextLine(item))
-                {
-                    addNextLine(new StringBuilder(), item, numberOfColumns, columnLengths.get(order[0]));
-                }
-            }
-
-            columnLengths.clear();
-            append(dashedLine + LINE_SEPARATOR);
+            doCopyTable(items, columns, numberOfColumns);
         }
         done();
 
+    }
+
+    protected void doCopyTable(Object[] items, Object[] columns, int numberOfColumns)
+    {
+        // find the length of columns by running through all the
+        // entries and finding the longest one
+        for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
+        {
+            int columnLength = getColumnLength(items, columns, columnIndex);
+
+            Integer existingLength = columnLengths.get(columnIndex);
+            if (existingLength == null || columnLength > existingLength)
+            {
+                columnLengths.put(columnIndex, columnLength);
+            }
+        }
+
+        // add column names to the result buffer
+        for (int i = 0; i < order.length; i++)
+        {
+            int col = order[i];
+            if (i != 0)
+                append(COLUMN_SEPARATOR);
+            append(align(getColumnName(columns[col]), align[col], columnLengths.get(col),
+                            i + 1 == numberOfColumns));
+        }
+        append(LINE_SEPARATOR);
+
+        String dashedLine = getDashedLine(numberOfColumns);
+        append(dashedLine + LINE_SEPARATOR);
+
+        for (Object item : items)
+        {
+            boolean addLineBreak = true;
+            for (int i = 0; i < order.length; i++)
+            {
+                int columnIndex = order[i];
+                if (shouldSuppressLineBreak(item))
+                {
+                    addLineBreak = false;
+                    break;
+                }
+                String value = getItemValue(item, columnIndex);
+                for (String filterName : Filter.FILTER_TYPES)
+                {
+                    if (value.equals(filterName))
+                        value = "";//$NON-NLS-1$
+                }
+
+                if (i != 0)
+                    append(COLUMN_SEPARATOR);
+                append(align(value, align[columnIndex], columnLengths.get(columnIndex), i + 1 == numberOfColumns));
+
+            }
+            if (addLineBreak)
+                append(LINE_SEPARATOR);
+            if (shouldAddNextLine(item))
+            {
+                addNextLine(new StringBuilder(), item, numberOfColumns, columnLengths.get(order[0]));
+            }
+        }
+
+        columnLengths.clear();
+        append(dashedLine + LINE_SEPARATOR);
     }
 
     protected StringBuilder getLevel(StringBuilder level, int length, int counter)
