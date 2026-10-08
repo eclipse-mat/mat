@@ -30,7 +30,8 @@ Import-Package: junit.framework;version="4.3.1",
  org.junit.runner;version="4.3.1",
  org.junit.runner.manipulation;version="4.3.1",
  org.junit.runner.notification;version="4.3.1",
- org.junit.runners;version="4.3.1"
+ org.junit.runners,
+ edu.umd.cs.findbugs.annotations;resolution:=optional
 Export-Package: org.eclipse.mat.tests,
  org.eclipse.mat.tests.collect,
  org.eclipse.mat.tests.regression,
