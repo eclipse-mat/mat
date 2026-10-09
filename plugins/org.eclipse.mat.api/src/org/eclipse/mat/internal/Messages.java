@@ -598,6 +598,14 @@ public class Messages extends NLS
     public static String RetainedSizeDerivedData_ErrorMsg_IllegalObjectId;
     public static String RetainedSizeDerivedData_Label_Approximate;
     public static String RetainedSizeDerivedData_Label_Precise;
+    
+    public static String SampleObjectQuery_SampleType_First;
+    public static String SampleObjectQuery_SampleType_Last;
+    public static String SampleObjectQuery_SampleType_Random;
+    public static String SampleObjectQuery_SampleType_LargestRetainedHeap;
+    public static String SampleObjectQuery_SampleType_LargestShallowHeap;
+    public static String SampleObjectQuery_SampleType_SmallestRetainedHeap;
+    public static String SampleObjectQuery_SampleType_SmallestShallowHeap;
 
     public static String SelectObjectsByFieldQuery_Evaluating;
 
