@@ -48,36 +48,56 @@ public class TextOutputter extends OutputterBase
     {
         if (result instanceof TextResult)
         {
-            TextResult tr = (TextResult) result;
-            String s = tr.getText();
-            if (tr.isHtml())
-                s = toTextFromHTML(s);
-            writer.append(s);
-            writer.append(LINE_SEPARATOR);
+            embeddText(result, writer);
         }
         else if (result instanceof IResultTable)
         {
-            new RefinedTableTextEmitter(context, result, writer).doCopy();
+            embeddTable(context, result, writer);
         }
         else if (result instanceof IResultTree)
         {
-            new RefinedTreeTextEmitter(context, result, writer).doCopy();
+            embeddTree(context, result, writer);
         }
         else if (result instanceof IResultPie)
         {
-            IResultPie pie = (IResultPie)result;
-            writer.append(MessageUtil.format(Messages.TextOutputter_PieChart, pie.getSlices().size()));
-            writer.append(LINE_SEPARATOR);
-            writer.append(LINE_SEPARATOR);
-            int sl = 1;
-            for (Slice s : pie.getSlices())
-            {
-                writer.append(MessageUtil.format(Messages.TextOutputter_Slice, sl, s.getValue(), toTextFromHTML(s.getDescription())));
-                writer.append(LINE_SEPARATOR);
-                writer.append(LINE_SEPARATOR);
-                ++sl;
-            }
+            embeddPieChart(result, writer);
         }
+    }
+
+    protected void embeddTree(Context context, IResult result, Writer writer)
+    {
+        new RefinedTreeTextEmitter(context, result, writer).doCopy();
+    }
+
+    protected void embeddTable(Context context, IResult result, Writer writer)
+    {
+        new RefinedTableTextEmitter(context, result, writer).doCopy();
+    }
+
+    protected void embeddPieChart(IResult result, Writer writer) throws IOException
+    {
+        IResultPie pie = (IResultPie)result;
+        writer.append(MessageUtil.format(Messages.TextOutputter_PieChart, pie.getSlices().size()));
+        writer.append(LINE_SEPARATOR);
+        writer.append(LINE_SEPARATOR);
+        int sl = 1;
+        for (Slice s : pie.getSlices())
+        {
+            writer.append(MessageUtil.format(Messages.TextOutputter_Slice, sl, s.getValue(), toTextFromHTML(s.getDescription())));
+            writer.append(LINE_SEPARATOR);
+            writer.append(LINE_SEPARATOR);
+            ++sl;
+        }
+    }
+
+    protected void embeddText(IResult result, Writer writer) throws IOException
+    {
+        TextResult tr = (TextResult) result;
+        String s = tr.getText();
+        if (tr.isHtml())
+            s = toTextFromHTML(s);
+        writer.append(s);
+        writer.append(LINE_SEPARATOR);
     }
 
     private String toTextFromHTML(String s)
@@ -102,7 +122,7 @@ public class TextOutputter extends OutputterBase
         return s;
     }
 
-    private static abstract class StructuredResultTextEmitter extends TextEmitter
+    protected static abstract class StructuredResultTextEmitter extends TextEmitter
     {
         protected static final int ALIGN_LEFT = 0;
         protected static final int ALIGN_CENTER = 1;
@@ -245,7 +265,7 @@ public class TextOutputter extends OutputterBase
         }
     }
 
-    private static class RefinedTableTextEmitter extends StructuredResultTextEmitter
+    protected static class RefinedTableTextEmitter extends StructuredResultTextEmitter
     {
         private IResultTable table;
 
@@ -365,7 +385,7 @@ public class TextOutputter extends OutputterBase
         }
     }
 
-    private static class RefinedTreeTextEmitter extends StructuredResultTextEmitter
+    protected static class RefinedTreeTextEmitter extends StructuredResultTextEmitter
     {
         private IResultTree tree;
         private ISelectionProvider sel;
