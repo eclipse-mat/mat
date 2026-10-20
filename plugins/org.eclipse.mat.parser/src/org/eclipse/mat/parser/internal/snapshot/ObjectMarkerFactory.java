@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 SAP AG and IBM Corporation.
+ * Copyright (c) 2026 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ public class ObjectMarkerFactory
 {
     private static final boolean useOldMarker = Boolean.parseBoolean(
                     System.getProperty("org.eclipse.mat.parser.internal.snapshot.ObjectMarkerFactory.useOldMarker",
-                                    Boolean.TRUE.toString()));
+                                    Boolean.FALSE.toString()));
 
     public static IObjectMarker getObjectMarker(int[] roots, boolean[] bits, IIndexReader.IOne2ManyIndex outbound,
                     IProgressListener progressListener)
