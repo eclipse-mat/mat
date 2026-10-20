@@ -61,7 +61,7 @@ public class MarkdownOutputter extends TextOutputter
         }
         else if (result instanceof TextResult)
         {
-            writer.append(Messages.MarkdownOutputter_PieChart);
+            writer.append(Messages.MarkdownOutputter_PrefixPieChart);
         }
 
         writer.append(LINE_SEPARATOR);
