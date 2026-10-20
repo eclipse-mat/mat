@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2026 SAP AG and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+    
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        IBM - initial implementation
+ -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_sample_objects" xml:lang="en-us">
+	<title>Sample Objects</title>
+	<shortdesc>Selects a subset of objects.
+	</shortdesc>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2026 SAP AG and others.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License 2.0
+			    which accompanies this distribution, and is available at
+			    https://www.eclipse.org/legal/epl-2.0/
+			</copyrholder>
+		</copyright>
+	</prolog>
+	
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<p>Select a subset of objects based on some algorithm.</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>An arbitrary set of objects as input.</stentry>
+				</strow>
+				<strow>
+					<stentry>-number</stentry>
+					<stentry>The maximum number of objects to select. If the number of input objects is less than this, then all input objects are selected in the order in which they came (i.e. the -sample algorithm is ignored).</stentry>
+				</strow>
+				<strow>
+					<stentry>-sample</stentry>
+					<stentry>The sampling algorithm to use: FIRST, LAST, RANDOM, LARGEST_RETAINED, LARGEST_SHALLOW, SMALLEST_RETAINED, SMALLEST_SHALLOW.</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+		</section>
+	</refbody>
+</reference>

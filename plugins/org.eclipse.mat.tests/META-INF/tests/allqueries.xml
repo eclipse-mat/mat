@@ -117,6 +117,9 @@
 	<query name="org.eclipse.mat.inspections.SelectObjectsByFieldQuery">
 		<command>select_objects_by_field java.lang.Thread -field name</command>
 	</query>
+	<query name="org.eclipse.mat.inspections.SampleObjectsQuery">
+		<command>sample_objects java.lang.String -number 10000 -sample RANDOM</command>
+	</query>
 	<query name="org.eclipse.mat.inspections.SystemPropertiesQuery">
 		<command>system_properties</command>
 	</query>
