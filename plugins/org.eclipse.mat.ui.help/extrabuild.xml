@@ -33,6 +33,7 @@
             destdir="doc" doctitle="Memory Analyzer API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false"
             notree="false"
             source="1.8"
+            useexternalfile="yes"
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
             <classpath>
                 <pathelement path="${test_classpath}"/>
