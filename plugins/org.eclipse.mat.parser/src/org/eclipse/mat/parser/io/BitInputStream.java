@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2026 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Yi Yang (Alibaba) - batched bit reads for performance
  *******************************************************************************/
 package org.eclipse.mat.parser.io;
 
@@ -23,7 +24,7 @@ public class BitInputStream implements Flushable, Closeable
     public final static int DEFAULT_BUFFER_SIZE = 16 * 1024;
 
     private InputStream is;
-    private int current;
+    private long current;
     private byte[] buffer;
     private int fill;
     private int pos;
@@ -40,6 +41,7 @@ public class BitInputStream implements Flushable, Closeable
         avail = 0;
         pos = 0;
         fill = 0;
+        current = 0;
     }
 
     public void close() throws IOException
@@ -69,42 +71,34 @@ public class BitInputStream implements Flushable, Closeable
         return buffer[pos++] & 0xFF;
     }
 
-    private int readFromCurrent(final int len) throws IOException
-    {
-        if (len == 0)
-            return 0;
-
-        if (fill == 0)
-        {
-            current = read();
-            fill = 8;
-        }
-
-        return current >>> (fill -= len) & (1 << len) - 1;
-    }
-
     public int readBit() throws IOException
     {
-        return readFromCurrent(1);
+        return readInt(1);
     }
 
     public int readInt(int len) throws IOException
     {
-        int i, x = 0;
-
-        if (len <= fill)
-            return readFromCurrent(len);
-
-        len -= fill;
-        x = readFromCurrent(fill);
-
-        i = len >> 3;
-        while (i-- != 0)
-            x = x << 8 | read();
-
-        len &= 7;
-
-        return (x << len) | readFromCurrent(len);
+        // Up to 31 leftover bits plus a 32-bit prefetch still fit in a long,
+        // so most reads avoid the per-byte path.
+        while (fill < len)
+        {
+            if (avail >= 4)
+            {
+                current = (current << 32) | ((buffer[pos] & 0xffL) << 24)
+                                | ((buffer[pos + 1] & 0xffL) << 16)
+                                | ((buffer[pos + 2] & 0xffL) << 8) | (buffer[pos + 3] & 0xffL);
+                pos += 4;
+                avail -= 4;
+                fill += 32;
+            }
+            else
+            {
+                current = (current << 8) | read();
+                fill += 8;
+            }
+        }
+        fill -= len;
+        return (int) ((current >>> fill) & ((1L << len) - 1));
     }
 
 }
